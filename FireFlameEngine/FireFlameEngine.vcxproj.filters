@@ -1,22 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\FLEngine.cpp" />
-    <ClCompile Include="src\FLRenderer.cpp" />
-    <ClCompile Include="src\FLScene.cpp" />
-    <ClCompile Include="src\FLWindow.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp">
       <Filter>src\Exception</Filter>
     </ClCompile>
     <ClCompile Include="src\Timer\FLStopWatch.cpp">
       <Filter>src\Timer</Filter>
     </ClCompile>
+    <ClCompile Include="src\FLEngine.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FLRenderer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FLScene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FLWindow.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\FLD3DUtils.h" />
-    <ClInclude Include="src\FLRenderer.h" />
-    <ClInclude Include="src\FLScene.h" />
-    <ClInclude Include="src\FLWindow.h" />
     <ClInclude Include="header\FLEngine.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -44,6 +48,24 @@
     <ClInclude Include="src\ViewFrustum\FLViewFrustum.h">
       <Filter>src\ViewFrustum</Filter>
     </ClInclude>
+    <ClInclude Include="src\3rd_utils\d3dx12.h">
+      <Filter>src\3rd_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FLD3DUtils.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FLRenderer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FLScene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FLWindow.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FLTypeDefs.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -63,6 +85,9 @@
     </Filter>
     <Filter Include="src\ViewFrustum">
       <UniqueIdentifier>{c9c4c1d5-0825-4d5a-9d83-8664d9aa53d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils">
+      <UniqueIdentifier>{636ba85f-36e2-4cf7-bfea-10b795a054df}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

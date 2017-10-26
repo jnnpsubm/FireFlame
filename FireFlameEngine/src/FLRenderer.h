@@ -1,28 +1,47 @@
 #pragma once
+#include <memory>
 #include <wrl.h>
 #include <DXGI1_5.h>
 #include <d3d12.h>
 #include <functional>
+#include "FLTypeDefs.h"
 
 namespace FireFlame {
 class StopWatch;
+class Window;
 class Renderer {
 public:
+	Renderer() = default;
+	//~Renderer() = default;
+	void SetRenderWindow(std::shared_ptr<Window> wnd) { mRenderWnd = wnd; }
+	int Initialize(API_Feature api);
 	void Update(const StopWatch& gt);
 	void Draw(const StopWatch& gt);
 	void FlushCommandQueue();
+	void OnResize();
 
 	// register callbacks
-	void RegisterUpdateFunc(std::function<void(float)> func) { 
-		mUpdateFunc = func; 
-	}
-	void RegisterDrawFunc(std::function<void(float)> func)   { 
-		mDrawFunc = func; 
-	}
+	void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
+	void RegisterDrawFunc(std::function<void(float)> func)   { mDrawFunc = func; }
+
+	// system probe
+	int  LogAdapters(std::wostream& os);
+	void LogAdapterDisplays(IDXGIAdapter* adapter, std::wostream& os);
+	void LogDisplayModes(IDXGIOutput* output, DXGI_FORMAT format, std::wostream& os);
 private:
+	std::weak_ptr<Window> mRenderWnd;
+
 	// callbacks
 	std::function<void(float)> mUpdateFunc = [](float) {};
 	std::function<void(float)> mDrawFunc   = [](float) {};
+
+	void CreateCommandObjects();
+	void CreateSwapChain();
+	void CreateRtvAndDsvDescriptorHeaps();
+
+	ID3D12Resource* CurrentBackBuffer() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory5>  mdxgiFactory;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
@@ -50,6 +69,7 @@ private:
 	UINT mDsvDescriptorSize       = 0;
 	UINT mCbvSrvUavDescriptorSize = 0;
 
+	UINT        m4xMsaaQuality = 0;
 	DXGI_FORMAT mBackBufferFormat   = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 };

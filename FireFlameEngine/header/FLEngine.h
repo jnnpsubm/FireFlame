@@ -3,6 +3,12 @@
 #include <Windows.h>
 #include <functional>
 #include "..\src\Exception\FLException.h"
+#include "..\src\FLTypeDefs.h"
+
+// Link necessary d3d12 libraries.
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "dxgi.lib")
 
 namespace FireFlame{
 class Window;
@@ -17,7 +23,11 @@ public:
 	void RegisterRendererDrawFunc(std::function<void(float)> func);
 
 	int InitMainWindow(int x, int y, int w, int h);
+	int InitRenderer(API_Feature api);
 	int Run();
+
+	// system probe
+	int LogVideoAdapters(std::wostream& os);
 
 private:
 	static Engine* theEngine;

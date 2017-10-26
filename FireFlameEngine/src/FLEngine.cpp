@@ -9,6 +9,7 @@ Engine::Engine(HINSTANCE hinst) {
 	theEngine = this;
 	renderer = std::make_shared<Renderer>();
 	MainWnd  = std::make_shared<Window>(hinst, renderer);
+	renderer->SetRenderWindow(MainWnd);
 }
 Engine::~Engine() {
 	if (renderer) renderer->FlushCommandQueue();
@@ -24,5 +25,13 @@ int Engine::Run() {
 }
 int Engine::InitMainWindow(int x, int y, int w, int h) {
 	return MainWnd->InitMainWindow(x, y, w, h);
+}
+int Engine::InitRenderer(API_Feature api) {
+	return renderer->Initialize(api);
+}
+
+// system probe
+int Engine::LogVideoAdapters(std::wostream& os) {
+	return renderer->LogAdapters(os);
 }
 }

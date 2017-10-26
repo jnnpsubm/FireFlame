@@ -10,10 +10,14 @@ class Renderer;
 class Window {
 public:
 	Window(HINSTANCE hInst, std::shared_ptr<Renderer> renderer);
-	static Window* GetWindow()    { return theWindow; }
-	HINSTANCE AppInst() const     { return mhInst; }
-	HWND      MainWnd() const     { return mhMainWnd; }
-	float     AspectRatio() const { return (float)mClientWidth / mClientHeight; }
+	~Window();
+
+	static Window* GetWindow()     { return theWindow; }
+	HINSTANCE AppInst() const      { return mhInst; }
+	HWND      MainWnd() const      { return mhMainWnd; }
+	float     AspectRatio() const  { return (float)mClientWidth / mClientHeight; }
+	int       ClientWidth() const  { return mClientWidth; }
+	int       ClientHeight() const { return mClientHeight; }
 
 	int InitMainWindow(int x, int y, int w, int h);
 	int Run();
