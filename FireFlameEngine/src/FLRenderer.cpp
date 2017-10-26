@@ -13,7 +13,7 @@ namespace FireFlame {
 //	//OutputDebugString(L"~Renderer executed...\n");
 //}
 void Renderer::Update(const StopWatch& gt) {
-	//mUpdateFunc(gt.DeltaTime());
+	mUpdateFunc(gt.DeltaTime());
 }
 void Renderer::Draw(const StopWatch& gt) {
 	// Reuse the memory associated with command recording.
@@ -329,7 +329,7 @@ int Renderer::LogAdapters(std::wostream& os) {
 	using Microsoft::WRL::ComPtr;
 	UINT i = 0;
 	ComPtr<IDXGIAdapter> adapter = nullptr;
-	while (mdxgiFactory->EnumAdapters(i, adapter.GetAddressOf()) != DXGI_ERROR_NOT_FOUND){
+	while (mdxgiFactory->EnumAdapters(i, adapter.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND){
 		DXGI_ADAPTER_DESC desc;
 		adapter->GetDesc(&desc);
 		os << L"***Adapter: " << desc.Description 
@@ -342,7 +342,7 @@ int Renderer::LogAdapters(std::wostream& os) {
 void Renderer::LogAdapterDisplays(IDXGIAdapter* adapter, std::wostream& os){
 	UINT i = 0;
 	Microsoft::WRL::ComPtr<IDXGIOutput> display = nullptr;
-	while (adapter->EnumOutputs(i, &display) != DXGI_ERROR_NOT_FOUND){
+	while (adapter->EnumOutputs(i, display.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND){
 		DXGI_OUTPUT_DESC desc;
 		display->GetDesc(&desc);
 		os << L"\t***Display: " << desc.DeviceName << std::endl;

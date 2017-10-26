@@ -13,21 +13,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 #endif
 
 	FireFlame::Engine engine(hInstance);
-	//EngineUser someGame;
+	EngineUser someGame;
 	try{
-		//auto funcDraw = std::bind(&EngineUser::Draw, someGame, std::placeholders::_1);
-		//auto funcUpdate = std::bind(&Update_OutClassScope, &someGame, std::placeholders::_1);
+		auto funcDraw = std::bind(&EngineUser::Draw, someGame, std::placeholders::_1);
+		auto funcUpdate = std::bind(&Update_OutClassScope, &someGame, std::placeholders::_1);
 
 		engine.InitMainWindow(150, 80, 1280, 600);
 		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
 
-		//std::wofstream logFile(L"VideoAdapters.txt");
-		//engine.LogVideoAdapters(logFile);
-		//logFile.close();
+		std::wofstream logFile(L"VideoAdapters.txt");
+		engine.LogVideoAdapters(logFile);
+		logFile.close();
 
-		//engine.RegisterRendererDrawFunc(funcDraw);
-		//engine.RegisterRendererUpdateFunc(funcUpdate);
-		//engine.RegisterRendererUpdateFunc(stEngineUser());
+		engine.RegisterRendererDrawFunc(funcDraw);
+		engine.RegisterRendererUpdateFunc(funcUpdate);
+		engine.RegisterRendererUpdateFunc(stEngineUser());
 		return engine.Run();
 	}
 	catch (FireFlame::Exception& e){
