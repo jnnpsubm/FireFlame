@@ -4,28 +4,6 @@
 #include "FLMatrix4X4.h"
 
 namespace FireFlame {
-struct stFLViewFrustum {
-	stFLViewFrustum() = default;
-	float l = 0.f, r = 0.f, t = 0.f, b = 0.f, n = 0.f, f = 0.f;
-};
-
-stFLViewFrustum GetViewFrustum(float fovY, float aspectRatio, float n, float f) {
-	stFLViewFrustum frustum;
-	float hdiv2 = n * std::tanf(fovY / 2.f);
-	float wdiv2 = aspectRatio * hdiv2;
-	frustum.l = -wdiv2; frustum.r = wdiv2;
-	frustum.t = hdiv2; frustum.b = -hdiv2;
-	frustum.n = n; frustum.f = f;
-	return frustum;
-}
-
-std::ostream& operator<<(std::ostream& os, const stFLViewFrustum& frustum) {
-	os << "left:\t" << frustum.l << "\tright:\t" << frustum.r << '\n'
-	   << "top:\t" << frustum.t << "\tbottom:\t" << frustum.b << '\n'
-	   << "near plane:\t" << frustum.n << "\tfar plane:\t" << frustum.f;
-	return os;
-}
-
 /*============================World to Camera Matrix======================================*/
 inline
 Matrix4X4 MatrixLookAtLH(DirectX::FXMVECTOR EyePos,

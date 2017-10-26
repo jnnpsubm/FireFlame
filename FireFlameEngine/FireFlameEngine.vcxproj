@@ -31,6 +31,7 @@
     <ClInclude Include="src\Matrix\FLMatrixMXN.h" />
     <ClInclude Include="src\Matrix\FLMatrixNXN.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
+    <ClInclude Include="src\ViewFrustum\FLViewFrustum.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Exception\FLException.cpp" />

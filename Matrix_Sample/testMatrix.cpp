@@ -4,16 +4,17 @@
 #include <mmsystem.h>
 #include "testMatrix.h"
 #include "../FireFlameEngine/header/FLMatrix.h"
+#include "../FireFlameEngine/src/ViewFrustum/FLViewFrustum.h"
 
 using namespace FireFlame;
 
 int testMatrixPerspective() {
 	SetCoutFormat(8);
 
-	float fovY = DirectX::XMConvertToRadians(45);
-	float aspectRatio = 4.0f / 3.0f;
-	float n = 1.0f;
-	float f = 100.0f;
+	const float fovY = DirectX::XMConvertToRadians(45);
+	const float aspectRatio = 4.0f / 3.0f;
+	const float n = 1.0f;
+	const float f = 100.0f;
 	//DirectX::XMMATRIX XMM = DirectX::XMMatrixPerspectiveFovLH(fovY, aspectRatio, n, f);
 	Matrix4X4 MPerFov = FireFlame::PerspectiveFovLH(fovY, aspectRatio, n, f);
 	std::cout << "MPerFov = \n" << MPerFov << std::endl;
@@ -21,7 +22,7 @@ int testMatrixPerspective() {
 	//std::cout << "MPerFov nearly equals XMM is " << MPerFov.nearlyEqual(XMM) << std::endl;
 
 	SplitOutput();
-	stFLViewFrustum frustum = GetViewFrustum(fovY, aspectRatio, n, f);
+	stViewFrustum frustum = GetViewFrustum(fovY, aspectRatio, n, f);
 	std::cout << "Frustum from MPerFov:\n" << frustum << std::endl;
 
 	SplitOutput();
@@ -30,6 +31,10 @@ int testMatrixPerspective() {
 	std::cout << "MPerNF = \n" << MPerNF << std::endl;
 	std::cout << "MPerFov equals MPerNF is " << (MPerFov == MPerNF) << std::endl;
 	std::cout << "MPerFov nearly equals MPerNF is " << MPerFov.nearlyEqual(MPerNF) << std::endl;
+
+	SplitOutput();
+	FireFlame::stViewFrustum8Corner frustum8Corner = GetViewFrustum8Corner(fovY, aspectRatio, n, f);
+	std::cout << "frustum8Corner:\n" << frustum8Corner << std::endl;
 	return 0;
 }
 
