@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\FLEngine.cpp" />
+    <ClCompile Include="src\FLRenderer.cpp" />
+    <ClCompile Include="src\FLScene.cpp" />
+    <ClCompile Include="src\FLWindow.cpp" />
+    <ClCompile Include="src\Exception\FLException.cpp">
+      <Filter>src\Exception</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Timer\FLStopWatch.cpp">
+      <Filter>src\Timer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\FLD3DUtils.h" />
+    <ClInclude Include="src\FLRenderer.h" />
+    <ClInclude Include="src\FLScene.h" />
+    <ClInclude Include="src\FLWindow.h" />
+    <ClInclude Include="header\FLEngine.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Exception\FLException.h">
+      <Filter>src\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Timer\FLStopWatch.h">
+      <Filter>src\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Matrix\FLMatrix4X4.h">
+      <Filter>src\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Matrix\FLMatrixHelper.h">
+      <Filter>src\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Matrix\FLMatrixMXN.h">
+      <Filter>src\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Matrix\FLMatrixNXN.h">
+      <Filter>src\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="header\FLMatrix.h">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{ac396dc4-3e19-4387-b162-4f59c32b69e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{2507fd4c-0cf6-4c23-90d8-25d63ea96167}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Exception">
+      <UniqueIdentifier>{9af05bda-8cb4-4382-bedf-f423c1097b27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Matrix">
+      <UniqueIdentifier>{2d7bb2d0-7371-4a19-9d34-c5043953ad74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Timer">
+      <UniqueIdentifier>{90ad99a3-c6fd-4702-ba4d-6c2fe8b662dd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

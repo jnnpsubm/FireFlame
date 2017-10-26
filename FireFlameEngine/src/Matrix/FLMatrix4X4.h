@@ -19,7 +19,11 @@ public:
 		float m[4][4];
 	};
 
-	Matrix4X4() {}
+	Matrix4X4()
+		: m00(0.f), m01(0.f), m02(0.f), m03(0.f),
+		  m10(0.f), m11(0.f), m12(0.f), m13(0.f),
+		  m20(0.f), m21(0.f), m22(0.f), m23(0.f),
+		  m30(0.f), m31(0.f), m32(0.f), m33(0.f) {}
 	explicit Matrix4X4(DirectX::FXMVECTOR u, DirectX::FXMVECTOR v, DirectX::FXMVECTOR w, DirectX::FXMVECTOR q)
 		: m00(VecGetX(u)), m01(VecGetY(u)), m02(VecGetZ(u)), m03(VecGetW(u)),
 		  m10(VecGetX(v)), m11(VecGetY(v)), m12(VecGetZ(v)), m13(VecGetW(v)),
@@ -44,37 +48,6 @@ public:
 	}
 	const float(&operator[](size_t i) const)[4]{
 		return m[i];
-	}
-
-	static Matrix4X4 LookAtLH(DirectX::FXMVECTOR EyePos, 
-		                      DirectX::FXMVECTOR FocusPos, 
-		                      DirectX::FXMVECTOR upDir){
-		using namespace DirectX;
-		XMVECTOR w = XMVector3Normalize(FocusPos - EyePos);
-		XMVECTOR u = XMVector3Normalize(XMVector3Cross(upDir, w));
-		XMVECTOR v = XMVector3Cross(w, u);
-
-		const XMVECTORU32 CXMSelect1110 = { { { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0U } } };
-		XMVECTOR negtiveQ = -EyePos;
-		XMVECTOR uQDoted = XMVectorSelect(XMVector3Dot(negtiveQ, u), u, CXMSelect1110);
-		XMVECTOR vQDoted = XMVectorSelect(XMVector3Dot(negtiveQ, v), v, CXMSelect1110);
-		XMVECTOR wQDoted = XMVectorSelect(XMVector3Dot(negtiveQ, w), w, CXMSelect1110);
-		XMVECTOR q = XMVectorSet(0, 0, 0, 1.f);
-		return Matrix4X4(uQDoted, vQDoted, wQDoted, q).Transpose();
-	}
-	/*
-	    | 1/[r*tan(a/2)]	0	          0	          0 |
-		| 0	                1/tan(a/2)	  0	          0 |
-        | 0                 0             f/(f-n)     1 |
-	    | 0                 0             -n*f/(f-n)  0 |
-	*/
-	// fovY radians
-	static Matrix4X4 PerspectiveFovLH(float fovY, float r, float n, float f) {
-		float one_div_tanFovYDiv2 = 1.0f / std::tanf(fovY / 2.0f);
-		return Matrix4X4(one_div_tanFovYDiv2*1.0f/r, 0,                   0,            0,
-			             0,                          one_div_tanFovYDiv2, 0,            0,
-			             0,                          0,                   f/(f - n),    1.0f,
-			             0,                          0,                   -n*f/(f - n), 0);
 	}
 	/*
 	f = B/(1-A);
@@ -145,6 +118,7 @@ fabs(m##row##3 - DirectX::XMVectorGetW(rhs.r[##row##]))<episilon
 #undef VecGetW // todo : not elegant
 };
 
+// IO for Matrix
 inline
 std::ostream& operator<<(std::ostream& os, DirectX::FXMMATRIX m) {
 	for (int i = 0; i < 4; ++i) {

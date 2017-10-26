@@ -1,10 +1,37 @@
 #include <Windows.h>
-#include "../FireFlameEngine/header/Matrix.h"
 #include <random>
 #include <iostream>
 #include <mmsystem.h>
+#include "testMatrix.h"
+#include "../FireFlameEngine/header/FLMatrix.h"
 
 using namespace FireFlame;
+
+int testMatrixPerspective() {
+	SetCoutFormat(8);
+
+	float fovY = DirectX::XMConvertToRadians(45);
+	float aspectRatio = 4.0f / 3.0f;
+	float n = 1.0f;
+	float f = 100.0f;
+	//DirectX::XMMATRIX XMM = DirectX::XMMatrixPerspectiveFovLH(fovY, aspectRatio, n, f);
+	Matrix4X4 MPerFov = FireFlame::PerspectiveFovLH(fovY, aspectRatio, n, f);
+	std::cout << "MPerFov = \n" << MPerFov << std::endl;
+	//std::cout << "MPerFov equals XMM is " << (MPerFov == XMM) << std::endl;
+	//std::cout << "MPerFov nearly equals XMM is " << MPerFov.nearlyEqual(XMM) << std::endl;
+
+	SplitOutput();
+	stFLViewFrustum frustum = GetViewFrustum(fovY, aspectRatio, n, f);
+	std::cout << "Frustum from MPerFov:\n" << frustum << std::endl;
+
+	SplitOutput();
+	Matrix4X4 MPerNF = FireFlame::PerspectiveNearFarPlaneDX(
+		frustum.l, frustum.r, frustum.t, frustum.b, frustum.n, frustum.f);
+	std::cout << "MPerNF = \n" << MPerNF << std::endl;
+	std::cout << "MPerFov equals MPerNF is " << (MPerFov == MPerNF) << std::endl;
+	std::cout << "MPerFov nearly equals MPerNF is " << MPerFov.nearlyEqual(MPerNF) << std::endl;
+	return 0;
+}
 
 int testReversePerspectiveFovLH() {
 	std::cout.precision(8);
@@ -20,7 +47,7 @@ int testReversePerspectiveFovLH() {
 	std::cout << "fovY:" << fovY << " aspectRation:" << aspect
 		      << " near plane:" << n << " far plane:" << f << std::endl;
 
-	Matrix4X4 M2 = Matrix4X4::PerspectiveFovLH(fovY, aspect, n, f);
+	Matrix4X4 M2 = FireFlame::PerspectiveFovLH(fovY, aspect, n, f);
 	std::cout << "M = \n" << M << std::endl;
 	std::cout << "M2 = \n" << M2 << std::endl;
 	std::cout << "M equals M2 is " << (M == M2) << std::endl;
@@ -37,7 +64,7 @@ int testPerspectiveFovLH() {
 	float n = 1.0f;
 	float f = 100.0f;
 	DirectX::XMMATRIX XMM = DirectX::XMMatrixPerspectiveFovLH(fovY, aspectRatio, n, f);
-	Matrix4X4 M = Matrix4X4::PerspectiveFovLH(fovY, aspectRatio, n, f);
+	Matrix4X4 M = FireFlame::PerspectiveFovLH(fovY, aspectRatio, n, f);
 	std::cout << "XMM = \n" << XMM << std::endl;
 	std::cout << "M = \n" << M << std::endl;
 	std::cout << "M equals XMM is " << (M == XMM) << std::endl;
@@ -51,7 +78,7 @@ int testWorld2CameraMatrix() {
 	DirectX::XMVECTOR focPos = DirectX::XMVectorSet(10.f, 0.f, 30.f, 1.f);
 	DirectX::XMVECTOR upDir  = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
 
-	Matrix4X4 M = Matrix4X4::LookAtLH(eyePos, focPos, upDir);
+	Matrix4X4 M = FireFlame::MatrixLookAtLH(eyePos, focPos, upDir);
 	DirectX::XMMATRIX XMM = DirectX::XMMatrixLookAtLH(eyePos, focPos, upDir);
 	std::cout << "M = \n" << M << std::endl;
 	std::cout << "XMM = \n" << XMM << std::endl;
@@ -171,4 +198,13 @@ int testDirectXMathSIMD() {
 	std::cout << "Ret = " << std::endl << Ret << std::endl;
 	std::cout << "Results nearly equal is " << Ret.nearlyEqual(XMRet) << std::endl;
 	return 0;
+}
+
+void SetCoutFormat(std::streamsize precision) {
+	std::cout.precision(precision);
+	std::cout.setf(std::ios_base::fixed);
+	std::cout.setf(std::ios_base::boolalpha);
+}
+void SplitOutput() {
+	std::cout << "=============================================================" << std::endl;
 }

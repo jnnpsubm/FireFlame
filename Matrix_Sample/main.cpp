@@ -5,7 +5,8 @@
 
 int main()
 {
-	testReversePerspectiveFovLH();
+	testMatrixPerspective();
+	//testReversePerspectiveFovLH();
 	//testPerspectiveFovLH();
 	//testWorld2CameraMatrix();
 	//testMatrixNXNInverse();

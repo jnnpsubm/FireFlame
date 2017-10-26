@@ -20,15 +20,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\FLEngine.h" />
-    <ClInclude Include="header\matrix.h" />
+    <ClInclude Include="header\FLMatrix.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
     <ClInclude Include="src\FLRenderer.h" />
     <ClInclude Include="src\FLScene.h" />
     <ClInclude Include="src\FLWindow.h" />
-    <ClInclude Include="src\Matrix\Matrix4X4.h" />
-    <ClInclude Include="src\Matrix\MatrixMXN.h" />
-    <ClInclude Include="src\Matrix\MatrixNXN.h" />
+    <ClInclude Include="src\Matrix\FLMatrix4X4.h" />
+    <ClInclude Include="src\Matrix\FLMatrixHelper.h" />
+    <ClInclude Include="src\Matrix\FLMatrixMXN.h" />
+    <ClInclude Include="src\Matrix\FLMatrixNXN.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
   </ItemGroup>
   <ItemGroup>
