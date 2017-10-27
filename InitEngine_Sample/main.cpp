@@ -21,9 +21,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		engine.InitMainWindow(150, 80, 1280, 600);
 		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
 
-		//std::wofstream logFile(L"VideoAdapters.txt");
-		//engine.LogVideoAdapters(logFile);
-		//logFile.close();
+		std::wofstream logFile(L"VideoAdapters.txt");
+		engine.LogVideoAdapters(logFile);
+		logFile.close();
 
 		//engine.RegisterRendererDrawFunc(funcDraw);
 		//engine.RegisterRendererUpdateFunc(funcUpdate);

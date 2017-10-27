@@ -83,6 +83,7 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg)
 	{
 	case WM_DESTROY:
+		mAppPaused = true;
 		PostQuitMessage(0);
 		return 0;
 	case WM_KEYUP:
