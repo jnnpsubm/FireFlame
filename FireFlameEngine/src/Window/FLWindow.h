@@ -45,10 +45,16 @@ private:
 	int          mClientHeight = 600;
 
 	// Message processing
+	LRESULT OnKeyUp(WPARAM wParam, LPARAM lParam);
 	LRESULT OnActive(UINT mode);
 	LRESULT OnDestroy();
 	LRESULT OnSize(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEnterSizeMove();
 	LRESULT OnExitSizeMove();
+	LRESULT OnGetMinMaxInfo(MINMAXINFO* pInfo);
+
+	void OnMouseDown(WPARAM btnState, int x, int y);
+	void OnMouseUp(WPARAM btnState, int x, int y);
+	void OnMouseMove(WPARAM btnState, int x, int y);
 };
 }

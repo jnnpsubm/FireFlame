@@ -1,3 +1,4 @@
+#include <WindowsX.h>
 #include "FLWindow.h"
 #include "../Renderer/FLRenderer.h"
 #include <string>
@@ -54,11 +55,30 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_EXITSIZEMOVE: {   // WM_EXITSIZEMOVE is sent when the user releases the resize bars.
 		OnExitSizeMove();
 	}break;
-	case WM_KEYUP:
-		if (wParam == VK_ESCAPE){
-			PostQuitMessage(0);
-		}
+	case WM_KEYUP: {
+		OnKeyUp(wParam, lParam);
+	}break;
+	case WM_GETMINMAXINFO: {
+		OnGetMinMaxInfo((MINMAXINFO*)lParam);
+	}break;
+	case WM_LBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+	case WM_LBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONUP:
+		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_MOUSEMOVE:
+		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	// The WM_MENUCHAR message is sent when a menu is active and the user presses 
+	// a key that does not correspond to any mnemonic or accelerator key. 
+	case WM_MENUCHAR:
+		// Don't beep when we alt-enter.
+		return MAKELRESULT(0, MNC_CLOSE);
 	}
 	return ::DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -196,6 +216,26 @@ LRESULT Window::OnExitSizeMove() {
 	mTimer.Resume();
 	mRenderer->Resize();
 	return 0;
+}
+LRESULT Window::OnGetMinMaxInfo(MINMAXINFO* pInfo) {
+	pInfo->ptMinTrackSize.x = 200;
+	pInfo->ptMinTrackSize.y = 200;
+	return 0;
+}
+LRESULT Window::OnKeyUp(WPARAM wParam, LPARAM lParam) {
+	if (wParam == VK_ESCAPE) {
+		PostQuitMessage(0);
+	}
+	return 0;
+}
+void Window::OnMouseDown(WPARAM btnState, int x, int y) {
+
+}
+void Window::OnMouseUp(WPARAM btnState, int x, int y) {
+
+}
+void Window::OnMouseMove(WPARAM btnState, int x, int y) {
+
 }
 } // end namespace
 
