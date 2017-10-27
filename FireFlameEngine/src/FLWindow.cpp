@@ -5,7 +5,7 @@
 namespace FireFlame {
 Window* Window::theWindow = nullptr;
 Window::~Window() {
-	OutputDebugString(L"\n=========~Window() executed......\n");
+	
 }
 Window::Window(HINSTANCE hInst, std::shared_ptr<Renderer> renderer) 
 	: mhInst(hInst), mRenderer(renderer) {
