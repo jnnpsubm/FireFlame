@@ -2,8 +2,8 @@
 #include <memory>
 #include <Windows.h>
 #include <functional>
-#include "..\src\Exception\FLException.h"
-#include "..\src\FLTypeDefs.h"
+#include "../src/Exception/FLException.h"
+#include "../src/FLTypeDefs.h"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib, "d3dcompiler.lib")

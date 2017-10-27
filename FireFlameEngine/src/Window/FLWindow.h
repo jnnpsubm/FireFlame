@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include <assert.h>
-#include "Timer\FLStopWatch.h"
+#include "../Timer/FLStopWatch.h"
 
 namespace FireFlame {
 class Renderer;

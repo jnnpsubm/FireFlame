@@ -2,11 +2,11 @@
 #include <vector>
 #include <DirectXColors.h>
 #include "FLRenderer.h"
-#include "FLWindow.h"
-#include "FLD3DUtils.h"
-#include "Exception\FLException.h"
-#include "Timer\FLStopWatch.h"
-#include "3rd_utils\d3dx12.h"
+#include "../Window/FLWindow.h"
+#include "../FLD3DUtils.h"
+#include "../Exception/FLException.h"
+#include "../Timer/FLStopWatch.h"
+#include "../3rd_utils/d3dx12.h"
 
 namespace FireFlame {
 //Renderer::~Renderer() {
