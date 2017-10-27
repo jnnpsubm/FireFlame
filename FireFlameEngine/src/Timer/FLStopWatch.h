@@ -20,7 +20,6 @@ private:
 	__int64 mBaseTime;
 	__int64 mPausedTime;
 	__int64 mTotalPausedTime;
-	// for time delta
 	__int64 mPrevMarkTime;
 	__int64 mCurrMarkTime;
 

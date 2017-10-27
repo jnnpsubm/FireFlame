@@ -13,12 +13,13 @@ class Renderer {
 public:
 	Renderer() = default;
 	//~Renderer() = default;
+	bool Ready() const { return mReady; }
 	void SetRenderWindow(std::shared_ptr<Window> wnd) { mRenderWnd = wnd; }
 	int Initialize(API_Feature api);
 	void Update(const StopWatch& gt);
 	void Draw(const StopWatch& gt);
 	void FlushCommandQueue();
-	void OnResize();
+	void Resize();
 
 	// register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
@@ -28,7 +29,9 @@ public:
 	int  LogAdapters(std::wostream& os);
 	void LogAdapterDisplays(IDXGIAdapter* adapter, std::wostream& os);
 	void LogDisplayModes(IDXGIOutput* output, DXGI_FORMAT format, std::wostream& os);
+
 private:
+	bool                  mReady = false;
 	std::weak_ptr<Window> mRenderWnd;
 
 	// callbacks

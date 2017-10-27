@@ -131,10 +131,11 @@ int Renderer::Initialize(API_Feature) {
 	CreateSwapChain();
 	CreateRtvAndDsvDescriptorHeaps();
 
-	OnResize();
+	Resize();
+	mReady = true;
 	return 0;
 }
-void Renderer::OnResize()
+void Renderer::Resize()
 {
 	assert(!mRenderWnd.expired());
 	assert(md3dDevice);

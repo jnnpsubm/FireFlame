@@ -32,17 +32,23 @@ private:
 	std::shared_ptr<Renderer> mRenderer;
 
 	// Used to keep track of the delta-time,and game time.
-	StopWatch mTimer;
-
-	HINSTANCE    mhInst    = nullptr;
-	HWND         mhMainWnd = nullptr;
-	std::wstring mMainWndCaption;
+	StopWatch    mTimer;
+	std::wstring mCaption;
+	HINSTANCE    mhInst     = nullptr;
+	HWND         mhMainWnd  = nullptr;
 	bool         mAppPaused = false;  // is the application paused?
 	bool         mMinimized = false;  // is the application minimized?
 	bool         mMaximized = false;  // is the application maximized?
-	bool         mResizing = false;   // are the resize bars being dragged?
+	bool         mResizing  = false;   // are the resize bars being dragged?
 
-	int mClientWidth  = 800;
-	int mClientHeight = 600;
+	int          mClientWidth  = 800;
+	int          mClientHeight = 600;
+
+	// Message processing
+	LRESULT OnActive(UINT mode);
+	LRESULT OnDestroy();
+	LRESULT OnSize(WPARAM wParam, LPARAM lParam);
+	LRESULT OnEnterSizeMove();
+	LRESULT OnExitSizeMove();
 };
 }
