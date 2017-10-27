@@ -13,6 +13,7 @@
 namespace FireFlame{
 class Window;
 class Renderer;
+class Scene;
 class Engine {
 public:
 	Engine(HINSTANCE hinst);
@@ -32,7 +33,8 @@ public:
 private:
 	static Engine* theEngine;
 
-	std::shared_ptr<Window>   MainWnd  = nullptr;
-	std::shared_ptr<Renderer> renderer = nullptr;
+	std::shared_ptr<Window>   mMainWnd  = nullptr;
+	std::shared_ptr<Renderer> mRenderer = nullptr;
+	std::shared_ptr<Scene>    mScene    = nullptr;
 };
 }

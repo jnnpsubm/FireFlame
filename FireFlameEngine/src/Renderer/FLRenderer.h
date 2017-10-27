@@ -9,6 +9,7 @@
 namespace FireFlame {
 class StopWatch;
 class Window;
+class Scene;
 class Renderer {
 public:
 	Renderer() = default;
@@ -31,8 +32,9 @@ public:
 	void LogDisplayModes(IDXGIOutput* output, DXGI_FORMAT format, std::wostream& os);
 
 private:
-	bool                  mReady = false;
-	std::weak_ptr<Window> mRenderWnd;
+	bool                   mReady = false;
+	std::weak_ptr<Window>  mRenderWnd;
+	std::shared_ptr<Scene> mScene;
 
 	// callbacks
 	std::function<void(float)> mUpdateFunc = [](float) {};
@@ -58,7 +60,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
 
 	static const int SwapChainBufferCount = 2;
-	int mCurrBackBuffer = 0;
+	int mCurrBackBuffer                   = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
