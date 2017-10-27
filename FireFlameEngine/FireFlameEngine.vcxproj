@@ -24,13 +24,13 @@
     <ClInclude Include="src\3rd_utils\d3dx12.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
-    <ClInclude Include="src\FLScene.h" />
     <ClInclude Include="src\FLTypeDefs.h" />
     <ClInclude Include="src\Matrix\FLMatrix4X4.h" />
     <ClInclude Include="src\Matrix\FLMatrixHelper.h" />
     <ClInclude Include="src\Matrix\FLMatrixMXN.h" />
     <ClInclude Include="src\Matrix\FLMatrixNXN.h" />
     <ClInclude Include="src\Renderer\FLRenderer.h" />
+    <ClInclude Include="src\Scene\FLScene.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
     <ClInclude Include="src\ViewFrustum\FLViewFrustum.h" />
     <ClInclude Include="src\Window\FLWindow.h" />
@@ -38,8 +38,8 @@
   <ItemGroup>
     <ClCompile Include="src\Exception\FLException.cpp" />
     <ClCompile Include="src\FLEngine.cpp" />
-    <ClCompile Include="src\FLScene.cpp" />
     <ClCompile Include="src\Renderer\FLRenderer.cpp" />
+    <ClCompile Include="src\Scene\FLScene.cpp" />
     <ClCompile Include="src\Timer\FLStopWatch.cpp" />
     <ClCompile Include="src\Window\FLWindow.cpp" />
   </ItemGroup>
