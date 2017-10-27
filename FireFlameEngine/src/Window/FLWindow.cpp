@@ -13,16 +13,14 @@ Window::Window(HINSTANCE hInst, std::shared_ptr<Renderer> renderer)
 	theWindow = this;
 }
 int Window::Run() {
-	MSG msg = { 0 };
 	mTimer.Reset();
-
+	MSG msg = { 0 };
 	while (msg.message != WM_QUIT) {
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else {
-			mTimer.Tick();
+		}else {
+			mTimer.Mark();
 			if (!mAppPaused){
 				CalculateFrameStats();
 				mRenderer->Update(mTimer);
@@ -38,6 +36,30 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
 	return Window::GetWindow()->MsgProc(hwnd, msg, wParam, lParam);
+}
+LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg){
+	case WM_ACTIVATE:{
+		/*if (LOWORD(wParam) == WA_INACTIVE) {
+			mAppPaused = true;
+			mTimer.Pause();
+		}else {
+			mAppPaused = false;
+			mTimer.Resume();
+		}*/
+	}break;
+	case WM_DESTROY:
+		mAppPaused = true;
+		mRenderer->FlushCommandQueue();
+		PostQuitMessage(0);
+		return 0;
+	case WM_KEYUP:
+		if (wParam == VK_ESCAPE){
+			PostQuitMessage(0);
+		}
+		return 0;
+	}
+	return ::DefWindowProc(hwnd, msg, wParam, lParam);
 }
 int Window::InitMainWindow(int x, int y, int w, int h) {
 	mClientWidth = w;
@@ -55,8 +77,7 @@ int Window::InitMainWindow(int x, int y, int w, int h) {
 	wc.lpszMenuName = 0;
 	wc.lpszClassName = L"MainWnd";
 
-	if (!RegisterClass(&wc))
-	{
+	if (!RegisterClass(&wc)) {
 		MessageBox(0, L"RegisterClass Failed.", 0, 0);
 		return false;
 	}
@@ -69,8 +90,7 @@ int Window::InitMainWindow(int x, int y, int w, int h) {
 
 	mhMainWnd = CreateWindow(L"MainWnd", mMainWndCaption.c_str(),
 		WS_OVERLAPPEDWINDOW, x, y, width, height, 0, 0, mhInst, 0);
-	if (!mhMainWnd)
-	{
+	if (!mhMainWnd) {
 		MessageBox(0, L"CreateWindow Failed.", 0, 0);
 		return false;
 	}
@@ -79,23 +99,6 @@ int Window::InitMainWindow(int x, int y, int w, int h) {
 	UpdateWindow(mhMainWnd);
 	return 0;
 }
-LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg)
-	{
-	case WM_DESTROY:
-		mAppPaused = true;
-		PostQuitMessage(0);
-		return 0;
-	case WM_KEYUP:
-		if (wParam == VK_ESCAPE)
-		{
-			PostQuitMessage(0);
-		}
-		return 0;
-	}
-	return ::DefWindowProc(hwnd, msg, wParam, lParam);
-}
-
 void Window::CalculateFrameStats()
 {
 	// Code computes the average frames per second, and also the 

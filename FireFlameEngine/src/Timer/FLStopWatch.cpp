@@ -1,36 +1,29 @@
-//***************************************************************************************
-// GameTimer.cpp by Frank Luna (C) 2011 All Rights Reserved.
-//***************************************************************************************
-
 #include <windows.h>
 #include "FLStopWatch.h"
 
 namespace FireFlame {
 StopWatch::StopWatch()
-	: mSecondsPerCount(0.0), mDeltaTime(-1.0), mBaseTime(0),
-	  mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false)
-{
-	__int64 countsPerSec;
+	: mSecondsPerCount(0.0), mBaseTime(0),
+	  mPrevMarkTime(0), mCurrMarkTime(0), mDeltaTime(-1.0),
+	  mPausedTime(0), mTotalPausedTime(0), mPaused(false){
+	  __int64 countsPerSec;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
 	mSecondsPerCount = 1.0 / (double)countsPerSec;
 }
 
 // Returns the total time elapsed since Reset() was called, NOT counting any
-// time when the clock is stopped.
-float StopWatch::TotalTime()const
-{
+// time when the clock is paused.
+float StopWatch::TotalTime()const{
 	// If we are stopped, do not count the time that has passed since we stopped.
 	// Moreover, if we previously already had a pause, the distance 
 	// mStopTime - mBaseTime includes paused time, which we do not want to count.
 	// To correct this, we can subtract the paused time from mStopTime:  
 	//
-	//                     |<--paused time-->|
-	// ----*---------------*-----------------*------------*------------*------> time
-	//  mBaseTime       mStopTime        startTime     mStopTime    mCurrTime
-
-	if (mStopped)
-	{
-		return (float)(((mStopTime - mPausedTime) - mBaseTime)*mSecondsPerCount);
+	//                     |<--total paused time-->|
+	// ----*---------------*-----------------------*--------------*-------------*------> time
+	//  mBaseTime      mPausedTime             resumeTime      mStopTime    mCurrTime
+	if (mPaused){
+		return (float)(((mPausedTime - mTotalPausedTime) - mBaseTime)*mSecondsPerCount);
 	}
 
 	// The distance mCurrTime - mBaseTime includes paused time,
@@ -39,89 +32,73 @@ float StopWatch::TotalTime()const
 	//
 	//  (mCurrTime - mPausedTime) - mBaseTime 
 	//
-	//                     |<--paused time-->|
-	// ----*---------------*-----------------*------------*------> time
-	//  mBaseTime       mStopTime        startTime     mCurrTime
-
-	else
-	{
-		return (float)(((mCurrTime - mPausedTime) - mBaseTime)*mSecondsPerCount);
+	//                     |<--total paused time-->|
+	// ----*---------------*-----------------------*--------------*------> time
+	//  mBaseTime     mPausedTime              resumeTime      mCurrTime
+	else{
+		return (float)(((mCurrMarkTime - mTotalPausedTime) - mBaseTime)*mSecondsPerCount);
 	}
 }
 
-float StopWatch::DeltaTime()const
-{
+float StopWatch::DeltaTime() const{
 	return (float)mDeltaTime;
 }
 
-void StopWatch::Reset()
-{
+void StopWatch::Reset(){
 	__int64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
 
 	mBaseTime = currTime;
-	mPrevTime = currTime;
-	mStopTime = 0;
-	mStopped = false;
+	mPrevMarkTime = currTime;
+	mPausedTime = 0;
+	mPaused = false;
 }
 
-void StopWatch::Start()
-{
-	__int64 startTime;
-	QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
-
-
+void StopWatch::Resume(){
+	__int64 resumeTime;
+	QueryPerformanceCounter((LARGE_INTEGER*)&resumeTime);
 	// Accumulate the time elapsed between stop and start pairs.
 	//
-	//                     |<-------d------->|
-	// ----*---------------*-----------------*------------> time
-	//  mBaseTime       mStopTime        startTime     
-
-	if (mStopped)
-	{
-		mPausedTime += (startTime - mStopTime);
-
-		mPrevTime = startTime;
-		mStopTime = 0;
-		mStopped = false;
+	//                      |<-------d------->|
+	// ----*----------------*-----------------*------------> time
+	//  mBaseTime       mPausedTime        resumeTime     
+	if (mPaused){
+		mTotalPausedTime += (resumeTime - mPausedTime);
+		mPrevMarkTime = resumeTime;
+		mPausedTime = 0;
+		mPaused = false;
 	}
 }
 
-void StopWatch::Stop()
-{
-	if (!mStopped)
-	{
+void StopWatch::Pause(){
+	if (!mPaused){
 		__int64 currTime;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-
-		mStopTime = currTime;
-		mStopped = true;
+		mPausedTime = currTime;
+		mPaused = true;
 	}
 }
 
-void StopWatch::Tick()
-{
-	if (mStopped)
-	{
+void StopWatch::Mark(){
+	if (mPaused){
 		mDeltaTime = 0.0;
 		return;
 	}
 
 	__int64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-	mCurrTime = currTime;
+	mCurrMarkTime = currTime;
 
 	// Time difference between this frame and the previous.
-	mDeltaTime = (mCurrTime - mPrevTime)*mSecondsPerCount;
+	mDeltaTime = (mCurrMarkTime - mPrevMarkTime)*mSecondsPerCount;
 
 	// Prepare for next frame.
-	mPrevTime = mCurrTime;
+	mPrevMarkTime = mCurrMarkTime;
 
 	// Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the 
 	// processor goes into a power save mode or we get shuffled to another
 	// processor, then mDeltaTime can be negative.
-	if (mDeltaTime < 0.0)
-	{
+	if (mDeltaTime < 0.0){
 		mDeltaTime = 0.0;
 	}
 }

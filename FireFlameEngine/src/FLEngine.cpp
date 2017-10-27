@@ -12,7 +12,7 @@ Engine::Engine(HINSTANCE hinst) {
 	renderer->SetRenderWindow(MainWnd);
 }
 Engine::~Engine() {
-	if (renderer) renderer->FlushCommandQueue();
+	//if (renderer) renderer->FlushCommandQueue();
 }
 void Engine::RegisterRendererUpdateFunc(std::function<void(float)> func){
 	renderer->RegisterUpdateFunc(func);
