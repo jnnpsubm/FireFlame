@@ -28,9 +28,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		engine.RegisterRendererUpdateFunc(funcUpdate);
 		engine.RegisterRendererUpdateFunc(stEngineUser());
 		return engine.Run();
-	}
-	catch (FireFlame::Exception& e){
+	}catch (FireFlame::Exception& e){
 		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
+		return 0;
+	}
+	catch (std::exception& e) {
+		MessageBoxA(nullptr, e.what(), "Exception Raised!", MB_OK);
 		return 0;
 	}
 }

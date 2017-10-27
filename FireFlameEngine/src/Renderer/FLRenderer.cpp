@@ -82,6 +82,9 @@ void Renderer::FlushCommandQueue() {
 	}
 }
 int Renderer::Initialize(API_Feature) {
+	assert(!mRenderWnd.expired());
+	auto renderWindow = mRenderWnd.lock();
+
 #if defined(DEBUG) || defined(_DEBUG) 
 	// Enable the D3D12 debug layer.
 	{
@@ -94,16 +97,17 @@ int Renderer::Initialize(API_Feature) {
 	// Try to create hardware device.
 	HRESULT hardwareResult = D3D12CreateDevice(
 		nullptr,             // default adapter
-		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_12_1,
 		IID_PPV_ARGS(&md3dDevice));
 
 	// Fallback to WARP device.
 	if (FAILED(hardwareResult)){
+		OutputDebugString(L"======Fallback to WARP device.======\n");
 		Microsoft::WRL::ComPtr<IDXGIAdapter> pWarpAdapter;
 		ThrowIfFailed(mdxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)));
 		ThrowIfFailed(D3D12CreateDevice(
 			pWarpAdapter.Get(),
-			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_12_1,
 			IID_PPV_ARGS(&md3dDevice)));
 	}
 
@@ -281,6 +285,10 @@ void Renderer::CreateSwapChain()
 		mCommandQueue.Get(),
 		&sd,
 		mSwapChain.GetAddressOf()));
+
+	// fullscreen mode not supported now.
+	ThrowIfFailed(mdxgiFactory->MakeWindowAssociation(
+		renderWindow->MainWnd(), DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES));
 }
 void Renderer::CreateCommandObjects()
 {

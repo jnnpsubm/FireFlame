@@ -8,8 +8,7 @@ Window* Window::theWindow = nullptr;
 Window::~Window() {
 	
 }
-Window::Window(HINSTANCE hInst, std::shared_ptr<Renderer> renderer) 
-	: mhInst(hInst), mRenderer(renderer) {
+Window::Window(HINSTANCE hInst, std::shared_ptr<Renderer> renderer) : mhInst(hInst), mRenderer(renderer) {
 	assert(theWindow == nullptr);
 	theWindow = this;
 }
