@@ -82,7 +82,7 @@ LRESULT Engine::OnWindowResized() {
 	return 0;
 }
 LRESULT Engine::OnWindowKeyUp(WPARAM wParam, LPARAM lParam) {
-	if ((int)wParam == VK_F2) {
+	if (mRenderer->Ready() && (int)wParam == VK_F2) {
 		mRenderer->ToggleMSAA();
 	}
 	return 0;

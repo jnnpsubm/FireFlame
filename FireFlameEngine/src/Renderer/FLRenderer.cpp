@@ -107,20 +107,7 @@ void Renderer::ToggleMSAA() {
 	mMSAAOn = !mMSAAOn;
 	if (mMSAAOn) {
 		mSampleCount = 4;
-		// Check 4X MSAA quality support for our back buffer format.
-		// All Direct3D 11 capable devices support 4X MSAA for all render 
-		// target formats, so we only need to check quality support.
-		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
-		msQualityLevels.Format = mBackBufferFormat;
-		msQualityLevels.SampleCount = mSampleCount;
-		msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-		msQualityLevels.NumQualityLevels = 0;
-		ThrowIfFailed(md3dDevice->CheckFeatureSupport(
-			D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
-			&msQualityLevels,
-			sizeof(msQualityLevels)));
-		mMSAAQuality = msQualityLevels.NumQualityLevels;
-		assert(mMsaaQuality > 0 && "Unexpected MSAA quality level.");
+		CheckMSAASupport();
 	}else {
 		mSampleCount = 1;
 	}
@@ -182,6 +169,18 @@ int Renderer::Initialize(API_Feature) {
 	mDsvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	mCbvSrvUavDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	// Check MSAA support......
+	CheckMSAASupport();
+
+	CreateCommandObjects();
+	CreateSwapChain();
+	CreateRtvAndDsvDescriptorHeaps();
+
+	Resize();
+	mReady = true;
+	return 0;
+}
+void Renderer::CheckMSAASupport() {
 	// Check 4X MSAA quality support for our back buffer format.
 	// All Direct3D 11 capable devices support 4X MSAA for all render 
 	// target formats, so we only need to check quality support.
@@ -195,15 +194,7 @@ int Renderer::Initialize(API_Feature) {
 		&msQualityLevels,
 		sizeof(msQualityLevels)));
 	mMSAAQuality = msQualityLevels.NumQualityLevels;
-	assert(mMsaaQuality > 0 && "Unexpected MSAA quality level.");
-
-	CreateCommandObjects();
-	CreateSwapChain();
-	CreateRtvAndDsvDescriptorHeaps();
-
-	Resize();
-	mReady = true;
-	return 0;
+	assert(mMSAAQuality > 0 && "Unexpected MSAA quality level.");
 }
 void Renderer::Resize(){
 	assert(!mRenderWnd.expired());

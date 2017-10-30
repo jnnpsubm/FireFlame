@@ -22,6 +22,7 @@ public:
 	void FlushCommandQueue();
 	void Resize();
 
+	void CheckMSAASupport();
 	UINT GetSampleCount()const { return mSampleCount; }
 	void ToggleMSAA();
 
