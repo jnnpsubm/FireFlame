@@ -191,7 +191,7 @@ LRESULT Window::OnKeyUp(WPARAM wParam, LPARAM lParam) {
 		mEngine->Stop();
 		PostQuitMessage(0);
 	}
-	return 0;
+	return mEngine->OnWindowKeyUp(wParam, lParam);
 }
 LRESULT Window::OnSysKeyDown(WPARAM wParam, LPARAM lParam) {
 	if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000){

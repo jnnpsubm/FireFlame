@@ -19,9 +19,6 @@
     <ClCompile Include="src\Scene\FLScene.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\FLRendererMS.cpp">
-      <Filter>src\Renderer</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\FLEngine.h">
@@ -68,12 +65,6 @@
     </ClInclude>
     <ClInclude Include="src\Scene\FLScene.h">
       <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\FLRendererMS.h">
-      <Filter>src\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Timer\FLStepTimer.h">
-      <Filter>src\Timer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

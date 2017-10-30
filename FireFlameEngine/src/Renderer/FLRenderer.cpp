@@ -15,34 +15,18 @@ namespace FireFlame {
 void Renderer::Update(const StopWatch& gt) {
 	mUpdateFunc(gt.DeltaTime());
 }
-void Renderer::Draw(const StopWatch& gt) {
+void Renderer::Render(const StopWatch& gt) {
 	// Reuse the memory associated with command recording.
 	// We can only reset when the associated command lists have finished execution on the GPU.
 	ThrowIfFailed(mDirectCmdListAlloc->Reset());
-
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
 	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
-
 	// Indicate a state transition on the resource usage.
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
-	mCommandList->RSSetViewports(1, &mScreenViewport);
-	mCommandList->RSSetScissorRects(1, &mScissorRect);
-
-	// Clear the back buffer and depth buffer.
-	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), DirectX::Colors::AliceBlue, 0, nullptr);
-	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
-
-	// Specify the buffers we are going to render to.
-	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
-
-	// Indicate a state transition on the resource usage.
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	// Transition the render target into the correct state to allow for drawing into it.
+	
+	if (mSampleCount > 1) RenderWithMSAA(gt);
+	else RenderWithoutMSAA(gt);
 
 	// Done recording commands.
 	ThrowIfFailed(mCommandList->Close());
@@ -59,6 +43,90 @@ void Renderer::Draw(const StopWatch& gt) {
 	// done for simplicity.  Later we will show how to organize our rendering code
 	// so we do not have to wait per frame.
 	FlushCommandQueue();
+}
+void Renderer::RenderWithMSAA(const StopWatch& gt) {
+	D3D12_RESOURCE_BARRIER barrier2RT = CD3DX12_RESOURCE_BARRIER::Transition(
+		m_offscreenRenderTarget.Get(),
+		D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	mCommandList->ResourceBarrier(1, &barrier2RT);
+
+	// Specify the buffers we are going to render to.
+	mCommandList->OMSetRenderTargets(1, &OffscreenRenderTargetView(), true, &DepthStencilView());
+	// Clear the back buffer and depth buffer.
+	mCommandList->ClearRenderTargetView(OffscreenRenderTargetView(), DirectX::Colors::AliceBlue, 0, nullptr);
+	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
+	mCommandList->RSSetViewports(1, &mScreenViewport);
+	mCommandList->RSSetScissorRects(1, &mScissorRect);
+
+	// todo : render something here
+	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
+
+	D3D12_RESOURCE_BARRIER barriers[2] =
+	{
+		CD3DX12_RESOURCE_BARRIER::Transition(m_offscreenRenderTarget.Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_RESOLVE_SOURCE),
+		CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT,
+		D3D12_RESOURCE_STATE_RESOLVE_DEST)
+	};
+	mCommandList->ResourceBarrier(2, barriers);
+
+	mCommandList->ResolveSubresource(CurrentBackBuffer(), 0,
+		m_offscreenRenderTarget.Get(), 0, mBackBufferFormat);
+
+	D3D12_RESOURCE_BARRIER barrier2Present =
+		CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+			D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_PRESENT);
+	mCommandList->ResourceBarrier(1, &barrier2Present);
+}
+void Renderer::RenderWithoutMSAA(const StopWatch& gt) {
+	// Indicate a state transition on the resource usage.
+	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	// Specify the buffers we are going to render to.
+	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+	// Clear the back buffer and depth buffer.
+	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), DirectX::Colors::AliceBlue, 0, nullptr);
+	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
+	mCommandList->RSSetViewports(1, &mScreenViewport);
+	mCommandList->RSSetScissorRects(1, &mScissorRect);
+
+	// todo : render something here
+	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
+
+	// Indicate a state transition on the resource usage.
+	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+}
+void Renderer::ToggleMSAA() {
+	mMSAAOn = !mMSAAOn;
+	if (mMSAAOn) {
+		mSampleCount = 4;
+		// Check 4X MSAA quality support for our back buffer format.
+		// All Direct3D 11 capable devices support 4X MSAA for all render 
+		// target formats, so we only need to check quality support.
+		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
+		msQualityLevels.Format = mBackBufferFormat;
+		msQualityLevels.SampleCount = mSampleCount;
+		msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+		msQualityLevels.NumQualityLevels = 0;
+		ThrowIfFailed(md3dDevice->CheckFeatureSupport(
+			D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
+			&msQualityLevels,
+			sizeof(msQualityLevels)));
+		mMSAAQuality = msQualityLevels.NumQualityLevels;
+		assert(mMsaaQuality > 0 && "Unexpected MSAA quality level.");
+
+		Resize();
+	}else {
+		mSampleCount = 1;
+		Resize();
+	}
 }
 void Renderer::FlushCommandQueue() {
 	// Advance the fence value to mark commands up to this fence point.
@@ -121,15 +189,15 @@ int Renderer::Initialize(API_Feature) {
 	// target formats, so we only need to check quality support.
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
 	msQualityLevels.Format = mBackBufferFormat;
-	msQualityLevels.SampleCount = 4;
+	msQualityLevels.SampleCount = mSampleCount;
 	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 	msQualityLevels.NumQualityLevels = 0;
 	ThrowIfFailed(md3dDevice->CheckFeatureSupport(
 		D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
 		&msQualityLevels,
 		sizeof(msQualityLevels)));
-	m4xMsaaQuality = msQualityLevels.NumQualityLevels;
-	assert(m4xMsaaQuality > 0 && "Unexpected MSAA quality level.");
+	mMSAAQuality = msQualityLevels.NumQualityLevels;
+	assert(mMsaaQuality > 0 && "Unexpected MSAA quality level.");
 
 	CreateCommandObjects();
 	CreateSwapChain();
@@ -173,6 +241,34 @@ void Renderer::Resize(){
 		md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
 		rtvHeapHandle.Offset(1, mRtvDescriptorSize);
 	}
+	// Create offscreen RT and view
+	D3D12_RESOURCE_DESC msaaRTDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		mBackBufferFormat,
+		renderWindow->ClientWidth(), renderWindow->ClientHeight(),
+		1,            // This render target view has only one texture.
+		1,            // Use a single mipmap level
+		mSampleCount, // <--- Use MSAA 
+		mMSAAQuality-1
+	);
+	msaaRTDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+	D3D12_CLEAR_VALUE msaaOptimizedClearValue = {};
+	msaaOptimizedClearValue.Format = mBackBufferFormat;
+	memcpy(msaaOptimizedClearValue.Color, DirectX::Colors::AliceBlue, sizeof(float) * 4);
+
+	ThrowIfFailed(md3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&msaaRTDesc,
+		D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
+		&msaaOptimizedClearValue,
+		IID_PPV_ARGS(m_offscreenRenderTarget.ReleaseAndGetAddressOf())
+	));
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvDescriptor(
+		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
+		SwapChainBufferCount, mRtvDescriptorSize);
+	md3dDevice->CreateRenderTargetView(m_offscreenRenderTarget.Get(), nullptr, rtvDescriptor);
 
 	// Create the depth/stencil buffer and view.
 	D3D12_RESOURCE_DESC depthStencilDesc;
@@ -189,9 +285,8 @@ void Renderer::Resize(){
 	//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
 	// we need to create the depth buffer resource with a typeless format.  
 	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-
-	depthStencilDesc.SampleDesc.Count = 1;
-	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.SampleDesc.Count = mSampleCount;
+	depthStencilDesc.SampleDesc.Quality = mSampleCount > 1 ? mMSAAQuality - 1 : 0;
 	depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -210,7 +305,7 @@ void Renderer::Resize(){
 	// Create descriptor to mip level 0 of entire resource using the format of the resource.
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.ViewDimension = mSampleCount>1?D3D12_DSV_DIMENSION_TEXTURE2DMS:D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Format = mDepthStencilFormat;
 	dsvDesc.Texture2D.MipSlice = 0;
 	md3dDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
@@ -240,7 +335,7 @@ void Renderer::Resize(){
 void Renderer::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-	rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
+	rtvHeapDesc.NumDescriptors = SwapChainBufferCount+1; // add 1 for MSAA offscreen rt
 	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	rtvHeapDesc.NodeMask = 0;
@@ -312,21 +407,22 @@ void Renderer::CreateCommandObjects()
 	// calling Reset.
 	mCommandList->Close();
 }
-ID3D12Resource* Renderer::CurrentBackBuffer()const
-{
+ID3D12Resource* Renderer::CurrentBackBuffer() const {
 	return mSwapChainBuffer[mCurrBackBuffer].Get();
 }
-
-D3D12_CPU_DESCRIPTOR_HANDLE Renderer::CurrentBackBufferView()const
-{
+D3D12_CPU_DESCRIPTOR_HANDLE Renderer::CurrentBackBufferView() const {
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
 		mRtvDescriptorSize);
 }
-
-D3D12_CPU_DESCRIPTOR_HANDLE Renderer::DepthStencilView()const
-{
+D3D12_CPU_DESCRIPTOR_HANDLE Renderer::OffscreenRenderTargetView() const {
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
+		SwapChainBufferCount,
+		mRtvDescriptorSize);
+}
+D3D12_CPU_DESCRIPTOR_HANDLE Renderer::DepthStencilView() const {
 	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 }
 

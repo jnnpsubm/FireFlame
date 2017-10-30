@@ -35,6 +35,7 @@ public:
 
 	LRESULT OnWindowDestroy();
 	LRESULT OnWindowResized();
+	LRESULT OnWindowKeyUp(WPARAM wParam, LPARAM lParam);
 
 	// system probe
 	int LogVideoAdapters(std::wostream& os);

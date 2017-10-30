@@ -28,7 +28,7 @@ int Engine::Run() {
 			if (!mAppPaused) {
 				CalculateFrameStats();
 				mRenderer->Update(mTimer);
-				mRenderer->Draw(mTimer);
+				mRenderer->Render(mTimer);
 			}else {
 				Sleep(10);
 			}
@@ -61,7 +61,8 @@ void Engine::CalculateFrameStats()
 		float mspf = 1000.0f / fps;
 		std::wstring fpsStr = std::to_wstring(fps);
 		std::wstring mspfStr = std::to_wstring(mspf);
-		std::wstring windowText = L"    fps: " + fpsStr + L"   mspf: " + mspfStr;
+		std::wstring windowText = L"    fps: " + fpsStr + L"   mspf: " + mspfStr +
+			L"    SampleCount: " + std::to_wstring(mRenderer->GetSampleCount());
 		mMainWnd->AppendWindowCaption(windowText);
 		// Reset for next average.
 		frameCnt = 0;
@@ -77,6 +78,12 @@ LRESULT Engine::OnWindowResized() {
 	Resume();
 	if (mRenderer->Ready()) {
 		mRenderer->Resize();
+	}
+	return 0;
+}
+LRESULT Engine::OnWindowKeyUp(WPARAM wParam, LPARAM lParam) {
+	if ((int)wParam == VK_F2) {
+		mRenderer->ToggleMSAA();
 	}
 	return 0;
 }

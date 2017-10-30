@@ -18,9 +18,12 @@ public:
 	void SetRenderWindow(std::shared_ptr<Window> wnd) { mRenderWnd = wnd; }
 	int Initialize(API_Feature api);
 	void Update(const StopWatch& gt);
-	void Draw(const StopWatch& gt);
+	void Render(const StopWatch& gt);
 	void FlushCommandQueue();
 	void Resize();
+
+	UINT GetSampleCount()const { return mSampleCount; }
+	void ToggleMSAA();
 
 	// register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
@@ -36,6 +39,9 @@ private:
 	std::weak_ptr<Window>  mRenderWnd;
 	std::shared_ptr<Scene> mScene;
 
+	void RenderWithMSAA(const StopWatch& gt);
+	void RenderWithoutMSAA(const StopWatch& gt);
+
 	// callbacks
 	std::function<void(float)> mUpdateFunc = [](float) {};
 	std::function<void(float)> mDrawFunc   = [](float) {};
@@ -46,6 +52,7 @@ private:
 
 	ID3D12Resource* CurrentBackBuffer() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE OffscreenRenderTargetView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory5>  mdxgiFactory;
@@ -62,6 +69,8 @@ private:
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer                   = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
+	// for MSAA
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_offscreenRenderTarget;
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
@@ -74,7 +83,10 @@ private:
 	UINT mDsvDescriptorSize       = 0;
 	UINT mCbvSrvUavDescriptorSize = 0;
 
-	UINT        m4xMsaaQuality = 0;
+	bool        mMSAAOn = true;
+	UINT        mMSAAQuality = 0;
+	UINT        mSampleCount = 4;
+
 	DXGI_FORMAT mBackBufferFormat   = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 };
