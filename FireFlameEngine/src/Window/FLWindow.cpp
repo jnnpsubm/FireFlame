@@ -62,6 +62,9 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+	case WM_SYSKEYDOWN:
+		OnSysKeyDown(wParam, lParam);
+		break;
 	// The WM_MENUCHAR message is sent when a menu is active and the user presses 
 	// a key that does not correspond to any mnemonic or accelerator key. 
 	case WM_MENUCHAR:
@@ -187,6 +190,25 @@ LRESULT Window::OnKeyUp(WPARAM wParam, LPARAM lParam) {
 	if (wParam == VK_ESCAPE) {
 		mEngine->Stop();
 		PostQuitMessage(0);
+	}
+	return 0;
+}
+LRESULT Window::OnSysKeyDown(WPARAM wParam, LPARAM lParam) {
+	if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000){
+		// Implements the classic ALT+ENTER fullscreen toggle
+		if (mFullScreen){
+			SetWindowLongPtr(mhMainWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+			SetWindowLongPtr(mhMainWnd, GWL_EXSTYLE, 0);
+			ShowWindow(mhMainWnd, SW_SHOWNORMAL);
+			SetWindowPos(mhMainWnd, HWND_TOP, 0, 0, mClientWidth, mClientHeight, 
+				         SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		}else{
+			SetWindowLongPtr(mhMainWnd, GWL_STYLE, 0);
+			SetWindowLongPtr(mhMainWnd, GWL_EXSTYLE, WS_EX_TOPMOST);
+			SetWindowPos(mhMainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+			ShowWindow(mhMainWnd, SW_SHOWMAXIMIZED);
+		}
+		mFullScreen = !mFullScreen;
 	}
 	return 0;
 }

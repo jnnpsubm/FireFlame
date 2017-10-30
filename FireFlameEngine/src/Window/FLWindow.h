@@ -35,11 +35,12 @@ private:
 	
 	MSG          msg = { 0 };
 	std::wstring mCaption;
-	HINSTANCE    mhInst     = nullptr;
-	HWND         mhMainWnd  = nullptr;
-	bool         mMinimized = false;  // is the application minimized?
-	bool         mMaximized = false;  // is the application maximized?
-	bool         mResizing  = false;  // are the resize bars being dragged?
+	HINSTANCE    mhInst      = nullptr;
+	HWND         mhMainWnd   = nullptr;
+	bool         mMinimized  = false;  // is the application minimized?
+	bool         mMaximized  = false;  // is the application maximized?
+	bool         mResizing   = false;  // are the resize bars being dragged?
+	bool         mFullScreen = false;
 
 	int          mClientWidth  = 800;
 	int          mClientHeight = 600;
@@ -52,6 +53,7 @@ private:
 	LRESULT OnEnterSizeMove();
 	LRESULT OnExitSizeMove();
 	LRESULT OnGetMinMaxInfo(MINMAXINFO* pInfo);
+	LRESULT OnSysKeyDown(WPARAM wParam, LPARAM lParam);
 
 	void OnMouseDown(WPARAM btnState, int x, int y);
 	void OnMouseUp(WPARAM btnState, int x, int y);

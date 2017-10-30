@@ -4,7 +4,7 @@
 #include <DXGI1_5.h>
 #include <d3d12.h>
 #include <functional>
-#include "../FLTypeDefs.h"
+#include "..\FLTypeDefs.h"
 
 namespace FireFlame {
 class StopWatch;
