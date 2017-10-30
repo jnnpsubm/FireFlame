@@ -6,10 +6,10 @@
 #include "../Timer/FLStopWatch.h"
 
 namespace FireFlame {
-class Renderer;
+class Engine;
 class Window {
 public:
-	Window(HINSTANCE hInst, std::shared_ptr<Renderer> renderer);
+	Window(HINSTANCE hInst, Engine* engine);
 	~Window();
 
 	static Window* GetWindow()     { return theWindow; }
@@ -20,26 +20,26 @@ public:
 	int       ClientHeight() const { return mClientHeight; }
 
 	int InitMainWindow(int x, int y, int w, int h);
-	int Run();
 
+	int HandleMsg();
+	int Quitted() const { return msg.message == WM_QUIT; }
+	int QuitCode() const { return (int)msg.wParam; }
+
+	void SetWindowCaption(const std::wstring& caption);
+	void AppendWindowCaption(const std::wstring& appendStr);
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
-	void CalculateFrameStats();
-
-private:
 	static Window* theWindow;
-	std::shared_ptr<Renderer> mRenderer;
-
-	// Used to keep track of the delta-time,and game time.
-	StopWatch    mTimer;
+	Engine*        mEngine;
+	
+	MSG          msg = { 0 };
 	std::wstring mCaption;
 	HINSTANCE    mhInst     = nullptr;
 	HWND         mhMainWnd  = nullptr;
-	bool         mAppPaused = false;  // is the application paused?
 	bool         mMinimized = false;  // is the application minimized?
 	bool         mMaximized = false;  // is the application maximized?
-	bool         mResizing  = false;   // are the resize bars being dragged?
+	bool         mResizing  = false;  // are the resize bars being dragged?
 
 	int          mClientWidth  = 800;
 	int          mClientHeight = 600;

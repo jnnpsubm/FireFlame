@@ -1,36 +1,25 @@
 #include <WindowsX.h>
-#include "FLWindow.h"
-#include "../Renderer/FLRenderer.h"
 #include <string>
+#include "FLWindow.h"
+#include "../../header/FLEngine.h"
 
 namespace FireFlame {
 Window* Window::theWindow = nullptr;
 Window::~Window() {
 	
 }
-Window::Window(HINSTANCE hInst, std::shared_ptr<Renderer> renderer) : mhInst(hInst), mRenderer(renderer) {
+Window::Window(HINSTANCE hInst, Engine* engine) 
+	: mhInst(hInst), mEngine(engine) {
 	assert(theWindow == nullptr);
 	theWindow = this;
 }
-int Window::Run() {
-	mTimer.Reset();
-	MSG msg = { 0 };
-	while (msg.message != WM_QUIT) {
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}else {
-			mTimer.Mark();
-			if (!mAppPaused){
-				CalculateFrameStats();
-				mRenderer->Update(mTimer);
-				mRenderer->Draw(mTimer);
-			}else{
-				Sleep(10);
-			}
-		}
+int Window::HandleMsg() {
+	if (::PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+		return TRUE;
 	}
-	return (int)msg.wParam;
+	return FALSE;
 }
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
@@ -119,48 +108,24 @@ int Window::InitMainWindow(int x, int y, int w, int h) {
 	UpdateWindow(mhMainWnd);
 	return 0;
 }
-void Window::CalculateFrameStats()
-{
-	// Code computes the average frames per second, and also the 
-	// average time it takes to render one frame.  These stats 
-	// are appended to the window caption bar.
-	static int   frameCnt = 0;
-	static float timeElapsed = 0.0f;
-	frameCnt++;
-
-	// Compute averages over one second period.
-	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f){
-		float fps = (float)frameCnt; // fps = frameCnt / 1
-		float mspf = 1000.0f / fps;
-
-		std::wstring fpsStr = std::to_wstring(fps);
-		std::wstring mspfStr = std::to_wstring(mspf);
-
-		std::wstring windowText = mCaption +
-			L"    fps: " + fpsStr +
-			L"   mspf: " + mspfStr;
-		SetWindowText(mhMainWnd, windowText.c_str());
-
-		// Reset for next average.
-		frameCnt = 0;
-		timeElapsed += 1.0f;
-	}
+void Window::SetWindowCaption(const std::wstring& caption) {
+	SetWindowText(mhMainWnd, caption.c_str());
+}
+void Window::AppendWindowCaption(const std::wstring& appendStr) {
+	std::wstring windowText = mCaption + appendStr;
+	SetWindowText(mhMainWnd, windowText.c_str());
 }
 // ==============================Message Processing==============================
 LRESULT Window::OnActive(UINT mode) {
-	if (WA_INACTIVE == mode) {
-		mAppPaused = true;
-		mTimer.Pause();
-	}
-	else {
-		mAppPaused = false;
-		mTimer.Resume();
+	if (mode == WA_INACTIVE){
+		mEngine->Pause();
+	}else{
+		mEngine->Resume();
 	}
 	return 0;
 }
 LRESULT Window::OnDestroy() {
-	mAppPaused = true;
-	mRenderer->FlushCommandQueue();
+	mEngine->OnWindowDestroy();
 	PostQuitMessage(0);
 	return 0;
 }
@@ -168,52 +133,49 @@ LRESULT Window::OnSize(WPARAM wParam, LPARAM lParam) {
 	// Save the new client area dimensions.
 	mClientWidth = LOWORD(lParam);
 	mClientHeight = HIWORD(lParam);
-	if (mRenderer->Ready()){
-		if (wParam == SIZE_MINIMIZED){
-			mAppPaused = true;
-			mMinimized = true;
-			mMaximized = false;
-		}else if (wParam == SIZE_MAXIMIZED){
-			mAppPaused = false;
+	if (wParam == SIZE_MINIMIZED) {
+		mEngine->Pause();
+		mMinimized = true;
+		mMaximized = false;
+	}
+	else if (wParam == SIZE_MAXIMIZED) {
+		mMinimized = false;
+		mMaximized = true;
+		mEngine->OnWindowResized();
+	}
+	else if (wParam == SIZE_RESTORED) {
+		if (mMinimized) {        // Restoring from minimized state?
 			mMinimized = false;
-			mMaximized = true;
-			mRenderer->Resize();
-		}else if (wParam == SIZE_RESTORED){
-			if (mMinimized){        // Restoring from minimized state?
-				mAppPaused = false;
-				mMinimized = false;
-				mRenderer->Resize();
-			}else if (mMaximized){  // Restoring from maximized state?
-				mAppPaused = false;
-				mMaximized = false;
-				mRenderer->Resize();
-			}else if (mResizing){
-				// If user is dragging the resize bars, we do not resize 
-				// the buffers here because as the user continuously 
-				// drags the resize bars, a stream of WM_SIZE messages are
-				// sent to the window, and it would be pointless (and slow)
-				// to resize for each WM_SIZE message received from dragging
-				// the resize bars.  So instead, we reset after the user is 
-				// done resizing the window and releases the resize bars, which 
-				// sends a WM_EXITSIZEMOVE message.
-			}else{ // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
-				mRenderer->Resize();
-			}
+			mEngine->OnWindowResized();
+		}
+		else if (mMaximized) {  // Restoring from maximized state?
+			mMaximized = false;
+			mEngine->OnWindowResized();
+		}
+		else if (mResizing) {
+			// If user is dragging the resize bars, we do not resize 
+			// the buffers here because as the user continuously 
+			// drags the resize bars, a stream of WM_SIZE messages are
+			// sent to the window, and it would be pointless (and slow)
+			// to resize for each WM_SIZE message received from dragging
+			// the resize bars.  So instead, we reset after the user is 
+			// done resizing the window and releases the resize bars, which 
+			// sends a WM_EXITSIZEMOVE message.
+		}
+		else { // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
+			mEngine->OnWindowResized();
 		}
 	}
 	return 0;
 }
 LRESULT Window::OnEnterSizeMove() {
-	mAppPaused = true;
 	mResizing = true;
-	mTimer.Pause();
+	mEngine->Pause();
 	return 0;
 }
 LRESULT Window::OnExitSizeMove() {
-	mAppPaused = false;
 	mResizing = false;
-	mTimer.Resume();
-	mRenderer->Resize();
+	mEngine->OnWindowResized();
 	return 0;
 }
 LRESULT Window::OnGetMinMaxInfo(MINMAXINFO* pInfo) {
@@ -223,6 +185,7 @@ LRESULT Window::OnGetMinMaxInfo(MINMAXINFO* pInfo) {
 }
 LRESULT Window::OnKeyUp(WPARAM wParam, LPARAM lParam) {
 	if (wParam == VK_ESCAPE) {
+		mEngine->Stop();
 		PostQuitMessage(0);
 	}
 	return 0;

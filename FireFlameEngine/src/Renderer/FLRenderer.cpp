@@ -139,8 +139,7 @@ int Renderer::Initialize(API_Feature) {
 	mReady = true;
 	return 0;
 }
-void Renderer::Resize()
-{
+void Renderer::Resize(){
 	assert(!mRenderWnd.expired());
 	assert(md3dDevice);
 	assert(mSwapChain);
