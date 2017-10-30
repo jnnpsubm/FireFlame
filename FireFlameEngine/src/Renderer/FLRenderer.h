@@ -70,8 +70,7 @@ private:
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer                   = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
-	// for MSAA
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_offscreenRenderTarget;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mOffscreenRenderTarget; // for MSAA
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;

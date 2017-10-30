@@ -46,7 +46,7 @@ void Renderer::Render(const StopWatch& gt) {
 }
 void Renderer::RenderWithMSAA(const StopWatch& gt) {
 	D3D12_RESOURCE_BARRIER barrier2RT = CD3DX12_RESOURCE_BARRIER::Transition(
-		m_offscreenRenderTarget.Get(),
+		mOffscreenRenderTarget.Get(),
 		D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	mCommandList->ResourceBarrier(1, &barrier2RT);
 
@@ -64,7 +64,7 @@ void Renderer::RenderWithMSAA(const StopWatch& gt) {
 
 	D3D12_RESOURCE_BARRIER barriers[2] =
 	{
-		CD3DX12_RESOURCE_BARRIER::Transition(m_offscreenRenderTarget.Get(),
+		CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRenderTarget.Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_RESOLVE_SOURCE),
 		CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -74,7 +74,7 @@ void Renderer::RenderWithMSAA(const StopWatch& gt) {
 	mCommandList->ResourceBarrier(2, barriers);
 
 	mCommandList->ResolveSubresource(CurrentBackBuffer(), 0,
-		m_offscreenRenderTarget.Get(), 0, mBackBufferFormat);
+		mOffscreenRenderTarget.Get(), 0, mBackBufferFormat);
 
 	D3D12_RESOURCE_BARRIER barrier2Present =
 		CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -251,13 +251,13 @@ void Renderer::Resize(){
 		&msaaRTDesc,
 		D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
 		&msaaOptimizedClearValue,
-		IID_PPV_ARGS(m_offscreenRenderTarget.ReleaseAndGetAddressOf())
+		IID_PPV_ARGS(mOffscreenRenderTarget.ReleaseAndGetAddressOf())
 	));
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvDescriptor(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		SwapChainBufferCount, mRtvDescriptorSize);
-	md3dDevice->CreateRenderTargetView(m_offscreenRenderTarget.Get(), nullptr, rtvDescriptor);
+	md3dDevice->CreateRenderTargetView(mOffscreenRenderTarget.Get(), nullptr, rtvDescriptor);
 
 	// Create the depth/stencil buffer and view.
 	D3D12_RESOURCE_DESC depthStencilDesc;
