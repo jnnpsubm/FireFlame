@@ -121,12 +121,10 @@ void Renderer::ToggleMSAA() {
 			sizeof(msQualityLevels)));
 		mMSAAQuality = msQualityLevels.NumQualityLevels;
 		assert(mMsaaQuality > 0 && "Unexpected MSAA quality level.");
-
-		Resize();
 	}else {
 		mSampleCount = 1;
-		Resize();
 	}
+	Resize();
 }
 void Renderer::FlushCommandQueue() {
 	// Advance the fence value to mark commands up to this fence point.
