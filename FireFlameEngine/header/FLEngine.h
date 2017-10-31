@@ -2,9 +2,10 @@
 #include <memory>
 #include <Windows.h>
 #include <functional>
-#include "../src/Exception/FLException.h"
-#include "../src/FLTypeDefs.h"
-#include "../src/Timer/FLStopWatch.h"
+#include "..\src\Exception\FLException.h"
+#include "..\src\FLTypeDefs.h"
+#include "..\src\Timer\FLStopWatch.h"
+#include "..\src\Scene\FLScene.h"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib, "d3dcompiler.lib")
@@ -15,12 +16,13 @@
 namespace FireFlame{
 class Window;
 class Renderer;
-class Scene;
 class Engine {
 public:
 	Engine(HINSTANCE hinst);
 	static Engine* GetEngine() { return theEngine; }
 	~Engine();
+
+	std::shared_ptr<Scene> GetScene() const { return mScene; }
 
 	void RegisterRendererUpdateFunc(std::function<void(float)> func);
 	void RegisterRendererDrawFunc(std::function<void(float)> func);

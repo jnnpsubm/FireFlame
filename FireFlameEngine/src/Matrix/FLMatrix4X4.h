@@ -21,9 +21,9 @@ public:
 
 	Matrix4X4()
 		: m00(0.f), m01(0.f), m02(0.f), m03(0.f),
-		  m10(0.f), m11(0.f), m12(0.f), m13(0.f),
-		  m20(0.f), m21(0.f), m22(0.f), m23(0.f),
-		  m30(0.f), m31(0.f), m32(0.f), m33(0.f) {}
+		  m10(0.f), m11(1.f), m12(0.f), m13(0.f),
+		  m20(0.f), m21(0.f), m22(1.f), m23(0.f),
+		  m30(0.f), m31(0.f), m32(0.f), m33(1.f) {}
 	explicit Matrix4X4(DirectX::FXMVECTOR u, DirectX::FXMVECTOR v, DirectX::FXMVECTOR w, DirectX::FXMVECTOR q)
 		: m00(VecGetX(u)), m01(VecGetY(u)), m02(VecGetZ(u)), m03(VecGetW(u)),
 		  m10(VecGetX(v)), m11(VecGetY(v)), m12(VecGetZ(v)), m13(VecGetW(v)),
@@ -88,6 +88,12 @@ public:
 
 	operator DirectX::XMMATRIX() const {
 		return DirectX::XMMatrixSet(m00, m01, m02, m03,
+			m10, m11, m12, m13,
+			m20, m21, m22, m23,
+			m30, m31, m32, m33);
+	}
+	operator DirectX::XMFLOAT4X4() const {
+		return DirectX::XMFLOAT4X4(m00, m01, m02, m03,
 			m10, m11, m12, m13,
 			m20, m21, m22, m23,
 			m30, m31, m32, m33);

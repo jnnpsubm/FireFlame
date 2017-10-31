@@ -1,4 +1,5 @@
 #pragma once
+#include "Exception\FLException.h"
 
 namespace FireFlame {
 inline std::wstring AnsiToWString(const std::string& str)
