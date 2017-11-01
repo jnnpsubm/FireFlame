@@ -27,8 +27,8 @@ int Engine::Run() {
 			mTimer.Mark();
 			if (!mAppPaused) {
 				CalculateFrameStats();
-				mRenderer->Update(mTimer);
-				mRenderer->Render(mTimer);
+				mScene->Update(*mRenderer, mTimer);
+				mScene->Render(*mRenderer, mTimer);
 			}else {
 				Sleep(10);
 			}

@@ -1,7 +1,22 @@
 #pragma once
+#include <wrl.h>
+#include <DXGI1_5.h>
+#include <d3d12.h>
+#include "FLTypeDefs.h"
 #include "Exception\FLException.h"
 
 namespace FireFlame {
+class D3DUtils {
+public:
+    static Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(
+        ID3D12Device* device, 
+        ID3D12GraphicsCommandList* cmdList,
+        const void* initData,
+        UINT64 byteSize,
+        Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer
+    );
+};
+
 inline DXGI_FORMAT FLIndexFormat2DXGIFormat(Index_Format format) {
 	switch (format)
 	{

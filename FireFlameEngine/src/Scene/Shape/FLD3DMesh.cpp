@@ -4,6 +4,26 @@
 namespace FireFlame {
 D3DMesh::D3DMesh() = default;
 
+void D3DMesh::MakeResident2GPU(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList) {
+    if (!mVertexBufferGPU) {
+        mVertexBufferGPU = D3DUtils::CreateDefaultBuffer(device, cmdList,
+            mVertexBufferCPU->GetBufferPointer(), mVertexBufferByteSize, mVertexBufferUploader);
+    }
+    if (!mIndexBufferGPU) {
+        mIndexBufferGPU = D3DUtils::CreateDefaultBuffer(device, cmdList,
+            mIndexBufferCPU->GetBufferPointer(), mIndexBufferByteSize, mIndexBufferUploader);
+    }
+    ID3D12Pageable* resource[2] = { mVertexBufferGPU.Get() , mIndexBufferGPU.Get() };
+    device->MakeResident(2, resource);
+    mResideInGPU = true;
+}
+void D3DMesh::EvictFromGPU(ID3D12Device* device) {
+    if (mResideInGPU) {
+        ID3D12Pageable* resource[2] = { mVertexBufferGPU.Get() , mIndexBufferGPU.Get() };
+        device->Evict(2, resource);
+    }
+}
+
 D3DMesh::D3DMesh(const stRawMesh& rawMesh) : mName(rawMesh.name){
 	const UINT vbByteSize = rawMesh.vertexCount * rawMesh.vertexSize;
 	const UINT ibByteSize = rawMesh.indexCount * IndexFormatByteLength(rawMesh.indexFormat);
@@ -13,12 +33,6 @@ D3DMesh::D3DMesh(const stRawMesh& rawMesh) : mName(rawMesh.name){
 
 	ThrowIfFailed(D3DCreateBlob(ibByteSize, mIndexBufferCPU.ReleaseAndGetAddressOf()));
 	CopyMemory(mIndexBufferCPU->GetBufferPointer(), rawMesh.indices, ibByteSize);
-
-	/*mVertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-	mCommandList.Get(), vertices.data(), vbByteSize, mBoxGeo->VertexBufferUploader);
-
-	mBoxGeo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-	mCommandList.Get(), indices.data(), ibByteSize, mBoxGeo->IndexBufferUploader);*/
 
 	mVertexByteStride = rawMesh.vertexSize;
 	mVertexBufferByteSize = vbByteSize;

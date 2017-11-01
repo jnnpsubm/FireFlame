@@ -26,8 +26,9 @@ public:
 	std::string mName;
 	bool        mResideInGPU = false;
 
-	void MakeResident2GPU();
-	void EvictFromGPU();
+	bool ResidentOnGPU() const { return mResideInGPU; }
+	void MakeResident2GPU(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
+	void EvictFromGPU(ID3D12Device* device);
 
 	void AddSubMesh(const stRawMesh::stSubMesh& subMesh);
 

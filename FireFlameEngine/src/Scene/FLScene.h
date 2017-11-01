@@ -5,9 +5,15 @@
 #include "..\FLTypeDefs.h"
 
 namespace FireFlame {
+class Renderer;
+class StopWatch;
 class Scene {
 public:
 	Scene();
+
+	void Update(Renderer& renderer, const StopWatch& gt);
+	void Render(Renderer& renderer, const StopWatch& gt);
+
 	void AddPrimitive(const stRawMesh& mesh);
 	void PrimitiveAddSubMesh(const stRawMesh::stSubMesh& subMesh);
 

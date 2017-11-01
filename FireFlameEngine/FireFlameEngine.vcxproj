@@ -44,6 +44,7 @@
   <ItemGroup>
     <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />
+    <ClCompile Include="src\FLD3DUtils.cpp" />
     <ClCompile Include="src\Renderer\FLRenderer.cpp" />
     <ClCompile Include="src\Scene\FLScene.cpp" />
     <ClCompile Include="src\Scene\Primitive\FLD3DPrimitive.cpp" />
