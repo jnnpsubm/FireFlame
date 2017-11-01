@@ -7,9 +7,6 @@
     <ClCompile Include="src\Timer\FLStopWatch.cpp">
       <Filter>src\Timer</Filter>
     </ClCompile>
-    <ClCompile Include="src\FLEngine.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Window\FLWindow.cpp">
       <Filter>src\Window</Filter>
     </ClCompile>
@@ -34,11 +31,11 @@
     <ClCompile Include="src\Scene\Vertex\FLVertex.cpp">
       <Filter>src\Scene\Vertex</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\FLEngine.cpp">
+      <Filter>src\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\FLEngine.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="src\Exception\FLException.h">
       <Filter>src\Exception</Filter>
     </ClInclude>
@@ -56,9 +53,6 @@
     </ClInclude>
     <ClInclude Include="src\Matrix\FLMatrixNXN.h">
       <Filter>src\Matrix</Filter>
-    </ClInclude>
-    <ClInclude Include="header\FLMatrix.h">
-      <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewFrustum\FLViewFrustum.h">
       <Filter>src\ViewFrustum</Filter>
@@ -95,6 +89,15 @@
     </ClInclude>
     <ClInclude Include="src\Scene\Vertex\FLVertex.h">
       <Filter>src\Scene\Vertex</Filter>
+    </ClInclude>
+    <ClInclude Include="header\FireFlameHeader.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Matrix\FLMatrix.h">
+      <Filter>src\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\FLEngine.h">
+      <Filter>src\Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +139,9 @@
     </Filter>
     <Filter Include="src\Scene\Vertex">
       <UniqueIdentifier>{941b9c19-40cc-47a4-b3a8-ca71ac280d54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Engine">
+      <UniqueIdentifier>{0b5bff3d-9019-4768-beb5-4790b87bf843}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -19,12 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\FLEngine.h" />
-    <ClInclude Include="header\FLMatrix.h" />
+    <ClInclude Include="header\FireFlameHeader.h" />
     <ClInclude Include="src\3rd_utils\d3dx12.h" />
+    <ClInclude Include="src\Engine\FLEngine.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
     <ClInclude Include="src\FLTypeDefs.h" />
+    <ClInclude Include="src\Matrix\FLMatrix.h" />
     <ClInclude Include="src\Matrix\FLMatrix4X4.h" />
     <ClInclude Include="src\Matrix\FLMatrixHelper.h" />
     <ClInclude Include="src\Matrix\FLMatrixMXN.h" />
@@ -41,8 +42,8 @@
     <ClInclude Include="src\Window\FLWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />
-    <ClCompile Include="src\FLEngine.cpp" />
     <ClCompile Include="src\Renderer\FLRenderer.cpp" />
     <ClCompile Include="src\Scene\FLScene.cpp" />
     <ClCompile Include="src\Scene\Primitive\FLD3DPrimitive.cpp" />

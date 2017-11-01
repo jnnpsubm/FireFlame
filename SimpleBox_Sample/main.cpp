@@ -3,8 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <array>
-#include "FLEngine.h"
-#include "FLMatrix.h"
+#include "FireFlameHeader.h"
 #include "Mesh.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {

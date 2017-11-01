@@ -7,7 +7,7 @@
 #include <d3dcompiler.h>
 #include <DirectXCollision.h>
 #include <wrl.h>
-#include "..\..\header\FLMatrix.h"
+#include "..\..\Matrix\FLMatrix4X4.h"
 #include "..\..\FLTypeDefs.h"
 
 namespace FireFlame {
@@ -25,6 +25,9 @@ public:
 	explicit D3DMesh(const stRawMesh& rawMesh);
 	std::string mName;
 	bool        mResideInGPU = false;
+
+	void MakeResident2GPU();
+	void EvictFromGPU();
 
 	void AddSubMesh(const stRawMesh::stSubMesh& subMesh);
 

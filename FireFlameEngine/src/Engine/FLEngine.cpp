@@ -1,6 +1,6 @@
-#include "../header/FLEngine.h"
-#include "../src/Window/FLWindow.h"
-#include "../src/Renderer/FLRenderer.h"
+#include "FLEngine.h"
+#include "../Window/FLWindow.h"
+#include "../Renderer/FLRenderer.h"
 
 namespace FireFlame {
 Engine* Engine::theEngine = nullptr;

@@ -9,7 +9,6 @@
 namespace FireFlame {
 class StopWatch;
 class Window;
-class Scene;
 class Renderer {
 public:
 	Renderer() = default;
@@ -38,7 +37,6 @@ public:
 private:
 	bool                   mReady = false;
 	std::weak_ptr<Window>  mRenderWnd;
-	std::shared_ptr<Scene> mScene;
 
 	void RenderWithMSAA(const StopWatch& gt);
 	void RenderWithoutMSAA(const StopWatch& gt);
