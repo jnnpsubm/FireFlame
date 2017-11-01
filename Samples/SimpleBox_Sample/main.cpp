@@ -6,6 +6,11 @@
 #include "FireFlameHeader.h"
 #include "Mesh.h"
 
+struct ObjectConstants
+{
+    DirectX::XMFLOAT4X4 WorldViewProj = FireFlame::Matrix4X4();
+};
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
@@ -35,7 +40,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         stShaderDescription shader("color", L"Shaders\\color.hlsl", 1,
                                    { "VS","PS" }, { "vs_5_0","ps_5_0" }, 
                                    { "POSITION","COLOR" }, 
-                                   stShaderDescription::Shader_VS | stShaderDescription::Shader_PS);
+                                   stShaderDescription::Shader_VS | stShaderDescription::Shader_PS,
+                                   {sizeof(ObjectConstants)});
 		engine.GetScene()->AddPrimitive(meshDesc, shader);
 
 		stRawMesh::stSubMesh subMesh;

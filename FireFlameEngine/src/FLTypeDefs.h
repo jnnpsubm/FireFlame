@@ -55,9 +55,11 @@ struct stRawMesh {
 struct stShaderDescription {
     stShaderDescription(const std::string& _name, const std::wstring& file, unsigned int _numConstBuffer,
         const std::vector<std::string>& _entry, const std::vector<std::string>& _target, 
-        const std::vector<std::string>& _semanticNames, UINT shaderType)
+        const std::vector<std::string>& _semanticNames, UINT shaderType,
+        const std::vector<unsigned int>& _constBufferSize)
         : name(_name), shaderFile(file), numConstBuffer(_numConstBuffer),
-          entryPoint(_entry), target(_target), semanticNames(_semanticNames), shaderType(shaderType)
+          entryPoint(_entry), target(_target), semanticNames(_semanticNames), 
+          shaderType(shaderType), constBufferSize(_constBufferSize)
     {/*===============================================================================================*/}
     std::string               name;
 
@@ -67,6 +69,7 @@ struct stShaderDescription {
     UINT                      shaderType;
     std::vector<std::string>  semanticNames;
     unsigned int              numConstBuffer = 0;
+    std::vector<unsigned int> constBufferSize;
 
     bool HaveVS() const  { return shaderType & Shader_VS; }
     bool HaveTCS() const { return shaderType & Shader_TCS; }

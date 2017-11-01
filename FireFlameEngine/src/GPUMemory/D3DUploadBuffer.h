@@ -1,15 +1,14 @@
 #pragma once
-
 #include "..\FLD3DUtils.h"
+#include "..\3rd_utils\d3dx12.h"
 
 namespace FireFlame {
-template<typename T>
 class UploadBuffer{
 public:
-    UploadBuffer(ID3D12Device* device, UINT elementCount, bool isConstantBuffer)
-        : mIsConstantBuffer(isConstantBuffer)
-    {
-        mElementByteSize = sizeof(T);
+    UploadBuffer(bool isConstantBuffer) : mIsConstantBuffer(isConstantBuffer){}
+
+    void Init(ID3D12Device* device, UINT elementCount, UINT elementSize) {
+        mElementByteSize = elementSize;
 
         // Constant buffer elements need to be multiples of 256 bytes.
         // This is because the hardware can only view constant data 
@@ -18,8 +17,8 @@ public:
         // UINT64 OffsetInBytes; // multiple of 256
         // UINT   SizeInBytes;   // multiple of 256
         // } D3D12_CONSTANT_BUFFER_VIEW_DESC;
-        if (isConstantBuffer)
-            mElementByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(T));
+        if (mIsConstantBuffer)
+            mElementByteSize = D3DUtils::CalcConstantBufferByteSize(elementSize);
 
         ThrowIfFailed(device->CreateCommittedResource(
             &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -50,6 +49,7 @@ public:
         return mUploadBuffer.Get();
     }
 
+    template<typename T>
     void CopyData(int elementIndex, const T& data)
     {
         memcpy(&mMappedData[elementIndex*mElementByteSize], &data, sizeof(T));

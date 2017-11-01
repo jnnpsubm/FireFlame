@@ -9,4 +9,14 @@
   <ItemGroup>
     <ClInclude Include="Mesh.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{35603e31-adeb-4f79-8037-a0c67bfcf28b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\color.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
 </Project>

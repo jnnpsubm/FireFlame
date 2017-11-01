@@ -117,7 +117,7 @@
     <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h">
       <Filter>src\GPUMemory</Filter>
     </ClInclude>
-    <ClInclude Include="src\GPUMemory\ShaderConstBuffer.h">
+    <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h">
       <Filter>src\ShaderWrapper\ShaderConstBuffer</Filter>
     </ClInclude>
   </ItemGroup>

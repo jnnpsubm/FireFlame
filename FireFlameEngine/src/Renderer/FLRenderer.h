@@ -25,8 +25,13 @@ public:
 	UINT GetSampleCount()const { return mSampleCount; }
 	void ToggleMSAA();
 
-    // Get
-    ID3D12Device* GetDevice() const { return md3dDevice.Get(); }
+    // Get Methods
+    ID3D12Device* GetDevice() const             { return md3dDevice.Get(); }
+    DXGI_FORMAT   GetBackBufferFormat() const   { return mBackBufferFormat; }
+    DXGI_FORMAT   GetDepthStencilFormat() const { return mDepthStencilFormat; }
+    bool          GetMSAAStatus() const         { return mMSAAOn; }
+    UINT          GetMSAASampleCount() const    { return mSampleCount; }
+    UINT          GetMSAAQuality() const        { return mMSAAQuality; }
 
 	// register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }

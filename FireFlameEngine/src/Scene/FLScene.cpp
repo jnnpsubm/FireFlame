@@ -22,7 +22,12 @@ void Scene::AddPrimitive(const stRawMesh& mesh, const stShaderDescription& shade
         shader = mShaders[shaderDesc.name];
     }
     shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), shaderDesc.numConstBuffer);
+    shader->BuildConstantBuffers(mRenderer->GetDevice(), shaderDesc.constBufferSize[0]);
+    // todo rootsignature
     shader->BuildShadersAndInputLayout(shaderDesc, mesh.vertexFormat);
+    shader->BuildPSO(mRenderer->GetDevice(), mRenderer->GetBackBufferFormat(),
+                     mRenderer->GetDepthStencilFormat(), mRenderer->GetMSAAStatus(),
+                     mRenderer->GetSampleCount(), mRenderer->GetMSAAQuality());
 	mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
 }
 

@@ -26,7 +26,6 @@
     <ClInclude Include="src\Exception\FLException.h" />
     <ClInclude Include="src\FLTypeDefs.h" />
     <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h" />
-    <ClInclude Include="src\GPUMemory\ShaderConstBuffer.h" />
     <ClInclude Include="src\Matrix\FLMatrix.h" />
     <ClInclude Include="src\Matrix\FLMatrix4X4.h" />
     <ClInclude Include="src\Matrix\FLMatrixHelper.h" />
@@ -41,6 +40,7 @@
     <ClInclude Include="src\Scene\Vertex\FLVertex.h" />
     <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapper.h" />
     <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h" />
+    <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
     <ClInclude Include="src\ViewFrustum\FLViewFrustum.h" />
     <ClInclude Include="src\Window\FLWindow.h" />
