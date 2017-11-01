@@ -31,7 +31,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		meshDesc.Vertex_Format = VERTEX_FORMAT_POS_FLOAT_3 | VERTEX_FORMAT_COLOR_FLOAT_4;
 		meshDesc.vertices = boxMesh.vertices.data();
 		meshDesc.LocalToWorld = boxMesh.matrixLocal2World;
-		engine.GetScene()->AddPrimitive(meshDesc);
+
+        stShaderDescription shader("color", L"Shaders\\color.hlsl", 1,
+                               { "VS","PS" }, { "vs_5_0","ps_5_0" }, { "POSITION","COLOR" });
+		engine.GetScene()->AddPrimitive(meshDesc, shader);
 
 		stRawMesh::stSubMesh subMesh;
 		subMesh.name = "Box";

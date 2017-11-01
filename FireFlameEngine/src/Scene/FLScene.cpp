@@ -1,17 +1,28 @@
 #include "FLScene.h"
 #include "..\Renderer\FLRenderer.h"
+#include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 
 namespace FireFlame {
-Scene::Scene() = default;
+Scene::Scene(std::shared_ptr<Renderer>& renderer) : mRenderer(renderer){}
 
-void Scene::Update(Renderer& renderer, const StopWatch& gt) {
+void Scene::Update(const StopWatch& gt) {
 	
 }
-void Scene::Render(Renderer& renderer, const StopWatch& gt) {
-	renderer.Render(gt);
+void Scene::Render(const StopWatch& gt) {
+	mRenderer->Render(gt);
 }
 
-void Scene::AddPrimitive(const stRawMesh& mesh) {
+void Scene::AddPrimitive(const stRawMesh& mesh, const stShaderDescription& shaderDesc) {
+    std::shared_ptr<D3DShaderWrapper> shader = nullptr;
+    auto it = mShaders.find(shaderDesc.name);
+    if (it == mShaders.end()) {
+        shader = std::make_shared<D3DShaderWrapper>();
+        mShaders[shaderDesc.name] = shader;
+    }else {
+        shader = mShaders[shaderDesc.name];
+    }
+    shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), shaderDesc.numConstBuffer);
+    
 	mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
 }
 

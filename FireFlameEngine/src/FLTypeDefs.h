@@ -1,5 +1,6 @@
 #pragma once
 #include "Matrix\FLMatrix4X4.h"
+#include <vector>
 
 namespace FireFlame {
 enum class API_Feature {
@@ -49,5 +50,21 @@ struct stRawMesh {
 		unsigned int startIndexLocation;			
 		int          baseVertexLocation;
 	};
+};
+
+struct stShaderDescription {
+    stShaderDescription(const std::string& _name, const std::wstring& file, unsigned int _numConstBuffer,
+        const std::vector<std::string>& _entry, const std::vector<std::string>& _target, 
+        const std::vector<std::string>& _semanticNames
+    ) : name(_name), shaderFile(file), numConstBuffer(_numConstBuffer),
+        entryPoint(_entry), target(_target), semanticNames(_semanticNames)
+    {}
+    std::string               name;
+
+    std::wstring              shaderFile;
+    std::vector<std::string>  entryPoint;
+    std::vector<std::string>  target;
+    std::vector<std::string>  semanticNames;
+    unsigned int              numConstBuffer = 0;
 };
 } // end namespace

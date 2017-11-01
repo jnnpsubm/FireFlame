@@ -25,6 +25,9 @@ public:
 	UINT GetSampleCount()const { return mSampleCount; }
 	void ToggleMSAA();
 
+    // Get
+    ID3D12Device* GetDevice() const { return md3dDevice.Get(); }
+
 	// register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
 	void RegisterDrawFunc(std::function<void(float)> func)   { mDrawFunc = func; }

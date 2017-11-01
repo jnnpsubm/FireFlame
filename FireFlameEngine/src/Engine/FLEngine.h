@@ -47,9 +47,9 @@ private:
 	StopWatch                 mTimer;
 	bool                      mAppPaused = false;  // is the application paused?
 
-	std::shared_ptr<Window>   mMainWnd  = nullptr;
-	std::shared_ptr<Renderer> mRenderer = nullptr;
-	std::shared_ptr<Scene>    mScene    = nullptr;
+	std::shared_ptr<Window>   mMainWnd   = nullptr;
+	std::shared_ptr<Renderer> mRenderer  = nullptr;
+	std::shared_ptr<Scene>    mScene     = nullptr;
 
 	void CalculateFrameStats();
 };

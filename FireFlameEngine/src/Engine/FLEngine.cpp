@@ -10,6 +10,7 @@ Engine::Engine(HINSTANCE hinst) {
 	mRenderer = std::make_shared<Renderer>();
 	mMainWnd  = std::make_shared<Window>(hinst, *this);
 	mRenderer->SetRenderWindow(mMainWnd);
+    mScene = std::make_shared<Scene>(mRenderer);
 }
 Engine::~Engine() {
 	//if (renderer) renderer->FlushCommandQueue();
@@ -27,8 +28,8 @@ int Engine::Run() {
 			mTimer.Mark();
 			if (!mAppPaused) {
 				CalculateFrameStats();
-				mScene->Update(*mRenderer, mTimer);
-				mScene->Render(*mRenderer, mTimer);
+				mScene->Update(mTimer);
+				mScene->Render(mTimer);
 			}else {
 				Sleep(10);
 			}

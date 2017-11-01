@@ -37,6 +37,12 @@
     <ClCompile Include="src\FLD3DUtils.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapper.cpp">
+      <Filter>src\ShaderWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShaderWrapper\FLShaderWrapper.cpp">
+      <Filter>src\ShaderWrapper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -101,6 +107,12 @@
     </ClInclude>
     <ClInclude Include="src\Engine\FLEngine.h">
       <Filter>src\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapper.h">
+      <Filter>src\ShaderWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h">
+      <Filter>src\ShaderWrapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
