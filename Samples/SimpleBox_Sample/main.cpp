@@ -28,12 +28,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		
 		meshDesc.vertexCount = (unsigned int)boxMesh.vertices.size();
 		meshDesc.vertexSize = sizeof(Mesh::Vertex);
-		meshDesc.Vertex_Format = VERTEX_FORMAT_POS_FLOAT_3 | VERTEX_FORMAT_COLOR_FLOAT_4;
+		meshDesc.vertexFormat = VERTEX_FORMAT_POS_FLOAT_3 | VERTEX_FORMAT_COLOR_FLOAT_4;
 		meshDesc.vertices = boxMesh.vertices.data();
 		meshDesc.LocalToWorld = boxMesh.matrixLocal2World;
 
         stShaderDescription shader("color", L"Shaders\\color.hlsl", 1,
-                               { "VS","PS" }, { "vs_5_0","ps_5_0" }, { "POSITION","COLOR" });
+                                   { "VS","PS" }, { "vs_5_0","ps_5_0" }, 
+                                   { "POSITION","COLOR" }, 
+                                   stShaderDescription::Shader_VS | stShaderDescription::Shader_PS);
 		engine.GetScene()->AddPrimitive(meshDesc, shader);
 
 		stRawMesh::stSubMesh subMesh;
@@ -41,7 +43,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		subMesh.indexCount = meshDesc.indexCount;
 		subMesh.startIndexLocation = 0;
 		subMesh.baseVertexLocation = 0;
-		engine.GetScene()->PrimitiveAddSubMesh(subMesh);
+		engine.GetScene()->PrimitiveAddSubMesh(boxMesh.name, subMesh);
 		
 		return engine.Run();
 	}

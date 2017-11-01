@@ -22,13 +22,14 @@ void Scene::AddPrimitive(const stRawMesh& mesh, const stShaderDescription& shade
         shader = mShaders[shaderDesc.name];
     }
     shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), shaderDesc.numConstBuffer);
-    
+    shader->BuildShadersAndInputLayout(shaderDesc, mesh.vertexFormat);
 	mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
 }
 
-void Scene::PrimitiveAddSubMesh(const stRawMesh::stSubMesh& subMesh){
-	auto it = mPrimitives.find(subMesh.name);
-	if (it != mPrimitives.end()) return;
-	mPrimitives[subMesh.name]->GetMesh()->AddSubMesh(subMesh);
+void Scene::PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh){
+	auto it = mPrimitives.find(name);
+	if (it == mPrimitives.end()) return;
+    D3DMesh* mesh = mPrimitives[name]->GetMesh();
+    mesh->AddSubMesh(subMesh);
 }
 } // end namespace

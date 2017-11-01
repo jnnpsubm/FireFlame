@@ -2,6 +2,7 @@
 #include <wrl.h>
 #include <DXGI1_5.h>
 #include <d3d12.h>
+#include <D3Dcompiler.h>
 #include "FLTypeDefs.h"
 #include "Exception\FLException.h"
 
@@ -15,6 +16,18 @@ public:
         UINT64 byteSize,
         Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer
     );
+    static Microsoft::WRL::ComPtr<ID3DBlob> D3DUtils::CompileShader(
+        const std::wstring& filename,
+        const D3D_SHADER_MACRO* defines,
+        const std::string& entrypoint,
+        const std::string& target);
+    static UINT CalcConstantBufferByteSize(UINT byteSize) {
+        // Constant buffers must be a multiple of the minimum hardware
+        // allocation size (usually 256 bytes).  So round up to nearest
+        // multiple of 256.  We do this by adding 255 and then masking off
+        // the lower 2 bytes which store all bits < 256.
+        return (byteSize + 255) & ~255;
+    }
 };
 
 inline DXGI_FORMAT FLIndexFormat2DXGIFormat(Index_Format format) {
@@ -27,6 +40,28 @@ inline DXGI_FORMAT FLIndexFormat2DXGIFormat(Index_Format format) {
 	default:
 		return DXGI_FORMAT_R16_UINT;
 	}
+}
+inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
+    switch (format)
+    {
+    case VERTEX_FORMAT_POS_FLOAT_3:
+        return DXGI_FORMAT_R32G32B32_FLOAT;
+    case VERTEX_FORMAT_COLOR_FLOAT_4:
+        return DXGI_FORMAT_R32G32B32A32_FLOAT;
+    default:
+        return DXGI_FORMAT_UNKNOWN;
+    }
+}
+inline UINT FLVertexFormatByteSize(unsigned long format) {
+    switch (format)
+    {
+    case VERTEX_FORMAT_POS_FLOAT_3:
+        return 12;
+    case VERTEX_FORMAT_COLOR_FLOAT_4:
+        return 16;
+    default:
+        return 0;
+    }
 }
 inline std::wstring AnsiToWString(const std::string& str)
 {

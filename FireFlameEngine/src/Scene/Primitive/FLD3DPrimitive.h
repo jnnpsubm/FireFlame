@@ -7,7 +7,7 @@ class D3DPrimitive {
 public:
 	D3DPrimitive();
 	explicit D3DPrimitive(const stRawMesh& mesh);
-	std::unique_ptr<D3DMesh>& GetMesh() { return mMesh; }
+	D3DMesh* GetMesh() { return mMesh.get(); }
 
 private:
 	std::unique_ptr<D3DMesh>          mMesh;

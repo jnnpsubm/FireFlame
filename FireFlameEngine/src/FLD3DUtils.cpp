@@ -35,7 +35,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultBuffer(
     // Describe the data we want to copy into the default buffer.
     D3D12_SUBRESOURCE_DATA subResourceData = {};
     subResourceData.pData = initData;
-    subResourceData.RowPitch = byteSize;
+    subResourceData.RowPitch = (LONG_PTR)byteSize;
     subResourceData.SlicePitch = subResourceData.RowPitch;
 
     // Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
@@ -50,8 +50,31 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultBuffer(
     // Note: uploadBuffer has to be kept alive after the above function calls because
     // the command list has not been executed yet that performs the actual copy.
     // The caller can Release the uploadBuffer after it knows the copy has been executed.
-
-
     return defaultBuffer;
 }
+Microsoft::WRL::ComPtr<ID3DBlob> D3DUtils::CompileShader(
+    const std::wstring& filename,
+    const D3D_SHADER_MACRO* defines,
+    const std::string& entrypoint,
+    const std::string& target)
+{
+    UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)  
+    compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    HRESULT hr = S_OK;
+
+    Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> errors;
+    hr = D3DCompileFromFile(filename.c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        entrypoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &errors);
+
+    if (errors != nullptr)
+        OutputDebugStringA((char*)errors->GetBufferPointer());
+
+    ThrowIfFailed(hr);
+
+    return byteCode;
 }
+} // end namespace

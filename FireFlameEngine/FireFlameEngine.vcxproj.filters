@@ -114,6 +114,12 @@
     <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h">
       <Filter>src\ShaderWrapper</Filter>
     </ClInclude>
+    <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h">
+      <Filter>src\GPUMemory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUMemory\ShaderConstBuffer.h">
+      <Filter>src\ShaderWrapper\ShaderConstBuffer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -160,6 +166,12 @@
     </Filter>
     <Filter Include="src\ShaderWrapper">
       <UniqueIdentifier>{e8187cf0-6be7-4e11-8f1b-f16e7fa15710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\GPUMemory">
+      <UniqueIdentifier>{6f90b537-cd19-4c19-9f2a-a37cb46ec602}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ShaderWrapper\ShaderConstBuffer">
+      <UniqueIdentifier>{1be91f12-4500-4332-a75f-9341693b8a64}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
