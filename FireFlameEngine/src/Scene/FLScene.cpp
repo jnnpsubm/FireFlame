@@ -20,4 +20,4 @@ void Scene::PrimitiveAddSubMesh(const stRawMesh::stSubMesh& subMesh){
 	if (it != mPrimitives.end()) return;
 	mPrimitives[subMesh.name]->GetMesh()->AddSubMesh(subMesh);
 }
-}
+} // end namespace

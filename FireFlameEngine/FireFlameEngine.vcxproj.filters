@@ -146,5 +146,8 @@
     <Filter Include="src\Engine">
       <UniqueIdentifier>{0b5bff3d-9019-4768-beb5-4790b87bf843}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ShaderWrapper">
+      <UniqueIdentifier>{e8187cf0-6be7-4e11-8f1b-f16e7fa15710}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

@@ -3,8 +3,7 @@
 #include <iostream>
 #include <mmsystem.h>
 #include "testMatrix.h"
-#include "../FireFlameEngine/header/FireFlameHeader.h"
-#include "../FireFlameEngine/src/ViewFrustum/FLViewFrustum.h"
+#include "FireFlameHeader.h"
 
 using namespace FireFlame;
 
