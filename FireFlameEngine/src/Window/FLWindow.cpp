@@ -8,7 +8,7 @@ Window* Window::theWindow = nullptr;
 Window::~Window() {
 	
 }
-Window::Window(HINSTANCE hInst, Engine* engine) 
+Window::Window(HINSTANCE hInst, Engine& engine) 
 	: mhInst(hInst), mEngine(engine) {
 	assert(theWindow == nullptr);
 	theWindow = this;
@@ -121,14 +121,14 @@ void Window::AppendWindowCaption(const std::wstring& appendStr) {
 // ==============================Message Processing==============================
 LRESULT Window::OnActive(UINT mode) {
 	if (mode == WA_INACTIVE){
-		mEngine->Pause();
+		mEngine.Pause();
 	}else{
-		mEngine->Resume();
+		mEngine.Resume();
 	}
 	return 0;
 }
 LRESULT Window::OnDestroy() {
-	mEngine->OnWindowDestroy();
+	mEngine.OnWindowDestroy();
 	PostQuitMessage(0);
 	return 0;
 }
@@ -137,23 +137,23 @@ LRESULT Window::OnSize(WPARAM wParam, LPARAM lParam) {
 	mClientWidth = LOWORD(lParam);
 	mClientHeight = HIWORD(lParam);
 	if (wParam == SIZE_MINIMIZED) {
-		mEngine->Pause();
+		mEngine.Pause();
 		mMinimized = true;
 		mMaximized = false;
 	}
 	else if (wParam == SIZE_MAXIMIZED) {
 		mMinimized = false;
 		mMaximized = true;
-		mEngine->OnWindowResized();
+		mEngine.OnWindowResized();
 	}
 	else if (wParam == SIZE_RESTORED) {
 		if (mMinimized) {        // Restoring from minimized state?
 			mMinimized = false;
-			mEngine->OnWindowResized();
+			mEngine.OnWindowResized();
 		}
 		else if (mMaximized) {  // Restoring from maximized state?
 			mMaximized = false;
-			mEngine->OnWindowResized();
+			mEngine.OnWindowResized();
 		}
 		else if (mResizing) {
 			// If user is dragging the resize bars, we do not resize 
@@ -166,19 +166,19 @@ LRESULT Window::OnSize(WPARAM wParam, LPARAM lParam) {
 			// sends a WM_EXITSIZEMOVE message.
 		}
 		else { // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
-			mEngine->OnWindowResized();
+			mEngine.OnWindowResized();
 		}
 	}
 	return 0;
 }
 LRESULT Window::OnEnterSizeMove() {
 	mResizing = true;
-	mEngine->Pause();
+	mEngine.Pause();
 	return 0;
 }
 LRESULT Window::OnExitSizeMove() {
 	mResizing = false;
-	mEngine->OnWindowResized();
+	mEngine.OnWindowResized();
 	return 0;
 }
 LRESULT Window::OnGetMinMaxInfo(MINMAXINFO* pInfo) {
@@ -188,10 +188,10 @@ LRESULT Window::OnGetMinMaxInfo(MINMAXINFO* pInfo) {
 }
 LRESULT Window::OnKeyUp(WPARAM wParam, LPARAM lParam) {
 	if (wParam == VK_ESCAPE) {
-		mEngine->Stop();
+		mEngine.Stop();
 		PostQuitMessage(0);
 	}
-	return mEngine->OnWindowKeyUp(wParam, lParam);
+	return mEngine.OnWindowKeyUp(wParam, lParam);
 }
 LRESULT Window::OnSysKeyDown(WPARAM wParam, LPARAM lParam) {
 	if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000){

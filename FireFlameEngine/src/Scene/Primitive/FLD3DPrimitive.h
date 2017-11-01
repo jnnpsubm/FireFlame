@@ -5,18 +5,11 @@ namespace FireFlame {
 class D3DPrimitive {
 public:
 	D3DPrimitive();
-	D3DPrimitive(const std::string& name,
-				 unsigned int vertexSize,
-				 unsigned int vertexCount,
-				 unsigned int Vertex_Format,
-				 const void* vertices,
-				 Index_Format indexFormat,
-				 unsigned int indexCount,
-				 const void* indices,
-				 const Matrix4X4& LocaltoWorld);
+	explicit D3DPrimitive(const stRawMesh& mesh);
+	std::unique_ptr<D3DMesh>& GetMesh() { return mMesh; }
 
 private:
-	D3DMesh mMesh;
-	DirectX::XMFLOAT4X4 mLocal2World;
+	std::unique_ptr<D3DMesh> mMesh;
+	DirectX::XMFLOAT4X4      mLocal2World;
 };
 }

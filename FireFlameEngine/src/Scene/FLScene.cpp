@@ -2,17 +2,14 @@
 
 namespace FireFlame {
 Scene::Scene() = default;
-void Scene::AddPrimitive(const std::string& name,
-						 unsigned int vertexSize,
-						 unsigned int vertexCount,
-						 unsigned int Vertex_Format,
-						 const void* vertices,
-						 Index_Format indexFormat,
-						 unsigned int indexCount,
-						 const void* indices,
-						 const Matrix4X4& LocalToWorld) 
-{
-	D3DPrimitive primitive(name, vertexSize, vertexCount, Vertex_Format, vertices,
-		indexFormat, indexCount, indices, LocalToWorld);
+void Scene::AddPrimitive(const stRawMesh& mesh) {
+	mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
+}
+
+void Scene::PrimitiveAddSubMesh(const stRawMesh::stSubMesh& subMesh){
+	auto it = mPrimitives.find(subMesh.name);
+	if (it != mPrimitives.end()) return;
+	mPrimitives[subMesh.name]->GetMesh();
+
 }
 }

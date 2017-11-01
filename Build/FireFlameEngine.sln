@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Matrix_Sample", "..\Matrix_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcedualBox_Sample", "..\ProcedualBox_Sample\ProcedualBox_Sample.vcxproj", "{6F71EBD9-E839-4B0A-8940-DDFD051D5CC9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box_Sample", "..\Box_Sample\Box_Sample.vcxproj", "{A1910E35-2A21-4D95-9353-06974BA3A60E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleBox_Sample", "..\SimpleBox_Sample\SimpleBox_Sample.vcxproj", "{A1910E35-2A21-4D95-9353-06974BA3A60E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

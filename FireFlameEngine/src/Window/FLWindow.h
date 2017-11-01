@@ -9,7 +9,7 @@ namespace FireFlame {
 class Engine;
 class Window {
 public:
-	Window(HINSTANCE hInst, Engine* engine);
+	Window(HINSTANCE hInst, Engine& engine);
 	~Window();
 
 	static Window* GetWindow()     { return theWindow; }
@@ -31,7 +31,7 @@ public:
 
 private:
 	static Window* theWindow;
-	Engine*        mEngine;
+	Engine&        mEngine;
 	
 	MSG          msg = { 0 };
 	std::wstring mCaption;

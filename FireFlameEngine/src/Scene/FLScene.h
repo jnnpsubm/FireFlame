@@ -8,17 +8,11 @@ namespace FireFlame {
 class Scene {
 public:
 	Scene();
-	void AddPrimitive(const std::string& name,
-					  unsigned int vertexSize,
-					  unsigned int vertexCount,
-					  unsigned int Vertex_Format,
-					  const void* vertices,
-					  Index_Format indexFormat,
-				      unsigned int indexCount,
-					  const void* indices,
-					  const Matrix4X4& LocalToWorld);
+	void AddPrimitive(const stRawMesh& mesh);
+	void PrimitiveAddSubMesh(const stRawMesh::stSubMesh& subMesh);
 
 private:
-	std::unordered_map<std::string, D3DPrimitive> mPrimitives; // todo : scene manage
+	// todo : scene manage
+	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>> mPrimitives; 
 };
 }

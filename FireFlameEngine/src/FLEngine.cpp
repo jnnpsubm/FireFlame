@@ -8,7 +8,7 @@ Engine::Engine(HINSTANCE hinst) {
 	assert(theEngine == nullptr);
 	theEngine = this;
 	mRenderer = std::make_shared<Renderer>();
-	mMainWnd  = std::make_shared<Window>(hinst, this);
+	mMainWnd  = std::make_shared<Window>(hinst, *this);
 	mRenderer->SetRenderWindow(mMainWnd);
 }
 Engine::~Engine() {

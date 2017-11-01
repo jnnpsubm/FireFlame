@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include <Windows.h>
 #include <d3d12.h>
 #include <d3dcompiler.h>
@@ -21,16 +22,11 @@ private:
 
 public:
 	D3DMesh();
-	D3DMesh(const std::string& name,
-			unsigned int vertexSize,
-			unsigned int vertexCount,
-			unsigned int Vertex_Format,
-			const void* vertices,
-			Index_Format indexFormat,
-			unsigned int indexCount,
-			const void* indices);
+	explicit D3DMesh(const stRawMesh& rawMesh);
 	std::string mName;
 	bool        mResideInGPU = false;
+
+	void AddSubMesh(const stRawMesh::stSubMesh& subMesh);
 
 	// System memory copies.  Use Blobs because the vertex/index format can be generic.
 	// It is up to the client to cast appropriately.  
