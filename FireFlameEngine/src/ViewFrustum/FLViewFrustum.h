@@ -80,6 +80,7 @@ std::ostream& operator<<(std::ostream& os, const DirectX::XMFLOAT3& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 	return os;
 }
+inline
 std::ostream& operator<<(std::ostream& os, const stViewFrustum8Corner& frustum) {
 	os << "near left bottom:" << frustum.corner[0] << " near left top:" << frustum.corner[1] << '\n'
 	   << "near right top:" << frustum.corner[2] << " near right bottom:" << frustum.corner[3] << '\n'

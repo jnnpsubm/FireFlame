@@ -13,10 +13,11 @@ class D3DShaderWrapper {
 public:
     D3DShaderWrapper() = default;
 
+    void BuildRootSignature(ID3D12Device* device);
     void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT, bool, UINT, UINT);
     void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
     void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
-    void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc, UINT vertexFormat);
+    void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
 
 private:
     Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;
@@ -31,7 +32,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap       = nullptr;
 
-    void BuildInputLayout(const stShaderDescription& shaderDesc, UINT vertexFormat);
+    void BuildInputLayout(const stShaderDescription& shaderDesc);
 };
 
 } // end namespace

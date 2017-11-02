@@ -14,7 +14,8 @@ public:
 	void Update(const StopWatch& gt);
 	void Render(const StopWatch& gt);
 
-	void AddPrimitive(const stRawMesh& mesh, const stShaderDescription& shaderDesc);
+    void AddShader(const stShaderDescription& shaderDesc);
+	void AddPrimitive(const stRawMesh& mesh);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);
 
 private:

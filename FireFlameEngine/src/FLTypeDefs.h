@@ -33,6 +33,7 @@ const unsigned long VERTEX_FORMAT_POS_FLOAT_3   = 1UL << 0;
 const unsigned long VERTEX_FORMAT_COLOR_FLOAT_4 = 1UL << 1;
 
 struct stRawMesh {
+    stRawMesh(const std::string& _name) :name(_name) {}
 	std::string name;
 	unsigned int vertexSize;
 	unsigned int vertexCount;
@@ -45,6 +46,7 @@ struct stRawMesh {
 	Matrix4X4 LocalToWorld;
 
 	struct stSubMesh {
+        stSubMesh(const std::string& _name):name(_name){}
 		std::string  name;
 		unsigned int indexCount;
 		unsigned int startIndexLocation;			
@@ -52,34 +54,42 @@ struct stRawMesh {
 	};
 };
 
+enum class Shader_Type {
+    VS = 0,
+    TCS,
+    TES,
+    GS,
+    PS,
+};
+struct stShaderStage {
+    stShaderStage(const std::wstring& _file, Shader_Type _type, 
+                  const std::string& _entry, const std::string& _target)
+        : file(_file),type(_type),entry(_entry),target(_target)
+    {/*=======================================================================================*/}
+    std::wstring file;
+    Shader_Type  type;
+    std::string  entry;
+    std::string  target;
+};
+
 struct stShaderDescription {
-    stShaderDescription(const std::string& _name, const std::wstring& file, unsigned int _numConstBuffer,
-        const std::vector<std::string>& _entry, const std::vector<std::string>& _target, 
-        const std::vector<std::string>& _semanticNames, UINT shaderType,
-        const std::vector<unsigned int>& _constBufferSize)
-        : name(_name), shaderFile(file), numConstBuffer(_numConstBuffer),
-          entryPoint(_entry), target(_target), semanticNames(_semanticNames), 
-          shaderType(shaderType), constBufferSize(_constBufferSize)
-    {/*===============================================================================================*/}
-    std::string               name;
+    stShaderDescription(const std::string& _name,
+                        const std::vector<unsigned int>& _vertexFormats,
+                        const std::vector<std::string>& _semanticNames,
+                        const std::vector<unsigned int>& _constBufferSize)
+        : name(_name), vertexFormats(_vertexFormats),semanticNames(_semanticNames),
+          constBufferSize(_constBufferSize)
+    {/*==================================================================================*/}
+    std::string                name;
 
-    std::wstring              shaderFile;
-    std::vector<std::string>  entryPoint;  // order by vs tcs tes gs ps
-    std::vector<std::string>  target;      // order by vs tcs tes gs ps
-    UINT                      shaderType;
-    std::vector<std::string>  semanticNames;
-    unsigned int              numConstBuffer = 0;
-    std::vector<unsigned int> constBufferSize;
+    std::vector<stShaderStage> shaderStage;
+    std::vector<unsigned int>  vertexFormats;
+    std::vector<std::string>   semanticNames;   // order mush match vertexFormat
+    std::vector<unsigned int>  constBufferSize;
 
-    bool HaveVS() const  { return shaderType & Shader_VS; }
-    bool HaveTCS() const { return shaderType & Shader_TCS; }
-    bool HaveTES() const { return shaderType & Shader_TES; }
-    bool HaveGS() const  { return shaderType & Shader_GS; }
-    bool HavePS() const  { return shaderType & Shader_PS; }
-    static const UINT Shader_VS  = 1U << 0;
-    static const UINT Shader_TCS = 1U << 1;
-    static const UINT Shader_TES = 1U << 2;
-    static const UINT Shader_GS  = 1U << 3;
-    static const UINT Shader_PS  = 1U << 4;
+    void AddShaderStage(const std::wstring& file, Shader_Type type, 
+                        const std::string& entry, const std::string& target) {
+        shaderStage.emplace_back(file, type, entry, target);
+    }
 };
 } // end namespace

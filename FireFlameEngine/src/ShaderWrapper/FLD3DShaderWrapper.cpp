@@ -4,7 +4,7 @@
 
 namespace FireFlame {
 void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, 
-    DXGI_FORMAT DSFormat,bool MSAAOn, UINT sampleCount, UINT MSAAQuality)
+                                DXGI_FORMAT DSFormat,bool MSAAOn, UINT sampleCount, UINT MSAAQuality)
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -29,6 +29,54 @@ void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferForm
     psoDesc.SampleDesc.Quality = MSAAOn ? (MSAAQuality - 1) : 0;
     psoDesc.DSVFormat = DSFormat;
     ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO)));
+}
+void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
+    // Shader programs typically require resources as input (constant buffers,
+    // textures, samplers).  The root signature defines the resources the shader
+    // programs expect.  If we think of the shader programs as a function, and
+    // the input resources as function parameters, then the root signature can be
+    // thought of as defining the function signature.  
+
+    // Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[1];
+
+    // Create a single descriptor table of CBVs.
+    CD3DX12_DESCRIPTOR_RANGE cbvTable;
+    cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc
+    (
+        1, slotRootParameter, 0, nullptr,
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+    );
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature
+    (
+        &rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()
+    );
+
+    if (errorBlob != nullptr)
+    {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+    ThrowIfFailed(hr);
+
+    ThrowIfFailed
+    (
+        device->CreateRootSignature
+        (
+            0,
+            serializedRootSig->GetBufferPointer(),
+            serializedRootSig->GetBufferSize(),
+            IID_PPV_ARGS(mRootSignature.ReleaseAndGetAddressOf())
+        )
+    );
 }
 void D3DShaderWrapper::BuildConstantBuffers(ID3D12Device* device, UINT CBSize){
     mShaderCB = std::make_unique<UploadBuffer>(true);
@@ -58,35 +106,42 @@ void D3DShaderWrapper::BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDes
     ThrowIfFailed(device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(mCbvHeap.ReleaseAndGetAddressOf())));
 }
 
-void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc, UINT vertexFormat) {
-    int index = 0;
-    if (shaderDesc.HaveVS()) {
-        mVSByteCode = D3DUtils::CompileShader(shaderDesc.shaderFile, nullptr, 
-                                              shaderDesc.entryPoint[index], 
-                                              shaderDesc.target[index]
+void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc) {
+    for (const auto& shaderStage : shaderDesc.shaderStage) {
+        Microsoft::WRL::ComPtr<ID3DBlob> byteCode = D3DUtils::CompileShader
+        (
+            shaderStage.file, nullptr, 
+            shaderStage.entry, 
+            shaderStage.target
         );
-        ++index;
-    }
-    if (shaderDesc.HavePS()) {
-        mPSByteCode = D3DUtils::CompileShader(shaderDesc.shaderFile, nullptr, 
-                                              shaderDesc.entryPoint[index],
-                                              shaderDesc.target[index]
-        );
-        ++index;
-    }
-    BuildInputLayout(shaderDesc, vertexFormat);
-}
-void D3DShaderWrapper::BuildInputLayout(const stShaderDescription& shaderDesc, UINT vertexFormat) {
-    // bug? pointer to temp char*
-    mInputLayout = {
-        { shaderDesc.semanticNames[0].c_str(), 0, 
-          FLVertexFormat2DXGIFormat(vertexFormat), 0, 0,
-          D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 
-        },
-        { shaderDesc.semanticNames[1].c_str(), 0, 
-          FLVertexFormat2DXGIFormat(vertexFormat), 0, FLVertexFormatByteSize(vertexFormat),
-          D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 
+        switch (shaderStage.type){
+        case Shader_Type::VS:{
+            mVSByteCode = byteCode;
+        }break;
+        case Shader_Type::PS: {
+            mPSByteCode = byteCode;
+        }break;
+        default:
+            throw std::exception("unhandled shader stage type......");
+            break;
         }
-    };
+    }
+    BuildInputLayout(shaderDesc);
+}
+void D3DShaderWrapper::BuildInputLayout(const stShaderDescription& shaderDesc) {
+    // bug? pointer to temp char*
+    UINT offset = 0;
+    for (size_t i = 0; i < shaderDesc.semanticNames.size(); i++){
+        mInputLayout.push_back
+        (
+        {
+            shaderDesc.semanticNames[i].c_str(), 0,
+            FLVertexFormat2DXGIFormat(shaderDesc.vertexFormats[i]), 0,
+            offset,
+            D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+        }
+        );
+        offset += FLVertexFormatByteSize(shaderDesc.vertexFormats[i]);
+    }
 }
 } // end namespace

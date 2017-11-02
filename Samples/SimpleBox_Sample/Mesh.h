@@ -1,4 +1,7 @@
 #pragma once
+#include <string>
+#include <array>
+#include "FireFlameHeader.h"
 
 class Mesh {
 public:
@@ -12,7 +15,8 @@ public:
 
 public:
 	Mesh() = default;
-	std::string name = "BoxMesh";
+    void GetMeshDesc(FireFlame::stRawMesh& meshDesc);
+    void GetSubMeshDesc(FireFlame::stRawMesh::stSubMesh& subMesh);
 	FireFlame::Matrix4X4 matrixLocal2World;
 	std::array<Vertex, 8> vertices = {
 		Vertex(-1.0f, -1.0f, -1.0f, 1.000000000f, 1.000000000f, 1.000000000f, 1.000000000f),
