@@ -1,12 +1,13 @@
 #include "FLScene.h"
 #include "..\Renderer\FLRenderer.h"
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
+#include "..\Timer\FLStopWatch.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<Renderer>& renderer) : mRenderer(renderer){}
 
 void Scene::Update(const StopWatch& gt) {
-	
+    mUpdateFunc(gt.DeltaTime());
 }
 void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);

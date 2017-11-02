@@ -13,7 +13,7 @@ namespace FireFlame {
 //	//OutputDebugString(L"~Renderer executed...\n");
 //}
 void Renderer::Update(const StopWatch& gt) {
-	mUpdateFunc(gt.DeltaTime());
+	
 }
 void Renderer::Render(const StopWatch& gt) {
 	// Reuse the memory associated with command recording.

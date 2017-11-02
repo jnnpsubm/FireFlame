@@ -16,7 +16,7 @@ Engine::~Engine() {
 	//if (renderer) renderer->WaitForGPU();
 }
 void Engine::RegisterRendererUpdateFunc(std::function<void(float)> func){
-	mRenderer->RegisterUpdateFunc(func);
+	mScene->RegisterUpdateFunc(func);
 }
 void Engine::RegisterRendererDrawFunc(std::function<void(float)> func){
 	mRenderer->RegisterDrawFunc(func);

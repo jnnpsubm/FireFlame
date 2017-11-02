@@ -39,7 +39,6 @@ public:
     ID3D12GraphicsCommandList* GetCommandList() const        { return mCommandList.Get(); }
 
 	// register callbacks
-	void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
 	void RegisterDrawFunc(std::function<void(float)> func)   { mDrawFunc = func; }
 
 	// system probe
@@ -55,7 +54,6 @@ private:
 	void RenderWithoutMSAA(const StopWatch& gt);
 
 	// callbacks
-	std::function<void(float)> mUpdateFunc = [](float) {};
 	std::function<void(float)> mDrawFunc   = [](float) {};
 
 	void CreateCommandObjects();
