@@ -71,7 +71,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> mIndexBufferUploader  = nullptr;
 
 	// Data about the buffers.
-    D3D_PRIMITIVE_TOPOLOGY mPrimitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    D3D12_PRIMITIVE_TOPOLOGY mPrimitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	UINT        mVertexByteStride = 0;
 	UINT        mVertexBufferByteSize = 0;

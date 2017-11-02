@@ -80,6 +80,7 @@ LRESULT Engine::OnWindowResized() {
 	if (mRenderer->Ready()) {
 		mRenderer->Resize();
 	}
+    mFuncWindowResizedHandler(mMainWnd->ClientWidth(), mMainWnd->ClientHeight());
 	return 0;
 }
 LRESULT Engine::OnWindowKeyUp(WPARAM wParam, LPARAM lParam) {

@@ -17,12 +17,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
     Game              someGame(engine);
 	try {
 		using namespace FireFlame;
-        // engine initialization
-		engine.InitMainWindow(150, 80, 1280, 600);
-		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
 
         // application handles
         engine.RegisterUpdateFunc(std::bind(&Game::Update, &someGame, std::placeholders::_1));
+        engine.RegisterWindowResizedHandler
+        (
+            std::bind
+            (
+                &Game::OnGameWindowResized,
+                &someGame,
+                std::placeholders::_1,
+                std::placeholders::_2
+            )
+        );
+
+        // engine initialization
+		engine.InitMainWindow(150, 80, 800, 600);
+		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
 		
         // use what shader to render the geometry
         std::string shaderName = "colorShader";

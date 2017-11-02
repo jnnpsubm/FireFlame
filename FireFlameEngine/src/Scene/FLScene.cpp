@@ -12,6 +12,9 @@ void Scene::Update(const StopWatch& gt) {
 void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);
 }
+void Scene::PreRender() {
+    mRenderer->SetCurrentPSO(nullptr);
+}
 void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
     for (auto& namedPrimitive : mPrimitives) {
         auto& primitive = namedPrimitive.second;
@@ -23,6 +26,7 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
     }
 }
 int Scene::GetReady() {
+    mRenderer->RegisterPreRenderFunc(std::bind(&Scene::PreRender, this));
     mRenderer->RegisterDrawFunc(std::bind(&Scene::Draw, this, std::placeholders::_1));
 
     mRenderer->ResetCommandList();

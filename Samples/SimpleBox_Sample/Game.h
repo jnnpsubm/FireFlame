@@ -16,6 +16,8 @@ public:
         mCurrShader = name;
     }
 
+    void OnGameWindowResized(int w, int h);
+
 private:
     FireFlame::Engine& mEngine;
 

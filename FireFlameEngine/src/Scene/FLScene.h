@@ -37,6 +37,7 @@ public:
 private:
     std::shared_ptr<Renderer> mRenderer;
 
+    void PreRender();
     void Draw(ID3D12GraphicsCommandList* cmdList);
 
     // callbacks

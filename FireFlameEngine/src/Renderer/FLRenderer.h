@@ -37,11 +37,16 @@ public:
     UINT                       GetMSAASampleCount() const    { return mSampleCount; }
     UINT                       GetMSAAQuality() const        { return mMSAAQuality; }
     ID3D12GraphicsCommandList* GetCommandList() const        { return mCommandList.Get(); }
+    // Set Methods
+    void SetCurrentPSO(ID3D12PipelineState* pso) { mCurrPSO = pso; }
 
 	// register callbacks
 	void RegisterDrawFunc(std::function<void(float)> func)   { mDrawFunc = func; }
     void RegisterDrawFunc(std::function<void(ID3D12GraphicsCommandList*)> func){
         mDrawFuncWithCmdList = func;
+    }
+    void RegisterPreRenderFunc(std::function<void()> func) {
+        mPreRenderFunc = func;
     }
 
 	// system probe
@@ -57,8 +62,9 @@ private:
 	void RenderWithoutMSAA(const StopWatch& gt);
 
 	// callbacks
-	std::function<void(float)> mDrawFunc   = [](float) {};
-    std::function<void(ID3D12GraphicsCommandList*)> mDrawFuncWithCmdList;
+	std::function<void(float)>                      mDrawFunc   = [](float) {};
+    std::function<void(ID3D12GraphicsCommandList*)> mDrawFuncWithCmdList = [](ID3D12GraphicsCommandList*) {};
+    std::function<void()>                           mPreRenderFunc = []() {};
 
 	void CreateCommandObjects();
 	void CreateSwapChain();

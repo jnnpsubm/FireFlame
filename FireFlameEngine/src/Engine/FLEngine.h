@@ -24,8 +24,12 @@ public:
 
 	std::shared_ptr<Scene> GetScene() const { return mScene; }
 
+    // register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func);
 	void RegisterRendererDrawFunc(std::function<void(float)> func);
+    void RegisterWindowResizedHandler(std::function<void(int w, int h)> func) {
+        mFuncWindowResizedHandler = func;
+    }
 
 	int InitMainWindow(int x, int y, int w, int h);
 	int InitRenderer(API_Feature api);
@@ -50,6 +54,9 @@ private:
 	std::shared_ptr<Window>   mMainWnd   = nullptr;
 	std::shared_ptr<Renderer> mRenderer  = nullptr;
 	std::shared_ptr<Scene>    mScene     = nullptr;
+
+    // callbacks
+    std::function<void(int w, int h)> mFuncWindowResizedHandler = [](int w, int h) {};
 
 	void CalculateFrameStats();
 };

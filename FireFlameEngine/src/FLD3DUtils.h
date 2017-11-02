@@ -63,7 +63,7 @@ inline UINT FLVertexFormatByteSize(unsigned long format) {
         return 0;
     }
 }
-inline D3D_PRIMITIVE_TOPOLOGY FLPrimitiveTop2D3DPrimitiveTop(Primitive_Topology top) {
+inline D3D12_PRIMITIVE_TOPOLOGY FLPrimitiveTop2D3DPrimitiveTop(Primitive_Topology top) {
     switch (top)
     {
     case FireFlame::Primitive_Topology::TrangleList:
