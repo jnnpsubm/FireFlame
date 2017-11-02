@@ -214,7 +214,7 @@ void Renderer::GatherMSAAModeSupported() {
     D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
     msQualityLevels.Format = mBackBufferFormat;
     msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-    for (UINT i = 1; i <= 64; i++){ // todo : step size? should be pow of 2?
+    for (UINT i = 1; i <= 64; i <<= 1){ // todo : step size? should be pow of 2?
         msQualityLevels.SampleCount = i;
         msQualityLevels.NumQualityLevels = 0;
         HRESULT hr = md3dDevice->CheckFeatureSupport
