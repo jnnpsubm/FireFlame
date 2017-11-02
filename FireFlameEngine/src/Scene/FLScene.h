@@ -11,6 +11,8 @@ class Scene {
 public:
 	Scene(std::shared_ptr<Renderer>& renderer);
 
+    // some scene management
+    int  GetReady();
 	void Update(const StopWatch& gt);
 	void Render(const StopWatch& gt);
 

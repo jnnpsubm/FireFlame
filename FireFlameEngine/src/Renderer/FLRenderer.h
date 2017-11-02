@@ -18,7 +18,11 @@ public:
 	int Initialize(API_Feature api);
 	void Update(const StopWatch& gt);
 	void Render(const StopWatch& gt);
-	void FlushCommandQueue();
+
+    void ResetCommandList();
+    void ExecuteCommand();
+	void WaitForGPU();
+
 	void Resize();
 
 	void CheckMSAASupport();
@@ -26,12 +30,13 @@ public:
 	void ToggleMSAA();
 
     // Get Methods
-    ID3D12Device* GetDevice() const             { return md3dDevice.Get(); }
-    DXGI_FORMAT   GetBackBufferFormat() const   { return mBackBufferFormat; }
-    DXGI_FORMAT   GetDepthStencilFormat() const { return mDepthStencilFormat; }
-    bool          GetMSAAStatus() const         { return mMSAAOn; }
-    UINT          GetMSAASampleCount() const    { return mSampleCount; }
-    UINT          GetMSAAQuality() const        { return mMSAAQuality; }
+    ID3D12Device*              GetDevice() const             { return md3dDevice.Get(); }
+    DXGI_FORMAT                GetBackBufferFormat() const   { return mBackBufferFormat; }
+    DXGI_FORMAT                GetDepthStencilFormat() const { return mDepthStencilFormat; }
+    bool                       GetMSAAStatus() const         { return mMSAAOn; }
+    UINT                       GetMSAASampleCount() const    { return mSampleCount; }
+    UINT                       GetMSAAQuality() const        { return mMSAAQuality; }
+    ID3D12GraphicsCommandList* GetCommandList() const        { return mCommandList.Get(); }
 
 	// register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }

@@ -42,7 +42,7 @@ void Renderer::Render(const StopWatch& gt) {
 	// Wait until frame commands are complete.  This waiting is inefficient and is
 	// done for simplicity.  Later we will show how to organize our rendering code
 	// so we do not have to wait per frame.
-	FlushCommandQueue();
+	WaitForGPU();
 }
 void Renderer::RenderWithMSAA(const StopWatch& gt) {
 	D3D12_RESOURCE_BARRIER barrier2RT = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -113,7 +113,17 @@ void Renderer::ToggleMSAA() {
 	}
 	Resize();
 }
-void Renderer::FlushCommandQueue() {
+void Renderer::ResetCommandList() {
+    // Reset the command list to prep for initialization commands.
+    ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+}
+void Renderer::ExecuteCommand() {
+    // Execute the initialization commands.
+    ThrowIfFailed(mCommandList->Close());
+    ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
+    mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+}
+void Renderer::WaitForGPU() {
 	// Advance the fence value to mark commands up to this fence point.
 	mCurrentFence++;
 
@@ -206,7 +216,7 @@ void Renderer::Resize(){
 	if (!renderWindow) return;
 
 	// Flush before changing any resources.
-	FlushCommandQueue();
+	WaitForGPU();
 
 	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
 
@@ -309,7 +319,7 @@ void Renderer::Resize(){
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Wait until resize is complete.
-	FlushCommandQueue();
+	WaitForGPU();
 
 	// Update the viewport transform to cover the client area.
 	mScreenViewport.TopLeftX = 0;

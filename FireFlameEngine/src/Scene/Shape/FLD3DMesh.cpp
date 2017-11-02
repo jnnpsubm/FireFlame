@@ -14,7 +14,7 @@ void D3DMesh::MakeResident2GPU(ID3D12Device* device, ID3D12GraphicsCommandList* 
             mIndexBufferCPU->GetBufferPointer(), mIndexBufferByteSize, mIndexBufferUploader);
     }
     ID3D12Pageable* resource[2] = { mVertexBufferGPU.Get() , mIndexBufferGPU.Get() };
-    device->MakeResident(2, resource);
+    ThrowIfFailed(device->MakeResident(2, resource));
     mResideInGPU = true;
 }
 void D3DMesh::EvictFromGPU(ID3D12Device* device) {

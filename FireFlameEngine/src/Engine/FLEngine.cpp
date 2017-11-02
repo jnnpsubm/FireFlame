@@ -13,7 +13,7 @@ Engine::Engine(HINSTANCE hinst) {
     mScene = std::make_shared<Scene>(mRenderer);
 }
 Engine::~Engine() {
-	//if (renderer) renderer->FlushCommandQueue();
+	//if (renderer) renderer->WaitForGPU();
 }
 void Engine::RegisterRendererUpdateFunc(std::function<void(float)> func){
 	mRenderer->RegisterUpdateFunc(func);
@@ -40,7 +40,7 @@ int Engine::Run() {
 }
 void Engine::Stop() {
 	Pause();
-	mRenderer->FlushCommandQueue();
+	mRenderer->WaitForGPU();
 }
 int Engine::InitMainWindow(int x, int y, int w, int h) {
 	return mMainWnd->InitMainWindow(x, y, w, h);

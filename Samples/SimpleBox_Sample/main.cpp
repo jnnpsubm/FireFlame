@@ -44,6 +44,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::PS, "PS", "ps_5_0");
         engine.GetScene()->AddShader(shader);
+
+        // some initial work like scene management and 
+        // make resource resident to GPU memory
+        engine.GetScene()->GetReady(); 
 		
 		return engine.Run();
 	}

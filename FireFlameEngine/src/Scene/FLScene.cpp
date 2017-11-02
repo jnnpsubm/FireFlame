@@ -11,6 +11,18 @@ void Scene::Update(const StopWatch& gt) {
 void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);
 }
+int Scene::GetReady() {
+    mRenderer->ResetCommandList();
+    // make mesh resident to GPU memory
+    for (auto& namedPrimitive : mPrimitives){
+        auto& primitive = namedPrimitive.second;
+        primitive->GetMesh()->MakeResident2GPU(mRenderer->GetDevice(), mRenderer->GetCommandList());
+    }
+    mRenderer->ExecuteCommand();
+    // Wait until initialization is complete.
+    mRenderer->WaitForGPU();
+    return 0;
+}
 void Scene::AddShader(const stShaderDescription& shaderDesc) {
     std::shared_ptr<D3DShaderWrapper> shader = nullptr;
     auto it = mShaders.find(shaderDesc.name);
@@ -21,7 +33,7 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     else {
         shader = mShaders[shaderDesc.name];
     }
-    shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), shaderDesc.constBufferSize.size());
+    shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), (UINT)shaderDesc.constBufferSize.size());
     shader->BuildConstantBuffers(mRenderer->GetDevice(), shaderDesc.constBufferSize[0]);
     shader->BuildRootSignature(mRenderer->GetDevice());
     shader->BuildShadersAndInputLayout(shaderDesc);
