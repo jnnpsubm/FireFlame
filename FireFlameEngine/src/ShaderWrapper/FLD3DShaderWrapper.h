@@ -13,6 +13,11 @@ class D3DShaderWrapper {
 public:
     D3DShaderWrapper() = default;
 
+    template <typename T>
+    void UpdateShaderCBData(unsigned int index, const T& data) {
+        mShaderCB->CopyData(index, data);
+    }
+
     void BuildRootSignature(ID3D12Device* device);
     void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT, bool, UINT, UINT);
     void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);

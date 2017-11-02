@@ -61,8 +61,7 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
         serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()
     );
 
-    if (errorBlob != nullptr)
-    {
+    if (errorBlob != nullptr){
         ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
     }
     ThrowIfFailed(hr);

@@ -4,6 +4,7 @@
 #include "Primitive\FLD3DPrimitive.h"
 #include "Vertex\FLVertex.h"
 #include "..\FLTypeDefs.h"
+#include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 
 namespace FireFlame {
 class Renderer;
@@ -22,11 +23,21 @@ public:
 	void AddPrimitive(const stRawMesh& mesh);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);
 
+    template <typename T>
+    void UpdateShaderCBData(std::string shaderName, unsigned int index, const T& data) {
+        auto it = mShaders.find(shaderName);
+        if (it == mShaders.end()) return;
+        auto& shader = it->second;
+        shader->UpdateShaderCBData(index, data);
+    }
+
     // register callbacks
     void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
 
 private:
     std::shared_ptr<Renderer> mRenderer;
+
+    void Draw(ID3D12GraphicsCommandList* cmdList);
 
     // callbacks
     std::function<void(float)> mUpdateFunc = [](float) {};

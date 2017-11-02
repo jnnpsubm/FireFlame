@@ -12,7 +12,12 @@ void Scene::Update(const StopWatch& gt) {
 void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);
 }
+void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
+
+}
 int Scene::GetReady() {
+    mRenderer->RegisterDrawFunc(std::bind(&Scene::Draw, this, std::placeholders::_1));
+
     mRenderer->ResetCommandList();
     // make mesh resident to GPU memory
     for (auto& namedPrimitive : mPrimitives){

@@ -23,14 +23,36 @@ private:
 public:
 	D3DMesh();
 	explicit D3DMesh(const stRawMesh& rawMesh);
-	std::string mName;
-	bool        mResideInGPU = false;
 
 	bool ResidentOnGPU() const { return mResideInGPU; }
 	void MakeResident2GPU(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 	void EvictFromGPU(ID3D12Device* device);
 
 	void AddSubMesh(const stRawMesh::stSubMesh& subMesh);
+
+    D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const {
+        D3D12_VERTEX_BUFFER_VIEW vbv;
+        vbv.BufferLocation = mVertexBufferGPU->GetGPUVirtualAddress();
+        vbv.StrideInBytes = mVertexByteStride;
+        vbv.SizeInBytes = mVertexBufferByteSize;
+        return vbv;
+    }
+    D3D12_INDEX_BUFFER_VIEW IndexBufferView() const {
+        D3D12_INDEX_BUFFER_VIEW ibv;
+        ibv.BufferLocation = mIndexBufferGPU->GetGPUVirtualAddress();
+        ibv.Format = mIndexFormat;
+        ibv.SizeInBytes = mIndexBufferByteSize;
+        return ibv;
+    }
+    // We can free this memory after we finish upload to the GPU.
+    void DisposeUploaders() {
+        mVertexBufferUploader = nullptr;
+        mIndexBufferUploader = nullptr;
+    }
+
+private:
+    std::string mName;
+    bool        mResideInGPU = false;
 
 	// System memory copies.  Use Blobs because the vertex/index format can be generic.
 	// It is up to the client to cast appropriately.  
@@ -53,27 +75,5 @@ public:
 	// Use this container to define the Submesh geometries so we can draw
 	// the Submeshes individually.
 	std::unordered_map<std::string, D3DSubMesh> mDrawArgs;
-
-	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const {
-		D3D12_VERTEX_BUFFER_VIEW vbv;
-		vbv.BufferLocation = mVertexBufferGPU->GetGPUVirtualAddress();
-		vbv.StrideInBytes = mVertexByteStride;
-		vbv.SizeInBytes = mVertexBufferByteSize;
-		return vbv;
-	}
-
-	D3D12_INDEX_BUFFER_VIEW IndexBufferView() const {
-		D3D12_INDEX_BUFFER_VIEW ibv;
-		ibv.BufferLocation = mIndexBufferGPU->GetGPUVirtualAddress();
-		ibv.Format = mIndexFormat;
-		ibv.SizeInBytes = mIndexBufferByteSize;
-		return ibv;
-	}
-
-	// We can free this memory after we finish upload to the GPU.
-	void DisposeUploaders(){
-		mVertexBufferUploader = nullptr;
-		mIndexBufferUploader = nullptr;
-	}
 };
 }

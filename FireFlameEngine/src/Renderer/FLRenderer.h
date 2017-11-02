@@ -40,6 +40,9 @@ public:
 
 	// register callbacks
 	void RegisterDrawFunc(std::function<void(float)> func)   { mDrawFunc = func; }
+    void RegisterDrawFunc(std::function<void(ID3D12GraphicsCommandList*)> func){
+        mDrawFuncWithCmdList = func;
+    }
 
 	// system probe
 	int  LogAdapters(std::wostream& os);
@@ -55,6 +58,7 @@ private:
 
 	// callbacks
 	std::function<void(float)> mDrawFunc   = [](float) {};
+    std::function<void(ID3D12GraphicsCommandList*)> mDrawFuncWithCmdList;
 
 	void CreateCommandObjects();
 	void CreateSwapChain();

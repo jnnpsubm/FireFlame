@@ -61,6 +61,7 @@ void Renderer::RenderWithMSAA(const StopWatch& gt) {
 
 	// todo : render something here
 	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
+    mDrawFuncWithCmdList(mCommandList.Get());
 
 	D3D12_RESOURCE_BARRIER barriers[2] =
 	{
@@ -98,6 +99,7 @@ void Renderer::RenderWithoutMSAA(const StopWatch& gt) {
 
 	// todo : render something here
 	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
+    mDrawFuncWithCmdList(mCommandList.Get());
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),

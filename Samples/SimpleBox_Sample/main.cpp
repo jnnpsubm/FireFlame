@@ -20,6 +20,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         // engine initialization
 		engine.InitMainWindow(150, 80, 1280, 600);
 		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
+
+        // application handles
         engine.RegisterUpdateFunc(std::bind(&Game::Update, &someGame, std::placeholders::_1));
 		
         // add some geometry to render
@@ -42,6 +44,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::PS, "PS", "ps_5_0");
         engine.GetScene()->AddShader(shader);
+
+        someGame.UseShader("colorShader");
 
         // some initial work like scene management and 
         // make resource resident to GPU memory
