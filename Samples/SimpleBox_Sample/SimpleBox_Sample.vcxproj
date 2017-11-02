@@ -149,10 +149,12 @@
     <Text Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Mesh.h" />
   </ItemGroup>
   <ItemGroup>

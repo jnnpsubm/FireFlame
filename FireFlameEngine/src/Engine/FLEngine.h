@@ -24,7 +24,7 @@ public:
 
 	std::shared_ptr<Scene> GetScene() const { return mScene; }
 
-	void RegisterRendererUpdateFunc(std::function<void(float)> func);
+	void RegisterUpdateFunc(std::function<void(float)> func);
 	void RegisterRendererDrawFunc(std::function<void(float)> func);
 
 	int InitMainWindow(int x, int y, int w, int h);

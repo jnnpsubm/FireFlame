@@ -25,8 +25,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		logFile.close();
 
 		engine.RegisterRendererDrawFunc(funcDraw);
-		engine.RegisterRendererUpdateFunc(funcUpdate);
-		engine.RegisterRendererUpdateFunc(stEngineUser());
+		engine.RegisterUpdateFunc(funcUpdate);
+		engine.RegisterUpdateFunc(stEngineUser());
 		return engine.Run();
 	}catch (FireFlame::Exception& e){
 		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);

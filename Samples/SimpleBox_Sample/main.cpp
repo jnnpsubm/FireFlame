@@ -5,11 +5,7 @@
 #include <array>
 #include "FireFlameHeader.h"
 #include "Mesh.h"
-
-struct ObjectConstants
-{
-    DirectX::XMFLOAT4X4 WorldViewProj = FireFlame::Matrix4X4();
-};
+#include "Game.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
 	// Enable run-time memory check for debug builds.
@@ -18,11 +14,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 #endif
 
 	FireFlame::Engine engine(hInstance);
+    Game              someGame(engine);
 	try {
 		using namespace FireFlame;
         // engine initialization
 		engine.InitMainWindow(150, 80, 1280, 600);
 		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
+        engine.RegisterUpdateFunc(std::bind(&Game::Update, &someGame, std::placeholders::_1));
 		
         // add some geometry to render
 		Mesh                 boxMesh;

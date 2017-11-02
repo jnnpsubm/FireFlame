@@ -15,7 +15,7 @@ Engine::Engine(HINSTANCE hinst) {
 Engine::~Engine() {
 	//if (renderer) renderer->WaitForGPU();
 }
-void Engine::RegisterRendererUpdateFunc(std::function<void(float)> func){
+void Engine::RegisterUpdateFunc(std::function<void(float)> func){
 	mScene->RegisterUpdateFunc(func);
 }
 void Engine::RegisterRendererDrawFunc(std::function<void(float)> func){
