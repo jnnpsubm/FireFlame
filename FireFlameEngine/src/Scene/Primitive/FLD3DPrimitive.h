@@ -9,9 +9,13 @@ public:
 	explicit D3DPrimitive(const stRawMesh& mesh);
 	D3DMesh* GetMesh() { return mMesh.get(); }
 
+    void Draw(ID3D12GraphicsCommandList* cmdList);
+
+    void SetShader(std::shared_ptr<D3DShaderWrapper> shader) { mShader = shader; }
+
 private:
-	std::unique_ptr<D3DMesh>          mMesh;
-    std::shared_ptr<D3DShaderWrapper> mShader;
+	std::unique_ptr<D3DMesh>          mMesh        = nullptr;
+    std::shared_ptr<D3DShaderWrapper> mShader      = nullptr;
 	DirectX::XMFLOAT4X4               mLocal2World;
 };
 }

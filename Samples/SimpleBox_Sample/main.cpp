@@ -24,28 +24,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         // application handles
         engine.RegisterUpdateFunc(std::bind(&Game::Update, &someGame, std::placeholders::_1));
 		
-        // add some geometry to render
-		Mesh                 boxMesh;
-		stRawMesh            meshDesc("BoxMesh");
-        stRawMesh::stSubMesh subMesh("Box");
-        boxMesh.GetMeshDesc(meshDesc);
-        boxMesh.GetSubMeshDesc(subMesh);
-        engine.GetScene()->AddPrimitive(meshDesc);
-        engine.GetScene()->PrimitiveAddSubMesh(meshDesc.name, subMesh);
-
         // use what shader to render the geometry
+        std::string shaderName = "colorShader";
         stShaderDescription shader
         (
-            "colorShader", 
+            shaderName,
             { VERTEX_FORMAT_POS_FLOAT_3 , VERTEX_FORMAT_COLOR_FLOAT_4 },
-            { "POSITION","COLOR" }, 
+            { "POSITION","COLOR" },
             { sizeof(ObjectConstants) }
         );
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::PS, "PS", "ps_5_0");
         engine.GetScene()->AddShader(shader);
 
-        someGame.UseShader("colorShader");
+        // add some geometry to render
+		Mesh                 boxMesh;
+		stRawMesh            meshDesc("BoxMesh");
+        stRawMesh::stSubMesh subMesh("Box");
+        boxMesh.GetMeshDesc(meshDesc);
+        boxMesh.GetSubMeshDesc(subMesh);
+        engine.GetScene()->AddPrimitive(meshDesc, shaderName);
+        engine.GetScene()->PrimitiveAddSubMesh(meshDesc.name, subMesh);
+
+        someGame.UseShader(shaderName);
 
         // some initial work like scene management and 
         // make resource resident to GPU memory

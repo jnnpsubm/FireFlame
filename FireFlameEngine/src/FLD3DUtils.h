@@ -63,6 +63,16 @@ inline UINT FLVertexFormatByteSize(unsigned long format) {
         return 0;
     }
 }
+inline D3D_PRIMITIVE_TOPOLOGY FLPrimitiveTop2D3DPrimitiveTop(Primitive_Topology top) {
+    switch (top)
+    {
+    case FireFlame::Primitive_Topology::TrangleList:
+        return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    default:
+        throw std::exception("unknown primitive topology");
+        break;
+    }
+}
 inline std::wstring AnsiToWString(const std::string& str)
 {
 	WCHAR buffer[512];

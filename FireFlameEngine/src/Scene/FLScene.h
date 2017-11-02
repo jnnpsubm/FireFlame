@@ -20,7 +20,7 @@ public:
 	void Render(const StopWatch& gt);
 
     void AddShader(const stShaderDescription& shaderDesc);
-	void AddPrimitive(const stRawMesh& mesh);
+	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);
 
     template <typename T>

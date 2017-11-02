@@ -12,13 +12,14 @@
 
 namespace FireFlame {
 class D3DMesh{
-private:
+public:
 	struct D3DSubMesh {
 		UINT indexCount = 0;
 		UINT startIndexLocation = 0;
 		INT  baseVertexLocation = 0;
 		DirectX::BoundingBox boundBox;
 	};
+    typedef std::unordered_map<std::string, D3DSubMesh> SubMeshMap;
 
 public:
 	D3DMesh();
@@ -29,6 +30,10 @@ public:
 	void EvictFromGPU(ID3D12Device* device);
 
 	void AddSubMesh(const stRawMesh::stSubMesh& subMesh);
+
+    // Get methods
+    D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return mPrimitiveTopology; }
+    const SubMeshMap&      GetSubMeshs()          const { return mDrawArgs; }
 
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const {
         D3D12_VERTEX_BUFFER_VIEW vbv;
@@ -66,6 +71,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> mIndexBufferUploader  = nullptr;
 
 	// Data about the buffers.
+    D3D_PRIMITIVE_TOPOLOGY mPrimitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
 	UINT        mVertexByteStride = 0;
 	UINT        mVertexBufferByteSize = 0;
 	DXGI_FORMAT mIndexFormat = DXGI_FORMAT_R16_UINT;
@@ -74,6 +81,6 @@ private:
 	// A MeshGeometry may store multiple geometries in one vertex/index buffer.
 	// Use this container to define the Submesh geometries so we can draw
 	// the Submeshes individually.
-	std::unordered_map<std::string, D3DSubMesh> mDrawArgs;
+    SubMeshMap  mDrawArgs;
 };
 }

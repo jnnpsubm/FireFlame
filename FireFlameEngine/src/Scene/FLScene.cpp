@@ -13,7 +13,14 @@ void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);
 }
 void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
-
+    for (auto& namedPrimitive : mPrimitives) {
+        auto& primitive = namedPrimitive.second;
+        auto mesh = primitive->GetMesh();
+        if (!mesh->ResidentOnGPU()) {
+            mesh->MakeResident2GPU(mRenderer->GetDevice(), mRenderer->GetCommandList());
+        }
+        primitive->Draw(cmdList);
+    }
 }
 int Scene::GetReady() {
     mRenderer->RegisterDrawFunc(std::bind(&Scene::Draw, this, std::placeholders::_1));
@@ -50,8 +57,12 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
         mRenderer->GetSampleCount(),        mRenderer->GetMSAAQuality()
     );
 }
-void Scene::AddPrimitive(const stRawMesh& mesh) {
+void Scene::AddPrimitive(const stRawMesh& mesh, const std::string& shaderName) {
 	mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
+    auto it = mShaders.find(shaderName);
+    if (it == mShaders.end()) throw std::exception("cannot find the shader");
+    auto shader = it->second;
+    mPrimitives[mesh.name]->SetShader(shader);
 }
 
 void Scene::PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh){

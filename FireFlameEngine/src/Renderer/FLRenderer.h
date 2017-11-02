@@ -69,6 +69,8 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE OffscreenRenderTargetView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 
+    ID3D12PipelineState* mCurrPSO = nullptr;
+
 	Microsoft::WRL::ComPtr<IDXGIFactory5>  mdxgiFactory;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D12Device>   md3dDevice;

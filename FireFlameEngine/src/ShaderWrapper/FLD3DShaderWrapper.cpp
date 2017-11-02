@@ -85,16 +85,18 @@ void D3DShaderWrapper::BuildConstantBuffers(ID3D12Device* device, UINT CBSize){
 
     D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mShaderCB->Resource()->GetGPUVirtualAddress();
     // Offset to the ith object constant buffer in the buffer.
-    int boxCBufIndex = 0;
-    cbAddress += boxCBufIndex*objCBByteSize;
+    int CBIndex = 0;
+    cbAddress += CBIndex*objCBByteSize;
 
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
     cbvDesc.BufferLocation = cbAddress;
     cbvDesc.SizeInBytes = D3DUtils::CalcConstantBufferByteSize(sizeof(CBSize));
 
-    device->CreateConstantBufferView(
+    device->CreateConstantBufferView
+    (
         &cbvDesc,
-        mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+        mCbvHeap->GetCPUDescriptorHandleForHeapStart()
+    );
 }
 void D3DShaderWrapper::BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors){
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;

@@ -32,8 +32,14 @@ inline unsigned int IndexFormatByteLength(Index_Format format) {
 const unsigned long VERTEX_FORMAT_POS_FLOAT_3   = 1UL << 0;
 const unsigned long VERTEX_FORMAT_COLOR_FLOAT_4 = 1UL << 1;
 
+enum class Primitive_Topology {
+    TrangleList,
+};
 struct stRawMesh {
-    stRawMesh(const std::string& _name) :name(_name) {}
+    stRawMesh(const std::string& _name) 
+        : name(_name), 
+          primitiveTopology(Primitive_Topology::TrangleList)
+    {/*===============================================================*/}
 	std::string name;
 	unsigned int vertexSize;
 	unsigned int vertexCount;
@@ -44,6 +50,8 @@ struct stRawMesh {
 	unsigned int indexCount;
 	void* indices;
 	Matrix4X4 LocalToWorld;
+
+    Primitive_Topology primitiveTopology;
 
 	struct stSubMesh {
         stSubMesh(const std::string& _name):name(_name){}

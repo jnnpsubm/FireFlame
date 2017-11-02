@@ -38,6 +38,8 @@ D3DMesh::D3DMesh(const stRawMesh& rawMesh) : mName(rawMesh.name){
 	mVertexBufferByteSize = vbByteSize;
 	mIndexFormat = FLIndexFormat2DXGIFormat(rawMesh.indexFormat);
 	mIndexBufferByteSize = ibByteSize;
+
+    mPrimitiveTopology = FLPrimitiveTop2D3DPrimitiveTop(rawMesh.primitiveTopology);
 }
 void D3DMesh::AddSubMesh(const stRawMesh::stSubMesh& subMesh) {
 	D3DSubMesh submesh;

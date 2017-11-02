@@ -24,6 +24,12 @@ public:
     void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
 
+    // Get Methods
+    // todo : variant heaps with variant shaders
+    ID3D12DescriptorHeap* GetCBVHeap()       const { return mCbvHeap.Get(); }
+    ID3D12RootSignature*  GetRootSignature() const { return mRootSignature.Get(); }
+    ID3D12PipelineState*  GetPSO()           const { return mPSO.Get(); }
+
 private:
     Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;
     std::vector<D3D12_INPUT_ELEMENT_DESC>       mInputLayout;
