@@ -104,9 +104,13 @@ private:
 	UINT mDsvDescriptorSize       = 0;
 	UINT mCbvSrvUavDescriptorSize = 0;
 
-	bool        mMSAAOn = true;
+	bool        mMSAAOn      = true;
+    UINT        mMSAAMode    = 0;
 	UINT        mMSAAQuality = 0;
 	UINT        mSampleCount = 4;
+
+    std::vector<stMSAADesc> mMSAASupported;
+    void GatherMSAAModeSupported();
 
 	DXGI_FORMAT mBackBufferFormat   = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

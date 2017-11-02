@@ -184,6 +184,7 @@ int Renderer::Initialize(API_Feature) {
 
 	// Check MSAA support......
 	CheckMSAASupport();
+    GatherMSAAModeSupported();
 
 	CreateCommandObjects();
 	CreateSwapChain();
@@ -208,6 +209,23 @@ void Renderer::CheckMSAASupport() {
 		sizeof(msQualityLevels)));
 	mMSAAQuality = msQualityLevels.NumQualityLevels;
 	assert(mMSAAQuality > 0 && "Unexpected MSAA quality level.");
+}
+void Renderer::GatherMSAAModeSupported() {
+    D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
+    msQualityLevels.Format = mBackBufferFormat;
+    msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+    for (UINT i = 1; i <= 64; i++){ // todo : step size? should be pow of 2?
+        msQualityLevels.SampleCount = i;
+        msQualityLevels.NumQualityLevels = 0;
+        HRESULT hr = md3dDevice->CheckFeatureSupport
+        (
+            D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
+            &msQualityLevels,
+            sizeof(msQualityLevels)
+        );
+        if (msQualityLevels.NumQualityLevels)
+            mMSAASupported.emplace_back(i, msQualityLevels.NumQualityLevels);
+    }
 }
 void Renderer::Resize(){
 	assert(!mRenderWnd.expired());

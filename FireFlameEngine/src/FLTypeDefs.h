@@ -100,4 +100,10 @@ struct stShaderDescription {
         shaderStage.emplace_back(file, type, entry, target);
     }
 };
+
+struct stMSAADesc {
+    stMSAADesc(UINT s, UINT q) :sampleCount(s), qualityLevels(q) {}
+    UINT sampleCount;
+    UINT qualityLevels;
+};
 } // end namespace
