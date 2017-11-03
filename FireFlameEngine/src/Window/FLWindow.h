@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <memory>
+#include <functional>
 #include <string>
 #include <assert.h>
 #include "../Timer/FLStopWatch.h"
@@ -8,6 +9,9 @@
 namespace FireFlame {
 class Engine;
 class Window {
+public:
+    typedef std::function<void(WPARAM, int, int)> MouseEventHandler;
+
 public:
 	Window(HINSTANCE hInst, Engine& engine);
 	~Window();
@@ -29,6 +33,13 @@ public:
 	void AppendWindowCaption(const std::wstring& appendStr);
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+    // register callbacks
+    void RegisterMouseHandlers(MouseEventHandler down,MouseEventHandler up,MouseEventHandler move) {
+        mMouseDownCB = down;
+        mMouseUpCB = up;
+        mMouseMoveCB = move;
+    }
+
 private:
 	static Window* theWindow;
 	Engine&        mEngine;
@@ -44,6 +55,11 @@ private:
 
 	int          mClientWidth  = 800;
 	int          mClientHeight = 600;
+
+    // Callbacks
+    MouseEventHandler mMouseDownCB = [](WPARAM, int, int) {};
+    MouseEventHandler mMouseUpCB   = [](WPARAM, int, int) {};
+    MouseEventHandler mMouseMoveCB = [](WPARAM, int, int) {};
 
 	// Message processing
 	LRESULT OnKeyUp(WPARAM wParam, LPARAM lParam);

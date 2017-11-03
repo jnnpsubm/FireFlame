@@ -15,12 +15,17 @@ public:
     void UseShader(const std::string& name) {
         mCurrShader = name;
     }
+    void SetMainWnd(HWND hwnd) { mhMainWnd = hwnd; }
 
     void OnGameWindowResized(int w, int h);
+    void OnMouseDown(WPARAM btnState, int x, int y);
+    void OnMouseUp(WPARAM btnState, int x, int y);
+    void OnMouseMove(WPARAM btnState, int x, int y);
 
 private:
     FireFlame::Engine& mEngine;
 
+    HWND        mhMainWnd;
     std::string mCurrShader;
 
     DirectX::XMFLOAT4X4 mWorld = FireFlame::Matrix4X4();

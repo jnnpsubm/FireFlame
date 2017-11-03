@@ -26,6 +26,7 @@
     <ClInclude Include="src\Exception\FLException.h" />
     <ClInclude Include="src\FLTypeDefs.h" />
     <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h" />
+    <ClInclude Include="src\MathHelper\FLMathHelper.h" />
     <ClInclude Include="src\Matrix\FLMatrix.h" />
     <ClInclude Include="src\Matrix\FLMatrix4X4.h" />
     <ClInclude Include="src\Matrix\FLMatrixHelper.h" />

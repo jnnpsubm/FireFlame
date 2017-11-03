@@ -37,3 +37,42 @@ void Game::Update(float time_elapsed) {
     //mObjectCB->CopyData(0, objConstants);
     mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, objConstants);
 }
+void Game::OnMouseDown(WPARAM btnState, int x, int y) {
+    mLastMousePos.x = x;
+    mLastMousePos.y = y;
+
+    SetCapture(mhMainWnd);
+}
+void Game::OnMouseUp(WPARAM btnState, int x, int y) {
+    ReleaseCapture();
+}
+void Game::OnMouseMove(WPARAM btnState, int x, int y) {
+    if ((btnState & MK_LBUTTON) != 0){
+        // Make each pixel correspond to a quarter of a degree.
+        float dx = DirectX::XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
+        float dy = DirectX::XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
+
+        // Update angles based on input to orbit camera around box.
+        mTheta += dx;
+        mPhi += dy;
+
+        // Restrict the angle mPhi.
+        
+        mPhi = FireFlame::MathHelper::Clamp(mPhi, 0.1f, DirectX::XMVectorGetX(DirectX::g_XMPi) - 0.1f);
+    }
+    else if ((btnState & MK_RBUTTON) != 0)
+    {
+        // Make each pixel correspond to 0.005 unit in the scene.
+        float dx = 0.005f*static_cast<float>(x - mLastMousePos.x);
+        float dy = 0.005f*static_cast<float>(y - mLastMousePos.y);
+
+        // Update the camera radius based on input.
+        mRadius += dx - dy;
+
+        // Restrict the radius.
+        mRadius = FireFlame::MathHelper::Clamp(mRadius, 3.0f, 15.0f);
+    }
+
+    mLastMousePos.x = x;
+    mLastMousePos.y = y;
+}

@@ -6,6 +6,7 @@
 #include "..\FLTypeDefs.h"
 #include "..\Timer\FLStopWatch.h"
 #include "..\Scene\FLScene.h"
+#include "..\Window\FLWindow.h"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib, "d3dcompiler.lib")
@@ -14,7 +15,6 @@
 #pragma comment(lib, "dxguid.lib")
 
 namespace FireFlame{
-class Window;
 class Renderer;
 class Engine {
 public:
@@ -22,7 +22,8 @@ public:
 	static Engine* GetEngine() { return theEngine; }
 	~Engine();
 
-	std::shared_ptr<Scene> GetScene() const { return mScene; }
+	std::shared_ptr<Scene>  GetScene()  const { return mScene; }
+    std::shared_ptr<Window> GetWindow() const { return mMainWnd; }
 
     // register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func);
@@ -47,7 +48,7 @@ public:
 	int LogVideoAdapters(std::wostream& os);
 
 private:
-	static Engine* theEngine;
+	static Engine*            theEngine;
 	StopWatch                 mTimer;
 	bool                      mAppPaused = false;  // is the application paused?
 

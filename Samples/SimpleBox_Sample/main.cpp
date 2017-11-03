@@ -17,23 +17,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
     Game              someGame(engine);
 	try {
 		using namespace FireFlame;
+        using namespace std::placeholders;
 
         // application handles
         engine.RegisterUpdateFunc(std::bind(&Game::Update, &someGame, std::placeholders::_1));
         engine.RegisterWindowResizedHandler
         (
-            std::bind
-            (
-                &Game::OnGameWindowResized,
-                &someGame,
-                std::placeholders::_1,
-                std::placeholders::_2
-            )
+            std::bind(&Game::OnGameWindowResized,&someGame,_1,_2)
+        );
+        engine.GetWindow()->RegisterMouseHandlers
+        (
+            std::bind(&Game::OnMouseDown, &someGame, _1, _2, _3),
+            std::bind(&Game::OnMouseUp,   &someGame, _1, _2, _3),
+            std::bind(&Game::OnMouseMove, &someGame, _1, _2, _3)
         );
 
         // engine initialization
 		engine.InitMainWindow(150, 80, 1280, 600);
 		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
+        someGame.SetMainWnd(engine.GetWindow()->MainWnd());
 		
         // use what shader to render the geometry
         std::string shaderName = "colorShader";

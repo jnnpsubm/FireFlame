@@ -213,13 +213,13 @@ LRESULT Window::OnSysKeyDown(WPARAM wParam, LPARAM lParam) {
 	return 0;
 }
 void Window::OnMouseDown(WPARAM btnState, int x, int y) {
-
+    mMouseDownCB(btnState, x, y);
 }
 void Window::OnMouseUp(WPARAM btnState, int x, int y) {
-
+    mMouseUpCB(btnState, x, y);
 }
 void Window::OnMouseMove(WPARAM btnState, int x, int y) {
-
+    mMouseMoveCB(btnState, x, y);
 }
 } // end namespace
 

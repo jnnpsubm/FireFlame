@@ -120,6 +120,9 @@
     <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h">
       <Filter>src\ShaderWrapper\ShaderConstBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="src\MathHelper\FLMathHelper.h">
+      <Filter>src\MathHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -172,6 +175,9 @@
     </Filter>
     <Filter Include="src\ShaderWrapper\ShaderConstBuffer">
       <UniqueIdentifier>{1be91f12-4500-4332-a75f-9341693b8a64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MathHelper">
+      <UniqueIdentifier>{ea892b12-1b0a-49b5-8e28-e27dc2808a92}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
