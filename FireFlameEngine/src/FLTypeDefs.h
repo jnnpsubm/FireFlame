@@ -3,6 +3,11 @@
 #include <vector>
 
 namespace FireFlame {
+enum class ControllerInputMode {
+    Poll,
+    Feed
+};
+
 enum class API_Feature {
 	API_DX12_1 = 0,
     API_DX12_0,

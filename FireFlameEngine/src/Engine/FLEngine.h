@@ -40,6 +40,8 @@ public:
 	void Resume() { mAppPaused = false; mTimer.Resume(); }
 	void Stop();
 
+    void SetControllerInputMode(ControllerInputMode mode) { mControllerInputMode = mode; }
+
 	LRESULT OnWindowDestroy();
 	LRESULT OnWindowResized();
 	LRESULT OnWindowKeyUp(WPARAM wParam, LPARAM lParam);
@@ -49,6 +51,7 @@ public:
 
 private:
 	static Engine*            theEngine;
+    ControllerInputMode       mControllerInputMode = ControllerInputMode::Feed;
 	StopWatch                 mTimer;
 	bool                      mAppPaused = false;  // is the application paused?
 
