@@ -53,7 +53,6 @@ float4 PS(VertexOut pin) : SV_Target
         {
             theColor = colorBrick;
         }
-        
     }
     else
     {
