@@ -2,6 +2,7 @@
 #include "../Shape/FLD3DMesh.h"
 
 namespace FireFlame {
+class Renderer;
 class D3DShaderWrapper;
 class D3DPrimitive {
 public:
@@ -9,7 +10,7 @@ public:
 	explicit D3DPrimitive(const stRawMesh& mesh);
 	D3DMesh* GetMesh() { return mMesh.get(); }
 
-    void Draw(ID3D12GraphicsCommandList* cmdList);
+    void Draw(Renderer* renderer);
 
     void SetShader(std::shared_ptr<D3DShaderWrapper> shader) { mShader = shader; }
 

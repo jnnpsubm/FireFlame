@@ -25,18 +25,18 @@ public:
 
 	void Resize();
 
-	void CheckMSAASupport();
-	UINT GetSampleCount()const { return mSampleCount; }
 	void ToggleMSAA();
 
     // Get Methods
-    ID3D12Device*              GetDevice() const             { return md3dDevice.Get(); }
-    DXGI_FORMAT                GetBackBufferFormat() const   { return mBackBufferFormat; }
+    ID3D12Device*              GetDevice()             const { return md3dDevice.Get(); }
+    DXGI_FORMAT                GetBackBufferFormat()   const { return mBackBufferFormat; }
     DXGI_FORMAT                GetDepthStencilFormat() const { return mDepthStencilFormat; }
-    bool                       GetMSAAStatus() const         { return mMSAAOn; }
-    UINT                       GetMSAASampleCount() const    { return mSampleCount; }
-    UINT                       GetMSAAQuality() const        { return mMSAAQuality; }
-    ID3D12GraphicsCommandList* GetCommandList() const        { return mCommandList.Get(); }
+    UINT                       GetMSAAMode()           const { return mMSAAMode; }
+    bool                       GetMSAAStatus()         const { return mSampleCount > 1; }
+    UINT                       GetMSAASampleCount()    const { return mSampleCount; }
+    UINT                       GetMSAAQuality()        const { return mMSAAQuality; }
+    CRef_MSAADesc_Vec          GetMSAASupported()      const { return mMSAASupported; }
+    ID3D12GraphicsCommandList* GetCommandList()        const { return mCommandList.Get(); }
     // Set Methods
     void SetCurrentPSO(ID3D12PipelineState* pso) { mCurrPSO = pso; }
 
@@ -104,13 +104,13 @@ private:
 	UINT mDsvDescriptorSize       = 0;
 	UINT mCbvSrvUavDescriptorSize = 0;
 
-	bool        mMSAAOn      = true;
     UINT        mMSAAMode    = 0;
 	UINT        mMSAAQuality = 0;
 	UINT        mSampleCount = 4;
 
     std::vector<stMSAADesc> mMSAASupported;
     void GatherMSAAModeSupported();
+    void SelectMSAAMode(UINT sampleCount);
 
 	DXGI_FORMAT mBackBufferFormat   = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

@@ -63,7 +63,7 @@ void Engine::CalculateFrameStats()
 		std::wstring fpsStr = std::to_wstring(fps);
 		std::wstring mspfStr = std::to_wstring(mspf);
 		std::wstring windowText = L"    fps: " + fpsStr + L"   mspf: " + mspfStr +
-			L"    SampleCount: " + std::to_wstring(mRenderer->GetSampleCount());
+			L"    SampleCount: " + std::to_wstring(mRenderer->GetMSAASampleCount());
 		mMainWnd->AppendWindowCaption(windowText);
 		// Reset for next average.
 		frameCnt = 0;

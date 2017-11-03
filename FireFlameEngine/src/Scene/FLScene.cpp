@@ -22,7 +22,7 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
         if (!mesh->ResidentOnGPU()) {
             mesh->MakeResident2GPU(mRenderer->GetDevice(), mRenderer->GetCommandList());
         }
-        primitive->Draw(cmdList);
+        primitive->Draw(mRenderer.get());
     }
 }
 int Scene::GetReady() {
@@ -57,8 +57,7 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     shader->BuildPSO
     (
         mRenderer->GetDevice(),             mRenderer->GetBackBufferFormat(),
-        mRenderer->GetDepthStencilFormat(), mRenderer->GetMSAAStatus(),
-        mRenderer->GetSampleCount(),        mRenderer->GetMSAAQuality()
+        mRenderer->GetDepthStencilFormat(), mRenderer->GetMSAASupported()
     );
 }
 void Scene::AddPrimitive(const stRawMesh& mesh, const std::string& shaderName) {

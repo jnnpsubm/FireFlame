@@ -107,13 +107,14 @@ void Renderer::RenderWithoutMSAA(const StopWatch& gt) {
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 }
 void Renderer::ToggleMSAA() {
-	mMSAAOn = !mMSAAOn;
-	if (mMSAAOn) {
-		mSampleCount = 4;
-		CheckMSAASupport();
-	}else {
-		mSampleCount = 1;
-	}
+    if ((mMSAAMode + 1) < mMSAASupported.size() && ++mMSAAMode) {
+        
+    }
+    else {
+        mMSAAMode = 0;
+    }
+    mSampleCount = mMSAASupported[mMSAAMode].sampleCount;
+    mMSAAQuality = mMSAASupported[mMSAAMode].qualityLevels;
 	Resize();
 }
 void Renderer::ResetCommandList() {
@@ -183,8 +184,8 @@ int Renderer::Initialize(API_Feature) {
 	mCbvSrvUavDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Check MSAA support......
-	CheckMSAASupport();
     GatherMSAAModeSupported();
+    SelectMSAAMode(mSampleCount);
 
 	CreateCommandObjects();
 	CreateSwapChain();
@@ -194,23 +195,10 @@ int Renderer::Initialize(API_Feature) {
 	mReady = true;
 	return 0;
 }
-void Renderer::CheckMSAASupport() {
-	// Check 4X MSAA quality support for our back buffer format.
-	// All Direct3D 11 capable devices support 4X MSAA for all render 
-	// target formats, so we only need to check quality support.
-	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
-	msQualityLevels.Format = mBackBufferFormat;
-	msQualityLevels.SampleCount = mSampleCount;
-	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-	msQualityLevels.NumQualityLevels = 0;
-	ThrowIfFailed(md3dDevice->CheckFeatureSupport(
-		D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
-		&msQualityLevels,
-		sizeof(msQualityLevels)));
-	mMSAAQuality = msQualityLevels.NumQualityLevels;
-	assert(mMSAAQuality > 0 && "Unexpected MSAA quality level.");
-}
 void Renderer::GatherMSAAModeSupported() {
+    // Check 4X MSAA quality support for our back buffer format.
+    // All Direct3D 11 capable devices support 4X MSAA for all render 
+    // target formats, so we only need to check quality support.
     D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
     msQualityLevels.Format = mBackBufferFormat;
     msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
@@ -226,6 +214,17 @@ void Renderer::GatherMSAAModeSupported() {
         if (msQualityLevels.NumQualityLevels)
             mMSAASupported.emplace_back(i, msQualityLevels.NumQualityLevels);
     }
+}
+void Renderer::SelectMSAAMode(UINT sampleCount) {
+    mMSAAMode = 0;
+    for (size_t i = 0; i < mMSAASupported.size(); ++i) {
+        if (mMSAASupported[i].sampleCount == mSampleCount) {
+            mMSAAMode = (UINT)i;
+            break;
+        }
+    }
+    mSampleCount = mMSAASupported[mMSAAMode].sampleCount;
+    mMSAAQuality = mMSAASupported[mMSAAMode].qualityLevels;
 }
 void Renderer::Resize(){
 	assert(!mRenderWnd.expired());

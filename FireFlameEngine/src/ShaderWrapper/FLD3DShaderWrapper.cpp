@@ -4,7 +4,7 @@
 
 namespace FireFlame {
 void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, 
-                                DXGI_FORMAT DSFormat,bool MSAAOn, UINT sampleCount, UINT MSAAQuality)
+                                DXGI_FORMAT DSFormat,CRef_MSAADesc_Vec msaaVec)
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -25,10 +25,21 @@ void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferForm
     psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psoDesc.NumRenderTargets = 1;
     psoDesc.RTVFormats[0] = backBufferFormat;
-    psoDesc.SampleDesc.Count = MSAAOn ? sampleCount : 1;
-    psoDesc.SampleDesc.Quality = MSAAOn ? (MSAAQuality - 1) : 0;
     psoDesc.DSVFormat = DSFormat;
-    ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO)));
+    mPSO.resize(msaaVec.size());
+    for (size_t i = 0; i < msaaVec.size(); ++i) {
+        const auto& msaaDesc = msaaVec[i];
+        psoDesc.SampleDesc.Count = msaaDesc.sampleCount;
+        psoDesc.SampleDesc.Quality = msaaDesc.qualityLevels - 1;
+        ThrowIfFailed
+        (
+            device->CreateGraphicsPipelineState
+            (
+                &psoDesc, 
+                IID_PPV_ARGS(mPSO[i].GetAddressOf())
+            )
+        );
+    }
 }
 void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // Shader programs typically require resources as input (constant buffers,

@@ -106,4 +106,5 @@ struct stMSAADesc {
     UINT sampleCount;
     UINT qualityLevels;
 };
+typedef const std::vector<stMSAADesc>& CRef_MSAADesc_Vec;
 } // end namespace
