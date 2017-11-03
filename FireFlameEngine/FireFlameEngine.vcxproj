@@ -32,6 +32,7 @@
     <ClInclude Include="src\Matrix\FLMatrixHelper.h" />
     <ClInclude Include="src\Matrix\FLMatrixMXN.h" />
     <ClInclude Include="src\Matrix\FLMatrixNXN.h" />
+    <ClInclude Include="src\Renderer\FLD3DRenderer.h" />
     <ClInclude Include="src\Renderer\FLRenderer.h" />
     <ClInclude Include="src\Scene\FLScene.h" />
     <ClInclude Include="src\Scene\Primitive\FLD3DPrimitive.h" />
@@ -50,6 +51,7 @@
     <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />
     <ClCompile Include="src\FLD3DUtils.cpp" />
+    <ClCompile Include="src\Renderer\FLD3DRenderer.cpp" />
     <ClCompile Include="src\Renderer\FLRenderer.cpp" />
     <ClCompile Include="src\Scene\FLScene.cpp" />
     <ClCompile Include="src\Scene\Primitive\FLD3DPrimitive.cpp" />

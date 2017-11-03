@@ -15,7 +15,7 @@
 #pragma comment(lib, "dxguid.lib")
 
 namespace FireFlame{
-class Renderer;
+class D3DRenderer;
 class Engine {
 public:
 	Engine(HINSTANCE hinst);
@@ -52,9 +52,9 @@ private:
 	StopWatch                 mTimer;
 	bool                      mAppPaused = false;  // is the application paused?
 
-	std::shared_ptr<Window>   mMainWnd   = nullptr;
-	std::shared_ptr<Renderer> mRenderer  = nullptr;
-	std::shared_ptr<Scene>    mScene     = nullptr;
+	std::shared_ptr<Window>      mMainWnd   = nullptr;
+	std::shared_ptr<D3DRenderer> mRenderer  = nullptr;
+	std::shared_ptr<Scene>       mScene     = nullptr;
 
     // callbacks
     std::function<void(int w, int h)> mFuncWindowResizedHandler = [](int w, int h) {};

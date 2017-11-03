@@ -10,9 +10,6 @@
     <ClCompile Include="src\Window\FLWindow.cpp">
       <Filter>src\Window</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\FLRenderer.cpp">
-      <Filter>src\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene\FLScene.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
@@ -42,6 +39,12 @@
     </ClCompile>
     <ClCompile Include="src\ShaderWrapper\FLShaderWrapper.cpp">
       <Filter>src\ShaderWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\FLD3DRenderer.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\FLRenderer.cpp">
+      <Filter>src\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,9 +80,6 @@
     </ClInclude>
     <ClInclude Include="src\Window\FLWindow.h">
       <Filter>src\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\FLRenderer.h">
-      <Filter>src\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\FLScene.h">
       <Filter>src\Scene</Filter>
@@ -122,6 +122,12 @@
     </ClInclude>
     <ClInclude Include="src\MathHelper\FLMathHelper.h">
       <Filter>src\MathHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\FLD3DRenderer.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\FLRenderer.h">
+      <Filter>src\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

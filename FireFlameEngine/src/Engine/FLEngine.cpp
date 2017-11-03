@@ -1,12 +1,12 @@
 #include "FLEngine.h"
-#include "../Renderer/FLRenderer.h"
+#include "..\Renderer\FLD3DRenderer.h"
 
 namespace FireFlame {
 Engine* Engine::theEngine = nullptr;
 Engine::Engine(HINSTANCE hinst) {
 	assert(theEngine == nullptr);
 	theEngine = this;
-	mRenderer = std::make_shared<Renderer>();
+	mRenderer = std::make_shared<D3DRenderer>();
 	mMainWnd  = std::make_shared<Window>(hinst, *this);
 	mRenderer->SetRenderWindow(mMainWnd);
     mScene = std::make_shared<Scene>(mRenderer);

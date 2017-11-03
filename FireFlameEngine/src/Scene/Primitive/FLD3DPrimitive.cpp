@@ -1,5 +1,5 @@
 #include "FLD3DPrimitive.h"
-#include "..\..\Renderer\FLRenderer.h"
+#include "..\..\Renderer\FLD3DRenderer.h"
 #include "..\..\ShaderWrapper\FLD3DShaderWrapper.h"
 
 namespace FireFlame {
@@ -8,7 +8,7 @@ D3DPrimitive::D3DPrimitive(const stRawMesh& mesh) : mMesh(std::make_unique<D3DMe
 	mLocal2World = mesh.LocalToWorld;
 }
 
-void D3DPrimitive::Draw(Renderer* renderer) {
+void D3DPrimitive::Draw(D3DRenderer* renderer) {
     ID3D12GraphicsCommandList* cmdList = renderer->GetCommandList();
     cmdList->SetPipelineState(mShader->GetPSO(renderer->GetMSAAMode()));
 

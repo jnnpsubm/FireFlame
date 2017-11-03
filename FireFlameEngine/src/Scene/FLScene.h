@@ -7,11 +7,11 @@
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 
 namespace FireFlame {
-class Renderer;
+class D3DRenderer;
 class StopWatch;
 class Scene {
 public:
-	Scene(std::shared_ptr<Renderer>& renderer);
+	Scene(std::shared_ptr<D3DRenderer>& renderer);
 
     // some scene management
     int  GetReady();
@@ -35,7 +35,7 @@ public:
     void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
 
 private:
-    std::shared_ptr<Renderer> mRenderer;
+    std::shared_ptr<D3DRenderer> mRenderer;
 
     void PreRender();
     void Draw(ID3D12GraphicsCommandList* cmdList);
