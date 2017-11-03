@@ -18,7 +18,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		auto funcUpdate = std::bind(&Update_OutClassScope, &someGame, std::placeholders::_1);
 
 		engine.InitMainWindow(150, 80, 1280, 600);
-		engine.InitRenderer(FireFlame::API_Feature::API_DX11On12);
+		engine.InitRenderer(FireFlame::API_Feature::API_DX11_0_ON12);
 
 		std::wofstream logFile(L"VideoAdapters.txt");
 		engine.LogVideoAdapters(logFile);

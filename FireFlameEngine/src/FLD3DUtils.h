@@ -28,6 +28,34 @@ public:
         // the lower 2 bytes which store all bits < 256.
         return (byteSize + 255) & ~255;
     }
+    static D3D_FEATURE_LEVEL FLAPIFeature2D3DFeatureLevel(API_Feature api) {
+        switch (api)
+        {
+        case FireFlame::API_Feature::API_DX12_1:
+            return D3D_FEATURE_LEVEL_12_1;
+        case FireFlame::API_Feature::API_DX12_0:
+            return D3D_FEATURE_LEVEL_12_0;
+        case FireFlame::API_Feature::API_DX11_1_On12:
+            return D3D_FEATURE_LEVEL_11_1;
+        case FireFlame::API_Feature::API_DX11_0_ON12:
+            return D3D_FEATURE_LEVEL_11_0;
+        case FireFlame::API_Feature::API_OpenGL42:
+            throw std::exception("API not supported now......");
+            break;
+        case FireFlame::API_Feature::API_OpenGLES:
+            throw std::exception("API not supported now......");
+            break;
+        case FireFlame::API_Feature::API_Vulkan:
+            throw std::exception("API not supported now......");
+            break;
+        case FireFlame::API_Feature::API_Metal:
+            throw std::exception("API not supported now......");
+            break;
+        default:
+            throw std::exception("API not supported now......");
+            break;
+        }
+    }
 };
 
 inline DXGI_FORMAT FLIndexFormat2DXGIFormat(Index_Format format) {

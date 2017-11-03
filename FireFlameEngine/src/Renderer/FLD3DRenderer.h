@@ -16,7 +16,7 @@ public:
 	//~D3DRenderer() = default;
 	bool Ready() const { return mReady; }
 	void SetRenderWindow(std::shared_ptr<Window> wnd) { mRenderWnd = wnd; }
-	int Initialize(API_Feature api);
+	int  Initialize(API_Feature api);
 	void Update(const StopWatch& gt);
 	void Render(const StopWatch& gt);
 

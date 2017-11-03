@@ -4,11 +4,13 @@
 
 namespace FireFlame {
 enum class API_Feature {
-	API_DX12 = 0,
-	API_DX11On12,
+	API_DX12_1 = 0,
+    API_DX12_0,
+	API_DX11_1_On12,
+    API_DX11_0_ON12,
 	API_OpenGL42,
 	API_OpenGLES,
-	API_VULKAN,
+	API_Vulkan,
 	API_Metal,
 
 	API_MAX

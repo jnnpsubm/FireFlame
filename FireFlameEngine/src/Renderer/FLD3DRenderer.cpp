@@ -148,9 +148,11 @@ void D3DRenderer::WaitForGPU() {
 		CloseHandle(eventHandle);
 	}
 }
-int D3DRenderer::Initialize(API_Feature) {
+int D3DRenderer::Initialize(API_Feature api) {
 	assert(!mRenderWnd.expired());
 	auto renderWindow = mRenderWnd.lock();
+
+    D3D_FEATURE_LEVEL featureLevel = D3DUtils::FLAPIFeature2D3DFeatureLevel(api);
 
 #if defined(DEBUG) || defined(_DEBUG) 
 	// Enable the D3D12 debug layer.
@@ -164,7 +166,7 @@ int D3DRenderer::Initialize(API_Feature) {
 	// Try to create hardware device.
 	HRESULT hardwareResult = D3D12CreateDevice(
 		nullptr,             // default adapter
-		D3D_FEATURE_LEVEL_11_0,
+        featureLevel,
 		IID_PPV_ARGS(&md3dDevice));
 
 	// Fallback to WARP device.
@@ -174,7 +176,7 @@ int D3DRenderer::Initialize(API_Feature) {
 		ThrowIfFailed(mdxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)));
 		ThrowIfFailed(D3D12CreateDevice(
 			pWarpAdapter.Get(),
-			D3D_FEATURE_LEVEL_11_0,
+            featureLevel,
 			IID_PPV_ARGS(&md3dDevice)));
 	}
 
