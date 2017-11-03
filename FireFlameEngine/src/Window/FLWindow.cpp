@@ -191,6 +191,7 @@ LRESULT Window::OnKeyUp(WPARAM wParam, LPARAM lParam) {
 		mEngine.Stop();
 		PostQuitMessage(0);
 	}
+    mKeyUpCB(wParam, lParam);
 	return mEngine.OnWindowKeyUp(wParam, lParam);
 }
 LRESULT Window::OnSysKeyDown(WPARAM wParam, LPARAM lParam) {

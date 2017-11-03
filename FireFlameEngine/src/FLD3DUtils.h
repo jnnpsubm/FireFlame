@@ -72,10 +72,12 @@ inline DXGI_FORMAT FLIndexFormat2DXGIFormat(Index_Format format) {
 inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
     switch (format)
     {
-    case VERTEX_FORMAT_POS_FLOAT_3:
+    case VERTEX_FORMAT_POS_FLOAT3:
         return DXGI_FORMAT_R32G32B32_FLOAT;
-    case VERTEX_FORMAT_COLOR_FLOAT_4:
+    case VERTEX_FORMAT_COLOR_FLOAT4:
         return DXGI_FORMAT_R32G32B32A32_FLOAT;
+    case VERTEX_FORMAT_TEXCOORD_FLOAT2:
+        return DXGI_FORMAT_R32G32_FLOAT;
     default:
         return DXGI_FORMAT_UNKNOWN;
     }
@@ -83,10 +85,12 @@ inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
 inline UINT FLVertexFormatByteSize(unsigned long format) {
     switch (format)
     {
-    case VERTEX_FORMAT_POS_FLOAT_3:
+    case VERTEX_FORMAT_POS_FLOAT3:
         return 12;
-    case VERTEX_FORMAT_COLOR_FLOAT_4:
+    case VERTEX_FORMAT_COLOR_FLOAT4:
         return 16;
+    case VERTEX_FORMAT_TEXCOORD_FLOAT2:
+        return 8;
     default:
         return 0;
     }

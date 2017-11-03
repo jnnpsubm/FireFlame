@@ -36,8 +36,9 @@ inline unsigned int IndexFormatByteLength(Index_Format format) {
 	}
 }
 
-const unsigned long VERTEX_FORMAT_POS_FLOAT_3   = 1UL << 0;
-const unsigned long VERTEX_FORMAT_COLOR_FLOAT_4 = 1UL << 1;
+const unsigned long VERTEX_FORMAT_POS_FLOAT3      = 1UL << 0;
+const unsigned long VERTEX_FORMAT_COLOR_FLOAT4    = 1UL << 1;
+const unsigned long VERTEX_FORMAT_TEXCOORD_FLOAT2 = 1UL << 2;
 
 enum class Primitive_Topology {
     TrangleList,

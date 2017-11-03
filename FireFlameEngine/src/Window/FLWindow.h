@@ -11,6 +11,7 @@ class Engine;
 class Window {
 public:
     typedef std::function<void(WPARAM, int, int)> MouseEventHandler;
+    typedef std::function<void(WPARAM, LPARAM)>   KeyUpEventHandler;
 
 public:
 	Window(HINSTANCE hInst, Engine& engine);
@@ -45,6 +46,9 @@ public:
         if (mMouseUpCB)   mMouseUpCB = up;
         if (mMouseMoveCB) mMouseMoveCB = move;
     }
+    void RegisterKeyUpHandler(KeyUpEventHandler keyUp) {
+        mKeyUpCB = keyUp;
+    }
 
 private:
 	static Window* theWindow;
@@ -66,6 +70,7 @@ private:
     MouseEventHandler mMouseDownCB = [](WPARAM, int, int) {};
     MouseEventHandler mMouseUpCB   = [](WPARAM, int, int) {};
     MouseEventHandler mMouseMoveCB = [](WPARAM, int, int) {};
+    KeyUpEventHandler mKeyUpCB     = [](WPARAM, LPARAM)   {};
 
 	// Message processing
 	LRESULT OnKeyUp(WPARAM wParam, LPARAM lParam);

@@ -31,6 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
             std::bind(&Game::OnMouseUp,   &someGame, _1, _2, _3),
             std::bind(&Game::OnMouseMove, &someGame, _1, _2, _3)
         );
+        engine.GetWindow()->RegisterKeyUpHandler(std::bind(&Game::OnKeyUp, &someGame, _1, _2));
 
         // engine initialization
 		engine.InitMainWindow(150, 80, 1280, 600);
@@ -38,16 +39,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         someGame.SetMainWnd(engine.GetWindow()->MainWnd());
 		
         // use what shader to render the geometry
-        std::string shaderName = "colorShader";
+        std::string shaderName = "simpleProcedualTexShader";
         stShaderDescription shader
         (
             shaderName,
-            { VERTEX_FORMAT_POS_FLOAT3 , VERTEX_FORMAT_COLOR_FLOAT4 },
-            { "POSITION","COLOR" },
+            { VERTEX_FORMAT_POS_FLOAT3 , VERTEX_FORMAT_TEXCOORD_FLOAT2 },
+            { "POSITION","TEXCOORD" },
             { sizeof(ObjectConstants) }
         );
-        shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
-        shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+        shader.AddShaderStage(L"Shaders\\simpleProcedualTex.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+        shader.AddShaderStage(L"Shaders\\simpleProcedualTex.hlsl", Shader_Type::PS, "PS", "ps_5_0");
         engine.GetScene()->AddShader(shader);
 
         // add some geometry to render
