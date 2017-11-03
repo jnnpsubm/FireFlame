@@ -34,10 +34,16 @@ public:
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
     // register callbacks
-    void RegisterMouseHandlers(MouseEventHandler down,MouseEventHandler up,MouseEventHandler move) {
-        mMouseDownCB = down;
-        mMouseUpCB = up;
-        mMouseMoveCB = move;
+    void RegisterMouseHandlers
+    (
+        MouseEventHandler down = nullptr,
+        MouseEventHandler up   = nullptr,
+        MouseEventHandler move = nullptr
+    ) 
+    {
+        if (mMouseDownCB) mMouseDownCB  = down;
+        if (mMouseUpCB)   mMouseUpCB = up;
+        if (mMouseMoveCB) mMouseMoveCB = move;
     }
 
 private:
