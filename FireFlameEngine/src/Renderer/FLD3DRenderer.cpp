@@ -26,8 +26,7 @@ void D3DRenderer::Render(const StopWatch& gt) {
 	// Indicate a state transition on the resource usage.
 	// Transition the render target into the correct state to allow for drawing into it.
 	
-	if (mSampleCount > 1) RenderWithMSAA(gt);
-	else RenderWithoutMSAA(gt);
+    mMSAARenderer(gt);
 
 	// Done recording commands.
 	ThrowIfFailed(mCommandList->Close());
@@ -44,6 +43,11 @@ void D3DRenderer::Render(const StopWatch& gt) {
 	// done for simplicity.  Later we will show how to organize our rendering code
 	// so we do not have to wait per frame.
 	WaitForGPU();
+}
+void D3DRenderer::SelectMSAARenderer() {
+    mMSAARenderer = mSampleCount > 1 ?
+        std::bind(&D3DRenderer::RenderWithMSAA, this, std::placeholders::_1) :
+        std::bind(&D3DRenderer::RenderWithoutMSAA, this, std::placeholders::_1);
 }
 void D3DRenderer::RenderWithMSAA(const StopWatch& gt) {
 	D3D12_RESOURCE_BARRIER barrier2RT = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -115,6 +119,7 @@ void D3DRenderer::ToggleMSAA() {
     }
     mSampleCount = mMSAASupported[mMSAAMode].sampleCount;
     mMSAAQuality = mMSAASupported[mMSAAMode].qualityLevels;
+    SelectMSAARenderer();
 	Resize();
 }
 void D3DRenderer::ResetCommandList() {
@@ -193,6 +198,7 @@ int D3DRenderer::Initialize(API_Feature api) {
 	CreateSwapChain();
 	CreateRtvAndDsvDescriptorHeaps();
 
+    SelectMSAARenderer();
 	Resize();
 	mReady = true;
 	return 0;

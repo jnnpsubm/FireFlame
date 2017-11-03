@@ -59,6 +59,8 @@ private:
 	bool                   mReady = false;
 	std::weak_ptr<Window>  mRenderWnd;
 
+    std::function<void(const StopWatch&)> mMSAARenderer = nullptr;
+    void SelectMSAARenderer();
 	void RenderWithMSAA(const StopWatch& gt);
 	void RenderWithoutMSAA(const StopWatch& gt);
 
