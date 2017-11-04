@@ -1,1 +1,2 @@
 https://blogs.msdn.microsoft.com/vcblog/2015/03/31/visual-studio-2015-and-graphics-tools-for-windows-10/
+测试一下ps的ddx和ddy
