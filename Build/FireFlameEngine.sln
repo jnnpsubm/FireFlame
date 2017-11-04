@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleBox_Sample", "..\Samp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MandelbrotFun_Sample", "..\Samples\MandelbrotFun_Sample\MandelbrotFun_Sample.vcxproj", "{10B4337A-872E-4177-A14B-AF9C2410BF6E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JuliaFractals_Sample", "..\Samples\JuliaFractals_Sample\JuliaFractals_Sample.vcxproj", "{63E241B9-9320-4031-9FE6-7D147583108C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,14 @@ Global
 		{10B4337A-872E-4177-A14B-AF9C2410BF6E}.Release|x64.Build.0 = Release|x64
 		{10B4337A-872E-4177-A14B-AF9C2410BF6E}.Release|x86.ActiveCfg = Release|Win32
 		{10B4337A-872E-4177-A14B-AF9C2410BF6E}.Release|x86.Build.0 = Release|Win32
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Debug|x64.ActiveCfg = Debug|x64
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Debug|x64.Build.0 = Debug|x64
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Debug|x86.ActiveCfg = Debug|Win32
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Debug|x86.Build.0 = Debug|Win32
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Release|x64.ActiveCfg = Release|x64
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Release|x64.Build.0 = Release|x64
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Release|x86.ActiveCfg = Release|Win32
+		{63E241B9-9320-4031-9FE6-7D147583108C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

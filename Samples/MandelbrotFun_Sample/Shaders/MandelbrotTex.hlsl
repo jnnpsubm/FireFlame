@@ -33,7 +33,7 @@ VertexOut VS(VertexIn vin)
 	vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
 	
 	// Just pass vertex color into the pixel shader.
-    vout.TexC = vin.TexC;
+    vout.TexC = vin.TexC*2. - float2(1., 1.);
     
     return vout;
 }
@@ -66,7 +66,7 @@ float4 PS(VertexOut pin) : SV_Target
     }
     else
     {
-        color = float4(lerp(divergeColor1, divergeColor2, (float)frac(numIters / uCS)), 1.);
+        color = float4(lerp(divergeColor1, divergeColor2, (float)frac(numIters / gMaxIters)), 1.);
         //color = float4(1., 1., 0., 1.);
     }
     
