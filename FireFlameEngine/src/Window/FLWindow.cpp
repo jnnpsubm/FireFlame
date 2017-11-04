@@ -46,6 +46,9 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_KEYUP: {
 		OnKeyUp(wParam, lParam);
 	}break;
+    case WM_KEYDOWN: {
+        OnKeyDown(wParam, lParam);
+    }break;
 	case WM_GETMINMAXINFO: {
 		OnGetMinMaxInfo((MINMAXINFO*)lParam);
 	}break;
@@ -193,6 +196,10 @@ LRESULT Window::OnKeyUp(WPARAM wParam, LPARAM lParam) {
 	}
     mKeyUpCB(wParam, lParam);
 	return mEngine.OnWindowKeyUp(wParam, lParam);
+}
+LRESULT Window::OnKeyDown(WPARAM wParam, LPARAM lParam) {
+    mKeyDownCB(wParam, lParam);
+    return 0;
 }
 LRESULT Window::OnSysKeyDown(WPARAM wParam, LPARAM lParam) {
 	if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000){

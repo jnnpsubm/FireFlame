@@ -306,7 +306,7 @@ float4 PS(VertexOut pin) : SV_Target
     float4 color = float4(0.,0.,0.,1.);
     if (iterations == gMaxIterations)
     {
-        color = float4(0.2,0.2,0.2, 1.);
+        color = float4(0.1,0.1,0.1, 1.);
     }
     else
     {

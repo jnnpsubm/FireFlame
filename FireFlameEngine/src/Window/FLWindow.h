@@ -11,7 +11,7 @@ class Engine;
 class Window {
 public:
     typedef std::function<void(WPARAM, int, int)> MouseEventHandler;
-    typedef std::function<void(WPARAM, LPARAM)>   KeyUpEventHandler;
+    typedef std::function<void(WPARAM, LPARAM)>   KeyEventHandler;
 
 public:
 	Window(HINSTANCE hInst, Engine& engine);
@@ -46,8 +46,11 @@ public:
         if (mMouseUpCB)   mMouseUpCB = up;
         if (mMouseMoveCB) mMouseMoveCB = move;
     }
-    void RegisterKeyUpHandler(KeyUpEventHandler keyUp) {
+    void RegisterKeyUpHandler(KeyEventHandler keyUp) {
         mKeyUpCB = keyUp;
+    }
+    void RegisterKeyDownHandler(KeyEventHandler keyDown) {
+        mKeyDownCB = keyDown;
     }
 
 private:
@@ -70,10 +73,12 @@ private:
     MouseEventHandler mMouseDownCB = [](WPARAM, int, int) {};
     MouseEventHandler mMouseUpCB   = [](WPARAM, int, int) {};
     MouseEventHandler mMouseMoveCB = [](WPARAM, int, int) {};
-    KeyUpEventHandler mKeyUpCB     = [](WPARAM, LPARAM)   {};
+    KeyEventHandler mKeyUpCB       = [](WPARAM, LPARAM)   {};
+    KeyEventHandler mKeyDownCB     = [](WPARAM, LPARAM)   {};
 
 	// Message processing
 	LRESULT OnKeyUp(WPARAM wParam, LPARAM lParam);
+    LRESULT OnKeyDown(WPARAM wParam, LPARAM lParam);
 	LRESULT OnActive(UINT mode);
 	LRESULT OnDestroy();
 	LRESULT OnSize(WPARAM wParam, LPARAM lParam);
