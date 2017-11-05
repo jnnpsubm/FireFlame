@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireFlameEngine", "..\FireFlameEngine\FireFlameEngine.vcxproj", "{CBF7B274-B25E-474C-9951-B616FDE59A73}"
 EndProject
@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InitEngine_Sample", "..\Sam
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Matrix_Sample", "..\Samples\Matrix_Sample\Matrix_Sample.vcxproj", "{3E9DE29E-1796-468E-9864-61A09DF1AEFE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcedualBox_Sample", "..\Samples\ProcedualBox_Sample\ProcedualBox_Sample.vcxproj", "{6F71EBD9-E839-4B0A-8940-DDFD051D5CC9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProceduralBox_Sample", "..\Samples\ProcedualBox_Sample\ProcedualBox_Sample.vcxproj", "{6F71EBD9-E839-4B0A-8940-DDFD051D5CC9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleBox_Sample", "..\Samples\SimpleBox_Sample\SimpleBox_Sample.vcxproj", "{A1910E35-2A21-4D95-9353-06974BA3A60E}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JuliaFractals_Sample", "..\Samples\JuliaFractals_Sample\JuliaFractals_Sample.vcxproj", "{63E241B9-9320-4031-9FE6-7D147583108C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Noise_Sample", "..\Samples\Noise_Sample\Noise_Sample.vcxproj", "{6FC3E3EB-F98E-44D7-BE25-67958826CA8F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Noise2_Samples", "..\Samples\Noise2_Samples\Noise2_Samples.vcxproj", "{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +93,14 @@ Global
 		{6FC3E3EB-F98E-44D7-BE25-67958826CA8F}.Release|x64.Build.0 = Release|x64
 		{6FC3E3EB-F98E-44D7-BE25-67958826CA8F}.Release|x86.ActiveCfg = Release|Win32
 		{6FC3E3EB-F98E-44D7-BE25-67958826CA8F}.Release|x86.Build.0 = Release|Win32
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Debug|x64.ActiveCfg = Debug|x64
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Debug|x64.Build.0 = Debug|x64
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Debug|x86.ActiveCfg = Debug|Win32
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Debug|x86.Build.0 = Debug|Win32
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Release|x64.ActiveCfg = Release|x64
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Release|x64.Build.0 = Release|x64
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Release|x86.ActiveCfg = Release|Win32
+		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
