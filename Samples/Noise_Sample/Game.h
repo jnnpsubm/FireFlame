@@ -6,11 +6,11 @@ struct ObjectConstants
 {
     ObjectConstants() = default;
     DirectX::XMFLOAT4X4 WorldViewProj = FireFlame::Matrix4X4();
-    float               TexScale = 1.0f;
+    float               TexScale = 16.0f;
     int                 Turbulence = 0;
     int                 Turbulence2 = 0;
     int                 ManualOctave = false;
-    int                 Octave = 2;
+    int                 Octave = 1;
 
     int      Erosion = false;
     float    ErosionMin = 0.3f;
@@ -148,7 +148,7 @@ private:
 
     float mTheta  = 1.5f*DirectX::XM_PI;
     float mPhi    = DirectX::XM_PIDIV4;
-    float mRadius = 5.0f;
+    float mRadius = 4.0f;
 
     POINT mLastMousePos;
 };

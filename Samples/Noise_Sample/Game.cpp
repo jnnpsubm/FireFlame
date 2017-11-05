@@ -73,7 +73,7 @@ void Game::OnMouseMove(WPARAM btnState, int x, int y) {
         mRadius += dx - dy;
 
         // Restrict the radius.
-        mRadius = FireFlame::MathHelper::Clamp(mRadius, 1.5f, 15.0f);
+        mRadius = FireFlame::MathHelper::Clamp(mRadius, 1.5f, 150.0f);
     }
 
     mLastMousePos.x = x;
@@ -84,32 +84,47 @@ void Game::OnKeyUp(WPARAM wParam, LPARAM lParam) {
    
 }
 void Game::OnKeyDown(WPARAM wParam, LPARAM lParam) {
+	std::wstring strDebug(L"================");
     if ((int)wParam == 'A')
     {
         mShaderConstants.TexScale += 1.0f;
+		strDebug += L"TexScale = " + std::to_wstring(mShaderConstants.TexScale);
     }
     else if ((int)wParam == 'J')
     {
         mShaderConstants.TexScale -= 1.0f;
+		strDebug += L"TexScale = " + std::to_wstring(mShaderConstants.TexScale);
     }
     else if ((int)wParam == 'B')
     {
         mShaderConstants.Turbulence = !mShaderConstants.Turbulence;
+		strDebug += L"Turbulence Mode = " + std::to_wstring(mShaderConstants.Turbulence);
     }
     else if ((int)wParam == 'C')
     {
         mShaderConstants.Turbulence2 = !mShaderConstants.Turbulence2;
+		strDebug += L"Turbulence Modulate Mode = " + std::to_wstring(mShaderConstants.Turbulence2);
     }
     else if ((int)wParam == 'M')
     {
         mShaderConstants.ManualOctave = !mShaderConstants.ManualOctave;
+		strDebug += L"ManualOctave Mode = " + std::to_wstring(mShaderConstants.ManualOctave);
     }
     else if ((int)wParam == 'O')
     {
+		if (mShaderConstants.Octave <= 0) mShaderConstants.Octave = 1;
         mShaderConstants.Octave *= 2;
+		strDebug += L"Octave = " + std::to_wstring(mShaderConstants.Octave);
     }
+	else if ((int)wParam == 'P')
+	{
+		if (mShaderConstants.Octave > 0) mShaderConstants.Octave /= 2;
+		strDebug += L"Octave = " + std::to_wstring(mShaderConstants.Octave);
+	}
     else if ((int)wParam == 'E')
     {
         mShaderConstants.Erosion = !mShaderConstants.Erosion;
     }
+	strDebug += L"================\n";
+	OutputDebugString(strDebug.c_str());
 }

@@ -23,7 +23,6 @@ struct VertexOut
 {
 	float4 PosH : SV_POSITION;
     float2 TexC : TEXCOORD;
-    float3 PosL : POSITIONL;
 };
 
 VertexOut VS(VertexIn vin)
@@ -34,8 +33,7 @@ VertexOut VS(VertexIn vin)
 	vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
 	
 	// Just pass vertex color into the pixel shader.
-    vout.TexC = vin.TexC;
-    vout.PosL = vin.PosL;
+    vout.TexC = vin.TexC*gTexScale;
     
     return vout;
 }
@@ -128,7 +126,11 @@ float Noise(float2 p)
 }
 float FBm(float3 p, float3 dpdx, float3 dpdy, float omega, int maxOctaves) {
     // Compute number of octaves for antialiased FBm
-    float len2 = max(length(dpdx), length(dpdy));
+	float lenx = length(dpdx);
+	float leny = length(dpdy);
+	float len = max(lenx, leny);
+	Float len2 = len*len;
+
     float n = clamp(-1 - .5f * log2(len2), 0, maxOctaves);
     int nInt = floor(n);
 
@@ -148,7 +150,11 @@ float FBm(float3 p, float3 dpdx, float3 dpdy, float omega, int maxOctaves) {
 }
 float FBm(float2 p, float2 dpdx, float2 dpdy, float omega, int maxOctaves) {
     // Compute number of octaves for antialiased FBm
-    float len2 = max(length(dpdx), length(dpdy));
+	float lenx = length(dpdx);
+	float leny = length(dpdy);
+	float len = max(lenx, leny);
+	Float len2 = len*len;
+
     float n = clamp(-1 - .5f * log2(len2), 0, maxOctaves);
     int nInt = floor(n);
 
@@ -158,12 +164,12 @@ float FBm(float2 p, float2 dpdx, float2 dpdy, float omega, int maxOctaves) {
     float o = 1;
     for (int i = 0; i < nInt; ++i) {
         float2 pscale = lambda*p;
-        sum += o * Noise(pscale.x, pscale.y, .5f);
+        sum += o * Noise(pscale);
         lambda *= 1.99f;
         o *= omega;
     }
     float nPartial = n - nInt;
-    sum += o * smoothstep(.3f, .7f, nPartial) * Noise(float3(lambda * p, .5f));
+    sum += o * smoothstep(.3f, .7f, nPartial) * Noise(lambda * p);
     return sum;
 }
 float FBm(float2 p, float omega, int maxOctaves) {
@@ -176,16 +182,19 @@ float FBm(float2 p, float omega, int maxOctaves) {
     float o = 1;
     for (int i = 0; i < nInt; ++i) {
         float2 pscale = lambda*p;
-        sum += o * Noise(pscale.x, pscale.y, .5f);
+        sum += o * Noise(pscale);
         lambda *= 1.99f;
         o *= omega;
     }
-    sum += o * .3f * Noise(float3(lambda * p, .5f));
+    sum += o * .3f * Noise(lambda * p);
     return sum;
 }
 float Turbulence(float2 p, float2 dpdx, float2 dpdy, float omega, int maxOctaves) {
     // Compute number of octaves for antialiased FBm
-    Float len2 = max(length(dpdx), length(dpdy));
+	float lenx = length(dpdx);
+	float leny = length(dpdy);
+	float len = max(lenx,leny);
+	Float len2 = len*len;
     Float n = clamp(-1 - .5f * log2(len2), 0, maxOctaves);
     int nInt = floor(n);
 
@@ -231,16 +240,22 @@ float GetNoise(float2 p, float2 ddxT, float2 ddyT) {
     if (!gTurbulence)
     {
         if (gManualOctave) {
-            val = FBm(p, 0.5, 32);
+            val = FBm(p, 0.5, gOctave);
         }
         else {
-            val = FBm(p, ddxT, ddyT, 0.5, 32);
+            val = FBm(p, ddxT, ddyT, 0.5, 128);
         }
         val = (val + 1.) / 2.;
     }
     else
     {
-        val = Turbulence(p, ddxT, ddyT, 0.5, 32);
+		if (gManualOctave) {
+			val = Turbulence(p, 0.5, gOctave);
+		}
+		else
+		{
+			val = Turbulence(p, ddxT, ddyT, 0.5, 128);
+		}
         if (gTurbulenceModulate)
         {
             val = (val + 1.) / 2.;
@@ -252,9 +267,11 @@ float4 PS(VertexOut pin) : SV_Target
 {
     //float3 color = float3(0.87f, 0.8078f, 0.745f);
     float3 color = float3(230.f/255.f, 192.f/255.f, 143.f/255.f);
-    float2 p = float2(pin.TexC.x * gTexScale, pin.TexC.y * gTexScale);
+    float2 p = float2(pin.TexC.x, pin.TexC.y);
     float val = 0.;
-    val = GetNoise(p, ddx(pin.TexC), ddy(pin.TexC));
+	float2 ddxTex = ddx_fine(pin.TexC);
+	float2 ddyTex = ddy_fine(pin.TexC);
+    val = GetNoise(p, ddxTex, ddyTex);
     if (gErosion)
     {
         clip(val - gErosionMin);
@@ -262,6 +279,9 @@ float4 PS(VertexOut pin) : SV_Target
     }
     
     return float4(val*color,1.0);
+
+	//float weight = max(max(ddxTex.x,ddxTex.y), max(ddyTex.x,ddyTex.y));
+	//return float4(weight*color,1.f);
 }
 
 
