@@ -12,7 +12,6 @@ float3 Archimides(float x, float y)
     int   circle  = theta_p/XM_2PI;
     float circles = circle*XM_2PI;
     theta += circles;
-    theta_p -= circles;
     
     float pho_p = g_a * theta;
     float dis = abs(pho_p - pho);
