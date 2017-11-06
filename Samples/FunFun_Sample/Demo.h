@@ -7,6 +7,7 @@
 struct ObjectConstants
 {
     ObjectConstants() = default;
+    DirectX::XMFLOAT4X4 ViewProj = FireFlame::Matrix4X4();
     DirectX::XMFLOAT3   vLineColor = DirectX::XMFLOAT3(1.f, 0.f, 0.f);
     float               fTexScale  = 10.0f;
     DirectX::XMFLOAT3   vBackDrop  = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
@@ -54,4 +55,8 @@ private:
         std::wstring shaderPSFile;
     };
     std::vector<stShaderFun> mShaders;
+
+    DirectX::XMFLOAT4X4 mWorld = FireFlame::Matrix4X4();
+    DirectX::XMFLOAT4X4 mView  = FireFlame::Matrix4X4();
+    DirectX::XMFLOAT4X4 mProj  = FireFlame::Matrix4X4();
 };

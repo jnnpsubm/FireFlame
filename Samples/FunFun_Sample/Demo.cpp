@@ -56,9 +56,28 @@ void Demo::AddGeometry() {
     UseGeometry(meshDesc.name);
 }
 void Demo::OnGameWindowResized(int w, int h) {
-   
+    // Build the view matrix.
+    DirectX::XMVECTOR pos = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 1.0f);
+    DirectX::XMVECTOR target = DirectX::XMVectorZero();
+    DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+    DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(pos, target, up);
+    DirectX::XMStoreFloat4x4(&mView, view);
+
+    // The window resized, so update the aspect ratio and recompute the projection matrix.
+    DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH
+    (
+        0.25f*DirectX::XMVectorGetX(DirectX::g_XMPi),
+        (float)w / h, 1.0f, 1000.0f
+    );
+    DirectX::XMStoreFloat4x4(&mProj, P);
 }
 void Demo::Update(float time_elapsed) {
+    // Update the constant buffer with the latest worldViewProj matrix.
+    //DirectX::XMMATRIX ViewProj;
+    //DirectX::XMStoreFloat4x4(&mShaderConstants.ViewProj, DirectX::XMMatrixTranspose(ViewProj));
+    //mObjectCB->CopyData(0, objConstants);
+
     mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, mShaderConstants);
 }
 void Demo::OnMouseDown(WPARAM btnState, int x, int y) {

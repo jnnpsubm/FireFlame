@@ -1,5 +1,6 @@
 cbuffer cbPerObject : register(b0)
 {
+    float4x4 gViewProj;
     float3   gLineColor;
     float    gTexScale;
     float3   gBackdropColor;
