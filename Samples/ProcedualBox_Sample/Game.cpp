@@ -69,7 +69,7 @@ void Game::OnMouseMove(WPARAM btnState, int x, int y) {
         mRadius += dx - dy;
 
         // Restrict the radius.
-        mRadius = FireFlame::MathHelper::Clamp(mRadius, 3.0f, 15.0f);
+        mRadius = FireFlame::MathHelper::Clamp(mRadius, 1.0f, 15.0f);
     }
 
     mLastMousePos.x = x;
