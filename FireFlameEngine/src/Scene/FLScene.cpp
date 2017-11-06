@@ -67,6 +67,13 @@ void Scene::AddPrimitive(const stRawMesh& mesh, const std::string& shaderName) {
     auto shader = it->second;
     mPrimitives[mesh.name]->SetShader(shader);
 }
+void Scene::PrimitiveUseShader(const std::string& primitive, const std::string& shader) {
+    auto itPrimitive = mPrimitives.find(primitive);
+    if (itPrimitive == mPrimitives.end()) throw std::exception("cannot find primitive");
+    auto itShader = mShaders.find(shader);
+    if (itShader == mShaders.end()) throw std::exception("cannot find shader");
+    itPrimitive->second->SetShader(itShader->second);
+}
 
 void Scene::PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh){
 	auto it = mPrimitives.find(name);

@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         engine.GetWindow()->RegisterKeyDownHandler(std::bind(&Game::OnKeyDown, &someGame, _1, _2));
 
         // engine initialization
-		engine.InitMainWindow(150, 80, 1920, 1080);
+		engine.InitMainWindow(150, 80, 1280, 600);
 		engine.InitRenderer(FireFlame::API_Feature::API_DX12_1);
         someGame.SetMainWnd(engine.GetWindow()->MainWnd());
 		

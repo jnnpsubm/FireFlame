@@ -164,7 +164,7 @@ int D3DRenderer::Initialize(API_Feature api) {
 	{
 		Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
 		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
-		//debugController->EnableDebugLayer();
+		debugController->EnableDebugLayer();
 	}
 #endif
 	ThrowIfFailed(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&mdxgiFactory)));

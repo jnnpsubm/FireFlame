@@ -23,6 +23,8 @@ public:
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);
 
+    void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
+
     template <typename T>
     void UpdateShaderCBData(std::string shaderName, unsigned int index, const T& data) {
         auto it = mShaders.find(shaderName);

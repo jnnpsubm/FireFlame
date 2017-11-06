@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireFlameEngine", "..\FireFlameEngine\FireFlameEngine.vcxproj", "{CBF7B274-B25E-474C-9951-B616FDE59A73}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Noise_Sample", "..\Samples\Noise_Sample\Noise_Sample.vcxproj", "{6FC3E3EB-F98E-44D7-BE25-67958826CA8F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Noise2_Samples", "..\Samples\Noise2_Samples\Noise2_Samples.vcxproj", "{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FunFun_Sample", "..\Samples\FunFun_Sample\FunFun_Sample.vcxproj", "{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +103,14 @@ Global
 		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Release|x64.Build.0 = Release|x64
 		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Release|x86.ActiveCfg = Release|Win32
 		{D79687B4-AA0C-4776-BDA2-E6E7563D11E6}.Release|x86.Build.0 = Release|Win32
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Debug|x64.ActiveCfg = Debug|x64
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Debug|x64.Build.0 = Debug|x64
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Debug|x86.ActiveCfg = Debug|Win32
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Debug|x86.Build.0 = Debug|Win32
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Release|x64.ActiveCfg = Release|x64
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Release|x64.Build.0 = Release|x64
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Release|x86.ActiveCfg = Release|Win32
+		{83332B6E-ABD1-41A4-A4F2-15B07EF7D1B5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
