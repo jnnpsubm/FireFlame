@@ -14,9 +14,8 @@ Demo::Demo(FireFlame::Engine& engine) :mEngine(engine) {
     //mShaders.emplace_back("Cycloid",            L"Shaders\\CycloidPixelShader.hlsl");
     //mShaders.emplace_back("Cardioid",           L"Shaders\\CardioidPixelShader.hlsl");
     mShaders.emplace_back("SpiralOfArchimedes", L"Shaders\\SpiralOfArchimedesPixelShader.hlsl");
-    mShaders.emplace_back("LogarithmicSpira",   L"Shaders\\LogarithmicSpiralPixelShader.hlsl");
-    mShaders.emplace_back("FourLeafedRose",     L"Shaders\\FourLeafedRosePixelShader.hlsl");
-    DirectX::g_XMPi;
+    //mShaders.emplace_back("LogarithmicSpira",   L"Shaders\\LogarithmicSpiralPixelShader.hlsl");
+    //mShaders.emplace_back("FourLeafedRose",     L"Shaders\\FourLeafedRosePixelShader.hlsl");
 }
 void Demo::AddShaders() {
     using namespace FireFlame;

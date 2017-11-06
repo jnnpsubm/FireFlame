@@ -9,7 +9,7 @@ struct ObjectConstants
     ObjectConstants() = default;
     DirectX::XMFLOAT3   vLineColor = DirectX::XMFLOAT3(1.f, 0.f, 0.f);
     float               fTexScale  = 10.0f;
-    DirectX::XMFLOAT3   vBackDrop = DirectX::XMFLOAT3(0.941176534f, 0.972549081f, 1.000000000f);
+    DirectX::XMFLOAT3   vBackDrop  = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
     float               fWidth     = 1.0f;
 
     float               fa         = 2.0f;
