@@ -155,12 +155,12 @@
     <ClCompile Include="PointList.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="Demo.h" />
     <ClInclude Include="PointList.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader.hlsl">
+    <None Include="Shaders\Shader.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

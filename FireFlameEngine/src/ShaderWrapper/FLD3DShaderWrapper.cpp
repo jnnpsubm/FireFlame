@@ -22,23 +22,30 @@ void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferForm
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psoDesc.NumRenderTargets = 1;
     psoDesc.RTVFormats[0] = backBufferFormat;
     psoDesc.DSVFormat = DSFormat;
-    mPSO.resize(msaaVec.size());
     for (size_t i = 0; i < msaaVec.size(); ++i) {
         const auto& msaaDesc = msaaVec[i];
         psoDesc.SampleDesc.Count = msaaDesc.sampleCount;
         psoDesc.SampleDesc.Quality = msaaDesc.qualityLevels - 1;
-        ThrowIfFailed
-        (
-            device->CreateGraphicsPipelineState
+        // todo:no patch now, because no tes
+        for (int ptype = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+                 ptype < D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH; ++ptype)
+        {
+            psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)ptype;
+            PSO_ComPtr pso = nullptr;
+            ThrowIfFailed
             (
-                &psoDesc, 
-                IID_PPV_ARGS(mPSO[i].GetAddressOf())
-            )
-        );
+                device->CreateGraphicsPipelineState
+                (
+                    &psoDesc,
+                    IID_PPV_ARGS(pso.GetAddressOf())
+                )
+            );
+            stPSODesc key{ (UINT)i,psoDesc.PrimitiveTopologyType };
+            mPSO.emplace(key, pso);
+        }
     }
 }
 void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){

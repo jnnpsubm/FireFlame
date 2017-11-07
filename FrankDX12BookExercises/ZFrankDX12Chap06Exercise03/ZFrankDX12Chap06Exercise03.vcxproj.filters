@@ -8,7 +8,7 @@
   <ItemGroup>
     <ClInclude Include="Demo.h" />
     <ClInclude Include="PointList.h" />
-    <ClInclude Include="Common.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -16,7 +16,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader.hlsl">
+    <None Include="Shaders\Shader.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

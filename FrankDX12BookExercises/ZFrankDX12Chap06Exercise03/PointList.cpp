@@ -7,6 +7,7 @@ void PointList::Generate(size_t num) {
     static std::uniform_real_distribution<float> distColor(0.f, 1.f);
 
     mPoints.resize(num);
+    std::uint16_t index = 0;
     for (auto& vertex : mPoints) {
         vertex.x = distPos(rng);
         vertex.y = distPos(rng);
@@ -15,5 +16,6 @@ void PointList::Generate(size_t num) {
         vertex.g = distColor(rng);
         vertex.b = distColor(rng);
         vertex.a = 1.0f;
+        mIndices.push_back(index++);
     }
 }

@@ -10,7 +10,8 @@ D3DPrimitive::D3DPrimitive(const stRawMesh& mesh) : mMesh(std::make_unique<D3DMe
 
 void D3DPrimitive::Draw(D3DRenderer* renderer) {
     ID3D12GraphicsCommandList* cmdList = renderer->GetCommandList();
-    cmdList->SetPipelineState(mShader->GetPSO(renderer->GetMSAAMode()));
+    auto pso = mShader->GetPSO(renderer->GetMSAAMode(), GetMesh()->GetPrimitiveTopologyType());
+    cmdList->SetPipelineState(pso);
 
     ID3D12DescriptorHeap* CBVHeap = mShader->GetCBVHeap();
     ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
@@ -34,6 +35,7 @@ void D3DPrimitive::Draw(D3DRenderer* renderer) {
             subMesh.startIndexLocation,
             subMesh.baseVertexLocation, 0
         );
+        //cmdList->DrawInstanced()
     }
 }
 }

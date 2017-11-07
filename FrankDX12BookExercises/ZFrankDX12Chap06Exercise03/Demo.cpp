@@ -4,7 +4,7 @@
 Demo::Demo(FireFlame::Engine& engine) : mEngine(engine){
     using namespace FireFlame;
 
-    const unsigned int uPointNum = 10000;
+    const unsigned int uPointNum = 10000 * 10 * 10;
     mPointList.Generate(uPointNum);
 
     mShaderDesc.name = "Shader1";
@@ -14,15 +14,16 @@ Demo::Demo(FireFlame::Engine& engine) : mEngine(engine){
     mShaderDesc.AddShaderStage(L"Shaders\\Shader.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDesc.AddShaderStage(L"Shaders\\Shader.hlsl", Shader_Type::PS, "PS", "ps_5_0");
 
-    mMeshDesc.indexCount = 0;
+    mMeshDesc.primitiveTopology = Primitive_Topology::PointList;
+    mMeshDesc.indexCount = uPointNum;
     mMeshDesc.indexFormat = Index_Format::UINT16;
-    mMeshDesc.indices = nullptr;
+    mMeshDesc.indices = mPointList.GetIndexData();
     mMeshDesc.vertexDataCount.push_back((unsigned int)uPointNum);
     mMeshDesc.vertexDataSize.push_back(sizeof(VertexColored));
     mMeshDesc.vertexDataFormat.push_back(VERTEX_FORMAT_FLOAT3 | VERTEX_FORMAT_FLOAT4);
-    mMeshDesc.vertexData.push_back(mPointList.GetData());
+    mMeshDesc.vertexData.push_back(mPointList.GetVertexData());
     mMeshDesc.LocalToWorld = Matrix4X4();
-    mMeshDesc.subMeshs.emplace_back("All", 0);
+    mMeshDesc.subMeshs.emplace_back("All",uPointNum);
 }
 Demo::~Demo(){}
 

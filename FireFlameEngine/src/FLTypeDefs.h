@@ -67,7 +67,14 @@ struct stVertexInputDes {
 };
 
 enum class Primitive_Topology {
-    TrangleList,
+    PointList,
+    TrangleList
+};
+enum class Primitive_Topology_Type {
+    Point,
+    Line,
+    Triangle,
+    Patch
 };
 struct stRawMesh {
     stRawMesh() = default;

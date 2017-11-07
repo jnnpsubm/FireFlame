@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include <memory>
 #include <wrl.h>
@@ -14,6 +15,16 @@ class D3DShaderWrapper {
 public:
     typedef Microsoft::WRL::ComPtr<ID3D12PipelineState> PSO_ComPtr;
 
+    // todo:if it has to grow bigger again,use inherit to use base class's < operator
+    struct stPSODesc {
+        UINT MSAAMode;
+        D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveType;
+        bool operator <(const stPSODesc& rhs) const {
+            if (MSAAMode == rhs.MSAAMode) return primitiveType < rhs.primitiveType;
+            return MSAAMode < rhs.MSAAMode;
+        }
+    };
+
 public:
     D3DShaderWrapper() = default;
 
@@ -23,7 +34,7 @@ public:
     }
 
     void BuildRootSignature(ID3D12Device* device);
-    void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT, CRef_MSAADesc_Vec msaaVec);
+    void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT, CRef_MSAADesc_Vec);
     void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
     void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
@@ -32,10 +43,15 @@ public:
     // todo : variant heaps with variant shaders
     ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get(); }
     ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get(); }
-    ID3D12PipelineState*  GetPSO(UINT MSAAMode) const { return mPSO[MSAAMode].Get(); }
+    ID3D12PipelineState*  GetPSO(UINT MSAAMode, D3D12_PRIMITIVE_TOPOLOGY_TYPE ptype) const 
+    { 
+        auto it = mPSO.find({ MSAAMode, ptype });
+        if (it != mPSO.end()) return it->second.Get();
+        return nullptr;
+    }
 
 private:
-    std::vector<PSO_ComPtr>               mPSO;
+    std::map<stPSODesc,PSO_ComPtr>               mPSO;
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
     Microsoft::WRL::ComPtr<ID3DBlob> mVSByteCode = nullptr;

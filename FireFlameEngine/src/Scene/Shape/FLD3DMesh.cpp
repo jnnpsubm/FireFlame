@@ -60,6 +60,10 @@ D3DMesh::D3DMesh(const stRawMesh& rawMesh) : mName(rawMesh.name){
         mVertexBufferByteSize[i] = vbByteSize;
     }
 
+    for (const auto& submesh : rawMesh.subMeshs) {
+        AddSubMesh(submesh);
+    }
+
     mPrimitiveTopology = FLPrimitiveTop2D3DPrimitiveTop(rawMesh.primitiveTopology);
 }
 void D3DMesh::AddSubMesh(const stRawMesh::stSubMesh& subMesh) {

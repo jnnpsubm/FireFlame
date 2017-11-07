@@ -9,6 +9,7 @@
 #include <wrl.h>
 #include "..\..\Matrix\FLMatrix4X4.h"
 #include "..\..\FLTypeDefs.h"
+#include "..\..\FLD3DUtils.h"
 
 namespace FireFlame {
 class D3DMesh{
@@ -36,9 +37,13 @@ public:
 	void AddSubMesh(const stRawMesh::stSubMesh& subMesh);
 
     // Get methods
-    UINT                   GetNumVertexBufferView() const { return (UINT)mVertexBufferGPU.size(); }
-    D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology()   const { return mPrimitiveTopology; }
-    const SubMeshMap&      GetSubMeshs()            const { return mDrawArgs; }
+    UINT                          GetNumVertexBufferView()   const { return (UINT)mVertexBufferGPU.size(); }
+    D3D_PRIMITIVE_TOPOLOGY        GetPrimitiveTopology()     const { return mPrimitiveTopology; }
+    const SubMeshMap&             GetSubMeshs()              const { return mDrawArgs; }
+    D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType() const 
+    { 
+        return D3DPrimitiveType(mPrimitiveTopology);
+    }
 
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView(size_t index) const {
         D3D12_VERTEX_BUFFER_VIEW vbv;
