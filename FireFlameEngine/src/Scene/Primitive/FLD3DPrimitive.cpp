@@ -18,7 +18,8 @@ void D3DPrimitive::Draw(D3DRenderer* renderer) {
 
     cmdList->SetGraphicsRootSignature(mShader->GetRootSignature());
 
-    cmdList->IASetVertexBuffers(0, 1, &GetMesh()->VertexBufferView());
+    std::vector<D3D12_VERTEX_BUFFER_VIEW> vecVBV = GetMesh()->VertexBufferViews();
+    cmdList->IASetVertexBuffers(0, (UINT)vecVBV.size(), &vecVBV[0]);
     cmdList->IASetIndexBuffer(&GetMesh()->IndexBufferView());
     cmdList->IASetPrimitiveTopology(GetMesh()->GetPrimitiveTopology());
 

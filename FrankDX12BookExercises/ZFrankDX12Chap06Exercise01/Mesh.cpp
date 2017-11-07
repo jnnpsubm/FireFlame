@@ -6,10 +6,10 @@ void Mesh::GetMeshDesc(FireFlame::stRawMesh& meshDesc) {
     meshDesc.indexFormat = FireFlame::Index_Format::UINT16;
     meshDesc.indices = indices.data();
 
-    meshDesc.vertexCount = (unsigned int)vertices.size();
-    meshDesc.vertexSize = sizeof(Mesh::Vertex);
-    meshDesc.vertexFormat = mVertexInputDes.toCombinedFormat();
-    meshDesc.vertices = vertices.data();
+    meshDesc.vertexDataCount.push_back((unsigned int)vertices.size());
+    meshDesc.vertexDataSize.push_back(sizeof(Mesh::Vertex));
+    meshDesc.vertexDataFormat.push_back(mVertexInputDes.toCombinedFormat());
+    meshDesc.vertexData.push_back(vertices.data());
     meshDesc.LocalToWorld = matrixLocal2World;
 }
 

@@ -142,19 +142,20 @@ void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& sha
 }
 void D3DShaderWrapper::BuildInputLayout(const stShaderDescription& shaderDesc) {
     // bug? pointer to temp char*
-    UINT offset = 0;
+    std::unordered_map<UINT, UINT> slotOffset;
     for (size_t i = 0; i < shaderDesc.semanticNames.size(); i++){
         mInputLayout.push_back
         (
         {
             shaderDesc.semanticNames[i].name.c_str(), 
             shaderDesc.semanticNames[i].index,
-            FLVertexFormat2DXGIFormat(shaderDesc.vertexFormats[i]), 0,
-            offset,
+            FLVertexFormat2DXGIFormat(shaderDesc.vertexFormats[i]), 
+            shaderDesc.inputSlots[i],
+            slotOffset[shaderDesc.inputSlots[i]],
             D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
         }
         );
-        offset += FLVertexFormatByteSize(shaderDesc.vertexFormats[i]);
+        slotOffset[shaderDesc.inputSlots[i]] += FLVertexFormatByteSize(shaderDesc.vertexFormats[i]);
     }
 }
 } // end namespace

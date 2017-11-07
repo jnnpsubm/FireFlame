@@ -75,10 +75,10 @@ struct stRawMesh {
           primitiveTopology(Primitive_Topology::TrangleList)
     {/*===============================================================*/}
 	std::string name;
-	unsigned int vertexSize;
-	unsigned int vertexCount;
-	unsigned int vertexFormat;
-	void* vertices;
+    std::vector<void*>        vertexData;
+	std::vector<unsigned int> vertexDataSize;
+    std::vector<unsigned int> vertexDataCount;
+    std::vector<unsigned int> vertexDataFormat;
 
 	Index_Format indexFormat;
 	unsigned int indexCount;
@@ -121,12 +121,15 @@ struct stShaderDescription {
                         const std::vector<unsigned int>& _constBufferSize)
         : name(_name), vertexFormats(_vertexFormats),semanticNames(_semanticNames),
           constBufferSize(_constBufferSize)
-    {/*==================================================================================*/}
-    std::string                name;
+    {
+        inputSlots.resize(vertexFormats.size(), 0);
+    }
+    std::string                 name;
 
     std::vector<stShaderStage>  shaderStage;
     std::vector<unsigned long>  vertexFormats;
-    std::vector<stSemanticName> semanticNames;   // order mush match vertexFormat
+    std::vector<unsigned int>   inputSlots;
+    std::vector<stSemanticName> semanticNames;   // order mush match vertexFormats
     std::vector<unsigned int>   constBufferSize;
 
     void AddShaderStage(const std::wstring& file, Shader_Type type, 

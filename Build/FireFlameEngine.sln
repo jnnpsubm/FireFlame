@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZFrankDX12Chap06Exercise01"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ZExercises", "ZExercises", "{FA9BAC3A-175B-496B-BE7E-A704DF9E86E2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZFrankDX12Chap06Exercise02", "..\FrankDX12BookExercises\ZFrankDX12Chap06Exercise02\ZFrankDX12Chap06Exercise02.vcxproj", "{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -123,12 +125,21 @@ Global
 		{E3E0EC86-D7F5-493F-9D3D-E51B6C88896A}.Release|x64.Build.0 = Release|x64
 		{E3E0EC86-D7F5-493F-9D3D-E51B6C88896A}.Release|x86.ActiveCfg = Release|Win32
 		{E3E0EC86-D7F5-493F-9D3D-E51B6C88896A}.Release|x86.Build.0 = Release|Win32
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Debug|x64.ActiveCfg = Debug|x64
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Debug|x64.Build.0 = Debug|x64
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Debug|x86.ActiveCfg = Debug|Win32
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Debug|x86.Build.0 = Debug|Win32
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Release|x64.ActiveCfg = Release|x64
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Release|x64.Build.0 = Release|x64
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Release|x86.ActiveCfg = Release|Win32
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E3E0EC86-D7F5-493F-9D3D-E51B6C88896A} = {FA9BAC3A-175B-496B-BE7E-A704DF9E86E2}
+		{A500CBE3-5D61-47DB-A1CD-D6E7AA0C78AB} = {FA9BAC3A-175B-496B-BE7E-A704DF9E86E2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}
