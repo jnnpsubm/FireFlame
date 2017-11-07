@@ -110,8 +110,12 @@ inline D3D12_PRIMITIVE_TOPOLOGY FLPrimitiveTop2D3DPrimitiveTop(Primitive_Topolog
         return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
     case FireFlame::Primitive_Topology::LineStrip:
         return D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
-    case FireFlame::Primitive_Topology::TrangleList:
+    case FireFlame::Primitive_Topology::LineList:
+        return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+    case FireFlame::Primitive_Topology::TriangleList:
         return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    case FireFlame::Primitive_Topology::TriangleStrip:
+        return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
     default:
         throw std::exception("unknown primitive topology");
     }

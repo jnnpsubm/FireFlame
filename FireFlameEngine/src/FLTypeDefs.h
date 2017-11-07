@@ -69,7 +69,9 @@ struct stVertexInputDes {
 enum class Primitive_Topology {
     PointList,
     LineStrip,
-    TrangleList
+    LineList,
+    TriangleStrip,
+    TriangleList
 };
 enum class Primitive_Topology_Type {
     Point,
@@ -81,7 +83,7 @@ struct stRawMesh {
     stRawMesh() = default;
     stRawMesh(const std::string& _name) 
         : name(_name), 
-          primitiveTopology(Primitive_Topology::TrangleList)
+          primitiveTopology(Primitive_Topology::TriangleList)
     {/*===============================================================*/}
 	std::string name;
     std::vector<void*>        vertexData;
@@ -94,7 +96,7 @@ struct stRawMesh {
 	void* indices;
 	Matrix4X4 LocalToWorld;
 
-    Primitive_Topology primitiveTopology = Primitive_Topology::TrangleList;
+    Primitive_Topology primitiveTopology = Primitive_Topology::TriangleList;
 
 	struct stSubMesh {
         stSubMesh() = default;
