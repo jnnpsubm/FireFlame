@@ -5,6 +5,7 @@
 class PointList {
 public:
     void Generate(size_t num);
+    void Generate(const std::vector<Vertex>& vPos);
     void* GetVertexData() { return mPoints.data(); }
     void* GetIndexData()  { return mIndices.data(); }
 

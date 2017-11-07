@@ -19,3 +19,22 @@ void PointList::Generate(size_t num) {
         mIndices.push_back(index++);
     }
 }
+
+void PointList::Generate(const std::vector<Vertex>& vPos) {
+    static std::default_random_engine rng;
+    static std::uniform_real_distribution<float> distColor(0.f, 1.f);
+
+    mPoints.resize(vPos.size());
+    mIndices.resize(vPos.size());
+    std::uint16_t index = 0;
+    for (size_t i = 0; i < mPoints.size(); ++i) {
+        mPoints[i].x = vPos[i].x;
+        mPoints[i].y = vPos[i].y;
+        mPoints[i].z = vPos[i].z;
+        mPoints[i].r = distColor(rng);
+        mPoints[i].g = distColor(rng);
+        mPoints[i].b = distColor(rng);
+        mPoints[i].a = 1.0f;
+        mIndices[i] = index++;
+    }
+}

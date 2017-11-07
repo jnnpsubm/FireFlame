@@ -4,7 +4,23 @@ TriangleStripDemo::TriangleStripDemo(FireFlame::Engine& engine) : Demo(engine) {
     using namespace FireFlame;
 
     const unsigned int uPointNum = 15;
-    mPointList.Generate(uPointNum);
+    std::vector<Vertex> vPos;
+    vPos.resize(uPointNum);
+    vPos[0] = Vertex(-2.0f, -2.0f, 1.0f);
+    for (size_t i = 1; i < uPointNum; i++){
+        if (i & 1) {
+            vPos[i].x = vPos[i - 1].x;
+            vPos[i].y = vPos[i - 1].y + 0.3f;
+            vPos[i].z = vPos[i - 1].z;
+        }
+        else {
+            vPos[i].x = vPos[i - 1].x + 0.3f;
+            vPos[i].y = vPos[i - 1].y;
+            vPos[i].z = vPos[i - 1].z;
+        }
+            
+    }
+    mPointList.Generate(vPos);
 
     mShaderDesc.name = "Shader1";
     mShaderDesc.constBufferSize.push_back(sizeof(ShaderConsts));
