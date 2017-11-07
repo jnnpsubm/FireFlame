@@ -1,30 +1,24 @@
 #pragma once
-#include "PointList.h"
 #include "FireFlameHeader.h"
 #include <DirectXMath.h>
-
-struct ShaderConsts {
-    DirectX::XMFLOAT4X4 WorldViewProj = FireFlame::Matrix4X4();
-};
 
 class Demo
 {
 public:
     Demo(FireFlame::Engine& engine);
-    ~Demo();
+    virtual ~Demo();
 
     const FireFlame::stShaderDescription& GetShaderDesc() const { return mShaderDesc; }
     const FireFlame::stRawMesh&           GetMeshDesc()   const { return mMeshDesc; }
 
-    void Update(float time_elapsed);
-    void OnGameWindowResized(int w, int h);
-    void OnMouseDown(WPARAM btnState, int x, int y);
-    void OnMouseUp(WPARAM btnState, int x, int y);
-    void OnMouseMove(WPARAM btnState, int x, int y);
+    virtual void Update(float time_elapsed);
+    virtual void OnGameWindowResized(int w, int h);
+    virtual void OnMouseDown(WPARAM btnState, int x, int y);
+    virtual void OnMouseUp(WPARAM btnState, int x, int y);
+    virtual void OnMouseMove(WPARAM btnState, int x, int y);
 
-private:
+protected:
     FireFlame::Engine& mEngine;
-    PointList mPointList;
 
     FireFlame::stShaderDescription mShaderDesc;
     FireFlame::stRawMesh           mMeshDesc;

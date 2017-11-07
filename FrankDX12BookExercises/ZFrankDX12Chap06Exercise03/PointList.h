@@ -1,5 +1,5 @@
 #pragma once
-#include "Vertex.h"
+#include "..\Common\Vertex.h"
 #include <vector>
 
 class PointList {

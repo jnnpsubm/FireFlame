@@ -150,13 +150,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="..\Common\Demo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PointList.cpp" />
+    <ClCompile Include="PointListDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Demo.h" />
+    <ClInclude Include="..\Common\Demo.h" />
+    <ClInclude Include="..\Common\Vertex.h" />
+    <ClInclude Include="PointListDemo.h" />
     <ClInclude Include="PointList.h" />
   </ItemGroup>
   <ItemGroup>

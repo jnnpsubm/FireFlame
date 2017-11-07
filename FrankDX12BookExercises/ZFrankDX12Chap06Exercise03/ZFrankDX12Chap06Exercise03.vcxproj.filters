@@ -2,13 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Demo.cpp" />
     <ClCompile Include="PointList.cpp" />
+    <ClCompile Include="PointListDemo.cpp" />
+    <ClCompile Include="..\Common\Demo.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Demo.h" />
     <ClInclude Include="PointList.h" />
-    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="PointListDemo.h" />
+    <ClInclude Include="..\Common\Demo.h" />
+    <ClInclude Include="..\Common\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include "FireFlameHeader.h"
-#include "Demo.h"
+#include "PointListDemo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
     // Enable run-time memory check for debug builds.
@@ -9,7 +9,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 #endif
 
     FireFlame::Engine engine(hInstance);
-    Demo              demo(engine);
+    PointListDemo     demo(engine);
     try {
         using namespace FireFlame;
         using namespace std::placeholders;
