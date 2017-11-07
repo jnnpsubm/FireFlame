@@ -31,6 +31,26 @@ public:
 
 public:
 	Mesh() = default;
+    FireFlame::stVertexInputDes mVertexInputDes = FireFlame::stVertexInputDes
+    (
+    {
+        FireFlame::VERTEX_FORMAT_FLOAT3,
+        FireFlame::VERTEX_FORMAT_FLOAT3,
+        FireFlame::VERTEX_FORMAT_FLOAT3,
+        FireFlame::VERTEX_FORMAT_FLOAT2,
+        FireFlame::VERTEX_FORMAT_FLOAT2,
+        FireFlame::VERTEX_FORMAT_A8B8G8R8_UNORM
+    },
+    {
+        { "POSITION", 0 },
+        { "TANGENT", 0 },
+        { "NORMAL", 0 },
+        { "TEX", 0 },
+        { "TEX", 1 },
+        { "COLOR", 0 }
+    }
+    );
+
     void GetMeshDesc(FireFlame::stRawMesh& meshDesc);
     void GetSubMeshDesc(FireFlame::stRawMesh::stSubMesh& subMesh);
 	FireFlame::Matrix4X4 matrixLocal2World;
@@ -42,7 +62,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xff0000ff
         ),
 		Vertex
         (
@@ -51,7 +71,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xffff0000
         ),
 		Vertex
         (
@@ -60,7 +80,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xffff0000
         ),
 		Vertex
         (
@@ -69,7 +89,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xffff0000
         ),
 		Vertex
         (
@@ -78,7 +98,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xffff0000
         ),
 		Vertex
         (
@@ -87,7 +107,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xffff0000
         ),
 		Vertex
         (
@@ -96,7 +116,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xffff0000
         ),
 		Vertex
         (
@@ -105,7 +125,7 @@ public:
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f,
             0.0f, 0.0f,
-            0xff000000
+            0xffff0000
         )
 	};
 	std::array<std::uint16_t, 36> indices = {

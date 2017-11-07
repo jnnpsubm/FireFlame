@@ -38,33 +38,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         someGame.SetMainWnd(engine.GetWindow()->MainWnd());
 		
         // vertex input desc
-        stVertexInputDes inputVertexDes
-        (
-            { 
-                VERTEX_FORMAT_FLOAT3,
-                VERTEX_FORMAT_FLOAT3,
-                VERTEX_FORMAT_FLOAT3,
-                VERTEX_FORMAT_FLOAT2,
-                VERTEX_FORMAT_FLOAT2,
-                VERTEX_FORMAT_R8G8B8A8_UNORM
-            },
-            {
-                { "POSITION", 0 },
-                { "TANGENT", 0 },
-                { "NORMAL", 0 },
-                { "TEX", 0 },
-                { "TEX", 1 },
-                { "COLOR", 0 }
-            }
-        );
+        Mesh                 boxMesh;
 
         // use what shader to render the geometry
         std::string shaderName = "colorShader";
         stShaderDescription shader
         (
             shaderName,
-            inputVertexDes.format,
-            inputVertexDes.semanticNames,
+            boxMesh.mVertexInputDes.format,
+            boxMesh.mVertexInputDes.semanticNames,
             { sizeof(ObjectConstants) }
         );
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
@@ -72,7 +54,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         engine.GetScene()->AddShader(shader);
 
         // add some geometry to render
-		Mesh                 boxMesh;
 		stRawMesh            meshDesc("BoxMesh");
         stRawMesh::stSubMesh subMesh("Box");
         boxMesh.GetMeshDesc(meshDesc);

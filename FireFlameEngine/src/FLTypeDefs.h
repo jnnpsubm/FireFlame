@@ -40,7 +40,7 @@ const unsigned long VERTEX_FORMAT_FLOAT1         = 1UL << 0;
 const unsigned long VERTEX_FORMAT_FLOAT2         = 1UL << 1;
 const unsigned long VERTEX_FORMAT_FLOAT3         = 1UL << 2;
 const unsigned long VERTEX_FORMAT_FLOAT4         = 1UL << 3;
-const unsigned long VERTEX_FORMAT_R8G8B8A8_UNORM = 1UL << 4;
+const unsigned long VERTEX_FORMAT_A8B8G8R8_UNORM = 1UL << 4;
 
 struct stSemanticName {
     stSemanticName(const std::string& _name,

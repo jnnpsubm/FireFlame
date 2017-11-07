@@ -80,7 +80,7 @@ inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
         return DXGI_FORMAT_R32G32B32_FLOAT;
     case VERTEX_FORMAT_FLOAT4:
         return DXGI_FORMAT_R32G32B32A32_FLOAT;
-    case VERTEX_FORMAT_R8G8B8A8_UNORM:
+    case VERTEX_FORMAT_A8B8G8R8_UNORM:
         return DXGI_FORMAT_R8G8B8A8_UNORM;
     default:
         return DXGI_FORMAT_UNKNOWN;
@@ -97,7 +97,7 @@ inline UINT FLVertexFormatByteSize(unsigned long format) {
         return 12;
     case VERTEX_FORMAT_FLOAT4:
         return 16;
-    case VERTEX_FORMAT_R8G8B8A8_UNORM:
+    case VERTEX_FORMAT_A8B8G8R8_UNORM:
         return 4;
     default:
         throw std::exception("unknonw FLVertexFormatByteSize");
