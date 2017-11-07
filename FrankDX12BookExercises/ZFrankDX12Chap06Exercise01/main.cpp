@@ -37,13 +37,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		engine.InitRenderer(FireFlame::API_Feature::API_DX12_1);
         someGame.SetMainWnd(engine.GetWindow()->MainWnd());
 		
+        // vertex input desc
+        stVertexInputDes inputVertexDes
+        (
+            { 
+                VERTEX_FORMAT_FLOAT3,
+                VERTEX_FORMAT_FLOAT3,
+                VERTEX_FORMAT_FLOAT3,
+                VERTEX_FORMAT_FLOAT2,
+                VERTEX_FORMAT_FLOAT2,
+                VERTEX_FORMAT_R8G8B8A8_UNORM
+            },
+            {
+                { "POSITION", 0 },
+                { "TANGENT", 0 },
+                { "NORMAL", 0 },
+                { "TEX", 0 },
+                { "TEX", 1 },
+                { "COLOR", 0 }
+            }
+        );
+
         // use what shader to render the geometry
         std::string shaderName = "colorShader";
         stShaderDescription shader
         (
             shaderName,
-            { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT4 },
-            { "POSITION","COLOR" },
+            inputVertexDes.format,
+            inputVertexDes.semanticNames,
             { sizeof(ObjectConstants) }
         );
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");

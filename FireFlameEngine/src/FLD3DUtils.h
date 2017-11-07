@@ -66,7 +66,7 @@ inline DXGI_FORMAT FLIndexFormat2DXGIFormat(Index_Format format) {
 	case FireFlame::Index_Format::UINT32:
 		return DXGI_FORMAT_R32_UINT;
 	default:
-		return DXGI_FORMAT_R16_UINT;
+		throw std::exception("unknown FLIndexFormat2DXGIFormat");
 	}
 }
 inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
@@ -80,6 +80,8 @@ inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
         return DXGI_FORMAT_R32G32B32_FLOAT;
     case VERTEX_FORMAT_FLOAT4:
         return DXGI_FORMAT_R32G32B32A32_FLOAT;
+    case VERTEX_FORMAT_R8G8B8A8_UNORM:
+        return DXGI_FORMAT_R8G8B8A8_UNORM;
     default:
         return DXGI_FORMAT_UNKNOWN;
     }
@@ -95,6 +97,8 @@ inline UINT FLVertexFormatByteSize(unsigned long format) {
         return 12;
     case VERTEX_FORMAT_FLOAT4:
         return 16;
+    case VERTEX_FORMAT_R8G8B8A8_UNORM:
+        return 4;
     default:
         throw std::exception("unknonw FLVertexFormatByteSize");
     }

@@ -32,14 +32,39 @@ inline unsigned int IndexFormatByteLength(Index_Format format) {
 	case Index_Format::UINT32:
 		return 4;
 	default:
-		return 2;
+        throw std::exception("unkown IndexFormatByteLength");
 	}
 }
+ 
+const unsigned long VERTEX_FORMAT_FLOAT1         = 1UL << 0;
+const unsigned long VERTEX_FORMAT_FLOAT2         = 1UL << 1;
+const unsigned long VERTEX_FORMAT_FLOAT3         = 1UL << 2;
+const unsigned long VERTEX_FORMAT_FLOAT4         = 1UL << 3;
+const unsigned long VERTEX_FORMAT_R8G8B8A8_UNORM = 1UL << 4;
 
-const unsigned long VERTEX_FORMAT_FLOAT1 = 1UL << 0;
-const unsigned long VERTEX_FORMAT_FLOAT2 = 1UL << 1;
-const unsigned long VERTEX_FORMAT_FLOAT3 = 1UL << 2;
-const unsigned long VERTEX_FORMAT_FLOAT4 = 1UL << 3;
+struct stSemanticName {
+    stSemanticName(const std::string& _name,
+                   unsigned int _index = 0)
+        : name(_name), index(_index)
+    {}
+    std::string  name;
+    unsigned int index;
+};
+struct stVertexInputDes {
+    stVertexInputDes(const std::vector<unsigned long>& _format,
+                     const std::vector<stSemanticName>& _semanticNames)
+        : format(_format), semanticNames(_semanticNames)
+    {}
+    std::vector<unsigned long>    format;
+    std::vector<stSemanticName>   semanticNames;
+    unsigned long toCombinedFormat() const {
+        unsigned long combined = 0;
+        for (auto f : format) {
+            combined |= f;
+        }
+        return combined;
+    }
+};
 
 enum class Primitive_Topology {
     TrangleList,
@@ -91,18 +116,18 @@ struct stShaderStage {
 
 struct stShaderDescription {
     stShaderDescription(const std::string& _name,
-                        const std::vector<unsigned int>& _vertexFormats,
-                        const std::vector<std::string>& _semanticNames,
+                        const std::vector<unsigned long>& _vertexFormats,
+                        const std::vector<stSemanticName>& _semanticNames,
                         const std::vector<unsigned int>& _constBufferSize)
         : name(_name), vertexFormats(_vertexFormats),semanticNames(_semanticNames),
           constBufferSize(_constBufferSize)
     {/*==================================================================================*/}
     std::string                name;
 
-    std::vector<stShaderStage> shaderStage;
-    std::vector<unsigned int>  vertexFormats;
-    std::vector<std::string>   semanticNames;   // order mush match vertexFormat
-    std::vector<unsigned int>  constBufferSize;
+    std::vector<stShaderStage>  shaderStage;
+    std::vector<unsigned long>  vertexFormats;
+    std::vector<stSemanticName> semanticNames;   // order mush match vertexFormat
+    std::vector<unsigned int>   constBufferSize;
 
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {

@@ -147,7 +147,8 @@ void D3DShaderWrapper::BuildInputLayout(const stShaderDescription& shaderDesc) {
         mInputLayout.push_back
         (
         {
-            shaderDesc.semanticNames[i].c_str(), 0,
+            shaderDesc.semanticNames[i].name.c_str(), 
+            shaderDesc.semanticNames[i].index,
             FLVertexFormat2DXGIFormat(shaderDesc.vertexFormats[i]), 0,
             offset,
             D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0

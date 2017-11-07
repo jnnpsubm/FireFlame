@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         (
             shaderName,
             { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT2 },
-            { "POSITION","TEXCOORD" },
+            { {"POSITION"},{"TEXCOORD"} },
             { sizeof(ObjectConstants) }
         );
         shader.AddShaderStage(L"Shaders\\Noise2.hlsl", Shader_Type::VS, "VS", "vs_5_0");

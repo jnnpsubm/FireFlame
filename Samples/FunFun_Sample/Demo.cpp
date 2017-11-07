@@ -23,7 +23,7 @@ void Demo::AddShaders() {
     (
         "",
         { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT2 },
-        { "POSITION","TEXCOORD" },
+        { {"POSITION"},{"TEXCOORD"} },
         { sizeof(ObjectConstants) }
     );
     shader.AddShaderStage

@@ -43,7 +43,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         (
             shaderName,
             { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT4 },
-            { "POSITION","COLOR" },
+            { {"POSITION"},{"COLOR"} },
             { sizeof(ObjectConstants) }
         );
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
