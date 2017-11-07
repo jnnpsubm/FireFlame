@@ -106,10 +106,12 @@ inline UINT FLVertexFormatByteSize(unsigned long format) {
 inline D3D12_PRIMITIVE_TOPOLOGY FLPrimitiveTop2D3DPrimitiveTop(Primitive_Topology top) {
     switch (top)
     {
-    case FireFlame::Primitive_Topology::TrangleList:
-        return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     case FireFlame::Primitive_Topology::PointList:
         return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+    case FireFlame::Primitive_Topology::LineStrip:
+        return D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+    case FireFlame::Primitive_Topology::TrangleList:
+        return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     default:
         throw std::exception("unknown primitive topology");
     }

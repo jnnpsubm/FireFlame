@@ -68,6 +68,7 @@ struct stVertexInputDes {
 
 enum class Primitive_Topology {
     PointList,
+    LineStrip,
     TrangleList
 };
 enum class Primitive_Topology_Type {

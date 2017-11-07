@@ -2,6 +2,10 @@
 #include "FireFlameHeader.h"
 #include <DirectXMath.h>
 
+struct ShaderConsts {
+    DirectX::XMFLOAT4X4 WorldViewProj = FireFlame::Matrix4X4();
+};
+
 class Demo
 {
 public:

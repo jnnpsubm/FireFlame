@@ -16,7 +16,28 @@ void Demo::OnGameWindowResized(int w, int h) {
     DirectX::XMStoreFloat4x4(&mProj, P);
 }
 void Demo::Update(float time_elapsed) {
-    
+    using namespace DirectX;
+    // Convert Spherical to Cartesian coordinates.
+    float x = mRadius*sinf(mPhi)*cosf(mTheta);
+    float z = mRadius*sinf(mPhi)*sinf(mTheta);
+    float y = mRadius*cosf(mPhi);
+
+    // Build the view matrix.
+    DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.0f);
+    DirectX::XMVECTOR target = DirectX::XMVectorZero();
+    DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+    DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(pos, target, up);
+    DirectX::XMStoreFloat4x4(&mView, view);
+
+    DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&mWorld);
+    DirectX::XMMATRIX proj = DirectX::XMLoadFloat4x4(&mProj);
+    DirectX::XMMATRIX worldViewProj = world*view*proj;
+
+    // Update the constant buffer with the latest worldViewProj matrix.
+    ShaderConsts Constants;
+    DirectX::XMStoreFloat4x4(&Constants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+    mEngine.GetScene()->UpdateShaderCBData(mShaderDesc.name, 0, Constants);
 }
 void Demo::OnMouseDown(WPARAM btnState, int x, int y) {
     mLastMousePos.x = x;
