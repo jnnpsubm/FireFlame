@@ -60,6 +60,9 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
         mRenderer->GetDepthStencilFormat(), mRenderer->GetMSAASupported()
     );
 }
+void Scene::AddPrimitive(const stRawMesh& mesh) {
+    mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
+}
 void Scene::AddPrimitive(const stRawMesh& mesh, const std::string& shaderName) {
 	mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
     auto it = mShaders.find(shaderName);

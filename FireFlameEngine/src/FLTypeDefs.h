@@ -70,6 +70,7 @@ enum class Primitive_Topology {
     TrangleList,
 };
 struct stRawMesh {
+    stRawMesh() = default;
     stRawMesh(const std::string& _name) 
         : name(_name), 
           primitiveTopology(Primitive_Topology::TrangleList)
@@ -85,15 +86,23 @@ struct stRawMesh {
 	void* indices;
 	Matrix4X4 LocalToWorld;
 
-    Primitive_Topology primitiveTopology;
+    Primitive_Topology primitiveTopology = Primitive_Topology::TrangleList;
 
 	struct stSubMesh {
+        stSubMesh() = default;
         stSubMesh(const std::string& _name):name(_name){}
+        stSubMesh(const std::string& _name,unsigned int indexCount,
+                  unsigned int startIndexLocation = 0,
+                  int baseVertexLocation = 0) 
+            : name(_name), indexCount(indexCount), startIndexLocation(startIndexLocation)
+            , baseVertexLocation(baseVertexLocation)
+        {}
 		std::string  name;
-		unsigned int indexCount;
-		unsigned int startIndexLocation;			
-		int          baseVertexLocation;
+		unsigned int indexCount = 0;
+		unsigned int startIndexLocation = 0;			
+		int          baseVertexLocation = 0;
 	};
+    std::vector<stSubMesh> subMeshs;
 };
 
 enum class Shader_Type {
@@ -115,6 +124,7 @@ struct stShaderStage {
 };
 
 struct stShaderDescription {
+    stShaderDescription() = default;
     stShaderDescription(const std::string& _name,
                         const std::vector<unsigned long>& _vertexFormats,
                         const std::vector<stSemanticName>& _semanticNames,
@@ -127,14 +137,23 @@ struct stShaderDescription {
     std::string                 name;
 
     std::vector<stShaderStage>  shaderStage;
+
     std::vector<unsigned long>  vertexFormats;
     std::vector<unsigned int>   inputSlots;
     std::vector<stSemanticName> semanticNames;   // order mush match vertexFormats
+
     std::vector<unsigned int>   constBufferSize;
 
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {
         shaderStage.emplace_back(file, type, entry, target);
+    }
+    void AddVertexInput(const std::string& semanticName, unsigned long format, 
+                        unsigned int slot = 0, unsigned int semanticIndex = 0) 
+    {
+        semanticNames.emplace_back(semanticName, semanticIndex);
+        inputSlots.emplace_back(slot);
+        vertexFormats.emplace_back(format);
     }
 };
 

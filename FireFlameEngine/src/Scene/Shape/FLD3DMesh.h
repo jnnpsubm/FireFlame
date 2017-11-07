@@ -37,8 +37,8 @@ public:
 
     // Get methods
     UINT                   GetNumVertexBufferView() const { return (UINT)mVertexBufferGPU.size(); }
-    D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const   { return mPrimitiveTopology; }
-    const SubMeshMap&      GetSubMeshs()          const   { return mDrawArgs; }
+    D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology()   const { return mPrimitiveTopology; }
+    const SubMeshMap&      GetSubMeshs()            const { return mDrawArgs; }
 
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView(size_t index) const {
         D3D12_VERTEX_BUFFER_VIEW vbv;
@@ -74,11 +74,12 @@ public:
 
     void GetPageableResources(std::vector<ID3D12Pageable*>& vec) {
         vec.clear();
-        vec.resize(mVertexBufferGPU.size() + 1);
-        vec[0] = mIndexBufferGPU.Get();
+        size_t resNum = mVertexBufferGPU.size() + 1;
+        vec.resize(resNum);
         for (size_t i = 0; i < mVertexBufferGPU.size(); i++){
-            vec[i + 1] = mVertexBufferGPU[i].Get();
+            vec[i] = mVertexBufferGPU[i].Get();
         }
+        vec[resNum - 1] = mIndexBufferGPU.Get();
     }
 
 private:

@@ -32,11 +32,11 @@ void D3DMesh::EvictFromGPU(ID3D12Device* device) {
 }
 
 D3DMesh::D3DMesh(const stRawMesh& rawMesh) : mName(rawMesh.name){
-	const UINT ibByteSize = rawMesh.indexCount * IndexFormatByteLength(rawMesh.indexFormat);
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, mIndexBufferCPU.ReleaseAndGetAddressOf()));
-	CopyMemory(mIndexBufferCPU->GetBufferPointer(), rawMesh.indices, ibByteSize);
-	mIndexFormat = FLIndexFormat2DXGIFormat(rawMesh.indexFormat);
-	mIndexBufferByteSize = ibByteSize;
+    const UINT ibByteSize = rawMesh.indexCount * IndexFormatByteLength(rawMesh.indexFormat);
+    ThrowIfFailed(D3DCreateBlob(ibByteSize, mIndexBufferCPU.ReleaseAndGetAddressOf()));
+    CopyMemory(mIndexBufferCPU->GetBufferPointer(), rawMesh.indices, ibByteSize);
+    mIndexFormat = FLIndexFormat2DXGIFormat(rawMesh.indexFormat);
+    mIndexBufferByteSize = ibByteSize;
 
 #ifdef _DEBUG
     assert

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="PointList.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Demo.h" />
+    <ClInclude Include="PointList.h" />
+    <ClInclude Include="Common.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{91c1981a-ac4d-42fe-b350-3904bc71824e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

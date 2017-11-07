@@ -30,7 +30,7 @@ void D3DPrimitive::Draw(D3DRenderer* renderer) {
         const auto& subMesh = namedSubMesh.second;
         cmdList->DrawIndexedInstanced
         (
-            subMesh.indexCount, 1, 
+            subMesh.indexCount, 1,
             subMesh.startIndexLocation,
             subMesh.baseVertexLocation, 0
         );
