@@ -43,7 +43,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         stShaderDescription shader
         (
             shaderName,
-            { VERTEX_FORMAT_POS_FLOAT3 , VERTEX_FORMAT_TEXCOORD_FLOAT2 },
+            { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT2 },
             { "POSITION","TEXCOORD" },
             { sizeof(ObjectConstants) }
         );

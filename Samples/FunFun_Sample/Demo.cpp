@@ -22,7 +22,7 @@ void Demo::AddShaders() {
     stShaderDescription shader
     (
         "",
-        { VERTEX_FORMAT_POS_FLOAT3 , VERTEX_FORMAT_TEXCOORD_FLOAT2 },
+        { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT2 },
         { "POSITION","TEXCOORD" },
         { sizeof(ObjectConstants) }
     );

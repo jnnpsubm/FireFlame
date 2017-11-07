@@ -8,7 +8,10 @@ void Mesh::GetMeshDesc(FireFlame::stRawMesh& meshDesc) {
 
     meshDesc.vertexCount = (unsigned int)vertices.size();
     meshDesc.vertexSize = sizeof(Mesh::Vertex);
-    meshDesc.vertexFormat = VERTEX_FORMAT_FLOAT3 | VERTEX_FORMAT_FLOAT4;
+    meshDesc.vertexFormat 
+        = VERTEX_FORMAT_FLOAT3 
+        | VERTEX_FORMAT_FLOAT3
+        | VERTEX_FORMAT_FLOAT3;
     meshDesc.vertices = vertices.data();
     meshDesc.LocalToWorld = matrixLocal2World;
 }
