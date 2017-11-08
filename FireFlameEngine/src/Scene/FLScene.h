@@ -27,11 +27,17 @@ public:
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
 
     template <typename T>
-    void UpdateShaderCBData(std::string shaderName, unsigned int index, const T& data) {
+    void UpdateShaderCBData(const std::string& shaderName, unsigned int index, const T& data) {
         auto it = mShaders.find(shaderName);
         if (it == mShaders.end()) return;
         auto& shader = it->second;
         shader->UpdateShaderCBData(index, data);
+    }
+    void UpdateShaderCBData(const std::string& shaderName, unsigned int index, size_t size, const void* data) {
+        auto it = mShaders.find(shaderName);
+        if (it == mShaders.end()) return;
+        auto& shader = it->second;
+        shader->UpdateShaderCBData(index, size, data);
     }
 
     // register callbacks

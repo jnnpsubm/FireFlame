@@ -54,6 +54,10 @@ public:
     {
         memcpy(&mMappedData[elementIndex*mElementByteSize], &data, sizeof(T));
     }
+    void CopyData(int elementIndex, size_t size, const void* data)
+    {
+        memcpy(&mMappedData[elementIndex*mElementByteSize], data, size);
+    }
 
 private:
     Microsoft::WRL::ComPtr<ID3D12Resource> mUploadBuffer;

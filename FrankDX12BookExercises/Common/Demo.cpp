@@ -1,10 +1,8 @@
 #include "Demo.h"
 #include <string>
 
-Demo::Demo(FireFlame::Engine& engine) : mEngine(engine){
-    
-}
-Demo::~Demo(){}
+Demo::Demo(FireFlame::Engine& engine) : mEngine(engine){}
+Demo::~Demo() {}
 
 void Demo::OnGameWindowResized(int w, int h) {
     // The window resized, so update the aspect ratio and recompute the projection matrix.
@@ -16,6 +14,16 @@ void Demo::OnGameWindowResized(int w, int h) {
     DirectX::XMStoreFloat4x4(&mProj, P);
 }
 void Demo::Update(float time_elapsed) {
+    using namespace DirectX;
+    DirectX::XMMATRIX wvp;
+    BuildUpWVP(wvp);
+
+    ObjectConsts ObjConstants;
+    // Update the constant buffer with the latest worldViewProj matrix.
+    DirectX::XMStoreFloat4x4(&ObjConstants.WorldViewProj, XMMatrixTranspose(wvp));
+    mEngine.GetScene()->UpdateShaderCBData(mShaderDesc.name, 0, ObjConstants);
+}
+void Demo::BuildUpWVP(DirectX::XMMATRIX& m) {
     using namespace DirectX;
     // Convert Spherical to Cartesian coordinates.
     float x = mRadius*sinf(mPhi)*cosf(mTheta);
@@ -32,12 +40,7 @@ void Demo::Update(float time_elapsed) {
 
     DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&mWorld);
     DirectX::XMMATRIX proj = DirectX::XMLoadFloat4x4(&mProj);
-    DirectX::XMMATRIX worldViewProj = world*view*proj;
-
-    // Update the constant buffer with the latest worldViewProj matrix.
-    ShaderConsts Constants;
-    DirectX::XMStoreFloat4x4(&Constants.WorldViewProj, XMMatrixTranspose(worldViewProj));
-    mEngine.GetScene()->UpdateShaderCBData(mShaderDesc.name, 0, Constants);
+    m = world*view*proj;
 }
 void Demo::OnMouseDown(WPARAM btnState, int x, int y) {
     mLastMousePos.x = x;

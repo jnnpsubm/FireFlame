@@ -2,7 +2,7 @@
 #include "FireFlameHeader.h"
 #include <DirectXMath.h>
 
-struct ShaderConsts {
+struct ObjectConsts {
     DirectX::XMFLOAT4X4 WorldViewProj = FireFlame::Matrix4X4();
 };
 
@@ -20,6 +20,8 @@ public:
     virtual void OnMouseDown(WPARAM btnState, int x, int y);
     virtual void OnMouseUp(WPARAM btnState, int x, int y);
     virtual void OnMouseMove(WPARAM btnState, int x, int y);
+
+    virtual void BuildUpWVP(DirectX::XMMATRIX& m);
 
 protected:
     FireFlame::Engine& mEngine;

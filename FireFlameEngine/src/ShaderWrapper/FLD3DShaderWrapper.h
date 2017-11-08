@@ -19,6 +19,9 @@ public:
     void UpdateShaderCBData(unsigned int index, const T& data) {
         mShaderCB->CopyData(index, data);
     }
+    void UpdateShaderCBData(unsigned int index, size_t size, const void* data) {
+        mShaderCB->CopyData(index, size, data);
+    }
 
     void BuildRootSignature(ID3D12Device* device);
     void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT, CRef_MSAADesc_Vec);

@@ -7,7 +7,7 @@ LineListDemo::LineListDemo(FireFlame::Engine& engine) : Demo(engine) {
     mPointList.Generate(uPointNum);
 
     mShaderDesc.name = "Shader1";
-    mShaderDesc.constBufferSize.push_back(sizeof(ShaderConsts));
+    mShaderDesc.constBufferSize.push_back(sizeof(ObjectConsts));
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("COLOR", FireFlame::VERTEX_FORMAT_FLOAT4);
     mShaderDesc.AddShaderStage(L"Shaders\\Shader.hlsl", Shader_Type::VS, "VS", "vs_5_0");

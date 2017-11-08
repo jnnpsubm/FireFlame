@@ -4,7 +4,7 @@ PyramidDemo::PyramidDemo(FireFlame::Engine& e) :Demo(e) {
     using namespace FireFlame;
 
     mShaderDesc.name = "PyramidDemo";
-    mShaderDesc.constBufferSize.push_back(sizeof(ShaderConsts));
+    mShaderDesc.constBufferSize.push_back(sizeof(ObjectConsts));
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("COLOR", FireFlame::VERTEX_FORMAT_FLOAT4);
     mShaderDesc.AddShaderStage(L"Shaders\\PyramidDemoShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");

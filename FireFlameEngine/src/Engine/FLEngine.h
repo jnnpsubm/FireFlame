@@ -28,6 +28,8 @@ public:
     std::shared_ptr<D3DPSOManager> GetPSOManager() const { return mPSOManager; }
     std::shared_ptr<D3DRenderer>   GetRenderer()   const { return mRenderer; }
 
+    float TotalTime() const { return mTimer.TotalTime(); }
+
     // Set mothods
     void SetCullMode(Cull_Mode mode);
     void SetFilMode(Fill_Mode mode);
