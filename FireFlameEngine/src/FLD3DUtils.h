@@ -71,6 +71,19 @@ inline D3D12_CULL_MODE FLCullMode2D3DCullMode(Cull_Mode mode) {
         throw std::exception("unknown FLCullMode2D3DCullMode");
     }
 }
+inline Cull_Mode D3DCullMode2FLCullMode(D3D12_CULL_MODE mode) {
+    switch (mode)
+    {
+    case D3D12_CULL_MODE_NONE:
+        return FireFlame::Cull_Mode::None;
+    case D3D12_CULL_MODE_FRONT:
+        return FireFlame::Cull_Mode::Front;
+    case D3D12_CULL_MODE_BACK:
+        return FireFlame::Cull_Mode::Back;
+    default:
+        throw std::exception("unknown D3DCullMode2FLCullMode");
+    }
+}
 inline D3D12_FILL_MODE FLFillMode2D3DFillMode(Fill_Mode mode) {
     switch (mode)
     {
@@ -78,6 +91,17 @@ inline D3D12_FILL_MODE FLFillMode2D3DFillMode(Fill_Mode mode) {
         return D3D12_FILL_MODE_WIREFRAME;
     case FireFlame::Fill_Mode::Solid:
         return D3D12_FILL_MODE_SOLID;
+    default:
+        throw std::exception("unknown FLFillMode2D3DFillMode");
+    }
+}
+inline Fill_Mode D3DFillMode2FLFillMode(D3D12_FILL_MODE mode) {
+    switch (mode)
+    {
+    case D3D12_FILL_MODE_WIREFRAME:
+        return FireFlame::Fill_Mode::Wireframe;
+    case D3D12_FILL_MODE_SOLID:
+        return FireFlame::Fill_Mode::Solid;
     default:
         throw std::exception("unknown FLFillMode2D3DFillMode");
     }
@@ -107,6 +131,8 @@ inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
         return DXGI_FORMAT_R32G32B32A32_FLOAT;
     case VERTEX_FORMAT_A8B8G8R8_UNORM:
         return DXGI_FORMAT_R8G8B8A8_UNORM;
+    case VERTEX_FORMAT_A8R8G8B8_UNORM:
+        return DXGI_FORMAT_B8G8R8A8_UNORM;
     default:
         return DXGI_FORMAT_UNKNOWN;
     }
@@ -114,6 +140,8 @@ inline DXGI_FORMAT FLVertexFormat2DXGIFormat(unsigned long format) {
 inline UINT FLVertexFormatByteSize(unsigned long format) {
     switch (format)
     {
+    case VERTEX_FORMAT_A8B8G8R8_UNORM:
+    case VERTEX_FORMAT_A8R8G8B8_UNORM:
     case VERTEX_FORMAT_FLOAT1:
         return 4;
     case VERTEX_FORMAT_FLOAT2:
@@ -122,8 +150,6 @@ inline UINT FLVertexFormatByteSize(unsigned long format) {
         return 12;
     case VERTEX_FORMAT_FLOAT4:
         return 16;
-    case VERTEX_FORMAT_A8B8G8R8_UNORM:
-        return 4;
     default:
         throw std::exception("unknonw FLVertexFormatByteSize");
     }

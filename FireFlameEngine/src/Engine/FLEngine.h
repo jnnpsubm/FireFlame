@@ -30,9 +30,13 @@ public:
 
     float TotalTime() const { return mTimer.TotalTime(); }
 
-    // Set mothods
+    // Get Methods
+    Cull_Mode GetCullMode();
+    Fill_Mode GetFillMode();
+
+    // Set methods
     void SetCullMode(Cull_Mode mode);
-    void SetFilMode(Fill_Mode mode);
+    void SetFillMode(Fill_Mode mode);
     void SetControllerInputMode(ControllerInputMode mode) { mControllerInputMode = mode; }
 
     // register callbacks

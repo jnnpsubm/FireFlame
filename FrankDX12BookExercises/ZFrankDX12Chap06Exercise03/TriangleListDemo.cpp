@@ -35,9 +35,7 @@ TriangleListDemo::TriangleListDemo(FireFlame::Engine& engine) : Demo(engine) {
     mMeshDesc.indices = mPointList.GetIndexData();
     mMeshDesc.vertexDataCount.push_back((unsigned int)uPointNum);
     mMeshDesc.vertexDataSize.push_back(sizeof(VertexColored));
-    mMeshDesc.vertexDataFormat.push_back(VERTEX_FORMAT_FLOAT3 | VERTEX_FORMAT_FLOAT4);
     mMeshDesc.vertexData.push_back(mPointList.GetVertexData());
-    mMeshDesc.LocalToWorld = Matrix4X4();
     mMeshDesc.subMeshs.emplace_back("All", uPointNum);
 
     engine.SetCullMode(FireFlame::Cull_Mode::None);

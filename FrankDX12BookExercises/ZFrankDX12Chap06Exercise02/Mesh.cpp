@@ -8,15 +8,11 @@ void Mesh::GetMeshDesc(FireFlame::stRawMesh& meshDesc) {
 
     meshDesc.vertexDataCount.push_back((unsigned int)vertexPos.size());
     meshDesc.vertexDataSize.push_back(sizeof(Mesh::VPosData));
-    meshDesc.vertexDataFormat.push_back(VERTEX_FORMAT_FLOAT3);
     meshDesc.vertexData.push_back(vertexPos.data());
 
     meshDesc.vertexDataCount.push_back((unsigned int)vertexColor.size());
     meshDesc.vertexDataSize.push_back(sizeof(Mesh::VColorData));
-    meshDesc.vertexDataFormat.push_back(VERTEX_FORMAT_FLOAT4);
     meshDesc.vertexData.push_back(vertexColor.data());
-
-    meshDesc.LocalToWorld = matrixLocal2World;
 }
 
 void Mesh::GetSubMeshDesc(FireFlame::stRawMesh::stSubMesh& subMesh) {

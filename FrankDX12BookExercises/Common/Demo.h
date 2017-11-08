@@ -21,6 +21,8 @@ public:
     virtual void OnMouseUp(WPARAM btnState, int x, int y);
     virtual void OnMouseMove(WPARAM btnState, int x, int y);
 
+    virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) {}
+
     virtual void BuildUpWVP(DirectX::XMMATRIX& m);
 
 protected:

@@ -8,9 +8,7 @@ void SquareMesh::GetMeshDesc(FireFlame::stRawMesh& meshDesc) {
 
     meshDesc.vertexDataCount.push_back((unsigned int)vertices.size());
     meshDesc.vertexDataSize.push_back(sizeof(SquareMesh::Vertex));
-    meshDesc.vertexDataFormat.push_back(VERTEX_FORMAT_FLOAT3 | VERTEX_FORMAT_FLOAT2);
     meshDesc.vertexData.push_back(vertices.data());
-    meshDesc.LocalToWorld = matrixLocal2World;
 }
 
 void SquareMesh::GetSubMeshDesc(FireFlame::stRawMesh::stSubMesh& subMesh) {

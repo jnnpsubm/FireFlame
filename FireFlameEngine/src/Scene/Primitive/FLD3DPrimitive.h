@@ -17,6 +17,5 @@ public:
 private:
 	std::unique_ptr<D3DMesh>          mMesh        = nullptr;
     std::shared_ptr<D3DShaderWrapper> mShader      = nullptr;
-	DirectX::XMFLOAT4X4               mLocal2World;
 };
 }

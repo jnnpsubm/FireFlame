@@ -16,9 +16,7 @@ PyramidDemo::PyramidDemo(FireFlame::Engine& e) :Demo(e) {
     mMeshDesc.indices = mPyramid.indices.data();
     mMeshDesc.vertexDataCount.push_back((unsigned int)mPyramid.vertices.size());
     mMeshDesc.vertexDataSize.push_back(sizeof(VertexColored));
-    mMeshDesc.vertexDataFormat.push_back(VERTEX_FORMAT_FLOAT3 | VERTEX_FORMAT_FLOAT4);
     mMeshDesc.vertexData.push_back(mPyramid.vertices.data());
-    mMeshDesc.LocalToWorld = Matrix4X4();
     mMeshDesc.subMeshs.emplace_back("All", (unsigned int)mPyramid.indices.size());
 
     //mEngine.SetCullMode(FireFlame::Cull_Mode::None);

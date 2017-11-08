@@ -24,6 +24,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
             std::bind(&Demo::OnMouseUp,   &demo, _1, _2, _3),
             std::bind(&Demo::OnMouseMove, &demo, _1, _2, _3)
         );
+        engine.GetWindow()->RegisterKeyUpHandler(std::bind(&Demo::OnKeyUp, &demo, _1, _2));
 
         // engine initialization
         engine.InitMainWindow(150, 80, 1280, 600);

@@ -42,8 +42,7 @@ D3DMesh::D3DMesh(const stRawMesh& rawMesh) : mName(rawMesh.name){
     assert
     (
         (rawMesh.vertexData.size() == rawMesh.vertexDataSize.size()) &&
-        (rawMesh.vertexDataSize.size() == rawMesh.vertexDataCount.size()) &&
-        (rawMesh.vertexDataCount.size() == rawMesh.vertexDataFormat.size())
+        (rawMesh.vertexDataSize.size() == rawMesh.vertexDataCount.size())
     );
 #endif
     size_t inputSlot = rawMesh.vertexData.size();

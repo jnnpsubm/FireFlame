@@ -54,9 +54,15 @@ void Engine::SetCullMode(Cull_Mode mode) {
     // only support D3D right now
     mRenderer->SetCullMode(FLCullMode2D3DCullMode(mode));
 }
-void Engine::SetFilMode(Fill_Mode mode) {
+void Engine::SetFillMode(Fill_Mode mode) {
     // only support D3D right now
     mRenderer->SetFillMode(FLFillMode2D3DFillMode(mode));
+}
+Cull_Mode Engine::GetCullMode() {
+    return D3DCullMode2FLCullMode(mRenderer->GetCullMode());
+}
+Fill_Mode Engine::GetFillMode() {
+    return D3DFillMode2FLFillMode(mRenderer->GetFillMode());
 }
 void Engine::CalculateFrameStats()
 {
