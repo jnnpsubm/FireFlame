@@ -62,4 +62,46 @@ void BoxAndPyramidDemo::OnKeyUp(WPARAM wParam, LPARAM lParam) {
     {
         mEngine.SetCullMode(FireFlame::Cull_Mode::Back);
     }
+    else if (wParam == 'L') // Chap06Exercise12
+    {
+        int clientWidth = mEngine.GetWindow()->ClientWidth();
+        int clientHeight = mEngine.GetWindow()->ClientHeight();
+
+        FireFlame::stViewport viewport{ 
+            0.f,
+            0.f,
+            (float)clientWidth/2,
+            (float)clientHeight,
+            0.0f,
+            1.0f 
+        };
+        mEngine.SetViewport(viewport);
+    }
+    else if (wParam == 'Z')
+    {
+        int clientWidth = mEngine.GetWindow()->ClientWidth();
+        int clientHeight = mEngine.GetWindow()->ClientHeight();
+
+        static FireFlame::stViewport viewport{
+            0.f,
+            0.f,
+            (float)clientWidth,
+            (float)clientHeight,
+            0.0f,
+            1.0f
+        };
+        viewport.z1 /= 2.f;
+        mEngine.SetViewport(viewport);
+    }
+    else if (wParam == 'S') // Chap06Exercise13
+    {
+        int clientWidth = mEngine.GetWindow()->ClientWidth();
+        int clientHeight = mEngine.GetWindow()->ClientHeight();
+
+        int left = clientWidth / 4;
+        int top = clientHeight / 4;
+        int right = left + clientWidth / 2;
+        int bottom = top + clientHeight / 2;
+        mEngine.SetScissorRect(left, top, right, bottom);
+    }
 }

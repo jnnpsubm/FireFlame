@@ -33,11 +33,7 @@ public:
         if (it != mPSOs.end()) return it->second.Get();
         return nullptr;
     }
-    bool AddPSO
-    (
-        UINT          MSAAMode,
-        const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc
-    );
+    bool AddPSO(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc);
 
 private:
     std::map<PSO_TRAIT, PSO_ComPtr> mPSOs;

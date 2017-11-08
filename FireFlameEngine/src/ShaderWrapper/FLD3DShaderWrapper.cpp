@@ -5,8 +5,7 @@
 #include "..\PSOManager\FLD3DPSOManager.h"
 
 namespace FireFlame {
-void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, 
-                                DXGI_FORMAT DSFormat,CRef_MSAADesc_Vec msaaVec)
+void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, DXGI_FORMAT DSFormat)
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -20,35 +19,9 @@ void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferForm
         reinterpret_cast<BYTE*>(mPSByteCode->GetBufferPointer()),
         mPSByteCode->GetBufferSize()
     };
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.NumRenderTargets = 1;
     psoDesc.RTVFormats[0] = backBufferFormat;
     psoDesc.DSVFormat = DSFormat;
-    for (UINT i = 0; i < msaaVec.size(); ++i) {
-        const auto& msaaDesc = msaaVec[i];
-        psoDesc.SampleDesc.Count = msaaDesc.sampleCount;
-        psoDesc.SampleDesc.Quality = msaaDesc.qualityLevels - 1;
-        // todo:no patch now, because no tes
-        for (UINT ptype = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-                  ptype < D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH; ++ptype)
-        {
-            psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)ptype;
-            for (UINT cull = D3D12_CULL_MODE_NONE;
-                      cull <= D3D12_CULL_MODE_BACK; ++cull)
-            {
-                psoDesc.RasterizerState.CullMode = (D3D12_CULL_MODE)cull;
-                for (UINT fill = D3D12_FILL_MODE_WIREFRAME;
-                          fill <= D3D12_FILL_MODE_SOLID; ++fill)
-                {
-                    psoDesc.RasterizerState.FillMode = (D3D12_FILL_MODE)fill;
-                    Engine::GetEngine()->GetPSOManager()->AddPSO(i, psoDesc);
-                }
-            }
-        }
-    }
+    Engine::GetEngine()->GetPSOManager()->AddPSO(psoDesc);
 }
 void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // Shader programs typically require resources as input (constant buffers,

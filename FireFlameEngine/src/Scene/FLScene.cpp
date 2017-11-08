@@ -56,8 +56,9 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     shader->BuildShadersAndInputLayout(shaderDesc);
     shader->BuildPSO
     (
-        mRenderer->GetDevice(),             mRenderer->GetBackBufferFormat(),
-        mRenderer->GetDepthStencilFormat(), mRenderer->GetMSAASupported()
+        mRenderer->GetDevice(),             
+        mRenderer->GetBackBufferFormat(),
+        mRenderer->GetDepthStencilFormat()
     );
 }
 void Scene::AddPrimitive(const stRawMesh& mesh) {

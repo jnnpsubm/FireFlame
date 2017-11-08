@@ -23,10 +23,12 @@ BoxDemo::BoxDemo(FireFlame::Engine& e) :Demo(e) {
 }
 void BoxDemo::Update(float time_elapsed) {
     using namespace DirectX;
+
     DirectX::XMMATRIX wvp;
     BuildUpWVP(wvp);
 
     BoxDemoObjectConsts ObjConstants;
+    ObjConstants.PulseColor = DirectX::XMFLOAT4(0.823529482f, 0.411764741f, 0.117647067f, 1.000000000f);
     ObjConstants.TotalTime = mEngine.TotalTime();
     // Update the constant buffer with the latest worldViewProj matrix.
     DirectX::XMStoreFloat4x4(&ObjConstants.WorldViewProj, XMMatrixTranspose(wvp));

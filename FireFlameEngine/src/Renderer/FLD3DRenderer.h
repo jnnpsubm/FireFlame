@@ -45,6 +45,20 @@ public:
     void SetCullMode(D3D12_CULL_MODE mode)       { mCullMode = mode; }
     void SetFillMode(D3D12_FILL_MODE mode)       { mFillMode = mode; }
     void SetCurrentPSO(ID3D12PipelineState* pso) { mCurrPSO = pso; }
+    void SetViewport(const stViewport& viewport) {
+        mScreenViewport.TopLeftX = viewport.x;
+        mScreenViewport.TopLeftY = viewport.y;
+        mScreenViewport.Width    = viewport.w;
+        mScreenViewport.Height   = viewport.h;
+        mScreenViewport.MinDepth = viewport.z0;
+        mScreenViewport.MaxDepth = viewport.z1;
+    }
+    void SetScissorRect(int left, int top, int right, int bottom) {
+        mScissorRect.left = left;
+        mScissorRect.right = right;
+        mScissorRect.top = top;
+        mScissorRect.bottom = bottom;
+    }
 
 	// register callbacks
 	void RegisterDrawFunc(std::function<void(float)> func)   { mDrawFunc = func; }

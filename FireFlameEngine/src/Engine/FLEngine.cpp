@@ -58,6 +58,12 @@ void Engine::SetFillMode(Fill_Mode mode) {
     // only support D3D right now
     mRenderer->SetFillMode(FLFillMode2D3DFillMode(mode));
 }
+void Engine::SetViewport(const stViewport& viewport) {
+    mRenderer->SetViewport(viewport);
+}
+void Engine::SetScissorRect(int left, int top, int right, int bottom) {
+    mRenderer->SetScissorRect(left, top, right, bottom);
+}
 Cull_Mode Engine::GetCullMode() {
     return D3DCullMode2FLCullMode(mRenderer->GetCullMode());
 }

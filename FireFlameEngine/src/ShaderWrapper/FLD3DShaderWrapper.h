@@ -24,7 +24,7 @@ public:
     }
 
     void BuildRootSignature(ID3D12Device* device);
-    void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT, CRef_MSAADesc_Vec);
+    void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT);
     void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
     void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);

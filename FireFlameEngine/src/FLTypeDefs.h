@@ -175,7 +175,14 @@ enum class Fill_Mode {
     Wireframe = 2,
     Solid = 3
 };
-
+struct stViewport {
+    float x;
+    float y;
+    float w;
+    float h;
+    float z0;
+    float z1;
+};
 struct stMSAADesc {
     stMSAADesc(UINT s, UINT q) :sampleCount(s), qualityLevels(q) {}
     UINT sampleCount;

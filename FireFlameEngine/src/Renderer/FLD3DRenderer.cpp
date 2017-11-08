@@ -58,7 +58,7 @@ void D3DRenderer::RenderWithMSAA(const StopWatch& gt) {
 	// Specify the buffers we are going to render to.
 	mCommandList->OMSetRenderTargets(1, &OffscreenRenderTargetView(), true, &DepthStencilView());
 	// Clear the back buffer and depth buffer.
-	mCommandList->ClearRenderTargetView(OffscreenRenderTargetView(), DirectX::Colors::AliceBlue, 0, nullptr);
+	mCommandList->ClearRenderTargetView(OffscreenRenderTargetView(), DirectX::Colors::Chocolate, 0, nullptr);
 	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
 	mCommandList->RSSetViewports(1, &mScreenViewport);
@@ -95,7 +95,7 @@ void D3DRenderer::RenderWithoutMSAA(const StopWatch& gt) {
 	// Specify the buffers we are going to render to.
 	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 	// Clear the back buffer and depth buffer.
-	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), DirectX::Colors::AliceBlue, 0, nullptr);
+	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), DirectX::Colors::Chocolate, 0, nullptr);
 	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
@@ -281,7 +281,7 @@ void D3DRenderer::Resize(){
 
 	D3D12_CLEAR_VALUE msaaOptimizedClearValue = {};
 	msaaOptimizedClearValue.Format = mBackBufferFormat;
-	memcpy(msaaOptimizedClearValue.Color, DirectX::Colors::AliceBlue, sizeof(float) * 4);
+	memcpy(msaaOptimizedClearValue.Color, DirectX::Colors::Chocolate, sizeof(float) * 4);
 
 	ThrowIfFailed(md3dDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),

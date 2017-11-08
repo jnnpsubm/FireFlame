@@ -3,7 +3,8 @@
 #include "BoxMesh.h"
 
 struct BoxDemoObjectConsts : ObjectConsts {
-    float TotalTime = 0;
+    DirectX::XMFLOAT4 PulseColor;
+    float             TotalTime = 0;
 };
 
 class BoxDemo : public Demo {

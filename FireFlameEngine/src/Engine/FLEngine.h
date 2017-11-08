@@ -7,6 +7,7 @@
 #include "..\Timer\FLStopWatch.h"
 #include "..\Scene\FLScene.h"
 #include "..\Window\FLWindow.h"
+#include "..\Renderer\FLRenderer.h"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib, "d3dcompiler.lib")
@@ -37,6 +38,8 @@ public:
     // Set methods
     void SetCullMode(Cull_Mode mode);
     void SetFillMode(Fill_Mode mode);
+    void SetViewport(const stViewport& viewport);
+    void SetScissorRect(int left, int top, int right, int bottom);
     void SetControllerInputMode(ControllerInputMode mode) { mControllerInputMode = mode; }
 
     // register callbacks
