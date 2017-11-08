@@ -4,6 +4,12 @@ struct Vertex {
     float x, y, z;
     Vertex() { x = y = z = 1.0f; }
     Vertex(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
+    Vertex& operator+=(const Vertex& offset) {
+        x += offset.x;
+        y += offset.y;
+        z += offset.z;
+        return *this;
+    }
 };
 
 struct VertexColored : Vertex {

@@ -43,7 +43,6 @@ void D3DPrimitive::Draw(D3DRenderer* renderer) {
             subMesh.startIndexLocation,
             subMesh.baseVertexLocation, 0
         );
-        //cmdList->DrawInstanced()
     }
 }
 }
