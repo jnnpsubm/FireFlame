@@ -1,6 +1,8 @@
 #include "FLD3DPrimitive.h"
 #include "..\..\Renderer\FLD3DRenderer.h"
 #include "..\..\ShaderWrapper\FLD3DShaderWrapper.h"
+#include "..\..\Engine\FLEngine.h"
+#include "..\..\PSOManager\FLD3DPSOManager.h"
 
 namespace FireFlame {
 D3DPrimitive::D3DPrimitive() = default;
@@ -10,7 +12,13 @@ D3DPrimitive::D3DPrimitive(const stRawMesh& mesh) : mMesh(std::make_unique<D3DMe
 
 void D3DPrimitive::Draw(D3DRenderer* renderer) {
     ID3D12GraphicsCommandList* cmdList = renderer->GetCommandList();
-    auto pso = mShader->GetPSO(renderer->GetMSAAMode(), GetMesh()->GetPrimitiveTopologyType());
+    auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
+    (
+        renderer->GetMSAAMode(), 
+        GetMesh()->GetPrimitiveTopologyType(),
+        renderer->GetCullMode(),
+        renderer->GetFillMode()
+    );
     cmdList->SetPipelineState(pso);
 
     ID3D12DescriptorHeap* CBVHeap = mShader->GetCBVHeap();

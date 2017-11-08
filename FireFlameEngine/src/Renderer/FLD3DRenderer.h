@@ -38,7 +38,12 @@ public:
     UINT                       GetMSAAQuality()        const { return mMSAAQuality; }
     CRef_MSAADesc_Vec          GetMSAASupported()      const { return mMSAASupported; }
     ID3D12GraphicsCommandList* GetCommandList()        const { return mCommandList.Get(); }
+    D3D12_CULL_MODE            GetCullMode()           const { return mCullMode; }
+    D3D12_FILL_MODE            GetFillMode()           const { return mFillMode; }
+
     // Set Methods
+    void SetCullMode(D3D12_CULL_MODE mode)       { mCullMode = mode; }
+    void SetFillMode(D3D12_FILL_MODE mode)       { mFillMode = mode; }
     void SetCurrentPSO(ID3D12PipelineState* pso) { mCurrPSO = pso; }
 
 	// register callbacks
@@ -110,6 +115,9 @@ private:
     UINT        mMSAAMode    = 0;
 	UINT        mMSAAQuality = 0;
 	UINT        mSampleCount = 4;
+
+    D3D12_CULL_MODE mCullMode = D3D12_CULL_MODE_BACK;
+    D3D12_FILL_MODE mFillMode = D3D12_FILL_MODE_SOLID;
 
     std::vector<stMSAADesc> mMSAASupported;
     void GatherMSAAModeSupported();

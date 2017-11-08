@@ -46,6 +46,12 @@
     <ClCompile Include="src\Renderer\FLRenderer.cpp">
       <Filter>src\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\PSOManager\FLPSOManager.cpp">
+      <Filter>src\PSOManager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PSOManager\FLD3DPSOManager.cpp">
+      <Filter>src\PSOManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -129,6 +135,12 @@
     <ClInclude Include="src\Renderer\FLRenderer.h">
       <Filter>src\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\PSOManager\FLPSOManager.h">
+      <Filter>src\PSOManager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PSOManager\FLD3DPSOManager.h">
+      <Filter>src\PSOManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -184,6 +196,9 @@
     </Filter>
     <Filter Include="src\MathHelper">
       <UniqueIdentifier>{ea892b12-1b0a-49b5-8e28-e27dc2808a92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\PSOManager">
+      <UniqueIdentifier>{7cf592eb-be50-44ad-8f19-fb6cfea4354b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

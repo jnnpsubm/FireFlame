@@ -16,14 +16,22 @@
 
 namespace FireFlame{
 class D3DRenderer;
+class D3DPSOManager;
 class Engine {
 public:
 	Engine(HINSTANCE hinst);
 	static Engine* GetEngine() { return theEngine; }
 	~Engine();
 
-	std::shared_ptr<Scene>  GetScene()  const { return mScene; }
-    std::shared_ptr<Window> GetWindow() const { return mMainWnd; }
+	std::shared_ptr<Scene>         GetScene()      const { return mScene; }
+    std::shared_ptr<Window>        GetWindow()     const { return mMainWnd; }
+    std::shared_ptr<D3DPSOManager> GetPSOManager() const { return mPSOManager; }
+    std::shared_ptr<D3DRenderer>   GetRenderer()   const { return mRenderer; }
+
+    // Set mothods
+    void SetCullMode(Cull_Mode mode);
+    void SetFilMode(Fill_Mode mode);
+    void SetControllerInputMode(ControllerInputMode mode) { mControllerInputMode = mode; }
 
     // register callbacks
 	void RegisterUpdateFunc(std::function<void(float)> func);
@@ -40,8 +48,6 @@ public:
 	void Resume() { mAppPaused = false; mTimer.Resume(); }
 	void Stop();
 
-    void SetControllerInputMode(ControllerInputMode mode) { mControllerInputMode = mode; }
-
 	LRESULT OnWindowDestroy();
 	LRESULT OnWindowResized();
 	LRESULT OnWindowKeyUp(WPARAM wParam, LPARAM lParam);
@@ -55,9 +61,10 @@ private:
 	StopWatch                 mTimer;
 	bool                      mAppPaused = false;  // is the application paused?
 
-	std::shared_ptr<Window>      mMainWnd   = nullptr;
-	std::shared_ptr<D3DRenderer> mRenderer  = nullptr;
-	std::shared_ptr<Scene>       mScene     = nullptr;
+	std::shared_ptr<Window>        mMainWnd    = nullptr;
+	std::shared_ptr<D3DRenderer>   mRenderer   = nullptr;
+	std::shared_ptr<Scene>         mScene      = nullptr;
+    std::shared_ptr<D3DPSOManager> mPSOManager = nullptr;
 
     // callbacks
     std::function<void(int w, int h)> mFuncWindowResizedHandler = [](int w, int h) {};

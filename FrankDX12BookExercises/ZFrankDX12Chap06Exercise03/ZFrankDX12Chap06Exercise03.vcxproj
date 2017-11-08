@@ -156,6 +156,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PointList.cpp" />
     <ClCompile Include="PointListDemo.cpp" />
+    <ClCompile Include="TriangleListDemo.cpp" />
     <ClCompile Include="TriangleStripDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -165,6 +166,7 @@
     <ClInclude Include="LineStripDemo.h" />
     <ClInclude Include="PointListDemo.h" />
     <ClInclude Include="PointList.h" />
+    <ClInclude Include="TriangleListDemo.h" />
     <ClInclude Include="TriangleStripDemo.h" />
   </ItemGroup>
   <ItemGroup>

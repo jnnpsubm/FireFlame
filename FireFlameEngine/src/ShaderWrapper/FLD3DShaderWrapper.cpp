@@ -1,6 +1,8 @@
 #include "FLD3DShaderWrapper.h"
 #include "..\FLD3DUtils.h"
 #include "ShaderConstBuffer\FLShaderConstBuffer.h"
+#include "..\Engine\FLEngine.h"
+#include "..\PSOManager\FLD3DPSOManager.h"
 
 namespace FireFlame {
 void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, 
@@ -25,26 +27,26 @@ void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferForm
     psoDesc.NumRenderTargets = 1;
     psoDesc.RTVFormats[0] = backBufferFormat;
     psoDesc.DSVFormat = DSFormat;
-    for (size_t i = 0; i < msaaVec.size(); ++i) {
+    for (UINT i = 0; i < msaaVec.size(); ++i) {
         const auto& msaaDesc = msaaVec[i];
         psoDesc.SampleDesc.Count = msaaDesc.sampleCount;
         psoDesc.SampleDesc.Quality = msaaDesc.qualityLevels - 1;
         // todo:no patch now, because no tes
-        for (int ptype = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-                 ptype < D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH; ++ptype)
+        for (UINT ptype = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+                  ptype < D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH; ++ptype)
         {
             psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)ptype;
-            PSO_ComPtr pso = nullptr;
-            ThrowIfFailed
-            (
-                device->CreateGraphicsPipelineState
-                (
-                    &psoDesc,
-                    IID_PPV_ARGS(pso.GetAddressOf())
-                )
-            );
-            stPSODesc key{ (UINT)i,psoDesc.PrimitiveTopologyType };
-            mPSO.emplace(key, pso);
+            for (UINT cull = D3D12_CULL_MODE_NONE;
+                      cull <= D3D12_CULL_MODE_BACK; ++cull)
+            {
+                psoDesc.RasterizerState.CullMode = (D3D12_CULL_MODE)cull;
+                for (UINT fill = D3D12_FILL_MODE_WIREFRAME;
+                          fill <= D3D12_FILL_MODE_SOLID; ++fill)
+                {
+                    psoDesc.RasterizerState.FillMode = (D3D12_FILL_MODE)fill;
+                    Engine::GetEngine()->GetPSOManager()->AddPSO(i, psoDesc);
+                }
+            }
         }
     }
 }

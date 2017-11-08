@@ -167,6 +167,16 @@ struct stShaderDescription {
     }
 };
 
+enum class Cull_Mode {
+    None = 1,
+    Front,
+    Back
+};
+enum class Fill_Mode {
+    Wireframe = 2,
+    Solid = 3
+};
+
 struct stMSAADesc {
     stMSAADesc(UINT s, UINT q) :sampleCount(s), qualityLevels(q) {}
     UINT sampleCount;

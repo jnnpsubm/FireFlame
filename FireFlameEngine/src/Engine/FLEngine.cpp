@@ -1,5 +1,7 @@
 #include "FLEngine.h"
 #include "..\Renderer\FLD3DRenderer.h"
+#include "..\PSOManager\FLD3DPSOManager.h"
+#include "..\FLD3DUtils.h"
 
 namespace FireFlame {
 Engine* Engine::theEngine = nullptr;
@@ -10,6 +12,7 @@ Engine::Engine(HINSTANCE hinst) {
 	mMainWnd  = std::make_shared<Window>(hinst, *this);
 	mRenderer->SetRenderWindow(mMainWnd);
     mScene = std::make_shared<Scene>(mRenderer);
+    mPSOManager = std::make_shared<D3DPSOManager>();
 }
 Engine::~Engine() {
 	//if (renderer) renderer->WaitForGPU();
@@ -46,6 +49,14 @@ int Engine::InitMainWindow(int x, int y, int w, int h) {
 }
 int Engine::InitRenderer(API_Feature api) {
 	return mRenderer->Initialize(api);
+}
+void Engine::SetCullMode(Cull_Mode mode) {
+    // only support D3D right now
+    mRenderer->SetCullMode(FLCullMode2D3DCullMode(mode));
+}
+void Engine::SetFilMode(Fill_Mode mode) {
+    // only support D3D right now
+    mRenderer->SetFillMode(FLFillMode2D3DFillMode(mode));
 }
 void Engine::CalculateFrameStats()
 {

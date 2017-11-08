@@ -4,6 +4,7 @@
 #include "LineStripDemo.h"
 #include "LineListDemo.h"
 #include "TriangleStripDemo.h"
+#include "TriangleListDemo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
     // Enable run-time memory check for debug builds.
@@ -12,10 +13,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 #endif
 
     FireFlame::Engine engine(hInstance);
-    //PointListDemo     demo(engine);
-    //LineStripDemo     demo(engine);
-    //LineListDemo     demo(engine);
-    TriangleStripDemo     demo(engine);
+    //PointListDemo         demo(engine);
+    //LineStripDemo         demo(engine);
+    //LineListDemo          demo(engine);
+    //TriangleStripDemo     demo(engine);
+    TriangleListDemo     demo(engine);
     try {
         using namespace FireFlame;
         using namespace std::placeholders;

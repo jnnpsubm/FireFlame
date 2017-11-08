@@ -58,6 +58,31 @@ public:
     }
 };
 
+inline D3D12_CULL_MODE FLCullMode2D3DCullMode(Cull_Mode mode) {
+    switch (mode)
+    {
+    case FireFlame::Cull_Mode::None:
+        return D3D12_CULL_MODE_NONE;
+    case FireFlame::Cull_Mode::Front:
+        return D3D12_CULL_MODE_FRONT;
+    case FireFlame::Cull_Mode::Back:
+        return D3D12_CULL_MODE_BACK;
+    default:
+        throw std::exception("unknown FLCullMode2D3DCullMode");
+    }
+}
+inline D3D12_FILL_MODE FLFillMode2D3DFillMode(Fill_Mode mode) {
+    switch (mode)
+    {
+    case FireFlame::Fill_Mode::Wireframe:
+        return D3D12_FILL_MODE_WIREFRAME;
+    case FireFlame::Fill_Mode::Solid:
+        return D3D12_FILL_MODE_SOLID;
+    default:
+        throw std::exception("unknown FLFillMode2D3DFillMode");
+    }
+}
+
 inline DXGI_FORMAT FLIndexFormat2DXGIFormat(Index_Format format) {
 	switch (format)
 	{
