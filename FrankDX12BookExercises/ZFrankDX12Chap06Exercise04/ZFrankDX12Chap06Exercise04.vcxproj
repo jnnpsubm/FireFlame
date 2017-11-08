@@ -150,7 +150,21 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\Demo.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PyramidDemo.cpp" />
+    <ClCompile Include="PyramidMesh.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\Demo.h" />
+    <ClInclude Include="..\Common\Vertex.h" />
+    <ClInclude Include="PyramidDemo.h" />
+    <ClInclude Include="PyramidMesh.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\PyramidDemoShader.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
