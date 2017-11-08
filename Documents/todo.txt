@@ -1,0 +1,23 @@
+//AddSubMesh
+//抗锯齿的pso处理，4x和8xmsaa F2递增sampleCount
+//鼠标选择和移动方块
+//修改Renderer到D3DRenderer,然后新增空的Renderer.
+//render api feature handling
+//controller input mode
+//use function pointer to switch msaa and no msaa
+cube with procedual  texture
+mandelbrot procedual texture P190 graphics shaders
+marbel
+鼠标滚轮拉近拉远
+funfun
+procedual terrain
+shader编辑器
+fixed fps
+//shader和primitive分开增加，primitive通过name找到要使用的shader及其pso等
+引擎内部新增一些常用的shader
+shader统一处理修改 json and shader?
+submesh use ranged for loop
+
+// memo
+同屏人数优化 instanced
+shader可以由引擎使用者编写，引擎内部也内置一些常用的shader
