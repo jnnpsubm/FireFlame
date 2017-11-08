@@ -38,7 +38,7 @@ public:
         VertexPackedColored(-1.f, -1.f, +1.f, 0x00ff00ff),
         VertexPackedColored(+1.f, -1.f, +1.f, 0x00ff00ff),
         VertexPackedColored(+1.f, -1.f, -1.f, 0x00ff00ff),
-        VertexPackedColored(0.f,  +1.f,  0.f, 0x0000ffff)
+        VertexPackedColored(0.f,  +1.f,  0.f, 0xffff0000)
     };
     std::array<std::uint16_t, 54> indices = {
         // box
