@@ -5,6 +5,10 @@
 //render api feature handling
 //controller input mode
 //use function pointer to switch msaa and no msaa
+render item 动态增删 descriptor heap 和 uploadbuffer需要memory management
+shader constbuffer max 5
+固定几种shader的输入（定点和CB等） ps vs等shader stage可以由app提供甚至提供编辑器
+
 cube with procedual  texture
 mandelbrot procedual texture P190 graphics shaders
 marbel
