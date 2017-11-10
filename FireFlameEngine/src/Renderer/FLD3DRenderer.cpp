@@ -23,7 +23,7 @@ void D3DRenderer::Render(const StopWatch& gt) {
 	ThrowIfFailed(cmdListAlloc->Reset());
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
-	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), mCurrPSO));
+	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mCurrPSO));
 	// Indicate a state transition on the resource usage.
 	// Transition the render target into the correct state to allow for drawing into it.
 	
@@ -453,6 +453,8 @@ void D3DRenderer::CreateCommandObjects()
         auto frameRes = std::make_shared<D3DFrameResource>(md3dDevice.Get());
         mFrameResources.emplace_back(std::move(frameRes));
     }
+    mCurrFrameResourceIndex = 0;
+    mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 
 	ThrowIfFailed(md3dDevice->CreateCommandList(
 		0,
