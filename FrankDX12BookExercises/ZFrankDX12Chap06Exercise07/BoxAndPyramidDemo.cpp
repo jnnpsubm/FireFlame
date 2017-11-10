@@ -16,7 +16,7 @@ BoxAndPyramidDemo::BoxAndPyramidDemo(FireFlame::Engine& e) :Demo(e) {
     }
 
     mShaderDesc.name = "BoxAndPyramidDemo";
-    mShaderDesc.constBufferSize.push_back(sizeof(ObjectConsts));
+    mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     //mShaderDesc.AddVertexInput("COLOR", FireFlame::VERTEX_FORMAT_FLOAT4);
     mShaderDesc.AddVertexInput("COLOR", FireFlame::VERTEX_FORMAT_A8R8G8B8_UNORM);

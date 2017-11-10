@@ -47,7 +47,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
             shaderName,
             boxMesh.mVertexInputDes.format,
             boxMesh.mVertexInputDes.semanticNames,
-            { sizeof(ObjectConstants) }
+            sizeof(ObjectConstants), 0
         );
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::PS, "PS", "ps_5_0");

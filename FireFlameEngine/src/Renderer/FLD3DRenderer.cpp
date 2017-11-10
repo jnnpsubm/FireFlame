@@ -2,6 +2,7 @@
 #include <vector>
 #include <DirectXColors.h>
 #include "FLD3DRenderer.h"
+#include "..\Engine\FLEngine.h"
 #include "../Window/FLWindow.h"
 #include "../FLD3DUtils.h"
 #include "../Exception/FLException.h"
@@ -17,9 +18,9 @@ void D3DRenderer::Update(const StopWatch& gt) {
 }
 void D3DRenderer::Render(const StopWatch& gt) {
     mPreRenderFunc();
-	// Reuse the memory associated with command recording.
-	// We can only reset when the associated command lists have finished execution on the GPU.
-	ThrowIfFailed(mDirectCmdListAlloc->Reset());
+	
+    auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
+	ThrowIfFailed(cmdListAlloc->Reset());
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
 	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), mCurrPSO));
@@ -39,10 +40,13 @@ void D3DRenderer::Render(const StopWatch& gt) {
 	ThrowIfFailed(mSwapChain->Present(0, 0));
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
-	// Wait until frame commands are complete.  This waiting is inefficient and is
-	// done for simplicity.  Later we will show how to organize our rendering code
-	// so we do not have to wait per frame.
-	WaitForGPU();
+    // Advance the fence value to mark commands up to this fence point.
+    mCurrFrameResource->Fence = ++mCurrentFence;
+
+    // Add an instruction to the command queue to set a new fence point. 
+    // Because we are on the GPU timeline, the new fence point won't be 
+    // set until the GPU finishes processing all the commands prior to this Signal().
+    mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 void D3DRenderer::SelectMSAARenderer() {
     mMSAARenderer = mSampleCount > 1 ?
@@ -152,6 +156,28 @@ void D3DRenderer::WaitForGPU() {
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
 	}
+}
+void D3DRenderer::WaitForGPUFrame() {
+    // Cycle through the circular frame resource array.
+    mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % Engine::NumFrameResources();
+    mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
+
+    // Has the GPU finished processing the commands of the current frame resource?
+    // If not, wait until the GPU has completed commands up to this fence point.
+    if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
+    {
+#ifdef _DEBUG
+        std::wstring info(L"Wait For GPU finishing current Frame......");
+        info += std::to_wstring(mCurrFrameResource->Fence);
+        info += L"\n";
+        OutputDebugString(info.c_str());
+#endif
+
+        HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+        ThrowIfFailed(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
+        WaitForSingleObject(eventHandle, INFINITE);
+        CloseHandle(eventHandle);
+    }
 }
 int D3DRenderer::Initialize(API_Feature api) {
 	assert(!mRenderWnd.expired());
@@ -421,6 +447,12 @@ void D3DRenderer::CreateCommandObjects()
 	ThrowIfFailed(md3dDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf())));
+
+    // create frame resources of Command Allocator    
+    for (int i = 0; i < Engine::NumFrameResources(); ++i) {
+        auto frameRes = std::make_shared<D3DFrameResource>(md3dDevice.Get());
+        mFrameResources.emplace_back(std::move(frameRes));
+    }
 
 	ThrowIfFailed(md3dDevice->CreateCommandList(
 		0,

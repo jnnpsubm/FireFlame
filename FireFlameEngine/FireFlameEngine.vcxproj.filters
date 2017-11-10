@@ -52,6 +52,15 @@
     <ClCompile Include="src\PSOManager\FLD3DPSOManager.cpp">
       <Filter>src\PSOManager</Filter>
     </ClCompile>
+    <ClCompile Include="src\FrameResource\FLFrameResource.cpp">
+      <Filter>src\FrameResource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FrameResource\FLD3DFrameResource.cpp">
+      <Filter>src\FrameResource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\RenderItem\FLD3DRenderItem.cpp">
+      <Filter>src\Scene\RenderItem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -141,6 +150,15 @@
     <ClInclude Include="src\PSOManager\FLD3DPSOManager.h">
       <Filter>src\PSOManager</Filter>
     </ClInclude>
+    <ClInclude Include="src\FrameResource\FLFrameResource.h">
+      <Filter>src\FrameResource</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FrameResource\FLD3DFrameResource.h">
+      <Filter>src\FrameResource</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\RenderItem\FLD3DRenderItem.h">
+      <Filter>src\Scene\RenderItem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -199,6 +217,12 @@
     </Filter>
     <Filter Include="src\PSOManager">
       <UniqueIdentifier>{7cf592eb-be50-44ad-8f19-fb6cfea4354b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\FrameResource">
+      <UniqueIdentifier>{91644d0c-bb0e-404d-b9a4-e7208260e19f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scene\RenderItem">
+      <UniqueIdentifier>{837cd870-61d0-418c-a00d-7aaeab746f4d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

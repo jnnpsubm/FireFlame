@@ -102,7 +102,7 @@ struct stRawMesh {
         stSubMesh(const std::string& _name):name(_name){}
         stSubMesh(const std::string& _name,unsigned int indexCount,
                   unsigned int startIndexLocation = 0,
-                  int baseVertexLocation = 0) 
+                  int baseVertexLocation = 0)
             : name(_name), indexCount(indexCount), startIndexLocation(startIndexLocation)
             , baseVertexLocation(baseVertexLocation)
         {}
@@ -112,6 +112,26 @@ struct stRawMesh {
 		int          baseVertexLocation = 0;
 	};
     std::vector<stSubMesh> subMeshs;
+};
+
+struct stRenderItemDesc {
+    stRenderItemDesc() = default;
+    stRenderItemDesc(const std::string& name) 
+        :name(name)
+    {}
+    stRenderItemDesc
+    (
+        const std::string& _name, 
+        const stRawMesh::stSubMesh& subMesh,
+        Primitive_Topology topology = Primitive_Topology::TriangleList
+    )
+        : name(_name),
+          subMesh(subMesh), topology(topology)
+    {}
+    std::string  name;
+
+    stRawMesh::stSubMesh subMesh;
+    Primitive_Topology topology = Primitive_Topology::TriangleList;
 };
 
 enum class Shader_Type {
@@ -137,9 +157,10 @@ struct stShaderDescription {
     stShaderDescription(const std::string& _name,
                         const std::vector<unsigned long>& _vertexFormats,
                         const std::vector<stSemanticName>& _semanticNames,
-                        const std::vector<unsigned int>& _constBufferSize)
+                        unsigned int                objCBSize,
+                        unsigned int                passCBSize)
         : name(_name), vertexFormats(_vertexFormats),semanticNames(_semanticNames),
-          constBufferSize(_constBufferSize)
+        objCBSize(objCBSize), passCBSize(passCBSize)
     {
         inputSlots.resize(vertexFormats.size(), 0);
     }
@@ -151,7 +172,8 @@ struct stShaderDescription {
     std::vector<unsigned int>   inputSlots;
     std::vector<stSemanticName> semanticNames;   // order mush match vertexFormats
 
-    std::vector<unsigned int>   constBufferSize;
+    unsigned int                objCBSize = 0;
+    unsigned int                passCBSize = 0;
 
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {

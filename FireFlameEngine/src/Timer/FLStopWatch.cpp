@@ -86,7 +86,7 @@ void StopWatch::Mark(){
 	}
 
     // todo : temporary fix, laptop too hot.............need to fix fps
-    while (true) {
+    /*while (true) {
         __int64 currTime;
         QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
         mDeltaTime = (currTime - mPrevMarkTime)*mSecondsPerCount;
@@ -94,7 +94,7 @@ void StopWatch::Mark(){
             Sleep(0);
         else
             break;
-    }
+    }*/
 
 	__int64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);

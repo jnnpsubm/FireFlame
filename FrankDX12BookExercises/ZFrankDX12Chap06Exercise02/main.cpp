@@ -44,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
             shaderName,
             { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT4 },
             { {"POSITION"},{"COLOR"} },
-            { sizeof(ObjectConstants) }
+            sizeof(ObjectConstants), 0
         );
         shader.inputSlots[0] = 0;
         shader.inputSlots[1] = 1;

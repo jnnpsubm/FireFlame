@@ -5,12 +5,18 @@
 #include "Vertex\FLVertex.h"
 #include "..\FLTypeDefs.h"
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
+#include "RenderItem\FLD3DRenderItem.h"
 
 namespace FireFlame {
 class D3DRenderer;
 class StopWatch;
 class Scene {
 public:
+    typedef std::vector<D3DRenderItem*>                        VecRItem;
+    typedef std::unordered_map<bool, VecRItem>                 PSOMappedVecRItem;
+    typedef std::unordered_map<std::string, PSOMappedVecRItem> ShaderMappedVecRItem;
+    typedef std::unordered_map<UINT, ShaderMappedVecRItem>     TopologyMappedVecRItem;
+
 	Scene(std::shared_ptr<D3DRenderer>& renderer);
 
     // some scene management
@@ -19,10 +25,19 @@ public:
 	void Update(const StopWatch& gt);
 	void Render(const StopWatch& gt);
 
+    void UpdateObjectCBs(const StopWatch& gt);
+
     void AddShader(const stShaderDescription& shaderDesc);
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);
+
+    void AddRenderItem
+    (
+        const std::string&      primitiveName,
+        const std::string&      shaderName,
+        const stRenderItemDesc& desc
+    );
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
 
@@ -39,6 +54,7 @@ public:
         auto& shader = it->second;
         shader->UpdateShaderCBData(index, size, data);
     }
+    void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
 
     // register callbacks
     void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
@@ -53,6 +69,10 @@ private:
     std::function<void(float)> mUpdateFunc = [](float) {};
 
 	// todo : scene manage
+    std::unordered_map<std::string, std::shared_ptr<D3DRenderItem>>    mRenderItems;
+    // true for opaque
+    TopologyMappedVecRItem                                             mMappedRItems;
+
 	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>>     mPrimitives; 
     std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>> mShaders;
 };

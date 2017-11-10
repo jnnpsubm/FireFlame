@@ -4,7 +4,7 @@ BoxDemo::BoxDemo(FireFlame::Engine& e) :Demo(e) {
     using namespace FireFlame;
 
     mShaderDesc.name = "BoxDemo";
-    mShaderDesc.constBufferSize.push_back(sizeof(ObjectConsts));
+    mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("COLOR", FireFlame::VERTEX_FORMAT_FLOAT4);
     mShaderDesc.AddShaderStage(L"Shaders\\BoxDemoShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");

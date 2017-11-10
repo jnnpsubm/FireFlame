@@ -6,11 +6,14 @@
 #include <functional>
 #include "FLRenderer.h"
 #include "..\FLTypeDefs.h"
+#include "..\FrameResource\FLD3DFrameResource.h"
 
 namespace FireFlame {
 class StopWatch;
 class Window;
 class D3DRenderer : public Renderer {
+    typedef std::vector<std::shared_ptr<D3DFrameResource>> VecFrameRes;
+
 public:
 	D3DRenderer() = default;
 	//~D3DRenderer() = default;
@@ -23,6 +26,7 @@ public:
     void ResetCommandList();
     void ExecuteCommand();
 	void WaitForGPU();
+    void WaitForGPUFrame();
 
 	void Resize();
 
@@ -40,6 +44,13 @@ public:
     ID3D12GraphicsCommandList* GetCommandList()        const { return mCommandList.Get(); }
     D3D12_CULL_MODE            GetCullMode()           const { return mCullMode; }
     D3D12_FILL_MODE            GetFillMode()           const { return mFillMode; }
+    UINT GetRtvDescriptorSize()                        const { return mRtvDescriptorSize; }
+    UINT GetDsvDescriptorSize()                        const { return mDsvDescriptorSize; }
+    UINT GetCbvSrvUavDescriptorSize()                  const { return mCbvSrvUavDescriptorSize; }
+
+    VecFrameRes& GetFrameResources()                         { return mFrameResources; }
+    D3DFrameResource* GetCurrFrameResource()                 { return mCurrFrameResource; }
+    int GetCurrFrameResIndex()                               { return mCurrFrameResourceIndex; }
 
     // Set Methods
     void SetCullMode(D3D12_CULL_MODE mode)       { mCullMode = mode; }
@@ -109,6 +120,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue>        mCommandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator>    mDirectCmdListAlloc;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
+
+    // frame resources
+    VecFrameRes       mFrameResources;
+    D3DFrameResource* mCurrFrameResource      = nullptr;
+    int               mCurrFrameResourceIndex = 0;
 
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer                   = 0;

@@ -16,6 +16,9 @@ public:
     void UseShader(const std::string& name) {
         mCurrShader = name;
     }
+    void SetRenderItem(const std::string& name) {
+        mCurrRenderItem = name;
+    }
     void SetMainWnd(HWND hwnd) { mhMainWnd = hwnd; }
 
     void OnGameWindowResized(int w, int h);
@@ -29,6 +32,7 @@ private:
 
     HWND        mhMainWnd;
     std::string mCurrShader;
+    std::string mCurrRenderItem;
 
     ObjectConstants mShaderConstants;
 

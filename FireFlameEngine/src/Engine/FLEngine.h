@@ -35,6 +35,8 @@ public:
     Cull_Mode GetCullMode();
     Fill_Mode GetFillMode();
 
+    static int NumFrameResources() { return mNumFrameResources; }
+
     // Set methods
     void SetCullMode(Cull_Mode mode);
     void SetFillMode(Fill_Mode mode);
@@ -69,6 +71,8 @@ private:
     ControllerInputMode       mControllerInputMode = ControllerInputMode::Feed;
 	StopWatch                 mTimer;
 	bool                      mAppPaused = false;  // is the application paused?
+
+    static const int          mNumFrameResources = 3;
 
 	std::shared_ptr<Window>        mMainWnd    = nullptr;
 	std::shared_ptr<D3DRenderer>   mRenderer   = nullptr;

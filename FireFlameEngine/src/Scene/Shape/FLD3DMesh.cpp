@@ -1,5 +1,6 @@
 #include "FLD3DMesh.h"
 #include "..\..\FLD3DUtils.h"
+#include "..\..\Engine\FLEngine.h"
 #include <assert.h>
 
 namespace FireFlame {

@@ -124,9 +124,9 @@ void Window::AppendWindowCaption(const std::wstring& appendStr) {
 // ==============================Message Processing==============================
 LRESULT Window::OnActive(UINT mode) {
 	if (mode == WA_INACTIVE){
-		mEngine.Pause();
+		//mEngine.Pause();
 	}else{
-		mEngine.Resume();
+		//mEngine.Resume();
 	}
 	return 0;
 }
