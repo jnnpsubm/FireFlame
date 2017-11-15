@@ -1,4 +1,4 @@
-***Adapter: NVIDIA GeForce GTX 1050 VideoMem:3072M
+***Adapter: NVIDIA GeForce GTX 1050 VideoMem:4031M
 	***Display: \\.\DISPLAY1
 		Width = 320 		Height = 200 		Refresh = 138500000/2310880
 		Width = 320 		Height = 200 		Refresh = 138500000/2310880

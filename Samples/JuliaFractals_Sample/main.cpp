@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
             shaderName,
             { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT2 },
             { {"POSITION"},{"TEXCOORD"} },
-            sizeof(ObjectConstants), 0
+            sizeof(ObjectConstants), 1
         );
         shader.AddShaderStage(L"Shaders\\JuliaFractals.hlsl", Shader_Type::VS, "VS", "vs_5_0");
         shader.AddShaderStage(L"Shaders\\JuliaFractals.hlsl", Shader_Type::PS, "PS", "ps_5_0");
@@ -59,8 +59,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         boxMesh.GetSubMeshDesc(subMesh);
         engine.GetScene()->AddPrimitive(meshDesc, shaderName);
         engine.GetScene()->PrimitiveAddSubMesh(meshDesc.name, subMesh);
+        
+        FireFlame::stRenderItemDesc RItemDesc;
+        RItemDesc.name = "Box1";
+        RItemDesc.subMesh = subMesh;
+        RItemDesc.topology = FireFlame::Primitive_Topology::TriangleList;
+        engine.GetScene()->AddRenderItem(meshDesc.name, shaderName, RItemDesc);
 
-        someGame.UseShader(shaderName);
+        someGame.SetRenderItem(RItemDesc.name);
 
         // some initial work like scene management and 
         // make resource resident to GPU memory

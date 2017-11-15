@@ -51,7 +51,8 @@ void Game::Update(float time_elapsed) {
     mShaderConstants.C.x = (sinf((float)r * 0.1f) + cosf((float)r * 0.23f)) * 0.5f;
     mShaderConstants.C.y = (cosf((float)r * 0.13f) + sinf((float)r * 0.21f)) * 0.5f;
 
-    mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, mShaderConstants);
+    //mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, mShaderConstants);
+    mEngine.GetScene()->UpdateRenderItemCBData(mRenderItem, sizeof(ObjectConstants), &mShaderConstants);
 }
 void Game::OnMouseDown(WPARAM btnState, int x, int y) {
     mLastMousePos.x = x;
