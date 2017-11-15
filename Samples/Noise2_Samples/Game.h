@@ -18,8 +18,8 @@ public:
     Game(FireFlame::Engine& engine);
 
     void Update(float time_elapsed);
-    void UseShader(const std::string& name) {
-        mCurrShader = name;
+    void SetRenderItem(const std::string& name) {
+        mRenderItem = name;
     }
     void SetMainWnd(HWND hwnd) { mhMainWnd = hwnd; }
 
@@ -34,7 +34,7 @@ private:
     FireFlame::Engine& mEngine;
 
     HWND        mhMainWnd;
-    std::string mCurrShader;
+    std::string mRenderItem;
 
     ObjectConstants mShaderConstants;
 };

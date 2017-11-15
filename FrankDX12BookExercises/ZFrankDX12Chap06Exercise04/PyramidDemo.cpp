@@ -1,6 +1,6 @@
 #include "PyramidDemo.h"
 
-PyramidDemo::PyramidDemo(FireFlame::Engine& e) :Demo(e) {
+PyramidDemo::PyramidDemo(FireFlame::Engine& e) :Demo(e, "Pyramid1") {
     using namespace FireFlame;
 
     mShaderDesc.name = "PyramidDemo";

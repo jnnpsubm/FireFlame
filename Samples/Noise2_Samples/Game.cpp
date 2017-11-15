@@ -43,7 +43,8 @@ void Game::OnGameWindowResized(int w, int h) {
    
 }
 void Game::Update(float time_elapsed) {
-    mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, mShaderConstants);
+    //mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, mShaderConstants);
+    mEngine.GetScene()->UpdateRenderItemCBData(mRenderItem, sizeof(ObjectConstants), &mShaderConstants);
 }
 void Game::OnMouseDown(WPARAM btnState, int x, int y) {
    

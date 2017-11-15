@@ -1,7 +1,7 @@
 #include "BoxAndPyramidDemo.h"
 #include <DirectXPackedVector.h>
 
-BoxAndPyramidDemo::BoxAndPyramidDemo(FireFlame::Engine& e) :Demo(e) {
+BoxAndPyramidDemo::BoxAndPyramidDemo(FireFlame::Engine& e) :Demo(e, "BoxAndPyramid") {
     using namespace FireFlame;
 
     for (size_t i = 0; i < 8; i++)

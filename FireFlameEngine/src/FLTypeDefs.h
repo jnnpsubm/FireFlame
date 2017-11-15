@@ -116,8 +116,9 @@ struct stRawMesh {
 
 struct stRenderItemDesc {
     stRenderItemDesc() = default;
-    stRenderItemDesc(const std::string& name) 
-        :name(name)
+    stRenderItemDesc(const std::string& name, Primitive_Topology topology = Primitive_Topology::TriangleList)
+        :name(name),
+         topology(topology)
     {}
     stRenderItemDesc
     (

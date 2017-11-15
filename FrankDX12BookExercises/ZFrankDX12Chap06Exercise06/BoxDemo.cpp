@@ -1,6 +1,6 @@
 #include "BoxDemo.h"
 
-BoxDemo::BoxDemo(FireFlame::Engine& e) :Demo(e) {
+BoxDemo::BoxDemo(FireFlame::Engine& e) :Demo(e, "Box1") {
     using namespace FireFlame;
 
     mShaderDesc.name = "BoxDemo";

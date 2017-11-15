@@ -47,7 +47,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
             shaderName,
             boxMesh.mVertexInputDes.format,
             boxMesh.mVertexInputDes.semanticNames,
-            sizeof(ObjectConstants), 0
+            sizeof(ObjectConstants), 1
         );
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::VS, "VS", "vs_5_0");
         shader.AddShaderStage(L"Shaders\\color.hlsl", Shader_Type::PS, "PS", "ps_5_0");
@@ -61,7 +61,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         engine.GetScene()->AddPrimitive(meshDesc, shaderName);
         engine.GetScene()->PrimitiveAddSubMesh(meshDesc.name, subMesh);
 
-        someGame.UseShader(shaderName);
+        FireFlame::stRenderItemDesc RItemDesc("Box1", subMesh);
+        engine.GetScene()->AddRenderItem(meshDesc.name, shaderName, RItemDesc);
+
+        someGame.SetRenderItem(RItemDesc.name);
 
         // some initial work like scene management and 
         // make resource resident to GPU memory
