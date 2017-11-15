@@ -9,7 +9,7 @@ D3DPrimitive::D3DPrimitive() = default;
 D3DPrimitive::D3DPrimitive(const stRawMesh& mesh) : mMesh(std::make_unique<D3DMesh>(mesh)){}
 
 void D3DPrimitive::Draw(D3DRenderer* renderer) {
-    ID3D12GraphicsCommandList* cmdList = renderer->GetCommandList();
+    /*ID3D12GraphicsCommandList* cmdList = renderer->GetCommandList();
     auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
     (
         renderer->GetMSAAMode(), 
@@ -41,6 +41,6 @@ void D3DPrimitive::Draw(D3DRenderer* renderer) {
             subMesh.startIndexLocation,
             subMesh.baseVertexLocation, 0
         );
-    }
+    }*/
 }
 }

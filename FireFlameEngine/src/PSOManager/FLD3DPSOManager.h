@@ -3,6 +3,7 @@
 
 #include "FLPSOManager.h"
 #include <vector>
+#include <string>
 #include <map>
 #include <tuple>
 #include <d3d12.h>
@@ -13,6 +14,7 @@ class D3DPSOManager : public PSOManager {
 private:
     typedef std::tuple
     <
+        std::string,
         UINT, 
         D3D12_PRIMITIVE_TOPOLOGY_TYPE, 
         D3D12_CULL_MODE,
@@ -23,17 +25,18 @@ private:
 public:
     ID3D12PipelineState*  GetPSO
     (
+        const std::string& shaderName,
         UINT MSAAMode, 
         D3D12_PRIMITIVE_TOPOLOGY_TYPE ptype,
         D3D12_CULL_MODE cull = D3D12_CULL_MODE_BACK,
         D3D12_FILL_MODE fill = D3D12_FILL_MODE_SOLID
     ) const
     {
-        auto it = mPSOs.find({ MSAAMode, ptype,cull,fill });
+        auto it = mPSOs.find({ shaderName, MSAAMode, ptype,cull,fill });
         if (it != mPSOs.end()) return it->second.Get();
         return nullptr;
     }
-    bool AddPSO(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc);
+    bool AddPSO(const std::string shaderName, D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc);
 
 private:
     std::map<PSO_TRAIT, PSO_ComPtr> mPSOs;

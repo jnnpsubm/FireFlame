@@ -22,7 +22,7 @@ void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferForm
     };
     psoDesc.RTVFormats[0] = backBufferFormat;
     psoDesc.DSVFormat = DSFormat;
-    Engine::GetEngine()->GetPSOManager()->AddPSO(psoDesc);
+    Engine::GetEngine()->GetPSOManager()->AddPSO(mName, psoDesc);
 }
 void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // Shader programs typically require resources as input (constant buffers,

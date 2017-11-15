@@ -23,7 +23,8 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
         // This needs to be tracked per frame resource.
         auto& item = e.second;
         if (item->NumFramesDirty > 0){
-            auto shader = item->Shader;
+            auto shaderName = item->Shader;
+            auto shader = mShaders[shaderName];
             //currObjectCB->CopyData(e->ObjCBIndex, objConstants);
             shader->UpdateShaderCBData(item->ObjCBIndex, item->DataLen, item->Data);
             // Next FrameResource need to be updated too.
@@ -52,16 +53,18 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
     auto renderer = Engine::GetEngine()->GetRenderer();
     for (auto& itemsTopType : mMappedRItems){
         D3D12_PRIMITIVE_TOPOLOGY_TYPE topType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)itemsTopType.first;
-        auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
-        (
-            renderer->GetMSAAMode(),
-            topType,
-            renderer->GetCullMode(),
-            renderer->GetFillMode()
-        );
-        cmdList->SetPipelineState(pso);
         for (auto& itemsShader : itemsTopType.second) {
             D3DShaderWrapper* Shader = mShaders[itemsShader.first].get();
+            auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
+            (
+                itemsShader.first,
+                renderer->GetMSAAMode(),
+                topType,
+                renderer->GetCullMode(),
+                renderer->GetFillMode()
+            );
+            cmdList->SetPipelineState(pso);
+
             ID3D12DescriptorHeap* CBVHeap = Shader->GetCBVHeap();
             ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
             cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
@@ -102,7 +105,7 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     std::shared_ptr<D3DShaderWrapper> shader = nullptr;
     auto it = mShaders.find(shaderDesc.name);
     if (it == mShaders.end()) {
-        shader = std::make_shared<D3DShaderWrapper>();
+        shader = std::make_shared<D3DShaderWrapper>(shaderDesc.name);
         mShaders[shaderDesc.name] = shader;
     }
     else {
@@ -137,6 +140,37 @@ void Scene::PrimitiveUseShader(const std::string& primitive, const std::string& 
     if (itShader == mShaders.end()) throw std::exception("cannot find shader");
     itPrimitive->second->SetShader(itShader->second);
 }
+void Scene::RenderItemChangeShader(const std::string& renderItem, const std::string& shader) {
+    auto itRItem = mRenderItems.find(renderItem);
+    if (itRItem == mRenderItems.end()) 
+        throw std::exception("cannot find render item in function(RenderItemChangeShader)");
+    auto itShader = mShaders.find(shader);
+    if (itShader == mShaders.end()) 
+        throw std::exception("cannot find shader in function(RenderItemChangeShader)");
+    std::string oldShader = itRItem->second->Shader;
+    itRItem->second->SetShader(shader);
+
+    // first remove the render itme
+    for (auto& itemsTopType : mMappedRItems) {
+        auto& itemsShader = itemsTopType.second;
+        auto it = itemsShader.find(oldShader);
+        if (it == itemsShader.end()) continue;
+        for (auto& itemsOpaqueStatus : it->second) {
+            auto& vecRItems = itemsOpaqueStatus.second;
+            for (auto it = vecRItems.begin(); it != vecRItems.end(); ++it) {
+                if ((*it)->Name == renderItem) {
+                    vecRItems.erase(it);
+                    break;
+                }
+            }
+        }
+    }
+    // readd render item
+    auto& shaderMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(itRItem->second->PrimitiveType)];
+    auto& psoMappedRItem = shaderMappedRItem[shader];
+    auto& vecItems = psoMappedRItem[true];
+    vecItems.push_back(itRItem->second.get());
+}
 
 void Scene::PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh){
 	auto it = mPrimitives.find(name);
@@ -167,7 +201,7 @@ void Scene::AddRenderItem
     renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
     renderItem->ObjCBIndex = shader->GetFreeObjCBV();
     renderItem->Mesh = mesh;
-    renderItem->Shader = shader;
+    renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
 
     // All the render items are opaque(true). for now...

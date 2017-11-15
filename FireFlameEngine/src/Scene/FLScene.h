@@ -40,6 +40,7 @@ public:
     );
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
+    void RenderItemChangeShader(const std::string& renderItem, const std::string& shader);
 
     template <typename T>
     void UpdateShaderCBData(const std::string& shaderName, unsigned int index, const T& data) {

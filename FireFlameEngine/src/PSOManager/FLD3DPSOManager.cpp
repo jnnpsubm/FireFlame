@@ -4,7 +4,7 @@
 #include "..\Renderer\FLD3DRenderer.h"
 
 namespace FireFlame {
-bool D3DPSOManager::AddPSO(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc){
+bool D3DPSOManager::AddPSO(const std::string shaderName, D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc){
     auto renderer = Engine::GetEngine()->GetRenderer();
     auto msaaVec = renderer->GetMSAASupported();
 
@@ -33,6 +33,7 @@ bool D3DPSOManager::AddPSO(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc){
                     psoDesc.RasterizerState.FillMode = (D3D12_FILL_MODE)fill;
                     PSO_TRAIT PSOTrait
                     (
+                        shaderName,
                         i,
                         psoDesc.PrimitiveTopologyType,
                         psoDesc.RasterizerState.CullMode,

@@ -31,6 +31,7 @@ public:
 
     void AddShaders();
     void AddGeometry();
+    void AddRenderItem();
 
     void OnGameWindowResized(int w, int h);
     void OnMouseDown(WPARAM btnState, int x, int y);

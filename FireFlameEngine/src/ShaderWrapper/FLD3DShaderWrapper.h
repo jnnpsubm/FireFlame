@@ -15,7 +15,7 @@ namespace FireFlame {
 struct stShaderDescription;
 class D3DShaderWrapper {
 public:
-    D3DShaderWrapper() = default;
+    D3DShaderWrapper(const std::string& name) : mName(name){}
 
     template <typename T>
     void UpdateShaderCBData(unsigned int index, const T& data) {
@@ -59,6 +59,7 @@ public:
     }
 
 private:
+    std::string                           mName;
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
     Microsoft::WRL::ComPtr<ID3DBlob> mVSByteCode = nullptr;

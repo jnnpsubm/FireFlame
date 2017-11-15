@@ -44,6 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
         // add some geometry to render
         someDemo.AddGeometry();
+        someDemo.AddRenderItem();
 
         // some initial work like scene management and 
         // make resource resident to GPU memory

@@ -23,7 +23,11 @@ struct D3DRenderItem {
     UINT ObjCBIndex = -1;
 
     D3DMesh* Mesh            = nullptr;
-    D3DShaderWrapper* Shader = nullptr;
+
+    std::string Shader;
+    void SetShader(const std::string& _Shader) {
+        Shader = _Shader;
+    }
 
     // Primitive topology.
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;

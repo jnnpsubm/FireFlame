@@ -3,8 +3,8 @@
 #include "SquareMesh.h"
 
 Demo::Demo(FireFlame::Engine& engine) :mEngine(engine) {
-    //mShaders.emplace_back("CubicParabola",      L"Shaders\\CubicParabolaPixelShader.hlsl");
-    //mShaders.emplace_back("SemicubicParabola",  L"Shaders\\SemicubicParabolaPixelShader.hlsl");
+    mShaders.emplace_back("CubicParabola",      L"Shaders\\CubicParabolaPixelShader.hlsl");
+    mShaders.emplace_back("SemicubicParabola",  L"Shaders\\SemicubicParabolaPixelShader.hlsl");
     //mShaders.emplace_back("ProbabilityCurve",   L"Shaders\\ProbabilityCurvePixelShader.hlsl");
     //mShaders.emplace_back("WitchofAgnesi",      L"Shaders\\WitchofAgnesiPixelShader.hlsl");
     //mShaders.emplace_back("Cissoid",            L"Shaders\\CissoidPixelShader.hlsl");
@@ -24,7 +24,7 @@ void Demo::AddShaders() {
         "",
         { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT2 },
         { {"POSITION"},{"TEXCOORD"} },
-        sizeof(ObjectConstants), 0
+        sizeof(ObjectConstants), 1
     );
     shader.AddShaderStage
     (
@@ -52,8 +52,17 @@ void Demo::AddGeometry() {
     mEngine.GetScene()->AddPrimitive(meshDesc, mShaders[0].shaderName);
     mEngine.GetScene()->PrimitiveAddSubMesh(meshDesc.name, subMesh);
 
+    FireFlame::stRenderItemDesc RItemDesc;
+    RItemDesc.name = meshDesc.name;
+    RItemDesc.subMesh = subMesh;
+    RItemDesc.topology = FireFlame::Primitive_Topology::TriangleList;
+    mEngine.GetScene()->AddRenderItem(meshDesc.name, mShaders[0].shaderName, RItemDesc);
+
     UseShader(mShaders[0].shaderName);
     UseGeometry(meshDesc.name);
+}
+void Demo::AddRenderItem() {
+    
 }
 void Demo::OnGameWindowResized(int w, int h) {
     // Build the view matrix.
@@ -78,7 +87,8 @@ void Demo::Update(float time_elapsed) {
     //DirectX::XMStoreFloat4x4(&mShaderConstants.ViewProj, DirectX::XMMatrixTranspose(ViewProj));
     //mObjectCB->CopyData(0, objConstants);
 
-    mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, mShaderConstants);
+    //mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, mShaderConstants);
+    mEngine.GetScene()->UpdateRenderItemCBData(mCurrGeo, sizeof(ObjectConstants), &mShaderConstants);
 }
 void Demo::OnMouseDown(WPARAM btnState, int x, int y) {
    
@@ -125,7 +135,8 @@ void Demo::OnKeyDown(WPARAM wParam, LPARAM lParam) {
             mode = 0;
         }
         UseShader(mShaders[mode].shaderName);
-        mEngine.GetScene()->PrimitiveUseShader(mCurrGeo, mCurrShader);
+        //mEngine.GetScene()->PrimitiveUseShader(mCurrGeo, mCurrShader);
+        mEngine.GetScene()->RenderItemChangeShader(mCurrGeo, mCurrShader);
         strDebug += L"Shader:" + FireFlame::AnsiToWString(mCurrShader);
     }
     else if ((int)wParam == 'K')
