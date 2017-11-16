@@ -80,41 +80,42 @@ void ShapesApp::BuildMesh()
     indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
     indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
 
-    mMeshDesc.name = "Shapes";
-    mMeshDesc.primitiveTopology = Primitive_Topology::TriangleList;
-    mMeshDesc.indexCount = (unsigned int)indices.size();
-    mMeshDesc.indexFormat = Index_Format::UINT16;
-    mMeshDesc.indices = indices.data();
+    mMeshDesc.emplace_back();
+    mMeshDesc[0].name = "Shapes";
+    mMeshDesc[0].primitiveTopology = Primitive_Topology::TriangleList;
+    mMeshDesc[0].indexCount = (unsigned int)indices.size();
+    mMeshDesc[0].indexFormat = Index_Format::UINT16;
+    mMeshDesc[0].indices = indices.data();
 
-    mMeshDesc.vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc.vertexDataSize.push_back(sizeof(FLVertex));
-    mMeshDesc.vertexData.push_back(vertices.data());
+    mMeshDesc[0].vertexDataCount.push_back((unsigned int)vertices.size());
+    mMeshDesc[0].vertexDataSize.push_back(sizeof(FLVertex));
+    mMeshDesc[0].vertexData.push_back(vertices.data());
 
     // sub meshes
-    mMeshDesc.subMeshs.emplace_back
+    mMeshDesc[0].subMeshs.emplace_back
     (
         "Box", (UINT)box.Indices32.size(), boxIndexOffset, boxVertexOffset
     );
-    mMeshDesc.subMeshs.emplace_back
+    mMeshDesc[0].subMeshs.emplace_back
     (
         "Grid", (UINT)grid.Indices32.size(), gridIndexOffset, gridVertexOffset
     );
-    mMeshDesc.subMeshs.emplace_back
+    mMeshDesc[0].subMeshs.emplace_back
     (
         "Sphere", (UINT)sphere.Indices32.size(), sphereIndexOffset, sphereVertexOffset
     );
-    mMeshDesc.subMeshs.emplace_back
+    mMeshDesc[0].subMeshs.emplace_back
     (
         "Cylinder", (UINT)cylinder.Indices32.size(), cylinderIndexOffset, cylinderVertexOffset
     );
-    mEngine.GetScene()->AddPrimitive(mMeshDesc);
+    mEngine.GetScene()->AddPrimitive(mMeshDesc[0]);
 }
 
 void ShapesApp::BuildRenderItems() 
 {
     using namespace DirectX;
 
-    FireFlame::stRenderItemDesc RItem("Box1", mMeshDesc.subMeshs[0]);
+    FireFlame::stRenderItemDesc RItem("Box1", mMeshDesc[0].subMeshs[0]);
     XMFLOAT4X4 worldTrans;
     XMStoreFloat4x4
     (
@@ -126,18 +127,18 @@ void ShapesApp::BuildRenderItems()
     mRenderItems.emplace_back(RItem);
     mEngine.GetScene()->AddRenderItem
     (
-        mMeshDesc.name,
+        mMeshDesc[0].name,
         mShaderDesc.name,
         RItem
     );
 
     RItem.name = "Grid1";
-    RItem.subMesh = mMeshDesc.subMeshs[1];
+    RItem.subMesh = mMeshDesc[0].subMeshs[1];
     worldTrans = FireFlame::Matrix4X4();
     mRenderItems.emplace_back(RItem);
     mEngine.GetScene()->AddRenderItem
     (
-        mMeshDesc.name,
+        mMeshDesc[0].name,
         mShaderDesc.name,
         RItem
     );
@@ -152,11 +153,11 @@ void ShapesApp::BuildRenderItems()
 
         XMStoreFloat4x4(&worldTrans, XMMatrixTranspose(rightCylWorld));
         RItem.name = "RightCyl" + std::to_string(i);
-        RItem.subMesh = mMeshDesc.subMeshs[3];
+        RItem.subMesh = mMeshDesc[0].subMeshs[3];
         mRenderItems.emplace_back(RItem);
         mEngine.GetScene()->AddRenderItem
         (
-            mMeshDesc.name,
+            mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
         );
@@ -167,18 +168,18 @@ void ShapesApp::BuildRenderItems()
         mRenderItems.emplace_back(RItem);
         mEngine.GetScene()->AddRenderItem
         (
-            mMeshDesc.name,
+            mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
         );
 
         XMStoreFloat4x4(&worldTrans, XMMatrixTranspose(leftSphereWorld));
         RItem.name = "LeftSphere" + std::to_string(i);
-        RItem.subMesh = mMeshDesc.subMeshs[2];
+        RItem.subMesh = mMeshDesc[0].subMeshs[2];
         mRenderItems.emplace_back(RItem);
         mEngine.GetScene()->AddRenderItem
         (
-            mMeshDesc.name,
+            mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
         );
@@ -189,7 +190,7 @@ void ShapesApp::BuildRenderItems()
         mRenderItems.emplace_back(RItem);
         mEngine.GetScene()->AddRenderItem
         (
-            mMeshDesc.name,
+            mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
         );

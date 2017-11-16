@@ -19,96 +19,55 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\FireFlameHeader.h" />
-    <ClInclude Include="src\3rd_utils\d3dx12.h" />
-    <ClInclude Include="src\Engine\FLEngine.h" />
-    <ClInclude Include="src\FLD3DUtils.h" />
-    <ClInclude Include="src\Exception\FLException.h" />
-    <ClInclude Include="src\FLTypeDefs.h" />
-    <ClInclude Include="src\FrameResource\FLD3DFrameResource.h" />
-    <ClInclude Include="src\FrameResource\FLFrameResource.h" />
-    <ClInclude Include="src\GeometryHelper\FLGeometryGenerator.h" />
-    <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h" />
-    <ClInclude Include="src\MathHelper\FLVertex.h" />
-    <ClInclude Include="src\MathHelper\FLMathHelper.h" />
-    <ClInclude Include="src\MathHelper\FLVector.h" />
-    <ClInclude Include="src\Matrix\FLMatrix.h" />
-    <ClInclude Include="src\Matrix\FLMatrix4X4.h" />
-    <ClInclude Include="src\Matrix\FLMatrixHelper.h" />
-    <ClInclude Include="src\Matrix\FLMatrixMXN.h" />
-    <ClInclude Include="src\Matrix\FLMatrixNXN.h" />
-    <ClInclude Include="src\PSOManager\FLD3DPSOManager.h" />
-    <ClInclude Include="src\PSOManager\FLPSOManager.h" />
-    <ClInclude Include="src\Renderer\FLD3DRenderer.h" />
-    <ClInclude Include="src\Renderer\FLRenderer.h" />
-    <ClInclude Include="src\Scene\FLScene.h" />
-    <ClInclude Include="src\Scene\Pass\FLPass.h" />
-    <ClInclude Include="src\Scene\Primitive\FLD3DPrimitive.h" />
-    <ClInclude Include="src\Scene\Primitive\FLPrimitive.h" />
-    <ClInclude Include="src\Scene\RenderItem\FLD3DRenderItem.h" />
-    <ClInclude Include="src\Scene\Shape\FLD3DMesh.h" />
-    <ClInclude Include="src\Scene\Shape\FLMesh.h" />
-    <ClInclude Include="src\Scene\Vertex\FLVertex.h" />
-    <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapper.h" />
-    <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h" />
-    <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h" />
-    <ClInclude Include="src\Timer\FLStopWatch.h" />
-    <ClInclude Include="src\ViewFrustum\FLViewFrustum.h" />
-    <ClInclude Include="src\Window\FLWindow.h" />
+    <ClCompile Include="..\Common\FLEngineApp.cpp" />
+    <ClCompile Include="LandAndWavesApp.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Waves.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Engine\FLEngine.cpp" />
-    <ClCompile Include="src\Exception\FLException.cpp" />
-    <ClCompile Include="src\FLD3DUtils.cpp" />
-    <ClCompile Include="src\FrameResource\FLD3DFrameResource.cpp" />
-    <ClCompile Include="src\FrameResource\FLFrameResource.cpp" />
-    <ClCompile Include="src\GeometryHelper\FLGeometryGenerator.cpp" />
-    <ClCompile Include="src\MathHelper\FLMathHelper.cpp" />
-    <ClCompile Include="src\PSOManager\FLD3DPSOManager.cpp" />
-    <ClCompile Include="src\PSOManager\FLPSOManager.cpp" />
-    <ClCompile Include="src\Renderer\FLD3DRenderer.cpp" />
-    <ClCompile Include="src\Renderer\FLRenderer.cpp" />
-    <ClCompile Include="src\Scene\FLScene.cpp" />
-    <ClCompile Include="src\Scene\Primitive\FLD3DPrimitive.cpp" />
-    <ClCompile Include="src\Scene\Primitive\FLPrimitive.cpp" />
-    <ClCompile Include="src\Scene\RenderItem\FLD3DRenderItem.cpp" />
-    <ClCompile Include="src\Scene\Shape\FLD3DMesh.cpp" />
-    <ClCompile Include="src\Scene\Shape\FLMesh.cpp" />
-    <ClCompile Include="src\Scene\Vertex\FLVertex.cpp" />
-    <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapper.cpp" />
-    <ClCompile Include="src\ShaderWrapper\FLShaderWrapper.cpp" />
-    <ClCompile Include="src\Timer\FLStopWatch.cpp" />
-    <ClCompile Include="src\Window\FLWindow.cpp" />
+    <ClInclude Include="..\Common\FLEngineApp.h" />
+    <ClInclude Include="LandAndWavesApp.h" />
+    <ClInclude Include="Waves.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\FireFlameEngine\FireFlameEngine.vcxproj">
+      <Project>{cbf7b274-b25e-474c-9951-b616fde59a73}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\LandAndWaves.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{CBF7B274-B25E-474C-9951-B616FDE59A73}</ProjectGuid>
+    <ProjectGuid>{FE8F9AEA-5276-4654-AAA4-9CD4FDC88E3D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>FireFlameEngine</RootNamespace>
+    <RootNamespace>LandAndWavesSample</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -132,90 +91,78 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

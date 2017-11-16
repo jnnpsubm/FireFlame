@@ -87,6 +87,7 @@ struct stRawMesh {
           primitiveTopology(Primitive_Topology::TriangleList)
     {/*===============================================================*/}
 	std::string name;
+    bool                      vertexInFrameRes = false;
     std::vector<void*>        vertexData;
 	std::vector<unsigned int> vertexDataSize;
     std::vector<unsigned int> vertexDataCount;

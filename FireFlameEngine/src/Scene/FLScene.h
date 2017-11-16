@@ -59,6 +59,7 @@ public:
     }*/
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
     void UpdatePassCBData(const std::string& name, size_t size, const void* data);
+    void UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t size, const void* data);
 
     // register callbacks
     void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }

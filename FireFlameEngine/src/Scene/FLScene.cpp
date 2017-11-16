@@ -99,7 +99,7 @@ int Scene::GetReady() {
     mRenderer->RegisterDrawFunc(std::bind(&Scene::Draw, this, std::placeholders::_1));
 
     // if no pass, add a default pass
-    if (mPasses.empty())
+    if (mPasses.empty() && !mShaders.empty() && !mRenderItems.empty())
     {
         AddPass(mShaders.begin()->first, "DefaultPass");
     }
@@ -264,5 +264,14 @@ void Scene::UpdatePassCBData(const std::string& name, size_t size, const void* d
     auto passCbvIndex = itPass->second->CBIndex;
     //passCbvIndex += Engine::GetEngine()->GetRenderer()->GetCurrFrameResIndex() * shader->GetPassCBVMaxCount();
     shader->UpdatePassCBData(passCbvIndex, size, data);
+}
+void Scene::UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t size, const void* data)
+{
+    auto frameRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource();
+    auto itVBRes = frameRes->VBResources.find(name);
+    if (itVBRes == frameRes->VBResources.end())
+        throw std::exception("cannot find VB in UpdateMeshCurrVBFrameRes");
+    auto VB = itVBRes->second.get();
+    VB->CopyData(index, size, data);
 }
 } // end namespace

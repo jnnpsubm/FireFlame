@@ -37,6 +37,8 @@ public:
 	void AddSubMesh(const stRawMesh::stSubMesh& subMesh);
 
     // Get methods
+    const std::string&            GetName()                  const { return mName; }
+    bool                          VertexBufferInFrameRes()   const { return mVertexBufferInFrameRes; }
     UINT                          GetNumVertexBufferView()   const { return (UINT)mVertexBufferGPU.size(); }
     D3D_PRIMITIVE_TOPOLOGY        GetPrimitiveTopology()     const { return mPrimitiveTopology; }
     const SubMeshMap&             GetSubMeshs()              const { return mDrawArgs; }
@@ -69,6 +71,12 @@ public:
         ibv.SizeInBytes = mIndexBufferByteSize;
         return ibv;
     }
+    // set methods
+    void SetVertexBuffer(size_t index, ID3D12Resource* res)
+    {
+        mVertexBufferGPU[index] = res;
+    }
+
     // We can free this memory after we finish upload to the GPU.
     void DisposeUploaders() {
         for (auto& ptr : mVertexBufferUploader) {
@@ -79,17 +87,26 @@ public:
 
     void GetPageableResources(std::vector<ID3D12Pageable*>& vec) {
         vec.clear();
-        size_t resNum = mVertexBufferGPU.size() + 1;
-        vec.resize(resNum);
-        for (size_t i = 0; i < mVertexBufferGPU.size(); i++){
-            vec[i] = mVertexBufferGPU[i].Get();
+        if (mVertexBufferInFrameRes)
+        {
+            vec.resize(1);
+            vec[0] = mIndexBufferGPU.Get();
         }
-        vec[resNum - 1] = mIndexBufferGPU.Get();
+        else
+        {
+            size_t resNum = mVertexBufferGPU.size() + 1;
+            vec.resize(resNum);
+            for (size_t i = 0; i < mVertexBufferGPU.size(); i++) {
+                vec[i] = mVertexBufferGPU[i].Get();
+            }
+            vec[resNum - 1] = mIndexBufferGPU.Get();
+        }
     }
 
 private:
     std::string mName;
     bool        mResideInGPU = false;
+    bool        mVertexBufferInFrameRes = false;
 
 	// System memory copies.  Use Blobs because the vertex/index format can be generic.
 	// It is up to the client to cast appropriately.  

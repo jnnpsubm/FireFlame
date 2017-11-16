@@ -64,6 +64,9 @@
     <ClCompile Include="src\GeometryHelper\FLGeometryGenerator.cpp">
       <Filter>src\GeometryHelper</Filter>
     </ClCompile>
+    <ClCompile Include="src\MathHelper\FLMathHelper.cpp">
+      <Filter>src\MathHelper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">

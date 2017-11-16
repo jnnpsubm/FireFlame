@@ -12,6 +12,11 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
     auto renderer = Engine::GetEngine()->GetRenderer();
     ID3D12GraphicsCommandList* cmdList = renderer->GetCommandList();
 
+    if (Mesh->VertexBufferInFrameRes())
+    {
+        auto VB = renderer->GetCurrFrameResource()->VBResources[Mesh->GetName()].get();
+        Mesh->SetVertexBuffer(0, VB->Resource());
+    }
     std::vector<D3D12_VERTEX_BUFFER_VIEW> vecVBV = Mesh->VertexBufferViews();
     cmdList->IASetVertexBuffers(0, (UINT)vecVBV.size(), &vecVBV[0]);
     cmdList->IASetIndexBuffer(&Mesh->IndexBufferView());

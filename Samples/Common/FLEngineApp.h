@@ -30,16 +30,17 @@ class FLEngineApp
 {
 public:
     typedef std::vector<FireFlame::stRenderItemDesc> VecRItem;
+    typedef std::vector<FireFlame::stRawMesh>        VecRawMesh;
 
 public:
-    FLEngineApp(FireFlame::Engine& engine);
+    FLEngineApp(FireFlame::Engine& engine, float cameraMinDis = 3.0f, float cameraMaxDis = 150.f);
     virtual ~FLEngineApp();
 
     virtual void Initialize() = 0;
 
-    const FireFlame::stShaderDescription& GetShaderDesc()     const { return mShaderDesc; }
-    const FireFlame::stRawMesh&           GetMeshDesc()       const { return mMeshDesc; }
-    const VecRItem& GetVecRenderItemDesc()                    const { return mRenderItems; }
+    const FireFlame::stShaderDescription& GetShaderDesc()        const { return mShaderDesc; }
+    const VecRawMesh&                     GetMeshDesc()          const { return mMeshDesc; }
+    const VecRItem&                       GetVecRenderItemDesc() const { return mRenderItems; }
 
     virtual void Update(float time_elapsed);
     virtual void OnGameWindowResized(int w, int h);
@@ -56,7 +57,7 @@ protected:
     FireFlame::Engine& mEngine;
 
     FireFlame::stShaderDescription mShaderDesc;
-    FireFlame::stRawMesh           mMeshDesc;
+    VecRawMesh                     mMeshDesc;
     VecRItem                       mRenderItems;
     std::vector<std::string>       mPasses;
 
@@ -69,6 +70,11 @@ protected:
     float mTheta = 1.5f*DirectX::XM_PI;
     float mPhi = 0.2f*DirectX::XM_PI;
     float mRadius = 15.0f;
+
+    float mMinRadius = 3.0f;
+    float mMaxRadius = 150.f;
+
+    float mPixelStep = 0.005f;
 
     POINT mLastMousePos;
 };

@@ -1,7 +1,11 @@
 #include "FLEngineApp.h"
 #include <string>
 
-FLEngineApp::FLEngineApp(FireFlame::Engine& engine) : mEngine(engine) {}
+FLEngineApp::FLEngineApp(FireFlame::Engine& engine, float cameraMinDis, float cameraMaxDis) :
+    mEngine(engine),
+    mMinRadius(cameraMinDis),
+    mMaxRadius(cameraMaxDis)
+{}
 FLEngineApp::~FLEngineApp() {}
 
 void FLEngineApp::OnGameWindowResized(int w, int h) {
@@ -50,7 +54,8 @@ void FLEngineApp::Update(float time_elapsed) {
 
     //auto currPassCB = mCurrFrameResource->PassCB.get();
     //currPassCB->CopyData(0, mMainPassCB);
-    mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
+    if (mPasses.size())
+        mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
 }
 
 void FLEngineApp::UpdateCamera(float time_elapsed)
@@ -111,14 +116,14 @@ void FLEngineApp::OnMouseMove(WPARAM btnState, int x, int y) {
     else if ((btnState & MK_RBUTTON) != 0)
     {
         // Make each pixel correspond to 0.005 unit in the scene.
-        float dx = 0.005f*static_cast<float>(x - mLastMousePos.x);
-        float dy = 0.005f*static_cast<float>(y - mLastMousePos.y);
+        float dx = mPixelStep*static_cast<float>(x - mLastMousePos.x);
+        float dy = mPixelStep*static_cast<float>(y - mLastMousePos.y);
 
         // Update the camera radius based on input.
         mRadius += dx - dy;
 
         // Restrict the radius.
-        mRadius = FireFlame::MathHelper::Clamp(mRadius, 3.0f, 150.0f);
+        mRadius = FireFlame::MathHelper::Clamp(mRadius, mMinRadius, mMaxRadius);
     }
 
     mLastMousePos.x = x;
