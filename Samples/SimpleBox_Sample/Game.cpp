@@ -36,7 +36,11 @@ void Game::Update(float time_elapsed) {
     DirectX::XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
     //mObjectCB->CopyData(0, objConstants);
     //mEngine.GetScene()->UpdateShaderCBData(mCurrShader, 0, objConstants);
-    mEngine.GetScene()->UpdateRenderItemCBData(mRenderItem, sizeof(ObjectConstants), &objConstants);
+    //mEngine.GetScene()->UpdateRenderItemCBData(mRenderItem, sizeof(ObjectConstants), &objConstants);
+
+    PassConstants passConstants;
+    DirectX::XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
+    mEngine.GetScene()->UpdatePassCBData("DefaultPass", sizeof(PassConstants), &passConstants);
 }
 void Game::OnMouseDown(WPARAM btnState, int x, int y) {
     mLastMousePos.x = x;

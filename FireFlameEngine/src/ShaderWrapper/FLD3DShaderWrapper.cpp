@@ -112,6 +112,7 @@ void D3DShaderWrapper::UpdateObjCBData(unsigned int index, size_t size, const vo
 }
 void D3DShaderWrapper::UpdatePassCBData(unsigned int index, size_t size, const void* data)
 {
+    index -= mPassCbvOffset;
     auto currPassCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->PassCB.get();
     currPassCB->CopyData(index, size, data);
 }
@@ -153,7 +154,7 @@ void D3DShaderWrapper::BuildFrameCBResources
         )
     );
 
-    UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(sizeof(objConstSize));
+    UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(objConstSize);
 
     // Need a CBV descriptor for each object for each frame resource.
     for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex){

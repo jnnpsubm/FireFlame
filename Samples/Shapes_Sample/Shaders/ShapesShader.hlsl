@@ -45,15 +45,6 @@ VertexOut VS(VertexIn vin)
     // Just pass vertex color into the pixel shader.
     vout.Color = vin.Color;
 
-    // test
-    //vout.PosH = sin(vout.PosH);
-    vout.PosH = float4(loc,loc,loc,1.0f);
-    vout.Color = float4(1.0f,1.0f,1.0f,1.0f);
-    loc += 0.01f;
-    if (loc >= 1.0f)
-        loc = -1.0f;
-    // end
-
     return vout;
 }
 

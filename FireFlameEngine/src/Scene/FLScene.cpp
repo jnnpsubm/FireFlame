@@ -10,10 +10,8 @@ namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
 
 void Scene::Update(const StopWatch& gt) {
-    mUpdateFunc(gt.DeltaTime());
-
     Engine::GetEngine()->GetRenderer()->WaitForGPUFrame();
-
+    mUpdateFunc(gt.DeltaTime());
     UpdateObjectCBs(gt);
 }
 void Scene::UpdateObjectCBs(const StopWatch& gt){
@@ -27,7 +25,7 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
             auto shader = mShaders[shaderName];
             //currObjectCB->CopyData(e->ObjCBIndex, objConstants);
             shader->UpdateObjCBData(item->ObjCBIndex, item->DataLen, item->Data);
-            Matrix4X4* m = (Matrix4X4*)item->Data;
+            //Matrix4X4* m = (Matrix4X4*)item->Data;
             // Next FrameResource need to be updated too.
             item->NumFramesDirty--;
         }
@@ -84,7 +82,7 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
             passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
             auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
             passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
-            cmdList->SetGraphicsRootDescriptorTable(1, CBVHeap->GetGPUDescriptorHandleForHeapStart());
+            cmdList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
 
             for (auto& itemsOpaqueStatus : itemsShader.second) {
                 bool opaqueStatus = itemsOpaqueStatus.first;
@@ -264,7 +262,7 @@ void Scene::UpdatePassCBData(const std::string& name, size_t size, const void* d
     auto shader = itShader->second;
 
     auto passCbvIndex = itPass->second->CBIndex;
-    passCbvIndex += Engine::GetEngine()->GetRenderer()->GetCurrFrameResIndex() * shader->GetPassCBVMaxCount();
+    //passCbvIndex += Engine::GetEngine()->GetRenderer()->GetCurrFrameResIndex() * shader->GetPassCBVMaxCount();
     shader->UpdatePassCBData(passCbvIndex, size, data);
 }
 } // end namespace

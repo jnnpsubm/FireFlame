@@ -47,7 +47,7 @@ public:
     virtual void OnMouseUp(WPARAM btnState, int x, int y);
     virtual void OnMouseMove(WPARAM btnState, int x, int y);
 
-    virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) {}
+    virtual void OnKeyUp(WPARAM wParam, LPARAM lParam);
 
     virtual void BuildUpVP(DirectX::XMMATRIX& m);
     virtual void UpdateCamera(float time_elapsed);

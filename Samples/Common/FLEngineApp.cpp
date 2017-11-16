@@ -118,9 +118,32 @@ void FLEngineApp::OnMouseMove(WPARAM btnState, int x, int y) {
         mRadius += dx - dy;
 
         // Restrict the radius.
-        mRadius = FireFlame::MathHelper::Clamp(mRadius, 3.0f, 15.0f);
+        mRadius = FireFlame::MathHelper::Clamp(mRadius, 3.0f, 150.0f);
     }
 
     mLastMousePos.x = x;
     mLastMousePos.y = y;
+}
+
+void FLEngineApp::OnKeyUp(WPARAM wParam, LPARAM lParam) {
+    if (wParam == 'W') {
+        if (mEngine.GetFillMode() == FireFlame::Fill_Mode::Solid) {
+            mEngine.SetFillMode(FireFlame::Fill_Mode::Wireframe);
+        }
+        else {
+            mEngine.SetFillMode(FireFlame::Fill_Mode::Solid);
+        }
+    }
+    else if (wParam == 'N')
+    {
+        mEngine.SetCullMode(FireFlame::Cull_Mode::None);
+    }
+    else if (wParam == 'F')
+    {
+        mEngine.SetCullMode(FireFlame::Cull_Mode::Front);
+    }
+    else if (wParam == 'B')
+    {
+        mEngine.SetCullMode(FireFlame::Cull_Mode::Back);
+    }
 }
