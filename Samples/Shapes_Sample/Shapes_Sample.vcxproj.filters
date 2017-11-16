@@ -13,10 +13,16 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{aa55ae7b-5ac1-412c-9e15-102af78b93e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{7443d7dd-d4ae-48c8-83d3-43a31f40b6a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\ShapesShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
+    <None Include="Shaders\ShapesShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\skull.txt">
+      <Filter>Resources</Filter>
+    </Text>
   </ItemGroup>
 </Project>

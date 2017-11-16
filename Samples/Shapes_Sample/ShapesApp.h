@@ -10,4 +10,6 @@ private:
     void BuildShaders();
     void BuildMesh();
     void BuildRenderItems();
+
+    void LoadSkull(const std::string& filePath);
 };

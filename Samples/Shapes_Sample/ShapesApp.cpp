@@ -1,4 +1,5 @@
 #include "ShapesApp.h"
+#include <fstream>
 
 void ShapesApp::Initialize() 
 {
@@ -31,7 +32,14 @@ void ShapesApp::BuildMesh()
     GeometryGenerator geoGen;
     GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);
     GeometryGenerator::MeshData grid = geoGen.CreateGrid(200.0f, 300.0f, 60, 40);
-    GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
+    //GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
+    //GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 0);
+    //GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 1);
+    //GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 2);
+    GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 3);
+    //GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 4);
+    //GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 5);
+    //GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 6);
     GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20);
 
     // Cache the vertex offsets to each object in the concatenated vertex buffer.
@@ -109,6 +117,66 @@ void ShapesApp::BuildMesh()
         "Cylinder", (UINT)cylinder.Indices32.size(), cylinderIndexOffset, cylinderVertexOffset
     );
     mEngine.GetScene()->AddPrimitive(mMeshDesc[0]);
+
+    // Load Skull
+    LoadSkull("Resources\\skull.txt");
+}
+
+void ShapesApp::LoadSkull(const std::string& filePath)
+{
+    std::ifstream inFile(filePath);
+    std::string nouse;
+    size_t vertexCount = 0;
+    size_t indexCount = 0;
+    inFile >> nouse;             // VertexCount:
+    inFile >> vertexCount;
+    inFile >> nouse;             // TriangleCount:
+    inFile >> indexCount; 
+    inFile >> nouse;             // VertexList
+    inFile >> nouse;             // (pos,
+    inFile >> nouse;             // normal)
+    inFile >> nouse;             // {
+
+    indexCount *= 3;
+
+    std::vector<FireFlame::FLVertex> vertices;
+    vertices.reserve(vertexCount);
+    for (size_t i = 0; i < vertexCount; i++)
+    {
+        float x, y, z, u, v, w;
+        inFile >> x >> y >> z >> u >> v >> w;
+        vertices.emplace_back(x, y, z);
+    }
+
+    inFile >> nouse >> nouse >> nouse;
+    std::vector<std::uint16_t> indices;
+    indices.reserve(indexCount);
+    for (size_t i = 0; i < indexCount; i++)
+    {
+        std::uint16_t index = 0;
+        inFile >> index;
+        indices.push_back(index);
+    }
+    inFile.close();
+
+    for (size_t i = 0; i < vertexCount; ++i)
+    {
+        vertices[i].Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    }
+
+    mMeshDesc.emplace_back();
+    mMeshDesc[1].name = "Skull";
+    mMeshDesc[1].indexCount = (unsigned int)indices.size();
+    mMeshDesc[1].indexFormat = FireFlame::Index_Format::UINT16;
+    mMeshDesc[1].indices = indices.data();
+
+    mMeshDesc[1].vertexDataCount.push_back((unsigned int)vertices.size());
+    mMeshDesc[1].vertexDataSize.push_back(sizeof(FireFlame::FLVertex));
+    mMeshDesc[1].vertexData.push_back(vertices.data());
+
+    // sub meshes
+    mMeshDesc[1].subMeshs.emplace_back("All", (UINT)indices.size());
+    mEngine.GetScene()->AddPrimitive(mMeshDesc[1]);
 }
 
 void ShapesApp::BuildRenderItems() 
@@ -132,6 +200,23 @@ void ShapesApp::BuildRenderItems()
         RItem
     );
 
+    // Skull
+    RItem.name = "Skull";
+    RItem.subMesh = mMeshDesc[1].subMeshs[0];
+    worldTrans = FireFlame::Matrix4X4();
+    XMStoreFloat4x4
+    (
+        &worldTrans,
+        XMMatrixTranspose(XMMatrixScaling(0.5f, 0.5f, 0.5f)*XMMatrixTranslation(0.0f, 1.5f, 0.0f))
+    );
+    mRenderItems.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[1].name,
+        mShaderDesc.name,
+        RItem
+    );
+
     RItem.name = "Grid1";
     RItem.subMesh = mMeshDesc[0].subMeshs[1];
     worldTrans = FireFlame::Matrix4X4();
@@ -142,8 +227,7 @@ void ShapesApp::BuildRenderItems()
         mShaderDesc.name,
         RItem
     );
-
-    UINT objCBIndex = 2;
+    
     for (int i = 0; i < 5; ++i)
     {
         XMMATRIX leftCylWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i*5.0f);
