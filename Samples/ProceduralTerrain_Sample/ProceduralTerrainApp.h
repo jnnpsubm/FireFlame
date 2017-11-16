@@ -4,10 +4,12 @@
 class ProceduralTerrainApp : public FLEngineApp
 {
 public:
-    ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e) {}
+    ProceduralTerrainApp(FireFlame::Engine& e);
 
     void Initialize() override;
 
 private:
-
+    void BuildShaders();
+    void BuildGeometry();
+    void BuildRenderItems();
 };

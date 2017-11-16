@@ -9,4 +9,14 @@
     <ClInclude Include="ProceduralTerrainApp.h" />
     <ClInclude Include="..\Common\FLEngineApp.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{40c4e3a3-f29e-4742-ba0d-f5cd2870dfb2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\ProceduralTerrain.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

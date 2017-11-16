@@ -18,11 +18,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\ShapesShader.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="Resources\skull.txt">
       <Filter>Resources</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\ShapesShader.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
