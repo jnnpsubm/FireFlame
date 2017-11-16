@@ -1,7 +1,7 @@
 #include "BoxAndPyramidDemo.h"
 #include <DirectXPackedVector.h>
 
-BoxAndPyramidDemo::BoxAndPyramidDemo(FireFlame::Engine& e) :Demo(e, "BoxAndPyramid") {
+BoxAndPyramidDemo::BoxAndPyramidDemo(FireFlame::Engine& e) :Demo(e) {
     using namespace FireFlame;
 
     for (size_t i = 0; i < 8; i++)
@@ -23,6 +23,7 @@ BoxAndPyramidDemo::BoxAndPyramidDemo(FireFlame::Engine& e) :Demo(e, "BoxAndPyram
     mShaderDesc.AddShaderStage(L"Shaders\\BoxAndPymaridDemoShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDesc.AddShaderStage(L"Shaders\\BoxAndPymaridDemoShader.hlsl", Shader_Type::PS, "PS", "ps_5_0");
 
+    mMeshDesc.name = "BoxAndPyramid";
     mMeshDesc.primitiveTopology = Primitive_Topology::TriangleList;
     mMeshDesc.indexCount = (unsigned int)mBoxAndPyramid.indices.size();
     mMeshDesc.indexFormat = Index_Format::UINT16;
@@ -37,6 +38,9 @@ BoxAndPyramidDemo::BoxAndPyramidDemo(FireFlame::Engine& e) :Demo(e, "BoxAndPyram
 
     mMeshDesc.subMeshs.emplace_back("Box",     (unsigned int)36, 0,  0);
     mMeshDesc.subMeshs.emplace_back("Pyramid", (unsigned int)18, 36, 8);
+
+    mRenderItems.emplace_back("Box1", mMeshDesc.subMeshs[0]);
+    mRenderItems.emplace_back("Pyramid1", mMeshDesc.subMeshs[1]);
 
     //mEngine.SetCullMode(FireFlame::Cull_Mode::None);
 }

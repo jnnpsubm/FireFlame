@@ -61,6 +61,9 @@
     <ClCompile Include="src\Scene\RenderItem\FLD3DRenderItem.cpp">
       <Filter>src\Scene\RenderItem</Filter>
     </ClCompile>
+    <ClCompile Include="src\GeometryHelper\FLGeometryGenerator.cpp">
+      <Filter>src\GeometryHelper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -159,6 +162,18 @@
     <ClInclude Include="src\Scene\RenderItem\FLD3DRenderItem.h">
       <Filter>src\Scene\RenderItem</Filter>
     </ClInclude>
+    <ClInclude Include="src\GeometryHelper\FLGeometryGenerator.h">
+      <Filter>src\GeometryHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MathHelper\FLVector.h">
+      <Filter>src\MathHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MathHelper\FLVertex.h">
+      <Filter>src\MathHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Pass\FLPass.h">
+      <Filter>src\Scene\Pass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -223,6 +238,12 @@
     </Filter>
     <Filter Include="src\Scene\RenderItem">
       <UniqueIdentifier>{837cd870-61d0-418c-a00d-7aaeab746f4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\GeometryHelper">
+      <UniqueIdentifier>{dd6077e8-c925-4e8d-ae6e-57c04f32957b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scene\Pass">
+      <UniqueIdentifier>{c125fdd4-0c75-47c6-afb5-e40b7c79417c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

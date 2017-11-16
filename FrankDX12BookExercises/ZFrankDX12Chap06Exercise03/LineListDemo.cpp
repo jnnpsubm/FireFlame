@@ -24,6 +24,6 @@ LineListDemo::LineListDemo(FireFlame::Engine& engine) : Demo(engine, "LineList")
     mMeshDesc.vertexData.push_back(mPointList.GetVertexData());
     mMeshDesc.subMeshs.emplace_back("All", uPointNum);
 
-    mRenderItem.subMesh = mMeshDesc.subMeshs[0];
-    mRenderItem.topology = FireFlame::Primitive_Topology::LineList;
+    mRenderItems[0].subMesh = mMeshDesc.subMeshs[0];
+    mRenderItems[0].topology = FireFlame::Primitive_Topology::LineList;
 }

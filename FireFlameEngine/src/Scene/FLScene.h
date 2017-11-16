@@ -10,6 +10,7 @@
 namespace FireFlame {
 class D3DRenderer;
 class StopWatch;
+struct Pass;
 class Scene {
 public:
     typedef std::vector<D3DRenderItem*>                        VecRItem;
@@ -38,11 +39,12 @@ public:
         const std::string&      shaderName,
         const stRenderItemDesc& desc
     );
+    void AddPass(const std::string& shaderName, const std::string& passName);
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
     void RenderItemChangeShader(const std::string& renderItem, const std::string& shader);
 
-    template <typename T>
+    /*template <typename T>
     void UpdateShaderCBData(const std::string& shaderName, unsigned int index, const T& data) {
         auto it = mShaders.find(shaderName);
         if (it == mShaders.end()) return;
@@ -54,8 +56,9 @@ public:
         if (it == mShaders.end()) return;
         auto& shader = it->second;
         shader->UpdateShaderCBData(index, size, data);
-    }
+    }*/
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
+    void UpdatePassCBData(const std::string& name, size_t size, const void* data);
 
     // register callbacks
     void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
@@ -65,6 +68,7 @@ private:
 
     void PreRender();
     void Draw(ID3D12GraphicsCommandList* cmdList);
+    void DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass);
 
     // callbacks
     std::function<void(float)> mUpdateFunc = [](float) {};
@@ -73,6 +77,9 @@ private:
     std::unordered_map<std::string, std::shared_ptr<D3DRenderItem>>    mRenderItems;
     // true for opaque
     TopologyMappedVecRItem                                             mMappedRItems;
+
+    // passes
+    std::unordered_map<std::string, std::shared_ptr<Pass>>             mPasses;
 
 	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>>     mPrimitives; 
     std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>> mShaders;

@@ -145,12 +145,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\FLEngineApp.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ShapesApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FireFlameEngine\FireFlameEngine.vcxproj">
       <Project>{cbf7b274-b25e-474c-9951-b616fde59a73}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\FLEngineApp.h" />
+    <ClInclude Include="ShapesApp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\ShapesShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

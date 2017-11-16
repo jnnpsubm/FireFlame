@@ -82,7 +82,7 @@ enum class Primitive_Topology_Type {
 };
 struct stRawMesh {
     stRawMesh() = default;
-    stRawMesh(const std::string& _name) 
+    explicit stRawMesh(const std::string& _name) 
         : name(_name), 
           primitiveTopology(Primitive_Topology::TriangleList)
     {/*===============================================================*/}
@@ -99,7 +99,7 @@ struct stRawMesh {
 
 	struct stSubMesh {
         stSubMesh() = default;
-        stSubMesh(const std::string& _name):name(_name){}
+        explicit stSubMesh(const std::string& _name):name(_name){}
         stSubMesh(const std::string& _name,unsigned int indexCount,
                   unsigned int startIndexLocation = 0,
                   int baseVertexLocation = 0)
@@ -116,7 +116,7 @@ struct stRawMesh {
 
 struct stRenderItemDesc {
     stRenderItemDesc() = default;
-    stRenderItemDesc(const std::string& name, Primitive_Topology topology = Primitive_Topology::TriangleList)
+    explicit stRenderItemDesc(const std::string& name, Primitive_Topology topology = Primitive_Topology::TriangleList)
         :name(name),
          topology(topology)
     {}
@@ -133,6 +133,9 @@ struct stRenderItemDesc {
 
     stRawMesh::stSubMesh subMesh;
     Primitive_Topology topology = Primitive_Topology::TriangleList;
+
+    size_t dataLen = 0;
+    void*  data = nullptr;
 };
 
 enum class Shader_Type {
@@ -173,8 +176,8 @@ struct stShaderDescription {
     std::vector<unsigned int>   inputSlots;
     std::vector<stSemanticName> semanticNames;   // order mush match vertexFormats
 
-    unsigned int                objCBSize = 0;
-    unsigned int                passCBSize = 0;
+    unsigned int                objCBSize = 1;
+    unsigned int                passCBSize = 1;
 
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {

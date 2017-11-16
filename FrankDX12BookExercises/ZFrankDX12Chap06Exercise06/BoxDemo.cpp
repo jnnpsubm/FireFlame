@@ -10,6 +10,7 @@ BoxDemo::BoxDemo(FireFlame::Engine& e) :Demo(e, "Box1") {
     mShaderDesc.AddShaderStage(L"Shaders\\BoxDemoShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDesc.AddShaderStage(L"Shaders\\BoxDemoShader.hlsl", Shader_Type::PS, "PS", "ps_5_0");
 
+    mMeshDesc.name = "Box";
     mMeshDesc.primitiveTopology = Primitive_Topology::TriangleList;
     mMeshDesc.indexCount = (unsigned int)mBox.indices.size();
     mMeshDesc.indexFormat = Index_Format::UINT16;
@@ -18,6 +19,8 @@ BoxDemo::BoxDemo(FireFlame::Engine& e) :Demo(e, "Box1") {
     mMeshDesc.vertexDataSize.push_back(sizeof(VertexColored));
     mMeshDesc.vertexData.push_back(mBox.vertices.data());
     mMeshDesc.subMeshs.emplace_back("All", (unsigned int)mBox.indices.size());
+
+    mRenderItems[0].subMesh = mMeshDesc.subMeshs[0];
 
     //mEngine.SetCullMode(FireFlame::Cull_Mode::None);
 }
@@ -32,5 +35,6 @@ void BoxDemo::Update(float time_elapsed) {
     ObjConstants.TotalTime = mEngine.TotalTime();
     // Update the constant buffer with the latest worldViewProj matrix.
     DirectX::XMStoreFloat4x4(&ObjConstants.WorldViewProj, XMMatrixTranspose(wvp));
-    mEngine.GetScene()->UpdateShaderCBData(mShaderDesc.name, 0, ObjConstants);
+    //mEngine.GetScene()->UpdateShaderCBData(mShaderDesc.name, 0, ObjConstants);
+    mEngine.GetScene()->UpdateRenderItemCBData(mRenderItems[0].name, sizeof(BoxDemoObjectConsts), &ObjConstants);
 }

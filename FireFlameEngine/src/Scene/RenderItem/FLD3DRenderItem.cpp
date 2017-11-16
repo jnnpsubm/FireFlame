@@ -21,7 +21,6 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
     UINT cbvIndex = renderer->GetCurrFrameResIndex()*Shader->GetObjCBVMaxCount() + ObjCBIndex;
     auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(Shader->GetCBVHeap()->GetGPUDescriptorHandleForHeapStart());
     cbvHandle.Offset(cbvIndex, renderer->GetCbvSrvUavDescriptorSize());
-
     cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
 
     cmdList->DrawIndexedInstanced

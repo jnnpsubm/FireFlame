@@ -30,6 +30,7 @@ public:
     std::shared_ptr<D3DRenderer>   GetRenderer()   const { return mRenderer; }
 
     float TotalTime() const { return mTimer.TotalTime(); }
+    float DeltaTime() const { return mTimer.DeltaTime(); }
 
     // Get Methods
     Cull_Mode GetCullMode();

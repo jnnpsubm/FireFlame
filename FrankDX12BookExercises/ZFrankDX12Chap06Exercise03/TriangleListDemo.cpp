@@ -40,8 +40,8 @@ TriangleListDemo::TriangleListDemo(FireFlame::Engine& engine) : Demo(engine, "Tr
     mMeshDesc.vertexData.push_back(mPointList.GetVertexData());
     mMeshDesc.subMeshs.emplace_back("All", uPointNum);
 
-    mRenderItem.subMesh = mMeshDesc.subMeshs[0];
-    mRenderItem.topology = FireFlame::Primitive_Topology::TriangleList;
+    mRenderItems[0].subMesh = mMeshDesc.subMeshs[0];
+    mRenderItems[0].topology = FireFlame::Primitive_Topology::TriangleList;
 
     engine.SetCullMode(FireFlame::Cull_Mode::None);
 }

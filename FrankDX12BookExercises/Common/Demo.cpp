@@ -1,10 +1,12 @@
 #include "Demo.h"
 #include <string>
 
-Demo::Demo(FireFlame::Engine& engine, const std::string& renderItemName) 
-    : mEngine(engine), 
-      mRenderItem(renderItemName)
-{}
+Demo::Demo(FireFlame::Engine& engine) : mEngine(engine) {}
+Demo::Demo(FireFlame::Engine& engine, const std::string& renderItemName)
+    : mEngine(engine)
+{
+    mRenderItems.emplace_back(renderItemName);
+}
 Demo::~Demo() {}
 
 void Demo::OnGameWindowResized(int w, int h) {
@@ -25,7 +27,9 @@ void Demo::Update(float time_elapsed) {
     // Update the constant buffer with the latest worldViewProj matrix.
     DirectX::XMStoreFloat4x4(&ObjConstants.WorldViewProj, XMMatrixTranspose(wvp));
     //mEngine.GetScene()->UpdateShaderCBData(mShaderDesc.name, 0, ObjConstants);
-    mEngine.GetScene()->UpdateRenderItemCBData(mRenderItem.name, sizeof(ObjectConsts), &ObjConstants);
+    for (const auto& RItem : mRenderItems) {
+        mEngine.GetScene()->UpdateRenderItemCBData(RItem.name, sizeof(ObjectConsts), &ObjConstants);
+    }
 }
 void Demo::BuildUpWVP(DirectX::XMMATRIX& m) {
     using namespace DirectX;

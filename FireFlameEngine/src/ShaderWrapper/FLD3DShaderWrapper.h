@@ -21,7 +21,8 @@ public:
     void UpdateShaderCBData(unsigned int index, const T& data) {
         //mShaderCB->CopyData(index, data);
     }
-    void UpdateShaderCBData(unsigned int index, size_t size, const void* data);
+    void UpdateObjCBData(unsigned int index, size_t size, const void* data);
+    void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
     void BuildRootSignature(ID3D12Device* device);
     void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT);
@@ -47,14 +48,13 @@ public:
         mObjCbvHeapFreeList.pop_front();
         return ret; 
     }
-    UINT GetFreePassCBV(int currFrame) {
+    UINT GetFreePassCBV() {
         if (mPassCbvHeapFreeList.empty())
             throw std::exception("todo : dynamiclly grow size of shader pass const buff");
         UINT index = mPassCbvHeapFreeList.front();
-        index += currFrame * mPassCbvMaxCount;
         index += mPassCbvOffset;
         // todo : pass cbv management
-        //mPassCbvHeapFreeList.pop_front();
+        mPassCbvHeapFreeList.pop_front();
         return index;
     }
 

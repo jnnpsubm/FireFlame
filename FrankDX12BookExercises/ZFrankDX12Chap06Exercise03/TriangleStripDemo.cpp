@@ -40,6 +40,6 @@ TriangleStripDemo::TriangleStripDemo(FireFlame::Engine& engine) : Demo(engine, "
     mMeshDesc.vertexData.push_back(mPointList.GetVertexData());
     mMeshDesc.subMeshs.emplace_back("All", uPointNum);
 
-    mRenderItem.subMesh = mMeshDesc.subMeshs[0];
-    mRenderItem.topology = FireFlame::Primitive_Topology::TriangleStrip;
+    mRenderItems[0].subMesh = mMeshDesc.subMeshs[0];
+    mRenderItems[0].topology = FireFlame::Primitive_Topology::TriangleStrip;
 }

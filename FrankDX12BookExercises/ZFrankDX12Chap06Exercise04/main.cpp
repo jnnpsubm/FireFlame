@@ -31,7 +31,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
         engine.GetScene()->AddShader(demo.GetShaderDesc());
         engine.GetScene()->AddPrimitive(demo.GetMeshDesc());
-        engine.GetScene()->PrimitiveUseShader(demo.GetMeshDesc().name, demo.GetShaderDesc().name);
+        engine.GetScene()->AddRenderItem
+        (
+            demo.GetMeshDesc().name, 
+            demo.GetShaderDesc().name, 
+            demo.GetRenderItemDesc()
+        );
+        //engine.GetScene()->PrimitiveUseShader(demo.GetMeshDesc().name, demo.GetShaderDesc().name);
 
         // some initial work like scene management and 
         // make resource resident to GPU memory

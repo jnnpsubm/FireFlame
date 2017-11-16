@@ -10,6 +10,7 @@ PyramidDemo::PyramidDemo(FireFlame::Engine& e) :Demo(e, "Pyramid1") {
     mShaderDesc.AddShaderStage(L"Shaders\\PyramidDemoShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDesc.AddShaderStage(L"Shaders\\PyramidDemoShader.hlsl", Shader_Type::PS, "PS", "ps_5_0");
 
+    mMeshDesc.name = "Pyramid";
     mMeshDesc.primitiveTopology = Primitive_Topology::TriangleList;
     mMeshDesc.indexCount = (unsigned int)mPyramid.indices.size();
     mMeshDesc.indexFormat = Index_Format::UINT16;
@@ -18,6 +19,8 @@ PyramidDemo::PyramidDemo(FireFlame::Engine& e) :Demo(e, "Pyramid1") {
     mMeshDesc.vertexDataSize.push_back(sizeof(VertexColored));
     mMeshDesc.vertexData.push_back(mPyramid.vertices.data());
     mMeshDesc.subMeshs.emplace_back("All", (unsigned int)mPyramid.indices.size());
+
+    mRenderItems[0].subMesh = mMeshDesc.subMeshs[0];
 
     //mEngine.SetCullMode(FireFlame::Cull_Mode::None);
 }

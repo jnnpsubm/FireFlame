@@ -9,12 +9,17 @@ struct ObjectConsts {
 class Demo
 {
 public:
+    typedef std::vector<FireFlame::stRenderItemDesc> VecRItem;
+
+public:
+    Demo(FireFlame::Engine& engine);
     Demo(FireFlame::Engine& engine, const std::string& renderItemName);
     virtual ~Demo();
 
     const FireFlame::stShaderDescription& GetShaderDesc()     const { return mShaderDesc; }
     const FireFlame::stRawMesh&           GetMeshDesc()       const { return mMeshDesc; }
-    const FireFlame::stRenderItemDesc&    GetRenderItemDesc() const { return mRenderItem; }
+    const FireFlame::stRenderItemDesc&    GetRenderItemDesc() const { return mRenderItems[0]; }
+    const VecRItem& GetVecRenderItemDesc()                    const { return mRenderItems; }
 
     virtual void Update(float time_elapsed);
     virtual void OnGameWindowResized(int w, int h);
@@ -31,7 +36,7 @@ protected:
 
     FireFlame::stShaderDescription mShaderDesc;
     FireFlame::stRawMesh           mMeshDesc;
-    FireFlame::stRenderItemDesc    mRenderItem;
+    VecRItem                       mRenderItems;
 
     DirectX::XMFLOAT4X4 mWorld = FireFlame::Matrix4X4();
     DirectX::XMFLOAT4X4 mView  = FireFlame::Matrix4X4();

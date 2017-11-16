@@ -24,6 +24,6 @@ LineStripDemo::LineStripDemo(FireFlame::Engine& engine) : Demo(engine, "LineStri
     mMeshDesc.vertexData.push_back(mPointList.GetVertexData());
     mMeshDesc.subMeshs.emplace_back("All", uPointNum);
 
-    mRenderItem.subMesh = mMeshDesc.subMeshs[0];
-    mRenderItem.topology = FireFlame::Primitive_Topology::LineStrip;
+    mRenderItems[0].subMesh = mMeshDesc.subMeshs[0];
+    mRenderItems[0].topology = FireFlame::Primitive_Topology::LineStrip;
 }

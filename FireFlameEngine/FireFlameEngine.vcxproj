@@ -27,8 +27,11 @@
     <ClInclude Include="src\FLTypeDefs.h" />
     <ClInclude Include="src\FrameResource\FLD3DFrameResource.h" />
     <ClInclude Include="src\FrameResource\FLFrameResource.h" />
+    <ClInclude Include="src\GeometryHelper\FLGeometryGenerator.h" />
     <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h" />
+    <ClInclude Include="src\MathHelper\FLVertex.h" />
     <ClInclude Include="src\MathHelper\FLMathHelper.h" />
+    <ClInclude Include="src\MathHelper\FLVector.h" />
     <ClInclude Include="src\Matrix\FLMatrix.h" />
     <ClInclude Include="src\Matrix\FLMatrix4X4.h" />
     <ClInclude Include="src\Matrix\FLMatrixHelper.h" />
@@ -39,6 +42,7 @@
     <ClInclude Include="src\Renderer\FLD3DRenderer.h" />
     <ClInclude Include="src\Renderer\FLRenderer.h" />
     <ClInclude Include="src\Scene\FLScene.h" />
+    <ClInclude Include="src\Scene\Pass\FLPass.h" />
     <ClInclude Include="src\Scene\Primitive\FLD3DPrimitive.h" />
     <ClInclude Include="src\Scene\Primitive\FLPrimitive.h" />
     <ClInclude Include="src\Scene\RenderItem\FLD3DRenderItem.h" />
@@ -58,6 +62,7 @@
     <ClCompile Include="src\FLD3DUtils.cpp" />
     <ClCompile Include="src\FrameResource\FLD3DFrameResource.cpp" />
     <ClCompile Include="src\FrameResource\FLFrameResource.cpp" />
+    <ClCompile Include="src\GeometryHelper\FLGeometryGenerator.cpp" />
     <ClCompile Include="src\PSOManager\FLD3DPSOManager.cpp" />
     <ClCompile Include="src\PSOManager\FLPSOManager.cpp" />
     <ClCompile Include="src\Renderer\FLD3DRenderer.cpp" />

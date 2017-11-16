@@ -105,9 +105,15 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
 //    cbvHeapDesc.NodeMask = 0;
 //    ThrowIfFailed(device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(mCbvHeap.ReleaseAndGetAddressOf())));
 //}
-void D3DShaderWrapper::UpdateShaderCBData(unsigned int index, size_t size, const void* data) {
+void D3DShaderWrapper::UpdateObjCBData(unsigned int index, size_t size, const void* data) 
+{
     auto currObjectCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ObjectCB.get();
     currObjectCB->CopyData(index, size, data);
+}
+void D3DShaderWrapper::UpdatePassCBData(unsigned int index, size_t size, const void* data)
+{
+    auto currPassCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->PassCB.get();
+    currPassCB->CopyData(index, size, data);
 }
 void D3DShaderWrapper::BuildFrameCBResources
 (
@@ -174,7 +180,7 @@ void D3DShaderWrapper::BuildFrameCBResources
         mObjCbvHeapFreeList.push_front(i);
     }
 
-    UINT passCBByteSize = D3DUtils::CalcConstantBufferByteSize(sizeof(passConstSize));
+    UINT passCBByteSize = D3DUtils::CalcConstantBufferByteSize(passConstSize);
     // Last three descriptors are the pass CBVs for each frame resource.
     for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex){
         auto passCB = frameResources[frameIndex]->PassCB->Resource();
@@ -194,7 +200,6 @@ void D3DShaderWrapper::BuildFrameCBResources
             cbvDesc.SizeInBytes = passCBByteSize;
 
             device->CreateConstantBufferView(&cbvDesc, handle);
-            mPassCbvHeapFreeList.push_front(i);
         }
     }
     for (UINT i = 0; i < maxPassConstCount; ++i) {

@@ -4,6 +4,7 @@
 #include "..\Timer\FLStopWatch.h"
 #include "..\Engine\FLEngine.h"
 #include "..\PSOManager\FLD3DPSOManager.h"
+#include "Pass\FLPass.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -14,7 +15,6 @@ void Scene::Update(const StopWatch& gt) {
     Engine::GetEngine()->GetRenderer()->WaitForGPUFrame();
 
     UpdateObjectCBs(gt);
-    //UpdateMainPassCB(gt);
 }
 void Scene::UpdateObjectCBs(const StopWatch& gt){
     auto currObjectCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ObjectCB.get();
@@ -26,7 +26,8 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
             auto shaderName = item->Shader;
             auto shader = mShaders[shaderName];
             //currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-            shader->UpdateShaderCBData(item->ObjCBIndex, item->DataLen, item->Data);
+            shader->UpdateObjCBData(item->ObjCBIndex, item->DataLen, item->Data);
+            Matrix4X4* m = (Matrix4X4*)item->Data;
             // Next FrameResource need to be updated too.
             item->NumFramesDirty--;
         }
@@ -38,7 +39,15 @@ void Scene::Render(const StopWatch& gt) {
 void Scene::PreRender() {
     mRenderer->SetCurrentPSO(nullptr);
 }
-void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
+void Scene::Draw(ID3D12GraphicsCommandList* cmdList) 
+{
+    for (auto& pass : mPasses)
+    {
+        DrawPass(cmdList, pass.second.get());
+    }
+}
+void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
+{
     for (auto& namedPrimitive : mPrimitives) {
         auto& primitive = namedPrimitive.second;
         auto mesh = primitive->GetMesh();
@@ -47,11 +56,11 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
         }
         //primitive->Draw(mRenderer.get());
     }
-   
+
     // todo : some render items share the same pso and shader etc...
     // need to handle outside for loop
     auto renderer = Engine::GetEngine()->GetRenderer();
-    for (auto& itemsTopType : mMappedRItems){
+    for (auto& itemsTopType : mMappedRItems) {
         D3D12_PRIMITIVE_TOPOLOGY_TYPE topType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)itemsTopType.first;
         for (auto& itemsShader : itemsTopType.second) {
             D3DShaderWrapper* Shader = mShaders[itemsShader.first].get();
@@ -71,7 +80,8 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
 
             cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
 
-            int passCbvIndex = Shader->GetFreePassCBV(renderer->GetCurrFrameResIndex());
+            int passCbvIndex = pass->CBIndex;
+            passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
             auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
             passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
             cmdList->SetGraphicsRootDescriptorTable(1, CBVHeap->GetGPUDescriptorHandleForHeapStart());
@@ -89,6 +99,12 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList) {
 int Scene::GetReady() {
     mRenderer->RegisterPreRenderFunc(std::bind(&Scene::PreRender, this));
     mRenderer->RegisterDrawFunc(std::bind(&Scene::Draw, this, std::placeholders::_1));
+
+    // if no pass, add a default pass
+    if (mPasses.empty())
+    {
+        AddPass(mShaders.begin()->first, "DefaultPass");
+    }
 
     mRenderer->ResetCommandList();
     // make mesh resident to GPU memory
@@ -203,6 +219,12 @@ void Scene::AddRenderItem
     renderItem->Mesh = mesh;
     renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
+    if (desc.data && desc.dataLen)
+    {
+        renderItem->Data = new char[desc.dataLen];
+        renderItem->DataLen = desc.dataLen;
+        memcpy(renderItem->Data, desc.data, desc.dataLen);
+    }
 
     // All the render items are opaque(true). for now...
     auto& shaderMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
@@ -210,6 +232,13 @@ void Scene::AddRenderItem
     auto& vecItems = psoMappedRItem[true];
     vecItems.push_back(renderItem.get());
     mRenderItems.emplace(desc.name, renderItem);
+}
+void Scene::AddPass(const std::string& shaderName, const std::string& passName)
+{
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end()) throw std::exception("cannot find shader in function call(AddPass)");
+    auto shader = itShader->second;
+    mPasses.emplace(passName, std::make_shared<Pass>(passName, shaderName, shader->GetFreePassCBV()));
 }
 void Scene::UpdateRenderItemCBData(const std::string& name, size_t size, const void* data) {
     if (mRenderItems.find(name) == mRenderItems.end()) {
@@ -224,5 +253,18 @@ void Scene::UpdateRenderItemCBData(const std::string& name, size_t size, const v
     item->NumFramesDirty = Engine::NumFrameResources();
 
     //mRenderItems[name]->Shader->UpdateShaderCBData(mRenderItems[name]->ObjCBIndex, size, data);
+}
+void Scene::UpdatePassCBData(const std::string& name, size_t size, const void* data) {
+    auto itPass = mPasses.find(name);
+    if (itPass == mPasses.end())
+        throw std::exception("cannot find pass in UpdatePassCBData function");
+    auto itShader = mShaders.find(itPass->second->shaderName);
+    if (itShader == mShaders.end())
+        throw std::exception("cannot find shader in UpdatePassCBData function");
+    auto shader = itShader->second;
+
+    auto passCbvIndex = itPass->second->CBIndex;
+    passCbvIndex += Engine::GetEngine()->GetRenderer()->GetCurrFrameResIndex() * shader->GetPassCBVMaxCount();
+    shader->UpdatePassCBData(passCbvIndex, size, data);
 }
 } // end namespace
