@@ -24,9 +24,15 @@ void LitWavesApp::Initialize()
 
 void LitWavesApp::Update(float time_elapsed)
 {
+    using namespace FireFlame;
+
     FLEngineApp::Update(time_elapsed);
 
-    using namespace FireFlame;
+    if (mWaterMatDirty)
+        mEngine.GetScene()->UpdateMaterialCBData(mWaterMat.name, sizeof(MaterialConstants), &mWaterMat);
+    if (mGrassMatDirty)
+        mEngine.GetScene()->UpdateMaterialCBData(mGrassMat.name, sizeof(MaterialConstants), &mGrassMat);
+    
     // update waves
     // Every quarter second, generate a random wave.
     static float t_base = 0.0f;
@@ -63,9 +69,9 @@ void LitWavesApp::Update(float time_elapsed)
 
 void LitWavesApp::UpdateMainPassCB(float time_elapsed)
 {
-    float red = (std::sinf(mEngine.TotalTime()) + 1.f) / 2.f;
+    //float red = (std::sinf(mEngine.TotalTime()) + 1.f) / 2.f;
     //red = FireFlame::MathHelper::Clamp(red, 0.3f, 1.0f);
-    mMainPassCB.Lights[0].Strength = { red, 0.2f, 0.2f };
+    //mMainPassCB.Lights[0].Strength = { red, 0.2f, 0.2f };
 }
 
 void LitWavesApp::BuildWavesGeometry()
@@ -155,21 +161,21 @@ void LitWavesApp::BuildShaders()
 
 void LitWavesApp::AddMaterials()
 {
-    MaterialConstants grass;
-    //grass.DiffuseAlbedo = { 0.2f, 0.6f, 0.2f, 1.0f };
-    grass.DiffuseAlbedo = { 0.8f, 0.2f, 0.2f, 1.0f };
-    grass.FresnelR0 = { 0.01f, 0.01f, 0.01f };
-    grass.Roughness = 0.125f;
-    mEngine.GetScene()->AddMaterial("grass", mShaderDesc.name, sizeof(grass), &grass);
+    mGrassMat.name = "grass";
+    mGrassMat.DiffuseAlbedo = { 0.2f, 0.6f, 0.2f, 1.0f };
+    //mGrassMat.DiffuseAlbedo = { 0.8f, 0.2f, 0.2f, 1.0f };
+    mGrassMat.FresnelR0 = { 0.01f, 0.01f, 0.01f };
+    mGrassMat.Roughness = 0.125f;
+    mEngine.GetScene()->AddMaterial("grass", mShaderDesc.name, sizeof(MaterialConstants), &mGrassMat);
 
     // This is not a good water material definition, but we do not have all the rendering
     // tools we need (transparency, environment reflection), so we fake it for now.
-    MaterialConstants water;
-    //water.DiffuseAlbedo = { 0.0f, 0.2f, 0.6f, 1.0f };
-    water.DiffuseAlbedo = { 0.6f, 0.6f, 0.6f, 1.0f };
-    water.FresnelR0 = { 0.1f, 0.1f, 0.1f };
-    water.Roughness = 0.0f;
-    mEngine.GetScene()->AddMaterial("water", mShaderDesc.name, sizeof(water), &water);
+    mWaterMat.name = "water";
+    mWaterMat.DiffuseAlbedo = { 0.0f, 0.2f, 0.6f, 1.0f };
+    //mWaterMat.DiffuseAlbedo = { 0.6f, 0.6f, 0.6f, 1.0f };
+    mWaterMat.FresnelR0 = { 0.1f, 0.1f, 0.1f };
+    mWaterMat.Roughness = 0.0f;
+    mEngine.GetScene()->AddMaterial(mWaterMat.name, mShaderDesc.name, sizeof(MaterialConstants), &mWaterMat);
 }
 
 void LitWavesApp::BuildLandGeometry()
@@ -202,6 +208,39 @@ void LitWavesApp::BuildLandGeometry()
     // sub meshes
     mMeshDesc[0].subMeshs.emplace_back("All", (UINT)indices.size());
     mEngine.GetScene()->AddPrimitive(mMeshDesc[0]);
+}
+
+void LitWavesApp::OnKeyboardInput(float time_elapsed)
+{
+    FLEngineApp::OnKeyboardInput(time_elapsed);
+
+    std::string info;
+    if (GetAsyncKeyState('R') & 0x8000)
+    {
+        mWaterMatDirty = true;
+        mGrassMatDirty = true;
+        mWaterMat.Roughness += 0.1f;
+        mGrassMat.Roughness += 0.1f;
+        info = "=====  water roughness:" + std::to_string(mWaterMat.Roughness) +
+               " grass roughness:" + std::to_string(mGrassMat.Roughness) +
+               "=====\n";
+    }
+    if (GetAsyncKeyState('T') & 0x8000)
+    {
+        mWaterMatDirty = true;
+        mGrassMatDirty = true;
+        mWaterMat.Roughness -= 0.1f;
+        mGrassMat.Roughness -= 0.1f;
+        if (mWaterMat.Roughness < 0.f)
+            mWaterMat.Roughness = 0.f;
+        if (mGrassMat.Roughness < 0.f)
+            mGrassMat.Roughness = 0.f;
+        info = "=====  water roughness:" + std::to_string(mWaterMat.Roughness) +
+               " grass roughness:" + std::to_string(mGrassMat.Roughness) +
+               "=====\n";
+    }
+    if (!info.empty())
+        OutputDebugStringA(info.c_str());
 }
 
 float LitWavesApp::GetHillsHeight(float x, float z) const

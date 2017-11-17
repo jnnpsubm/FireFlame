@@ -2,6 +2,11 @@
 #include "..\Common\FLEngineApp.h"
 #include "..\Common\Waves.h"
 
+struct NamedMaterialConstants : MaterialConstants
+{
+    std::string name;
+};
+
 class LitWavesApp : public FLEngineApp
 {
 public:
@@ -14,8 +19,15 @@ public:
     void Update(float time_elapsed) override;
     void UpdateMainPassCB(float time_elapsed) override;
 
+    void OnKeyboardInput(float time_elapsed) override;
+
 private:
     std::unique_ptr<Waves> mWaves;
+
+    bool                   mWaterMatDirty = false;
+    bool                   mGrassMatDirty = false;
+    NamedMaterialConstants mWaterMat;
+    NamedMaterialConstants mGrassMat;
 
     void BuildShaders();
     void AddMaterials();

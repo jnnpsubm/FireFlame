@@ -306,11 +306,28 @@ void Scene::UpdateRenderItemCBData(const std::string& name, size_t size, const v
         item->Data = new char[size];
         item->DataLen = size;
     }
+    assert(item->DataLen == size);
     memcpy(item->Data, data, size);
     item->NumFramesDirty = Engine::NumFrameResources();
 
     //mRenderItems[name]->Shader->UpdateShaderCBData(mRenderItems[name]->ObjCBIndex, size, data);
 }
+
+void Scene::UpdateMaterialCBData(const std::string& name, size_t size, const void* data)
+{
+    auto itMat = mMaterials.find(name);
+    if (itMat == mMaterials.end())
+        throw std::exception("cannot find material in UpdateMaterialCBData");
+    auto mat = itMat->second;
+    mat->NumFramesDirty = Engine::NumFrameResources();
+    if (mat->data == nullptr) {
+        mat->data = new char[size];
+        mat->dataLen = size;
+    }
+    assert(mat->dataLen == size);
+    memcpy(mat->data, data, size);
+}
+
 void Scene::UpdatePassCBData(const std::string& name, size_t size, const void* data) {
     auto itPass = mPasses.find(name);
     if (itPass == mPasses.end())

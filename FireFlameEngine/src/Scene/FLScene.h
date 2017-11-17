@@ -53,6 +53,7 @@ public:
     void RenderItemChangeShader(const std::string& renderItem, const std::string& shader);
 
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
+    void UpdateMaterialCBData(const std::string& name, size_t size, const void* data);
     void UpdatePassCBData(const std::string& name, size_t size, const void* data);
     void UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t size, const void* data);
 
