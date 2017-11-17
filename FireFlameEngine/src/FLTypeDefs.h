@@ -137,6 +137,8 @@ struct stRenderItemDesc {
 
     size_t dataLen = 0;
     void*  data = nullptr;
+
+    std::string mat;
 };
 
 enum class Shader_Type {
@@ -179,6 +181,10 @@ struct stShaderDescription {
 
     unsigned int                objCBSize = 1;
     unsigned int                passCBSize = 1;
+    unsigned int                materialCBSize = 0;
+
+    unsigned int                materialRegister = -1;
+    unsigned int                passRegister = 1;
 
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {

@@ -32,7 +32,7 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // thought of as defining the function signature.  
 
     // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
 
     // Create a single descriptor table of CBVs.
     CD3DX12_DESCRIPTOR_RANGE cbvTable0;
@@ -41,13 +41,21 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     CD3DX12_DESCRIPTOR_RANGE cbvTable1;
     cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
 
+    CD3DX12_DESCRIPTOR_RANGE cbvTable2;
+    cbvTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
+
+    CD3DX12_DESCRIPTOR_RANGE cbvTable3;
+    cbvTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 3);
+
     slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
     slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
+    slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable2);
+    slotRootParameter[3].InitAsDescriptorTable(1, &cbvTable3);
 
     // A root signature is an array of root parameters.
     CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc
     (
-        2, slotRootParameter, 0, nullptr,
+        4, slotRootParameter, 0, nullptr,
         D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
     );
 
@@ -118,8 +126,9 @@ void D3DShaderWrapper::UpdatePassCBData(unsigned int index, size_t size, const v
 }
 void D3DShaderWrapper::BuildFrameCBResources
 (
-    UINT objConstSize, UINT passConstSize,
-    UINT maxObjConstCount, UINT maxPassConstCount
+    UINT objConstSize, UINT maxObjConstCount,
+    UINT passConstSize, UINT maxPassConstCount,
+    UINT matConstSize, UINT maxMatConstCount
 )
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
@@ -128,6 +137,7 @@ void D3DShaderWrapper::BuildFrameCBResources
     for (const auto& frameRes : frameResources){
         if (objConstSize) frameRes->ObjectCB->Init(device, maxObjConstCount, objConstSize);
         if (passConstSize) frameRes->PassCB->Init(device, maxPassConstCount, passConstSize);
+        if (matConstSize) frameRes->MaterialCB->Init(device, maxMatConstCount, matConstSize);
     }
 
     UINT numFrameResources = (UINT)frameResources.size();
@@ -135,10 +145,11 @@ void D3DShaderWrapper::BuildFrameCBResources
 
     // Need a CBV descriptor for each object for each frame resource,
     // +1 for the perPass CBV for each frame resource.
-    UINT numDescriptors = (objCount + maxPassConstCount) * numFrameResources;
+    UINT numDescriptors = (objCount + maxPassConstCount + maxMatConstCount) * numFrameResources;
 
     // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
     mPassCbvOffset = objCount * numFrameResources;
+    mMaterialCbvOffset = mPassCbvOffset + maxPassConstCount*numFrameResources;
 
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
     cbvHeapDesc.NumDescriptors = numDescriptors;
@@ -206,8 +217,36 @@ void D3DShaderWrapper::BuildFrameCBResources
     for (UINT i = 0; i < maxPassConstCount; ++i) {
         mPassCbvHeapFreeList.push_front(i);
     }
+
+    // material  CBV
+    UINT matCBByteSize = D3DUtils::CalcConstantBufferByteSize(matConstSize);
+    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+        auto matCB = frameResources[frameIndex]->MaterialCB->Resource();
+        for (UINT i = 0; i < maxMatConstCount; ++i) {
+            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = matCB->GetGPUVirtualAddress();
+
+            // Offset to the ith object constant buffer in the buffer.
+            cbAddress += i*matCBByteSize;
+
+            // Offset to the mat cbv in the descriptor heap.
+            int heapIndex = mMaterialCbvOffset + frameIndex*maxMatConstCount + i;
+            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+
+            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+            cbvDesc.BufferLocation = cbAddress;
+            cbvDesc.SizeInBytes = matCBByteSize;
+
+            device->CreateConstantBufferView(&cbvDesc, handle);
+        }
+    }
+    for (UINT i = 0; i < maxMatConstCount; ++i) {
+        mMatCbvHeapFreeList.push_front(i);
+    }
+
     mPassCbvMaxCount = maxPassConstCount;
     mObjCbvMaxCount  = maxObjConstCount;
+    mMatCbvMaxCount = maxMatConstCount;
 }
 void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc) {
     for (const auto& shaderStage : shaderDesc.shaderStage) {

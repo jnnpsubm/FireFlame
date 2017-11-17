@@ -43,6 +43,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LandAndWaves_Sample", "..\S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProceduralTerrain_Sample", "..\Samples\ProceduralTerrain_Sample\ProceduralTerrain_Sample.vcxproj", "{0E807DEE-8A04-400C-9523-F0EC0D20A0B6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LitWaves_Sample", "..\Samples\LitWaves_Sample\LitWaves_Sample.vcxproj", "{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -203,6 +205,14 @@ Global
 		{0E807DEE-8A04-400C-9523-F0EC0D20A0B6}.Release|x64.Build.0 = Release|x64
 		{0E807DEE-8A04-400C-9523-F0EC0D20A0B6}.Release|x86.ActiveCfg = Release|Win32
 		{0E807DEE-8A04-400C-9523-F0EC0D20A0B6}.Release|x86.Build.0 = Release|Win32
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Debug|x64.ActiveCfg = Debug|x64
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Debug|x64.Build.0 = Debug|x64
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Debug|x86.ActiveCfg = Debug|Win32
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Debug|x86.Build.0 = Debug|Win32
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Release|x64.ActiveCfg = Release|x64
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Release|x64.Build.0 = Release|x64
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Release|x86.ActiveCfg = Release|Win32
+		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

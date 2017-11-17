@@ -6,6 +6,7 @@ namespace FireFlame {
 class D3DMesh;
 class D3DShaderWrapper;
 class D3DShaderWrapper;
+struct Material;
 struct D3DRenderItem {
     D3DRenderItem() = default;
     ~D3DRenderItem();
@@ -23,6 +24,12 @@ struct D3DRenderItem {
     UINT ObjCBIndex = -1;
 
     D3DMesh* Mesh            = nullptr;
+
+    Material* Mat = nullptr;
+    void SetMaterial(Material* mat)
+    {
+        Mat = mat;
+    }
 
     std::string Shader;
     void SetShader(const std::string& _Shader) {

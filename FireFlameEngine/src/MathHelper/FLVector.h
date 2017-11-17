@@ -14,6 +14,10 @@ public:
     };
     Vector2(){}
     Vector2(T x, T y) :x(x), y(y) {}
+    Vector2<T> operator-()
+    {
+        return Vector2<T>(-x, -y);
+    }
 };
 
 template<typename T>
@@ -29,6 +33,10 @@ public:
     };
     Vector3() {}
     Vector3(T x, T y, T z) :x(x), y(y), z(z) {}
+    Vector3<T> operator-()
+    {
+        return Vector3<T>(-x, -y, -z);
+    }
 
     Vector3<T> Normalize() {
         T len_inverse = (T)1.0 / std::sqrt(x*x + y*y + z*z);
@@ -59,6 +67,11 @@ public:
     };
     Vector4() {}
     Vector4(T x, T y, T z, T w) :x(x), y(y), z(z), w(w) {}
+
+    Vector4<T> operator-()
+    {
+        return Vector4<T>(-x, -y, -z, -w);
+    }
 
     Vector4<T> Normalize() {
         T len_inverse = (T)1.0 / std::sqrt(x*x + y*y + z*z + w*w);

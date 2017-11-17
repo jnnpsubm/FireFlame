@@ -5,6 +5,7 @@
 #include "..\Engine\FLEngine.h"
 #include "..\PSOManager\FLD3DPSOManager.h"
 #include "Pass\FLPass.h"
+#include "..\Material\FLMaterial.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -13,6 +14,7 @@ void Scene::Update(const StopWatch& gt) {
     Engine::GetEngine()->GetRenderer()->WaitForGPUFrame();
     mUpdateFunc(gt.DeltaTime());
     UpdateObjectCBs(gt);
+    UpdateMaterialCBs(gt);
 }
 void Scene::UpdateObjectCBs(const StopWatch& gt){
     auto currObjectCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ObjectCB.get();
@@ -31,6 +33,23 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
         }
     }
 }
+
+void Scene::UpdateMaterialCBs(const StopWatch& gt)
+{
+    auto currMaterialCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->MaterialCB.get();
+    for (auto& e : mMaterials)
+    {
+        // Only update the cbuffer data if the constants have changed.  If the cbuffer
+        // data changes, it needs to be updated for each FrameResource.
+        Material* mat = e.second.get();
+        if (mat->NumFramesDirty > 0)
+        {
+            currMaterialCB->CopyData(mat->MatCBIndex, mat->dataLen, mat->data);
+            mat->NumFramesDirty--;
+        }
+    }
+}
+
 void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);
 }
@@ -78,11 +97,14 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
 
             cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
 
-            int passCbvIndex = pass->CBIndex;
-            passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
-            auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
-            passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
-            cmdList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+            if (Shader->GetPassRegister() != (UINT)-1)
+            {
+                int passCbvIndex = pass->CBIndex;
+                passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
+                auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+                passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
+                cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassRegister(), passCbvHandle);
+            }
 
             for (auto& itemsOpaqueStatus : itemsShader.second) {
                 bool opaqueStatus = itemsOpaqueStatus.first;
@@ -115,6 +137,7 @@ int Scene::GetReady() {
     mRenderer->WaitForGPU();
     return 0;
 }
+
 void Scene::AddShader(const stShaderDescription& shaderDesc) {
     std::shared_ptr<D3DShaderWrapper> shader = nullptr;
     auto it = mShaders.find(shaderDesc.name);
@@ -125,9 +148,15 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     else {
         shader = mShaders[shaderDesc.name];
     }
+    shader->SetConstBufferRegisert(shaderDesc.passRegister, shaderDesc.materialRegister);
     //shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), 1);
     //shader->BuildConstantBuffers(mRenderer->GetDevice(), shaderDesc.objCBSize);
-    shader->BuildFrameCBResources(shaderDesc.objCBSize, shaderDesc.passCBSize, 100, 3);
+    shader->BuildFrameCBResources
+    (
+        shaderDesc.objCBSize,      100,
+        shaderDesc.passCBSize,     3,
+        shaderDesc.materialCBSize, shaderDesc.materialCBSize?100:0
+    );
     shader->BuildRootSignature(mRenderer->GetDevice());
     shader->BuildShadersAndInputLayout(shaderDesc);
     shader->BuildPSO
@@ -223,6 +252,13 @@ void Scene::AddRenderItem
         renderItem->DataLen = desc.dataLen;
         memcpy(renderItem->Data, desc.data, desc.dataLen);
     }
+    if (!desc.mat.empty())
+    {
+        auto itMat = mMaterials.find(desc.mat);
+        if (itMat == mMaterials.end())
+            throw std::exception("cannot find material in AddRenderItem");
+        renderItem->Mat = itMat->second.get();
+    }
 
     // All the render items are opaque(true). for now...
     auto& shaderMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
@@ -230,6 +266,29 @@ void Scene::AddRenderItem
     auto& vecItems = psoMappedRItem[true];
     vecItems.push_back(renderItem.get());
     mRenderItems.emplace(desc.name, renderItem);
+}
+
+void Scene::AddMaterial
+(
+    const std::string& name,
+    const std::string& shaderName,     // different shader may have different material definition
+    size_t dataLen, const void* data
+)
+{
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end()) 
+        throw std::exception("cannot find shader in AddMaterial");
+    auto shader = itShader->second;
+
+    auto mat = std::make_shared<Material>(name, Engine::NumFrameResources());
+    mat->MatCBIndex = shader->GetFreeMatCBV();
+    if (dataLen && data)
+    {
+        mat->data = new char[dataLen];
+        mat->dataLen = dataLen;
+        memcpy(mat->data, data, dataLen);
+    }
+    mMaterials.emplace(name, mat);
 }
 void Scene::AddPass(const std::string& shaderName, const std::string& passName)
 {

@@ -11,5 +11,6 @@ D3DFrameResource::D3DFrameResource(ID3D12Device* device) {
 
     PassCB = std::make_unique<UploadBuffer>(true);
     ObjectCB = std::make_unique<UploadBuffer>(true);
+    MaterialCB = std::make_unique<UploadBuffer>(true);
 }
 }

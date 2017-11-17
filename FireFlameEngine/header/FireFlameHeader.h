@@ -6,3 +6,4 @@
 #include "..\src\MathHelper\FLMathHelper.h"
 #include "..\src\GeometryHelper\FLGeometryGenerator.h"
 #include "..\src\MathHelper\FLVertex.h"
+#include "..\src\Light\FLLight.h"

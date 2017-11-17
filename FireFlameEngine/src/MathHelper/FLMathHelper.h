@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include "FLVector.h"
 
 namespace FireFlame {
 //namespace MathHelper {} // end namespace MathHelper
@@ -35,6 +36,16 @@ public:
     static T Clamp(const T& x, const T& low, const T& high)
     {
         return x < low ? low : (x > high ? high : x);
+    }
+
+    static Vector3f SphericalToCartesian(float radius, float theta, float phi)
+    {
+        return Vector3f
+        (
+            radius*sinf(phi)*cosf(theta),
+            radius*cosf(phi),
+            radius*sinf(phi)*sinf(theta)
+        );
     }
 
     static const float FL_PI;

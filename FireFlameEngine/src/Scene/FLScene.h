@@ -11,6 +11,7 @@ namespace FireFlame {
 class D3DRenderer;
 class StopWatch;
 struct Pass;
+struct Material;
 class Scene {
 public:
     typedef std::vector<D3DRenderItem*>                        VecRItem;
@@ -27,6 +28,7 @@ public:
 	void Render(const StopWatch& gt);
 
     void UpdateObjectCBs(const StopWatch& gt);
+    void UpdateMaterialCBs(const StopWatch& gt);
 
     void AddShader(const stShaderDescription& shaderDesc);
     void AddPrimitive(const stRawMesh& mesh);
@@ -39,24 +41,17 @@ public:
         const std::string&      shaderName,
         const stRenderItemDesc& desc
     );
+    void AddMaterial
+    (
+        const std::string& name, 
+        const std::string& shaderName, 
+        size_t dataLen, const void* data
+    );
     void AddPass(const std::string& shaderName, const std::string& passName);
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
     void RenderItemChangeShader(const std::string& renderItem, const std::string& shader);
 
-    /*template <typename T>
-    void UpdateShaderCBData(const std::string& shaderName, unsigned int index, const T& data) {
-        auto it = mShaders.find(shaderName);
-        if (it == mShaders.end()) return;
-        auto& shader = it->second;
-        shader->UpdateShaderCBData(index, data);
-    }
-    void UpdateShaderCBData(const std::string& shaderName, unsigned int index, size_t size, const void* data) {
-        auto it = mShaders.find(shaderName);
-        if (it == mShaders.end()) return;
-        auto& shader = it->second;
-        shader->UpdateShaderCBData(index, size, data);
-    }*/
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
     void UpdatePassCBData(const std::string& name, size_t size, const void* data);
     void UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t size, const void* data);
@@ -84,5 +79,8 @@ private:
 
 	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>>     mPrimitives; 
     std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>> mShaders;
+
+    // todo : move to primitive
+    std::unordered_map<std::string, std::shared_ptr<Material>>         mMaterials;
 };
 }

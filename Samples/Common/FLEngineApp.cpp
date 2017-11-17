@@ -19,7 +19,9 @@ void FLEngineApp::OnGameWindowResized(int w, int h) {
 }
 void FLEngineApp::Update(float time_elapsed) {
     using namespace DirectX;
-    
+
+    OnKeyboardInput(time_elapsed);
+
     UpdateCamera(time_elapsed);
 
     /*ObjectConsts ObjConstants;
@@ -52,8 +54,11 @@ void FLEngineApp::Update(float time_elapsed) {
     mMainPassCB.TotalTime = mEngine.TotalTime();
     mMainPassCB.DeltaTime = mEngine.DeltaTime();
 
-    //auto currPassCB = mCurrFrameResource->PassCB.get();
-    //currPassCB->CopyData(0, mMainPassCB);
+    mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+    mMainPassCB.Lights[0].Direction = -FireFlame::MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
+    mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
+
+    UpdateMainPassCB(time_elapsed);
     if (mPasses.size())
         mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
 }
@@ -151,4 +156,21 @@ void FLEngineApp::OnKeyUp(WPARAM wParam, LPARAM lParam) {
     {
         mEngine.SetCullMode(FireFlame::Cull_Mode::Back);
     }
+}
+
+void FLEngineApp::OnKeyboardInput(float time_elapsed)
+{
+    if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+        mSunTheta -= 1.0f*time_elapsed;
+
+    if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+        mSunTheta += 1.0f*time_elapsed;
+
+    if (GetAsyncKeyState(VK_UP) & 0x8000)
+        mSunPhi -= 1.0f*time_elapsed;
+
+    if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+        mSunPhi += 1.0f*time_elapsed;
+
+    mSunPhi = FireFlame::MathHelper::Clamp(mSunPhi, 0.1f, FireFlame::MathHelper::FL_PIDIV2);
 }

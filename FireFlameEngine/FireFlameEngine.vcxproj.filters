@@ -177,6 +177,12 @@
     <ClInclude Include="src\Scene\Pass\FLPass.h">
       <Filter>src\Scene\Pass</Filter>
     </ClInclude>
+    <ClInclude Include="src\Light\FLLight.h">
+      <Filter>src\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Material\FLMaterial.h">
+      <Filter>src\Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -247,6 +253,12 @@
     </Filter>
     <Filter Include="src\Scene\Pass">
       <UniqueIdentifier>{c125fdd4-0c75-47c6-afb5-e40b7c79417c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Light">
+      <UniqueIdentifier>{723e780b-e809-4082-b4ab-5f40ad80aadc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Material">
+      <UniqueIdentifier>{a6614f9d-1052-4e03-b812-29d0086ea21e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
