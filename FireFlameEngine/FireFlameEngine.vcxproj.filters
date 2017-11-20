@@ -67,6 +67,15 @@
     <ClCompile Include="src\MathHelper\FLMathHelper.cpp">
       <Filter>src\MathHelper</Filter>
     </ClCompile>
+    <ClCompile Include="src\GeometryHelper\PLYLoader.cpp">
+      <Filter>src\GeometryHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\tinyply.cpp">
+      <Filter>src\3rd_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\FLConsole.cpp">
+      <Filter>src\3rd_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -182,6 +191,15 @@
     </ClInclude>
     <ClInclude Include="src\Material\FLMaterial.h">
       <Filter>src\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GeometryHelper\FLPLYLoader.h">
+      <Filter>src\GeometryHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\tinyply.h">
+      <Filter>src\3rd_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\FLConsole.h">
+      <Filter>src\3rd_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

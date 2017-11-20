@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include <iostream>
 
 namespace FireFlame {
 template<typename T>
@@ -12,7 +13,7 @@ public:
         };
         T m[2];
     };
-    Vector2(){}
+    Vector2() :x(0.f), y(0.f) {}
     Vector2(T x, T y) :x(x), y(y) {}
     Vector2<T> operator-()
     {
@@ -41,7 +42,7 @@ public:
         };
         T m[3];
     };
-    Vector3() {}
+    Vector3() :x(0.f), y(0.f), z(0.f) {}
     Vector3(T x, T y, T z) :x(x), y(y), z(z) {}
     Vector3<T> operator-()
     {
@@ -86,7 +87,7 @@ public:
         };
         T m[4];
     };
-    Vector4() {}
+    Vector4() :x(0.f), y(0.f), z(0.f), w(0.f) {}
     Vector4(T x, T y, T z, T w) :x(x), y(y), z(z), w(w) {}
 
     Vector4<T> operator-()
@@ -137,6 +138,18 @@ inline Vector2<T> operator*(T val, const Vector2<T>& rhs) {
 template<typename T>
 inline Vector3<T> Vector3Cross(const Vector3<T>& u, const Vector3<T>& v) {
     return Vector3<T>(u.y*v.z - u.z*v.y, u.z*v.x - u.x*v.z, u.x*v.y - u.y*v.x);
+}
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& os, const Vector3<T>& v) {
+    os << "(" << v.x << "," << v.y << "," << v.z << ")";
+    return os;
+}
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& os, const Vector4<T>& v) {
+    os << "(" << v.x << "," << v.y << "," << v.z << "," << v.w << ")";
+    return os;
 }
 
 typedef Vector2<float> Vector2f;

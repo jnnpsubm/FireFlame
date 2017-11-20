@@ -21,6 +21,8 @@
   <ItemGroup>
     <ClInclude Include="header\FireFlameHeader.h" />
     <ClInclude Include="src\3rd_utils\d3dx12.h" />
+    <ClInclude Include="src\3rd_utils\FLConsole.h" />
+    <ClInclude Include="src\3rd_utils\tinyply.h" />
     <ClInclude Include="src\Engine\FLEngine.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
@@ -28,6 +30,7 @@
     <ClInclude Include="src\FrameResource\FLD3DFrameResource.h" />
     <ClInclude Include="src\FrameResource\FLFrameResource.h" />
     <ClInclude Include="src\GeometryHelper\FLGeometryGenerator.h" />
+    <ClInclude Include="src\GeometryHelper\FLPLYLoader.h" />
     <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h" />
     <ClInclude Include="src\Light\FLLight.h" />
     <ClInclude Include="src\Material\FLMaterial.h" />
@@ -59,12 +62,15 @@
     <ClInclude Include="src\Window\FLWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\3rd_utils\FLConsole.cpp" />
+    <ClCompile Include="src\3rd_utils\tinyply.cpp" />
     <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />
     <ClCompile Include="src\FLD3DUtils.cpp" />
     <ClCompile Include="src\FrameResource\FLD3DFrameResource.cpp" />
     <ClCompile Include="src\FrameResource\FLFrameResource.cpp" />
     <ClCompile Include="src\GeometryHelper\FLGeometryGenerator.cpp" />
+    <ClCompile Include="src\GeometryHelper\PLYLoader.cpp" />
     <ClCompile Include="src\MathHelper\FLMathHelper.cpp" />
     <ClCompile Include="src\PSOManager\FLD3DPSOManager.cpp" />
     <ClCompile Include="src\PSOManager\FLPSOManager.cpp" />

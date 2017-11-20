@@ -12,14 +12,17 @@ public:
     void Initialize() override;
 
     void UpdateMainPassCB(float time_elapsed) override;
+    void OnKeyUp(WPARAM wParam, LPARAM lParam) override;
 
 private:
     void BuildShaders();
     void AddMaterials();
     void BuildMesh();
-    void BuildRenderItems();
+    void AddRenderItems();
+    void AddDragonRItem();
 
     void LoadSkull(const std::string& filePath);
+    void LoadDragon(const std::string& filePath);
 
     std::vector<FireFlame::Vector3f> mSpherePos;
 

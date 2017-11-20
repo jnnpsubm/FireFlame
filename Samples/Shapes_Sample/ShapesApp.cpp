@@ -6,7 +6,8 @@ void ShapesApp::Initialize()
     BuildShaders();
     AddMaterials();
     BuildMesh();
-    BuildRenderItems();
+    AddRenderItems();
+    //AddDragonRItem();
 
     mPasses.push_back("DefaultPass");
     mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
@@ -64,30 +65,30 @@ void ShapesApp::UpdateMainPassCB(float time_elapsed)
     }
 
     // test point lights
-    static std::default_random_engine RNG;
-    static std::uniform_real_distribution<float> DIST(0.1f, 0.6f);
-    float red = std::sinf(totalTime);
-    red = (red + 1.0f) / 2.0f;
-    red = MathHelper::Clamp(red, 0.2f, 1.0f);
-    float green = std::sinf(totalTime);
-    green = (green + 1.0f) / 2.0f;
-    green = MathHelper::Clamp(green, 0.2f, 1.0f);
-    float blue = std::sinf(totalTime + DIST(RNG));
-    blue = (blue + 1.0f) / 2.0f;
-    blue = MathHelper::Clamp(blue, 0.2f, 1.0f);
-    for (size_t i = 0; i < 4; ++i)
-    {
-        mMainPassCB.Lights[i].Strength = { 0.f,0.f,0.f };
-    }
-    const size_t dirLightsCount = 0;
-    for (size_t i = 0; i < 10; ++i)
-    {
-        mMainPassCB.Lights[dirLightsCount + i].FalloffEnd = 100.f;
-        mMainPassCB.Lights[dirLightsCount + i].FalloffStart = 1.f;
-        mMainPassCB.Lights[dirLightsCount + i].Position = mSpherePos[i];
-        //mMainPassCB.Lights[4 + i].Strength = { red,green,blue };
-        mMainPassCB.Lights[dirLightsCount + i].Strength = { 0.4f,0.4f,0.4f };
-    }
+    //static std::default_random_engine RNG;
+    //static std::uniform_real_distribution<float> DIST(0.1f, 0.6f);
+    //float red = std::sinf(totalTime);
+    //red = (red + 1.0f) / 2.0f;
+    //red = MathHelper::Clamp(red, 0.2f, 1.0f);
+    //float green = std::sinf(totalTime);
+    //green = (green + 1.0f) / 2.0f;
+    //green = MathHelper::Clamp(green, 0.2f, 1.0f);
+    //float blue = std::sinf(totalTime + DIST(RNG));
+    //blue = (blue + 1.0f) / 2.0f;
+    //blue = MathHelper::Clamp(blue, 0.2f, 1.0f);
+    //for (size_t i = 0; i < 4; ++i)
+    //{
+    //    mMainPassCB.Lights[i].Strength = { 0.f,0.f,0.f };
+    //}
+    //const size_t dirLightsCount = 0;
+    //for (size_t i = 0; i < 10; ++i)
+    //{
+    //    mMainPassCB.Lights[dirLightsCount + i].FalloffEnd = 100.f;
+    //    mMainPassCB.Lights[dirLightsCount + i].FalloffStart = 1.f;
+    //    mMainPassCB.Lights[dirLightsCount + i].Position = mSpherePos[i];
+    //    //mMainPassCB.Lights[4 + i].Strength = { red,green,blue };
+    //    mMainPassCB.Lights[dirLightsCount + i].Strength = { 0.4f,0.4f,0.4f };
+    //}
 }
 
 void ShapesApp::BuildShaders()
@@ -115,6 +116,13 @@ void ShapesApp::AddMaterials()
     skull.FresnelR0 = { 0.6f,0.6f,0.6f };
     skull.Roughness = 0.3f;
     mEngine.GetScene()->AddMaterial("skull", mShaderDesc.name, sizeof(MaterialConstants), &skull);
+
+    auto& dragon = mMaterials["dragon"];
+    dragon.name = "dragon";
+    dragon.DiffuseAlbedo = { 0.1f, 0.1f, 0.1f, 1.0f };
+    dragon.FresnelR0 = { 0.9f,0.9f,0.1f };
+    dragon.Roughness = 0.0f;
+    mEngine.GetScene()->AddMaterial("dragon", mShaderDesc.name, sizeof(MaterialConstants), &dragon);
 
     auto& box = mMaterials["box"];
     box.name = "box";
@@ -232,6 +240,9 @@ void ShapesApp::BuildMesh()
 
     // Load Skull
     LoadSkull("Resources\\skull.txt");
+
+    // Load Dragon
+    LoadDragon("..\\..\\Resources\\geometry\\dragon_remeshed.ply");
 }
 
 void ShapesApp::LoadSkull(const std::string& filePath)
@@ -286,11 +297,34 @@ void ShapesApp::LoadSkull(const std::string& filePath)
     mEngine.GetScene()->AddPrimitive(mMeshDesc[1]);
 }
 
-void ShapesApp::BuildRenderItems() 
+void ShapesApp::LoadDragon(const std::string& filePath)
+{
+    std::vector<FireFlame::FLVertexNormal> vertices;
+    std::vector<std::uint32_t>             indices;
+    if (FireFlame::PLYLoader::Load(filePath, vertices, indices))
+    {
+        mMeshDesc.emplace_back();
+        mMeshDesc.back().name = "Dragon";
+        mMeshDesc.back().indexCount = (unsigned int)indices.size();
+        mMeshDesc.back().indexFormat = FireFlame::Index_Format::UINT32;
+        mMeshDesc.back().indices = indices.data();
+
+        mMeshDesc.back().vertexDataCount.push_back((unsigned int)vertices.size());
+        mMeshDesc.back().vertexDataSize.push_back(sizeof(FireFlame::FLVertexNormal));
+        mMeshDesc.back().vertexData.push_back(vertices.data());
+
+        // sub meshes
+        mMeshDesc.back().subMeshs.emplace_back("All", (UINT)indices.size());
+        mEngine.GetScene()->AddPrimitive(mMeshDesc.back());
+    }
+}
+
+void ShapesApp::AddRenderItems() 
 {
     using namespace DirectX;
 
     auto skullMat = mMaterials["skull"];
+    auto dragonMat = mMaterials["dragon"];
     auto boxMat = mMaterials["skull"];
     auto sphereMat = mMaterials["skull"];
     auto cylMat = mMaterials["skull"];
@@ -305,12 +339,12 @@ void ShapesApp::BuildRenderItems()
     RItem.dataLen = sizeof(XMFLOAT4X4);
     RItem.data = &worldTrans;
     mRenderItems.emplace_back(RItem);
-    mEngine.GetScene()->AddRenderItem
+    /*mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[0].name,
         mShaderDesc.name,
         RItem
-    );
+    );*/
 
     // Skull
     RItem.name = "Skull";
@@ -323,14 +357,39 @@ void ShapesApp::BuildRenderItems()
         XMMatrixTranspose(XMMatrixScaling(0.5f, 0.5f, 0.5f)*XMMatrixTranslation(0.0f, 1.5f, 0.0f))
     );
     mRenderItems.emplace_back(RItem);
-    mEngine.GetScene()->AddRenderItem
+    /*mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[1].name,
+        mShaderDesc.name,
+        RItem
+    );*/
+
+    // Dragon
+    RItem.name = "Dragon";
+    RItem.mat = dragonMat.name;
+    RItem.subMesh = mMeshDesc[2].subMeshs[0];
+    worldTrans = FireFlame::Matrix4X4();
+    XMStoreFloat4x4
+    (
+        &worldTrans,
+        XMMatrixTranspose
+        (
+            XMMatrixRotationZ(FireFlame::MathHelper::FL_PIDIV2)*
+            XMMatrixRotationX(-FireFlame::MathHelper::FL_PIDIV4)*
+            XMMatrixScaling(0.05f, 0.05f, 0.05f)*
+            XMMatrixTranslation(0.0f, 2.5f, 0.0f)
+        )
+    );
+    mRenderItems.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[2].name,
         mShaderDesc.name,
         RItem
     );
 
     RItem.name = "Grid1";
+    RItem.mat = skullMat.name;
     RItem.subMesh = mMeshDesc[0].subMeshs[1];
     worldTrans = FireFlame::Matrix4X4();
     mRenderItems.emplace_back(RItem);
@@ -356,45 +415,223 @@ void ShapesApp::BuildRenderItems()
         RItem.name = "RightCyl" + std::to_string(i);
         RItem.subMesh = mMeshDesc[0].subMeshs[3];
         mRenderItems.emplace_back(RItem);
-        mEngine.GetScene()->AddRenderItem
+        /*mEngine.GetScene()->AddRenderItem
         (
             mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
-        );
+        );*/
 
         XMStoreFloat4x4(&worldTrans, XMMatrixTranspose(leftCylWorld));
         RItem.name = "LeftCyl" + std::to_string(i);
         //RItem.subMesh = mMeshDesc.subMeshs[3];
         mRenderItems.emplace_back(RItem);
-        mEngine.GetScene()->AddRenderItem
+        /*mEngine.GetScene()->AddRenderItem
         (
             mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
-        );
+        );*/
 
         RItem.mat = sphereMat.name;
         XMStoreFloat4x4(&worldTrans, XMMatrixTranspose(leftSphereWorld));
         RItem.name = "LeftSphere" + std::to_string(i);
         RItem.subMesh = mMeshDesc[0].subMeshs[2];
         mRenderItems.emplace_back(RItem);
-        mEngine.GetScene()->AddRenderItem
+        /*mEngine.GetScene()->AddRenderItem
         (
             mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
-        );
+        );*/
 
         XMStoreFloat4x4(&worldTrans, XMMatrixTranspose(rightSphereWorld));
         RItem.name = "RightSphere" + std::to_string(i);
         //RItem.subMesh = mMeshDesc.subMeshs[2];
         mRenderItems.emplace_back(RItem);
-        mEngine.GetScene()->AddRenderItem
+        /*mEngine.GetScene()->AddRenderItem
         (
             mMeshDesc[0].name,
             mShaderDesc.name,
             RItem
-        );
+        );*/
     }
+}
+
+void ShapesApp::AddDragonRItem()
+{
+    using namespace FireFlame;
+    using namespace DirectX;
+
+    stRenderItemDesc RItem;
+    auto skullMat = mMaterials["skull"];
+    RItem.mat = skullMat.name;
+
+    // Dragon
+    RItem.name = "Dragon";
+    RItem.mat = skullMat.name;
+    RItem.subMesh = mMeshDesc[2].subMeshs[0];
+    XMFLOAT4X4 worldTrans = FireFlame::Matrix4X4();
+    XMStoreFloat4x4
+    (
+        &worldTrans,
+        XMMatrixTranspose(XMMatrixScaling(0.05f, 0.05f, 0.05f)*XMMatrixTranslation(0.0f, 0.0f, 0.0f))
+    );
+    mRenderItems.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[2].name,
+        mShaderDesc.name,
+        RItem
+    );
+
+    RItem.name = "Grid1";
+    RItem.subMesh = mMeshDesc[0].subMeshs[1];
+    worldTrans = FireFlame::Matrix4X4();
+    mRenderItems.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[0].name,
+        mShaderDesc.name,
+        RItem
+    );
+}
+
+void ShapesApp::OnKeyUp(WPARAM wParam, LPARAM lParam) 
+{
+    auto& dragon = mMaterials["dragon"];
+    /*dragon.name = "dragon";
+    dragon.DiffuseAlbedo = { 0.1f, 0.1f, 0.1f, 1.0f };
+    dragon.FresnelR0 = { 0.9f,0.9f,0.1f };
+    dragon.Roughness = 0.0f;*/
+    if (wParam == '1') 
+    {
+        dragon.DiffuseAlbedo.x += 0.05f;
+        if (dragon.DiffuseAlbedo.x > 1.0f)
+        {
+            dragon.DiffuseAlbedo.x = 1.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '2')
+    {
+        dragon.DiffuseAlbedo.x -= 0.05f;
+        if (dragon.DiffuseAlbedo.x < 0.0f)
+        {
+            dragon.DiffuseAlbedo.x = 0.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '3')
+    {
+        dragon.DiffuseAlbedo.y += 0.05f;
+        if (dragon.DiffuseAlbedo.y > 1.0f)
+        {
+            dragon.DiffuseAlbedo.y = 1.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '4')
+    {
+        dragon.DiffuseAlbedo.y -= 0.05f;
+        if (dragon.DiffuseAlbedo.y < 0.0f)
+        {
+            dragon.DiffuseAlbedo.y = 0.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '5')
+    {
+        dragon.DiffuseAlbedo.z += 0.05f;
+        if (dragon.DiffuseAlbedo.z > 1.0f)
+        {
+            dragon.DiffuseAlbedo.z = 1.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '6')
+    {
+        dragon.DiffuseAlbedo.z -= 0.05f;
+        if (dragon.DiffuseAlbedo.z < 0.0f)
+        {
+            dragon.DiffuseAlbedo.z = 0.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '7')
+    {
+        dragon.FresnelR0.x += 0.05f;
+        if (dragon.FresnelR0.x > 1.0f)
+        {
+            dragon.FresnelR0.x = 1.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '8')
+    {
+        dragon.FresnelR0.x -= 0.05f;
+        if (dragon.FresnelR0.x < 0.0f)
+        {
+            dragon.FresnelR0.x = 0.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '9')
+    {
+        dragon.FresnelR0.y += 0.05f;
+        if (dragon.FresnelR0.y > 1.0f)
+        {
+            dragon.FresnelR0.y = 1.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == '0')
+    {
+        dragon.FresnelR0.y -= 0.05f;
+        if (dragon.FresnelR0.y < 0.0f)
+        {
+            dragon.FresnelR0.y = 0.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == 'Q')
+    {
+        dragon.FresnelR0.z += 0.05f;
+        if (dragon.FresnelR0.z > 1.0f)
+        {
+            dragon.FresnelR0.z = 1.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == 'W')
+    {
+        dragon.FresnelR0.z -= 0.05f;
+        if (dragon.FresnelR0.z < 0.0f)
+        {
+            dragon.FresnelR0.z = 0.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == 'T')
+    {
+        dragon.Roughness += 0.05f;
+        if (dragon.Roughness > 1.0f)
+        {
+            dragon.Roughness = 1.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    else if (wParam == 'Y')
+    {
+        dragon.Roughness -= 0.05f;
+        if (dragon.Roughness < 0.0f)
+        {
+            dragon.Roughness = 0.0f;
+        }
+        mEngine.GetScene()->UpdateMaterialCBData(dragon.name, sizeof(MaterialConstants), &dragon);
+    }
+    std::cout << "dragon diffuse albedo:" << dragon.DiffuseAlbedo << std::endl;
+    std::cout << "dragon FresnelR0:" << dragon.FresnelR0 << std::endl;
+    std::cout << "dragon roughness:" << dragon.Roughness << std::endl;
+    FLEngineApp::OnKeyUp(wParam, lParam);
 }
