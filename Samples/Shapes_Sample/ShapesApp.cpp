@@ -4,11 +4,90 @@
 void ShapesApp::Initialize() 
 {
     BuildShaders();
+    AddMaterials();
     BuildMesh();
     BuildRenderItems();
 
     mPasses.push_back("DefaultPass");
     mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+}
+
+void ShapesApp::UpdateMainPassCB(float time_elapsed)
+{
+    using namespace FireFlame;
+    float totalTime = mEngine.TotalTime();
+
+    mMainPassCB.AmbientLight = { 0.01f,0.01f,0.01f,1.0f };
+    // above
+    mMainPassCB.Lights[0].Direction = -MathHelper::SphericalToCartesian
+    (
+        1.0f, 
+        0.f, 
+        0.f
+    );
+    mMainPassCB.Lights[0].Strength = { 0.8f, 0.8f, 0.8f };
+
+    // right
+    mMainPassCB.Lights[1].Direction = -MathHelper::SphericalToCartesian
+    (
+        1.0f,
+        0.f,
+        MathHelper::FL_PIDIV4
+    );
+    mMainPassCB.Lights[1].Strength = { 0.6f, 0.3f, 0.2f };
+
+    // left
+    mMainPassCB.Lights[2].Direction = -MathHelper::SphericalToCartesian
+    (
+        1.0f,
+        MathHelper::FL_PI,
+        MathHelper::FL_PIDIV4
+    );
+    mMainPassCB.Lights[2].Strength = { 0.6f, 0.3f, 0.2f };
+
+    mMainPassCB.Lights[3].Direction = -MathHelper::SphericalToCartesian
+    (
+        1.0f,
+        MathHelper::FL_PIDIV2,
+        MathHelper::FL_PIDIV2
+    );
+    mMainPassCB.Lights[3].Strength = { 0.3f, 0.5f, 0.5f };
+
+    Vector3f sum(0.f, 0.f, 0.f);
+    for (size_t i = 0; i < 4; ++i)
+    {
+        sum += mMainPassCB.Lights[i].Strength;
+    }
+    for (size_t i = 0; i < 4; ++i)
+    {
+        mMainPassCB.Lights[i].Strength = mMainPassCB.Lights[i].Strength / sum;
+    }
+
+    // test point lights
+    static std::default_random_engine RNG;
+    static std::uniform_real_distribution<float> DIST(0.1f, 0.6f);
+    float red = std::sinf(totalTime);
+    red = (red + 1.0f) / 2.0f;
+    red = MathHelper::Clamp(red, 0.2f, 1.0f);
+    float green = std::sinf(totalTime);
+    green = (green + 1.0f) / 2.0f;
+    green = MathHelper::Clamp(green, 0.2f, 1.0f);
+    float blue = std::sinf(totalTime + DIST(RNG));
+    blue = (blue + 1.0f) / 2.0f;
+    blue = MathHelper::Clamp(blue, 0.2f, 1.0f);
+    for (size_t i = 0; i < 4; ++i)
+    {
+        mMainPassCB.Lights[i].Strength = { 0.f,0.f,0.f };
+    }
+    const size_t dirLightsCount = 0;
+    for (size_t i = 0; i < 10; ++i)
+    {
+        mMainPassCB.Lights[dirLightsCount + i].FalloffEnd = 100.f;
+        mMainPassCB.Lights[dirLightsCount + i].FalloffStart = 1.f;
+        mMainPassCB.Lights[dirLightsCount + i].Position = mSpherePos[i];
+        //mMainPassCB.Lights[4 + i].Strength = { red,green,blue };
+        mMainPassCB.Lights[dirLightsCount + i].Strength = { 0.4f,0.4f,0.4f };
+    }
 }
 
 void ShapesApp::BuildShaders()
@@ -17,13 +96,46 @@ void ShapesApp::BuildShaders()
     mShaderDesc.name = "ShapesApp";
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
+    mShaderDesc.materialCBSize = sizeof(MaterialConstants);
+    mShaderDesc.materialRegister = 1;
+    mShaderDesc.passRegister = 2;
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
-    mShaderDesc.AddVertexInput("COLOR", FireFlame::VERTEX_FORMAT_FLOAT4);
-    //mShaderDesc.AddVertexInput("COLOR", FireFlame::VERTEX_FORMAT_A8R8G8B8_UNORM);
+    mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddShaderStage(L"Shaders\\ShapesShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDesc.AddShaderStage(L"Shaders\\ShapesShader.hlsl", Shader_Type::PS, "PS", "ps_5_0");
 
     mEngine.GetScene()->AddShader(mShaderDesc);
+}
+
+void ShapesApp::AddMaterials()
+{
+    auto& skull = mMaterials["skull"];
+    skull.name = "skull";
+    skull.DiffuseAlbedo = { 0.2f, 0.2f, 0.2f, 1.0f };
+    skull.FresnelR0 = { 0.6f,0.6f,0.6f };
+    skull.Roughness = 0.3f;
+    mEngine.GetScene()->AddMaterial("skull", mShaderDesc.name, sizeof(MaterialConstants), &skull);
+
+    auto& box = mMaterials["box"];
+    box.name = "box";
+    box.DiffuseAlbedo = { 0.3f, 0.3f, 0.4f, 1.0f };
+    box.FresnelR0 = { 0.3f,0.3f,0.3f };
+    box.Roughness = 0.3f;
+    mEngine.GetScene()->AddMaterial("box", mShaderDesc.name, sizeof(MaterialConstants), &box);
+
+    auto& sphere = mMaterials["sphere"];
+    sphere.name = "sphere";
+    sphere.DiffuseAlbedo = { 0.3f, 0.3f, 0.4f, 1.0f };
+    sphere.FresnelR0 = { 0.5f,0.2f,0.2f };
+    sphere.Roughness = 0.2f;
+    mEngine.GetScene()->AddMaterial("sphere", mShaderDesc.name, sizeof(MaterialConstants), &sphere);
+
+    auto& cyl = mMaterials["cyl"];
+    cyl.name = "cyl";
+    cyl.DiffuseAlbedo = { 0.3f, 0.3f, 0.1f, 1.0f };
+    cyl.FresnelR0 = { 0.5f,0.8f,0.8f };
+    cyl.Roughness = 0.1f;
+    mEngine.GetScene()->AddMaterial("cyl", mShaderDesc.name, sizeof(MaterialConstants), &cyl);
 }
 
 void ShapesApp::BuildMesh()
@@ -59,27 +171,27 @@ void ShapesApp::BuildMesh()
         grid.Vertices.size() +
         sphere.Vertices.size() +
         cylinder.Vertices.size();
-    std::vector<FireFlame::FLVertex> vertices(totalVertexCount);
+    std::vector<FireFlame::FLVertexNormal> vertices(totalVertexCount);
     UINT k = 0;
     for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
     {
         vertices[k].Pos = box.Vertices[i].Position;
-        vertices[k].Color = { 0.000000000f, 0.392156899f, 0.000000000f, 1.000000000f };
+        vertices[k].Normal = box.Vertices[i].Normal;
     }
     for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
     {
         vertices[k].Pos = grid.Vertices[i].Position;
-        vertices[k].Color = { 0.133333340f, 0.545098066f, 0.133333340f, 1.000000000f };
+        vertices[k].Normal = grid.Vertices[i].Normal;
     }
     for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
     {
         vertices[k].Pos = sphere.Vertices[i].Position;
-        vertices[k].Color = { 0.862745166f, 0.078431375f, 0.235294133f, 1.000000000f };
+        vertices[k].Normal = sphere.Vertices[i].Normal;
     }
     for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
     {
         vertices[k].Pos = cylinder.Vertices[i].Position;
-        vertices[k].Color = { 0.274509817f, 0.509803951f, 0.705882370f, 1.000000000f };
+        vertices[k].Normal = cylinder.Vertices[i].Normal;
     }
 
     std::vector<std::uint16_t> indices;
@@ -96,7 +208,7 @@ void ShapesApp::BuildMesh()
     mMeshDesc[0].indices = indices.data();
 
     mMeshDesc[0].vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc[0].vertexDataSize.push_back(sizeof(FLVertex));
+    mMeshDesc[0].vertexDataSize.push_back(sizeof(FLVertexNormal));
     mMeshDesc[0].vertexData.push_back(vertices.data());
 
     // sub meshes
@@ -139,13 +251,13 @@ void ShapesApp::LoadSkull(const std::string& filePath)
 
     indexCount *= 3;
 
-    std::vector<FireFlame::FLVertex> vertices;
+    std::vector<FireFlame::FLVertexNormal> vertices;
     vertices.reserve(vertexCount);
     for (size_t i = 0; i < vertexCount; i++)
     {
         float x, y, z, u, v, w;
         inFile >> x >> y >> z >> u >> v >> w;
-        vertices.emplace_back(x, y, z);
+        vertices.emplace_back(x, y, z, u, v, w);
     }
 
     inFile >> nouse >> nouse >> nouse;
@@ -159,11 +271,6 @@ void ShapesApp::LoadSkull(const std::string& filePath)
     }
     inFile.close();
 
-    for (size_t i = 0; i < vertexCount; ++i)
-    {
-        vertices[i].Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-    }
-
     mMeshDesc.emplace_back();
     mMeshDesc[1].name = "Skull";
     mMeshDesc[1].indexCount = (unsigned int)indices.size();
@@ -171,7 +278,7 @@ void ShapesApp::LoadSkull(const std::string& filePath)
     mMeshDesc[1].indices = indices.data();
 
     mMeshDesc[1].vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc[1].vertexDataSize.push_back(sizeof(FireFlame::FLVertex));
+    mMeshDesc[1].vertexDataSize.push_back(sizeof(FireFlame::FLVertexNormal));
     mMeshDesc[1].vertexData.push_back(vertices.data());
 
     // sub meshes
@@ -183,7 +290,12 @@ void ShapesApp::BuildRenderItems()
 {
     using namespace DirectX;
 
+    auto skullMat = mMaterials["skull"];
+    auto boxMat = mMaterials["skull"];
+    auto sphereMat = mMaterials["skull"];
+    auto cylMat = mMaterials["skull"];
     FireFlame::stRenderItemDesc RItem("Box1", mMeshDesc[0].subMeshs[0]);
+    RItem.mat = boxMat.name;
     XMFLOAT4X4 worldTrans;
     XMStoreFloat4x4
     (
@@ -202,6 +314,7 @@ void ShapesApp::BuildRenderItems()
 
     // Skull
     RItem.name = "Skull";
+    RItem.mat = skullMat.name;
     RItem.subMesh = mMeshDesc[1].subMeshs[0];
     worldTrans = FireFlame::Matrix4X4();
     XMStoreFloat4x4
@@ -235,6 +348,10 @@ void ShapesApp::BuildRenderItems()
         XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i*5.0f);
         XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i*5.0f);
 
+        mSpherePos.emplace_back(-5.0f, 3.5f, -10.0f + i*5.0f);
+        mSpherePos.emplace_back(+5.0f, 3.5f, -10.0f + i*5.0f);
+
+        RItem.mat = cylMat.name;
         XMStoreFloat4x4(&worldTrans, XMMatrixTranspose(rightCylWorld));
         RItem.name = "RightCyl" + std::to_string(i);
         RItem.subMesh = mMeshDesc[0].subMeshs[3];
@@ -257,6 +374,7 @@ void ShapesApp::BuildRenderItems()
             RItem
         );
 
+        RItem.mat = sphereMat.name;
         XMStoreFloat4x4(&worldTrans, XMMatrixTranspose(leftSphereWorld));
         RItem.name = "LeftSphere" + std::to_string(i);
         RItem.subMesh = mMeshDesc[0].subMeshs[2];

@@ -30,7 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         engine.GetWindow()->RegisterKeyUpHandler(std::bind(&FLEngineApp::OnKeyUp, &app, _1, _2));
 
         // engine initialization
-        engine.InitMainWindow(150, 80, 800, 600);
+        engine.InitMainWindow(150, 80, 1280, 600);
         engine.InitRenderer(FireFlame::API_Feature::API_DX12_1);
 
         // add shader, mesh, render item to scene

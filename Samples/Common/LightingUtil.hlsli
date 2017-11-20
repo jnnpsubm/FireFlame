@@ -147,7 +147,7 @@ float4 ComputeLighting(Light gLights[MaxLights], Material mat,
     [unroll]
     for(i = 0; i < NUM_DIR_LIGHTS; ++i)
     {
-        result += shadowFactor[i] * ComputeDirectionalLight(gLights[i], mat, normal, toEye);
+        result += shadowFactor * ComputeDirectionalLight(gLights[i], mat, normal, toEye);
     }
 #endif
 

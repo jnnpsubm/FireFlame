@@ -18,6 +18,16 @@ public:
     {
         return Vector2<T>(-x, -y);
     }
+    Vector2<T>& operator+=(const Vector2<T>& rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+    }
+    Vector2<T> operator/(const Vector2<T>& rhs)
+    {
+        return Vector2<T>(x / rhs.x, y / rhs.y);
+    }
 };
 
 template<typename T>
@@ -36,6 +46,17 @@ public:
     Vector3<T> operator-()
     {
         return Vector3<T>(-x, -y, -z);
+    }
+    Vector3<T>& operator+=(const Vector3<T>& rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+        z += rhs.z;
+        return *this;
+    }
+    Vector3<T> operator/(const Vector3<T>& rhs)
+    {
+        return Vector3<T>(x / rhs.x, y / rhs.y, z / rhs.z);
     }
 
     Vector3<T> Normalize() {
@@ -71,6 +92,18 @@ public:
     Vector4<T> operator-()
     {
         return Vector4<T>(-x, -y, -z, -w);
+    }
+    Vector4<T>& operator+=(const Vector4<T>& rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+        z += rhs.z;
+        w += rhs.w;
+        return *this;
+    }
+    Vector4<T> operator/(const Vector4<T>& rhs)
+    {
+        return Vector4<T>(x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w);
     }
 
     Vector4<T> Normalize() {

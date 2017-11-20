@@ -159,6 +159,7 @@
     <ClInclude Include="ShapesApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Common\LightingUtil.hlsli" />
     <None Include="Shaders\ShapesShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
