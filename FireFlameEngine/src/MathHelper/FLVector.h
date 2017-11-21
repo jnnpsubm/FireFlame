@@ -68,6 +68,9 @@ public:
         z *= len_inverse;
         return *this;
     }
+    T Length() const {
+        return std::sqrt(x*x + y*y + z*z);
+    }
     T LengthSquared() const {
         return x*x + y*y + z*z;
     }

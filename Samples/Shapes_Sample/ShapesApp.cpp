@@ -243,6 +243,7 @@ void ShapesApp::BuildMesh()
 
     // Load Dragon
     //LoadDragon("..\\..\\Resources\\geometry\\dragon_remeshed.ply");
+    //LoadDragon("..\\..\\Resources\\geometry\\ganesha.ply");
 
     // Load Tree
     LoadOtherPlyModels();

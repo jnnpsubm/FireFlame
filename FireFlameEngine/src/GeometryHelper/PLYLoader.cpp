@@ -36,7 +36,7 @@ bool PLYLoader::Load
         PlyFile file;
         file.parse_header(ss);
 
-        std::shared_ptr<PlyData> vertices, vnormals, fnormals, colors, faces, texcoords;
+        std::shared_ptr<PlyData> vertices, vnormals, fnormals, faces, texcoords;
 
         // The header information can be used to programmatically extract properties on elements
         // known to exist in the file header prior to reading the data. For brevity of this sample, properties 
@@ -50,8 +50,8 @@ bool PLYLoader::Load
         try { texcoords = file.request_properties_from_element("vertex", { "u", "v" }); }
         catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
-        try { colors = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" }); }
-        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+        //try { colors = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" }); }
+        //catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
         try { faces = file.request_properties_from_element("face", { "vertex_indices" }); }
         catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
@@ -157,6 +157,7 @@ bool PLYLoader::Load
     catch (const std::exception & e)
     {
         std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
+        return false;
     }
     return true;
 }

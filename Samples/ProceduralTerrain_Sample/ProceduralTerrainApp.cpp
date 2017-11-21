@@ -1,9 +1,9 @@
 #include "ProceduralTerrainApp.h"
 #include <fstream>
 
-ProceduralTerrainApp::ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e,10.f,1500.f) 
+ProceduralTerrainApp::ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e,100.f,1500.f) 
 {
-    mRadius = 20.f;
+    mRadius = 120.f;
     mPixelStep *= 1.f;
 
     //mTheta = 0.f;
@@ -105,7 +105,7 @@ void ProceduralTerrainApp::BuildGeometry()
     using namespace FireFlame;
 
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(10.f, 9);
+    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(100.f, 9);
 
     std::vector<FireFlame::FLVertexNormal> vertices(earth.Vertices.size());
     for (size_t i = 0; i < earth.Vertices.size(); ++i)
