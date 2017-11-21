@@ -23,6 +23,7 @@ private:
 
     void LoadSkull(const std::string& filePath);
     void LoadDragon(const std::string& filePath);
+    void LoadOtherPlyModels();
 
     std::vector<FireFlame::Vector3f> mSpherePos;
 

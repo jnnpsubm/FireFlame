@@ -15,8 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\ProceduralTerrain.hlsl">
+    <None Include="Shaders\ProceduralTerrain.hlsl" />
+    <None Include="..\Common\LightingUtil.hlsli">
       <Filter>Shaders</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

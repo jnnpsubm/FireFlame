@@ -9,3 +9,4 @@
 #include "..\src\MathHelper\FLVertex.h"
 #include "..\src\Light\FLLight.h"
 #include "..\src\3rd_utils\FLConsole.h"
+#include "..\src\Noise\FLNoise.h"

@@ -159,6 +159,7 @@
     <ClInclude Include="ProceduralTerrainApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Common\LightingUtil.hlsli" />
     <None Include="Shaders\ProceduralTerrain.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

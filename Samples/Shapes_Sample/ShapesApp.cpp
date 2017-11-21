@@ -242,7 +242,10 @@ void ShapesApp::BuildMesh()
     LoadSkull("Resources\\skull.txt");
 
     // Load Dragon
-    LoadDragon("..\\..\\Resources\\geometry\\dragon_remeshed.ply");
+    //LoadDragon("..\\..\\Resources\\geometry\\dragon_remeshed.ply");
+
+    // Load Tree
+    LoadOtherPlyModels();
 }
 
 void ShapesApp::LoadSkull(const std::string& filePath)
@@ -319,6 +322,11 @@ void ShapesApp::LoadDragon(const std::string& filePath)
     }
 }
 
+void ShapesApp::LoadOtherPlyModels()
+{
+
+}
+
 void ShapesApp::AddRenderItems() 
 {
     using namespace DirectX;
@@ -357,15 +365,15 @@ void ShapesApp::AddRenderItems()
         XMMatrixTranspose(XMMatrixScaling(0.5f, 0.5f, 0.5f)*XMMatrixTranslation(0.0f, 1.5f, 0.0f))
     );
     mRenderItems.emplace_back(RItem);
-    /*mEngine.GetScene()->AddRenderItem
+    mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[1].name,
         mShaderDesc.name,
         RItem
-    );*/
+    );
 
     // Dragon
-    RItem.name = "Dragon";
+    /*RItem.name = "Dragon";
     RItem.mat = dragonMat.name;
     RItem.subMesh = mMeshDesc[2].subMeshs[0];
     worldTrans = FireFlame::Matrix4X4();
@@ -386,7 +394,7 @@ void ShapesApp::AddRenderItems()
         mMeshDesc[2].name,
         mShaderDesc.name,
         RItem
-    );
+    );*/
 
     RItem.name = "Grid1";
     RItem.mat = skullMat.name;

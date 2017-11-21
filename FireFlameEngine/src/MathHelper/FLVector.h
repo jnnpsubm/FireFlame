@@ -55,6 +55,7 @@ public:
         z += rhs.z;
         return *this;
     }
+    
     Vector3<T> operator/(const Vector3<T>& rhs)
     {
         return Vector3<T>(x / rhs.x, y / rhs.y, z / rhs.z);
@@ -66,6 +67,9 @@ public:
         y *= len_inverse;
         z *= len_inverse;
         return *this;
+    }
+    T LengthSquared() const {
+        return x*x + y*y + z*z;
     }
 };
 

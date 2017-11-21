@@ -235,8 +235,25 @@ void GeometryGenerator::Subdivide(MeshData& meshData){
         //
 
         Vertex m0 = MidPoint(v0, v1);
+        float x1 = v0.Position.x, x2 = v1.Position.x;
+        float y1 = v0.Position.y, y2 = v1.Position.y;
+        float z1 = v0.Position.z, z2 = v1.Position.z;
+        if (x1 > x2) std::swap(x1, x2);
+        if (y1 > y2) std::swap(y1, y2);
+        if (z1 > z2) std::swap(z1, z2);
+        if (m0.Position.x < x1 || 
+            m0.Position.x > x2 ||
+            m0.Position.y < y1 ||
+            m0.Position.y > y2 ||
+            m0.Position.z < z1 ||
+            m0.Position.z > z2)
+        {
+            int i = 1;
+        }
         Vertex m1 = MidPoint(v1, v2);
+        
         Vertex m2 = MidPoint(v0, v2);
+        
 
         //
         // Add new geometry.
@@ -284,7 +301,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uin
     MeshData meshData;
 
     // Put a cap on the number of subdivisions.
-    numSubdivisions = std::min<uint32>(numSubdivisions, 6u);
+    numSubdivisions = std::min<uint32>(numSubdivisions, 16u);
 
     // Approximate a sphere by tessellating an icosahedron.
 

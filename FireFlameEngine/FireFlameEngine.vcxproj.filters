@@ -76,6 +76,9 @@
     <ClCompile Include="src\3rd_utils\FLConsole.cpp">
       <Filter>src\3rd_utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\Noise\FLNoise.cpp">
+      <Filter>src\Noise</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -201,6 +204,9 @@
     <ClInclude Include="src\3rd_utils\FLConsole.h">
       <Filter>src\3rd_utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\Noise\FLNoise.h">
+      <Filter>src\Noise</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -277,6 +283,9 @@
     </Filter>
     <Filter Include="src\Material">
       <UniqueIdentifier>{a6614f9d-1052-4e03-b812-29d0086ea21e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Noise">
+      <UniqueIdentifier>{2d404dcc-de43-4494-bf8d-8baa10c945fe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
