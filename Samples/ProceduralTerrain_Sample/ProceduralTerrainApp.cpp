@@ -1,10 +1,10 @@
 #include "ProceduralTerrainApp.h"
 #include <fstream>
 
-ProceduralTerrainApp::ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e,100.f,15000.f) 
+ProceduralTerrainApp::ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e,10.f,1500.f) 
 {
-    mRadius = 1180.f;
-    mPixelStep *= 100.f;
+    mRadius = 20.f;
+    mPixelStep *= 1.f;
 
     //mTheta = 0.f;
     //mPhi = 0.f;
@@ -26,8 +26,8 @@ void ProceduralTerrainApp::AddMaterials()
     auto& terrain = mMaterials["terrain"];
     terrain.name = "terrain";
     terrain.DiffuseAlbedo = { 0.2f, 0.8f, 0.5f, 1.0f };
-    terrain.FresnelR0 = { 0.6f,0.6f,0.6f };
-    terrain.Roughness = 0.3f;
+    terrain.FresnelR0 = { 0.1f,0.1f,0.1f };
+    terrain.Roughness = 0.9f;
     mEngine.GetScene()->AddMaterial("terrain", mShaderDesc.name, sizeof(MaterialConstants), &terrain);
 }
 
@@ -105,35 +105,55 @@ void ProceduralTerrainApp::BuildGeometry()
     using namespace FireFlame;
 
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(1000.f, 8);
+    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(10.f, 9);
 
     std::vector<FireFlame::FLVertexNormal> vertices(earth.Vertices.size());
     for (size_t i = 0; i < earth.Vertices.size(); ++i)
     {
         vertices[i].Pos = earth.Vertices[i].Position;
-        vertices[i].Normal = earth.Vertices[i].Normal;
+        //vertices[i].Pos.y += Noise::FBm(vertices[i].Pos, 1.9f, 1)*1.f;
+        vertices[i].Pos.y += Noise::Evaluate(vertices[i].Pos)*0.5f;
+        vertices[i].Normal = { 0.f,0.f,0.f };
     }
     std::vector<std::uint32_t> indices = earth.Indices32;
 
     // calculate normals
+    size_t faces = indices.size() / 3;
+    for (size_t i = 0; i < faces; ++i)
+    {
+        Vector3f v0 = vertices[indices[i * 3 + 0]].Pos;
+        Vector3f v1 = vertices[indices[i * 3 + 1]].Pos;
+        Vector3f v2 = vertices[indices[i * 3 + 2]].Pos;
+        Vector3f e0 = v1 - v0;
+        Vector3f e1 = v2 - v0;
+        Vector3f normal = Vector3Cross(e0, e1);
 
+        vertices[indices[i * 3 + 0]].Normal += normal;
+        vertices[indices[i * 3 + 1]].Normal += normal;
+        vertices[indices[i * 3 + 2]].Normal += normal;
+    }
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i].Normal.Normalize();
+    }
+
+    std::cout << "vertex num:" << vertices.size() << std::endl;
+    std::cout << "face num:" << faces << std::endl;
 
     mMeshDesc.emplace_back();
-    mMeshDesc[0].name = "Earth";
-    mMeshDesc[0].indexCount = (unsigned int)indices.size();
-    mMeshDesc[0].indexFormat = Index_Format::UINT32;
-    mMeshDesc[0].indices = indices.data();
+    mMeshDesc.back().name = "Earth";
+    mMeshDesc.back().indexCount = (unsigned int)indices.size();
+    mMeshDesc.back().indexFormat = Index_Format::UINT32;
+    mMeshDesc.back().indices = indices.data();
 
-    mMeshDesc[0].vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc[0].vertexDataSize.push_back(sizeof(FLVertexNormal));
-    mMeshDesc[0].vertexData.push_back(vertices.data());
+    mMeshDesc.back().vertexDataCount.push_back((unsigned int)vertices.size());
+    mMeshDesc.back().vertexDataSize.push_back(sizeof(FLVertexNormal));
+    mMeshDesc.back().vertexData.push_back(vertices.data());
 
     // sub meshes
-    mMeshDesc[0].subMeshs.emplace_back("All", (UINT)indices.size());
+    mMeshDesc.back().subMeshs.emplace_back("All", (UINT)indices.size());
     
-    mEngine.GetScene()->AddPrimitive(mMeshDesc[0]);
-
-    //LoadSkull("..\\..\\Resources\\geometry\\skull.txt");
+    mEngine.GetScene()->AddPrimitive(mMeshDesc.back());
 }
 
 void ProceduralTerrainApp::LoadSkull(const std::string& filePath)
@@ -194,11 +214,6 @@ void ProceduralTerrainApp::BuildRenderItems()
 
     FireFlame::stRenderItemDesc RItem("Earth", mMeshDesc[0].subMeshs[0]);
     XMFLOAT4X4 worldTrans = FireFlame::Matrix4X4();
-    /*XMStoreFloat4x4
-    (
-        &worldTrans,
-        XMMatrixTranspose(XMMatrixScaling(2.0f, 2.0f, 2.0f)*XMMatrixTranslation(0.0f, 0.5f, 0.0f))
-    );*/
     RItem.dataLen = sizeof(XMFLOAT4X4);
     RItem.data = &worldTrans;
     RItem.mat = mMaterials["terrain"].name;
@@ -209,22 +224,4 @@ void ProceduralTerrainApp::BuildRenderItems()
         mShaderDesc.name,
         RItem
     );
-
-    // Skull
-    /*RItem.name = "Skull";
-    RItem.mat = mMaterials["terrain"].name;
-    RItem.subMesh = mMeshDesc[1].subMeshs[0];
-    worldTrans = FireFlame::Matrix4X4();
-    XMStoreFloat4x4
-    (
-        &worldTrans,
-        XMMatrixTranspose(XMMatrixScaling(0.5f, 0.5f, 0.5f)*XMMatrixTranslation(0.0f, 1.5f, 0.0f))
-    );
-    mRenderItems.emplace_back(RItem);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[1].name,
-        mShaderDesc.name,
-        RItem
-    );*/
 }

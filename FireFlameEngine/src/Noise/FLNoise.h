@@ -38,8 +38,5 @@ public:
         const Vector3f &p,
         Float omega, int maxOctaves
     );
-
-private:
-    
 };
 }

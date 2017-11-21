@@ -14,6 +14,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         using namespace FireFlame;
         using namespace std::placeholders;
 
+        FireFlame::OpenConsole();
+
         // application handles
         engine.RegisterUpdateFunc(std::bind(&FLEngineApp::Update, &app, std::placeholders::_1));
         engine.RegisterWindowResizedHandler(std::bind(&FLEngineApp::OnGameWindowResized, &app, _1, _2));
