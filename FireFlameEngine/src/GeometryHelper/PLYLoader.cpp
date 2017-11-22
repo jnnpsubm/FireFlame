@@ -36,7 +36,7 @@ bool PLYLoader::Load
         PlyFile file;
         file.parse_header(ss);
 
-        std::shared_ptr<PlyData> vertices, vnormals, fnormals, faces, texcoords;
+        std::shared_ptr<PlyData> vertices, vnormals, fnormals, face_indices_num, faces, texcoords;
 
         // The header information can be used to programmatically extract properties on elements
         // known to exist in the file header prior to reading the data. For brevity of this sample, properties 
@@ -54,6 +54,9 @@ bool PLYLoader::Load
         //catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
         try { faces = file.request_properties_from_element("face", { "vertex_indices" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        try { face_indices_num = file.request_properties_from_element("face", { "list" }); }
         catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
         try { fnormals = file.request_properties_from_element("face", { "nx", "ny", "nz" }); }
@@ -94,6 +97,9 @@ bool PLYLoader::Load
         {
             std::uint8_t* buffer = faces->buffer.get();
             indicesOut.resize(faces->count * 3);
+            size_t stride = PropertyTable[faces->t].stride;
+            size_t indicesPerFace = faces->buffer.size_bytes() / stride / faces->count;
+            std::cout << "index per face:" << indicesPerFace << std::endl;
             if (faces->t == Type::INT32)
             {
                 for (size_t i = 0; i < indicesOut.size(); ++i)
@@ -152,6 +158,13 @@ bool PLYLoader::Load
                 verticesOut[i].Normal.Normalize();
             }
             std::cout << "vertex normals generated..." << std::endl;
+        }
+        if (!vnormals && !fnormals && faces)
+        {
+            for (size_t i = 0; i < faces->count; ++i)
+            {
+
+            }
         }
     }
     catch (const std::exception & e)

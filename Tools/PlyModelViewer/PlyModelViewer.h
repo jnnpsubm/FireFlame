@@ -62,6 +62,7 @@ public:
     void Initialize(const char* fileName);
 
     void Update(float time_elapsed);
+    void UpdateModel();
 
     void OnGameWindowResized(int w, int h);
     void OnMouseDown(WPARAM btnState, int x, int y);
@@ -92,6 +93,12 @@ protected:
     DirectX::XMFLOAT3   mEyePos = { 0.0f, 0.0f, 0.0f };
     DirectX::XMFLOAT4X4 mView = FireFlame::Matrix4X4();
     DirectX::XMFLOAT4X4 mProj = FireFlame::Matrix4X4();
+
+    float  mModelScale = 1.0f;
+    float  mModelTransY = 0.0f;
+
+    size_t mFloorMeshIndex = 0;
+    size_t mModelMeshIndex = (std::numeric_limits<size_t>::max)();
 
     float mTheta = 1.5f*DirectX::XM_PI;
     float mPhi = 0.2f*DirectX::XM_PI;

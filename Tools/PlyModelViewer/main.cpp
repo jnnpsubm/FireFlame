@@ -1,22 +1,24 @@
+#include <Windows.h>
 #include "PlyModelViewer.h"
 #include <iostream>
 
-int main(int argc, char *argv[])
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
     using namespace FireFlame;
     using namespace std::placeholders;
-
-    if (argc < 2)
+    
+    if (__argc < 2)
     {
-        std::cerr << "input a ply file name to view......\n";
-        system("pause");
-        return 0;
+        //std::cerr << "input a ply file name to view......\n";
+        //system("pause");
+        //return 0;
     }
 
-    HINSTANCE hInstance = GetModuleHandle(NULL);
     Engine            engine(hInstance);
     PlyModelViewer    viewer(engine);
     try {
+        FireFlame::OpenConsole();
+
         // application handles
         engine.RegisterUpdateFunc(std::bind(&PlyModelViewer::Update, &viewer, std::placeholders::_1));
         engine.RegisterWindowResizedHandler(std::bind(&PlyModelViewer::OnGameWindowResized, &viewer, _1, _2));
@@ -32,7 +34,7 @@ int main(int argc, char *argv[])
         engine.InitRenderer(API_Feature::API_DX12_1);
 
         // add shader, mesh, render item to scene
-        viewer.Initialize(argv[1]);
+        viewer.Initialize(__argc > 1 ? __argv[1] : "");
 
         // some initial work like scene management and 
         // make resource resident to GPU memory

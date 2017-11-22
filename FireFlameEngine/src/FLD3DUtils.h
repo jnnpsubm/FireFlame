@@ -21,6 +21,11 @@ public:
         const D3D_SHADER_MACRO* defines,
         const std::string& entrypoint,
         const std::string& target);
+    static Microsoft::WRL::ComPtr<ID3DBlob> D3DUtils::CompileShader(
+        const std::string& shaderdata,
+        const D3D_SHADER_MACRO* defines,
+        const std::string& entrypoint,
+        const std::string& target);
     static UINT CalcConstantBufferByteSize(UINT byteSize) {
         // Constant buffers must be a multiple of the minimum hardware
         // allocation size (usually 256 bytes).  So round up to nearest

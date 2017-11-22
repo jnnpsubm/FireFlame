@@ -153,7 +153,12 @@ struct stShaderStage {
                   const std::string& _entry, const std::string& _target)
         : file(_file),type(_type),entry(_entry),target(_target)
     {/*=======================================================================================*/}
+    stShaderStage(const std::string& _data, Shader_Type _type,
+            const std::string& _entry, const std::string& _target)
+        : data(_data), type(_type), entry(_entry), target(_target)
+    {/*=======================================================================================*/}
     std::wstring file;
+    std::string  data;
     Shader_Type  type;
     std::string  entry;
     std::string  target;
@@ -189,6 +194,10 @@ struct stShaderDescription {
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {
         shaderStage.emplace_back(file, type, entry, target);
+    }
+    void AddShaderStage(const std::string& data, Shader_Type type,
+        const std::string& entry, const std::string& target) {
+        shaderStage.emplace_back(data, type, entry, target);
     }
     void AddVertexInput(const std::string& semanticName, unsigned long format, 
                         unsigned int slot = 0, unsigned int semanticIndex = 0) 

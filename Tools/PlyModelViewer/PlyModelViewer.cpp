@@ -1,5 +1,6 @@
 #include "PlyModelViewer.h"
 #include <string>
+#include <math.h>
 
 PlyModelViewer::PlyModelViewer(FireFlame::Engine& engine) :
     mEngine(engine)
@@ -23,19 +24,47 @@ void PlyModelViewer::AddRenderItems()
     using namespace DirectX;
 
     auto darkMat = mMaterials["dark"];
-    for (const auto& mesh : mMeshDesc)
+    auto grayMat = mMaterials["gray"];
+    
+    // add floor
+    const auto& meshFloor = mMeshDesc[mFloorMeshIndex];
+    FireFlame::stRenderItemDesc RItemFloor(meshFloor.name, meshFloor.subMeshs[0]);
+    RItemFloor.mat = darkMat.name;
+    XMFLOAT4X4 worldTrans = FireFlame::Matrix4X4();
+    RItemFloor.dataLen = sizeof(XMFLOAT4X4);
+    RItemFloor.data = &worldTrans;
+    mRenderItems.emplace_back(RItemFloor);
+    mEngine.GetScene()->AddRenderItem
+    (
+        meshFloor.name,
+        mShaderDesc.name,
+        RItemFloor
+    );
+
+    // add model
+    if (mModelMeshIndex != (std::numeric_limits<size_t>::max)())
     {
-        FireFlame::stRenderItemDesc RItem(mesh.name, mesh.subMeshs[0]);
-        RItem.mat = darkMat.name;
-        XMFLOAT4X4 worldTrans = FireFlame::Matrix4X4();
-        RItem.dataLen = sizeof(XMFLOAT4X4);
-        RItem.data = &worldTrans;
-        mRenderItems.emplace_back(RItem);
+        const auto& meshModel = mMeshDesc[mModelMeshIndex];
+        FireFlame::stRenderItemDesc RItemModel(meshModel.name, meshModel.subMeshs[0]);
+        RItemModel.mat = grayMat.name;
+        worldTrans = FireFlame::Matrix4X4();
+        DirectX::XMStoreFloat4x4
+        (
+            &worldTrans,
+            XMMatrixTranspose
+            (
+                XMMatrixScaling(mModelScale, mModelScale, mModelScale)*
+                XMMatrixTranslation(0.0f, mModelTransY, 0.0f)
+            )
+        );
+        RItemModel.dataLen = sizeof(XMFLOAT4X4);
+        RItemModel.data = &worldTrans;
+        mRenderItems.emplace_back(RItemModel);
         mEngine.GetScene()->AddRenderItem
         (
-            mesh.name,
+            meshModel.name,
             mShaderDesc.name,
-            RItem
+            RItemModel
         );
     }
 }
@@ -57,6 +86,7 @@ void PlyModelViewer::AddFloorMesh()
     std::vector<std::uint32_t> indices = grid.Indices32;
 
     mMeshDesc.emplace_back();
+    mFloorMeshIndex = mMeshDesc.size() - 1;
     mMeshDesc.back().name = "Floor";
     mMeshDesc.back().primitiveTopology = Primitive_Topology::TriangleList;
     mMeshDesc.back().indexCount = (unsigned int)indices.size();
@@ -79,6 +109,7 @@ void PlyModelViewer::AddPlyMesh(const char* fileName)
     if (FireFlame::PLYLoader::Load(fileName, vertices, indices))
     {
         mMeshDesc.emplace_back();
+        mModelMeshIndex = mMeshDesc.size() - 1;
         mMeshDesc.back().name = fileName;
         mMeshDesc.back().indexCount = (unsigned int)indices.size();
         mMeshDesc.back().indexFormat = FireFlame::Index_Format::UINT32;
@@ -94,6 +125,24 @@ void PlyModelViewer::AddPlyMesh(const char* fileName)
 
         std::cout << "vertex count:" << vertices.size() << std::endl;
         std::cout << "face count:" << indices.size() / 3 << std::endl;
+
+        // decide scale
+        float maxX = 0.f, maxY = 0.f, maxZ = 0.f;
+        float minY = (std::numeric_limits<float>::max)();
+        for (size_t i = 0; i < vertices.size(); ++i)
+        {
+            if (std::abs(vertices[i].Pos.x) > maxX)
+                maxX = std::abs(vertices[i].Pos.x);
+            if (std::abs(vertices[i].Pos.y) > maxY)
+                maxY = std::abs(vertices[i].Pos.y);
+            if (std::abs(vertices[i].Pos.z) > maxZ)
+                maxZ = std::abs(vertices[i].Pos.z);
+
+            if (vertices[i].Pos.y < minY)
+                minY = vertices[i].Pos.y;
+        }
+        mModelScale = mRadius / (((std::max)((std::max)(maxX, maxY), maxZ)-minY)*4.f);
+        mModelTransY = -minY*mModelScale;
 
         // decide camera position
         /*float maxX = 0.f, maxY = 0.f, maxZ = 0.f;
@@ -121,11 +170,33 @@ void PlyModelViewer::AddMaterials()
     darkMat.FresnelR0 = { 0.6f,0.6f,0.6f };
     darkMat.Roughness = 0.3f;
     mEngine.GetScene()->AddMaterial("dark", mShaderDesc.name, sizeof(MaterialConstants), &darkMat);
+
+    auto& grayMat = mMaterials["gray"];
+    grayMat.name = "gray";
+    grayMat.DiffuseAlbedo = { 0.8f, 0.8f, 0.8f, 1.0f };
+    grayMat.FresnelR0 = { 0.6f,0.6f,0.6f };
+    grayMat.Roughness = 0.7f;
+    mEngine.GetScene()->AddMaterial("gray", mShaderDesc.name, sizeof(MaterialConstants), &grayMat);
 }
 
 void PlyModelViewer::AddShaders()
 {
     using namespace FireFlame;
+
+    HRSRC hRsrc = FindResource(nullptr, MAKEINTRESOURCE(101), TEXT("SHADER"));
+    if (NULL == hRsrc)
+        throw std::exception("unable to find shader resources");
+    DWORD dwSize = SizeofResource(NULL, hRsrc);
+    HGLOBAL hGlobal = LoadResource(NULL, hRsrc);
+    if (NULL == hGlobal)
+        throw std::exception("unable to load shader resources");
+
+    LPVOID pBuffer = LockResource(hGlobal);
+    if (NULL == pBuffer)
+        throw std::exception("unable to lock shader resources");
+
+    std::string shaderdata = (const char*)pBuffer;
+
     mShaderDesc.name = "PlyModelViewer";
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
@@ -134,8 +205,8 @@ void PlyModelViewer::AddShaders()
     mShaderDesc.passRegister = 2;
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
-    mShaderDesc.AddShaderStage(L"Shaders\\ViewerShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");
-    mShaderDesc.AddShaderStage(L"Shaders\\ViewerShader.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    mShaderDesc.AddShaderStage(shaderdata/*L"Shaders\\ViewerShader.hlsl"*/, Shader_Type::VS, "VS", "vs_5_0");
+    mShaderDesc.AddShaderStage(shaderdata/*L"Shaders\\ViewerShader.hlsl"*/, Shader_Type::PS, "PS", "ps_5_0");
     mEngine.GetScene()->AddShader(mShaderDesc);
 }
 
@@ -154,6 +225,7 @@ void PlyModelViewer::Update(float time_elapsed) {
     OnKeyboardInput(time_elapsed);
 
     UpdateCamera(time_elapsed);
+    UpdateModel();
 
     // pass constants
     XMMATRIX view = XMLoadFloat4x4(&mView);
@@ -229,6 +301,29 @@ void PlyModelViewer::Update(float time_elapsed) {
 
     if (mPasses.size())
         mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
+}
+
+void PlyModelViewer::UpdateModel()
+{
+    using namespace DirectX;
+
+    if (mModelMeshIndex != (std::numeric_limits<size_t>::max)())
+    {
+        float totalTime = mEngine.TotalTime();
+        XMFLOAT4X4 worldTrans = FireFlame::Matrix4X4();
+        DirectX::XMStoreFloat4x4
+        (
+            &worldTrans,
+            XMMatrixTranspose
+            (
+                XMMatrixScaling(mModelScale, mModelScale, mModelScale)*
+                XMMatrixTranslation(0.0f, mModelTransY, 0.0f)*
+                XMMatrixRotationY(totalTime / 20.f * FireFlame::MathHelper::FL_2PI)
+            )
+        );
+        const auto& name = mMeshDesc[mModelMeshIndex].name;
+        mEngine.GetScene()->UpdateRenderItemCBData(name, sizeof(worldTrans), &worldTrans);
+    }
 }
 
 void PlyModelViewer::UpdateCamera(float time_elapsed)

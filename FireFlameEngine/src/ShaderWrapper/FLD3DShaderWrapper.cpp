@@ -250,12 +250,26 @@ void D3DShaderWrapper::BuildFrameCBResources
 }
 void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc) {
     for (const auto& shaderStage : shaderDesc.shaderStage) {
-        Microsoft::WRL::ComPtr<ID3DBlob> byteCode = D3DUtils::CompileShader
-        (
-            shaderStage.file, nullptr, 
-            shaderStage.entry, 
-            shaderStage.target
-        );
+        Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
+        if (!shaderStage.file.empty())
+        {
+            byteCode = D3DUtils::CompileShader
+            (
+                shaderStage.file, nullptr,
+                shaderStage.entry,
+                shaderStage.target
+            );
+        }
+        else
+        {
+            byteCode = D3DUtils::CompileShader
+            (
+                shaderStage.data, nullptr,
+                shaderStage.entry,
+                shaderStage.target
+            );
+        }
+
         switch (shaderStage.type){
         case Shader_Type::VS:{
             mVSByteCode = byteCode;

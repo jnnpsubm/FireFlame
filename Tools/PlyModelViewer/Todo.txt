@@ -1,0 +1,2 @@
+face index count > 3
+no face normal and vertex normal, generate vertex normal
