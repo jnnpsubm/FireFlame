@@ -47,6 +47,9 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
 #endif
 
             cmdList->SetGraphicsRootDescriptorTable(Shader->GetTexParamIndex(), texSRVHandle);
+#ifndef TEX_SRV_USE_CB_HEAP
+            cmdList->SetDescriptorHeaps(1, &CBVHeap);
+#endif
         }
     }
 
