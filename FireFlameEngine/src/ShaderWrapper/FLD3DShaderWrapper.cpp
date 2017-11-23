@@ -194,6 +194,7 @@ void D3DShaderWrapper::UpdatePassCBData(unsigned int index, size_t size, const v
     currPassCB->CopyData(index, size, data);
 }
 
+#ifndef TEX_SRV_USE_CB_HEAP
 void D3DShaderWrapper::BuildTexSRVHeap(UINT maxDescriptor)
 {
     auto device = Engine::GetEngine()->GetRenderer()->GetDevice();
@@ -209,6 +210,7 @@ void D3DShaderWrapper::BuildTexSRVHeap(UINT maxDescriptor)
         mTexSrvHeapFreeList.push_front(i);
     }
 }
+#endif
 
 UINT D3DShaderWrapper::CreateTexSRV(ID3D12Resource* res)
 {
@@ -221,9 +223,14 @@ UINT D3DShaderWrapper::CreateTexSRV(ID3D12Resource* res)
     // todo : material cbv management
     mTexSrvHeapFreeList.pop_front();
 
+#ifdef TEX_SRV_USE_CB_HEAP
+    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+    hDescriptor.Offset(index+mTexSrvOffset, renderer->GetCbvSrvUavDescriptorSize());
+#else
     CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mTexSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
     hDescriptor.Offset(index, renderer->GetCbvSrvUavDescriptorSize());
-
+#endif
+    
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.Format = res->GetDesc().Format;
@@ -268,9 +275,8 @@ void D3DShaderWrapper::BuildFrameCBResources
     // Need a CBV descriptor for each object for each frame resource,
     // +1 for the perPass CBV for each frame resource.
     UINT numDescriptors = (objCount + maxPassConstCount + maxMatConstCount) * numFrameResources;
-
 #ifdef TEX_SRV_USE_CB_HEAP
-    numFrameResources += texSRVCount;
+    numDescriptors += texSRVCount;
 #endif
 
     // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
@@ -372,6 +378,12 @@ void D3DShaderWrapper::BuildFrameCBResources
     for (UINT i = 0; i < maxMatConstCount; ++i) {
         mMatCbvHeapFreeList.push_front(i);
     }
+
+#ifdef TEX_SRV_USE_CB_HEAP
+    for (UINT i = 0; i < texSRVCount; ++i) {
+        mTexSrvHeapFreeList.push_front(i);
+    }
+#endif
 
     mPassCbvMaxCount = maxPassConstCount;
     mObjCbvMaxCount  = maxObjConstCount;

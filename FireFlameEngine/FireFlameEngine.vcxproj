@@ -21,8 +21,8 @@
   <ItemGroup>
     <ClInclude Include="header\FireFlameHeader.h" />
     <ClInclude Include="src\3rd_utils\d3dx12.h" />
-    <ClInclude Include="src\3rd_utils\DDSTextureLoader.h" />
     <ClInclude Include="src\3rd_utils\DDSTextureLoader12.h" />
+    <ClInclude Include="src\3rd_utils\DDSTextureLoaderLuna.h" />
     <ClInclude Include="src\3rd_utils\FLConsole.h" />
     <ClInclude Include="src\3rd_utils\tinyply.h" />
     <ClInclude Include="src\Engine\FLEngine.h" />
@@ -67,8 +67,8 @@
     <ClInclude Include="src\Window\FLWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\3rd_utils\DDSTextureLoader.cpp" />
     <ClCompile Include="src\3rd_utils\DDSTextureLoader12.cpp" />
+    <ClCompile Include="src\3rd_utils\DDSTextureLoaderLuna.cpp" />
     <ClCompile Include="src\3rd_utils\FLConsole.cpp" />
     <ClCompile Include="src\3rd_utils\tinyply.cpp" />
     <ClCompile Include="src\Engine\FLEngine.cpp" />

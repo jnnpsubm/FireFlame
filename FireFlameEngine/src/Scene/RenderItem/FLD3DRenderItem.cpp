@@ -1,3 +1,4 @@
+#include "PCH.h"
 #include "FLD3DRenderItem.h"
 #include "..\..\Engine\FLEngine.h"
 #include "..\..\Renderer\FLD3DRenderer.h"
@@ -32,13 +33,19 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
         if (Mat->DiffuseSrvHeapIndex != -1)
         {
             auto texSRVIndex = Mat->DiffuseSrvHeapIndex;
-            auto texSRVHeap = Shader->GetTexSRVHeap();
 
+#ifdef TEX_SRV_USE_CB_HEAP
+            auto texSRVHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+            texSRVIndex += Shader->GetTexSrvOffset();
+            texSRVHandle.Offset(texSRVIndex, renderer->GetCbvSrvUavDescriptorSize());
+#else
+            auto texSRVHeap = Shader->GetTexSRVHeap();
             ID3D12DescriptorHeap* descriptorHeaps[] = { texSRVHeap };
             cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
             auto texSRVHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(texSRVHeap->GetGPUDescriptorHandleForHeapStart());
             texSRVHandle.Offset(texSRVIndex, renderer->GetCbvSrvUavDescriptorSize());
+#endif
+
             cmdList->SetGraphicsRootDescriptorTable(Shader->GetTexParamIndex(), texSRVHandle);
         }
     }

@@ -33,7 +33,6 @@ public:
     //void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
     //void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
-    void BuildTexSRVHeap(UINT maxDescriptor);
 #ifdef TEX_SRV_USE_CB_HEAP
     void BuildFrameCBResources
     (
@@ -47,17 +46,22 @@ public:
     (
         UINT objConstSize, UINT maxObjConstCount,
         UINT passConstSize, UINT maxPassConstCount,
-        UINT matConstSize, UINT maxMatConstCount,
-        UINT texSRVCount
+        UINT matConstSize, UINT maxMatConstCount
     );
+    void BuildTexSRVHeap(UINT maxDescriptor);
 #endif
     UINT CreateTexSRV(ID3D12Resource* res);
 
     // Get Methods
     // todo : variant heaps with variant shaders
     ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();              }
+#ifndef TEX_SRV_USE_CB_HEAP
     ID3D12DescriptorHeap* GetTexSRVHeap()       const { return mTexSrvDescriptorHeap.Get(); }
+#endif
     ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get();        }
+#ifdef TEX_SRV_USE_CB_HEAP
+    UINT GetTexSrvOffset()                      const { return mTexSrvOffset;               }
+#endif
     UINT GetMatCBVOffset()                      const { return mMaterialCbvOffset;          }
     UINT GetMaterialCBVMaxCount()               const { return mMatCbvMaxCount;             }
     UINT GetPassCBVMaxCount()                   const { return mPassCbvMaxCount;            }
@@ -105,7 +109,9 @@ private:
     std::unique_ptr<UploadBuffer>                  mShaderCB             = nullptr;
     Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap              = nullptr;
+#ifndef TEX_SRV_USE_CB_HEAP
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mTexSrvDescriptorHeap = nullptr;
+#endif
 
     UINT                                           mTexParamIndex = 0;
     UINT                                           mObjParamIndex = 1;

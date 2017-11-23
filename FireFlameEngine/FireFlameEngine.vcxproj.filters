@@ -79,10 +79,10 @@
     <ClCompile Include="src\Noise\FLNoise.cpp">
       <Filter>src\Noise</Filter>
     </ClCompile>
-    <ClCompile Include="src\3rd_utils\DDSTextureLoader.cpp">
+    <ClCompile Include="src\3rd_utils\DDSTextureLoader12.cpp">
       <Filter>src\3rd_utils\DDS</Filter>
     </ClCompile>
-    <ClCompile Include="src\3rd_utils\DDSTextureLoader12.cpp">
+    <ClCompile Include="src\3rd_utils\DDSTextureLoaderLuna.cpp">
       <Filter>src\3rd_utils\DDS</Filter>
     </ClCompile>
   </ItemGroup>
@@ -213,9 +213,6 @@
     <ClInclude Include="src\Noise\FLNoise.h">
       <Filter>src\Noise</Filter>
     </ClInclude>
-    <ClInclude Include="src\3rd_utils\DDSTextureLoader.h">
-      <Filter>src\3rd_utils\DDS</Filter>
-    </ClInclude>
     <ClInclude Include="src\3rd_utils\DDSTextureLoader12.h">
       <Filter>src\3rd_utils\DDS</Filter>
     </ClInclude>
@@ -224,6 +221,9 @@
     </ClInclude>
     <ClInclude Include="src\PCH.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\DDSTextureLoaderLuna.h">
+      <Filter>src\3rd_utils\DDS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

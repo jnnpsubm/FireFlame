@@ -8,7 +8,11 @@
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
 #include "..\Material\FLTexture.h"
+#ifdef USE_MS_DDS_LOADER
 #include "..\3rd_utils\DDSTextureLoader12.h"
+#else
+#include "..\3rd_utils\DDSTextureLoaderLuna.h"
+#endif
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -158,16 +162,28 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     );
     //shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), 1);
     //shader->BuildConstantBuffers(mRenderer->GetDevice(), shaderDesc.objCBSize);
+#ifdef TEX_SRV_USE_CB_HEAP
+    shader->BuildFrameCBResources
+    (
+        shaderDesc.objCBSize, 100,
+        shaderDesc.passCBSize, 3,
+        shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
+        shaderDesc.maxTexSRVDescriptor
+    );
+#else
     if (shaderDesc.maxTexSRVDescriptor)
     {
         shader->BuildTexSRVHeap(shaderDesc.maxTexSRVDescriptor);
     }
     shader->BuildFrameCBResources
     (
-        shaderDesc.objCBSize,      100,
-        shaderDesc.passCBSize,     3,
-        shaderDesc.materialCBSize, shaderDesc.materialCBSize?100:0
+        shaderDesc.objCBSize, 100,
+        shaderDesc.passCBSize, 3,
+        shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0
     );
+#endif
+    
+    
     shader->BuildRootSignature(mRenderer->GetDevice());
     shader->BuildShadersAndInputLayout(shaderDesc);
     shader->BuildPSO
@@ -284,6 +300,7 @@ void Scene::AddTexture(const std::string& name, const std::wstring& filename)
     auto tex = std::make_shared<Texture>(name, filename);
     std::unique_ptr<std::uint8_t[]> ddsdata;
     std::vector<D3D12_SUBRESOURCE_DATA> subresources;
+#ifdef USE_MS_DDS_LOADER
     ThrowIfFailed
     (
         DirectX::LoadDDSTextureFromFile
@@ -294,6 +311,23 @@ void Scene::AddTexture(const std::string& name, const std::wstring& filename)
             ddsdata, subresources
         )
     );
+#else
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    renderer->ResetCommandList();
+    ThrowIfFailed
+    (
+        DirectX::CreateDDSTextureFromFile12
+        (
+            renderer->GetDevice(),
+            renderer->GetCommandList(),
+            filename.c_str(),
+            tex->resource, tex->uploadHeap
+        )
+    );
+    renderer->ExecuteCommand();
+    renderer->WaitForGPU();
+    tex->uploadHeap = nullptr;
+#endif
     mTextures[tex->name] = std::move(tex);
 }
 
