@@ -5,6 +5,7 @@
 struct ObjectConsts 
 {
     DirectX::XMFLOAT4X4 World = FireFlame::Matrix4X4();
+    DirectX::XMFLOAT4X4 TexTransform = FireFlame::Matrix4X4();
 };
 
 struct MaterialConstants

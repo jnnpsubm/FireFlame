@@ -79,6 +79,12 @@
     <ClCompile Include="src\Noise\FLNoise.cpp">
       <Filter>src\Noise</Filter>
     </ClCompile>
+    <ClCompile Include="src\3rd_utils\DDSTextureLoader.cpp">
+      <Filter>src\3rd_utils\DDS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\DDSTextureLoader12.cpp">
+      <Filter>src\3rd_utils\DDS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -207,6 +213,18 @@
     <ClInclude Include="src\Noise\FLNoise.h">
       <Filter>src\Noise</Filter>
     </ClInclude>
+    <ClInclude Include="src\3rd_utils\DDSTextureLoader.h">
+      <Filter>src\3rd_utils\DDS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\DDSTextureLoader12.h">
+      <Filter>src\3rd_utils\DDS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Material\FLTexture.h">
+      <Filter>src\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PCH.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -286,6 +304,9 @@
     </Filter>
     <Filter Include="src\Noise">
       <UniqueIdentifier>{2d404dcc-de43-4494-bf8d-8baa10c945fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils\DDS">
+      <UniqueIdentifier>{a7e79032-05dd-4509-9c65-b1b3c597450a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -28,7 +28,7 @@ void ProceduralTerrainApp::AddMaterials()
     terrain.DiffuseAlbedo = { 0.2f, 0.8f, 0.5f, 1.0f };
     terrain.FresnelR0 = { 0.1f,0.1f,0.1f };
     terrain.Roughness = 0.9f;
-    mEngine.GetScene()->AddMaterial("terrain", mShaderDesc.name, sizeof(MaterialConstants), &terrain);
+    mEngine.GetScene()->AddMaterial("terrain", mShaderDesc.name, "", sizeof(MaterialConstants), &terrain);
 }
 
 void ProceduralTerrainApp::UpdateMainPassCB(float time_elapsed)
@@ -90,8 +90,8 @@ void ProceduralTerrainApp::BuildShaders()
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
     mShaderDesc.materialCBSize = sizeof(MaterialConstants);
-    mShaderDesc.materialRegister = 1;
-    mShaderDesc.passRegister = 2;
+    mShaderDesc.matParamIndex = 2;
+    mShaderDesc.passParamIndex = 3;
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddShaderStage(L"Shaders\\ProceduralTerrain.hlsl", Shader_Type::VS, "VS", "vs_5_0");
@@ -105,7 +105,7 @@ void ProceduralTerrainApp::BuildGeometry()
     using namespace FireFlame;
 
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(100.f, 9);
+    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(100.f, 8);
 
     std::vector<FireFlame::FLVertexNormal> vertices(earth.Vertices.size());
     for (size_t i = 0; i < earth.Vertices.size(); ++i)

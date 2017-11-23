@@ -98,8 +98,8 @@ void ShapesApp::BuildShaders()
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
     mShaderDesc.materialCBSize = sizeof(MaterialConstants);
-    mShaderDesc.materialRegister = 1;
-    mShaderDesc.passRegister = 2;
+    mShaderDesc.matParamIndex = 2;
+    mShaderDesc.passParamIndex = 3;
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddShaderStage(L"Shaders\\ShapesShader.hlsl", Shader_Type::VS, "VS", "vs_5_0");
@@ -115,35 +115,39 @@ void ShapesApp::AddMaterials()
     skull.DiffuseAlbedo = { 0.2f, 0.2f, 0.2f, 1.0f };
     skull.FresnelR0 = { 0.6f,0.6f,0.6f };
     skull.Roughness = 0.3f;
-    mEngine.GetScene()->AddMaterial("skull", mShaderDesc.name, sizeof(MaterialConstants), &skull);
+    mEngine.GetScene()->AddMaterial
+    (
+        "skull", mShaderDesc.name, "",
+        sizeof(MaterialConstants), &skull
+    );
 
     auto& dragon = mMaterials["dragon"];
     dragon.name = "dragon";
     dragon.DiffuseAlbedo = { 0.1f, 0.1f, 0.1f, 1.0f };
     dragon.FresnelR0 = { 0.9f,0.9f,0.1f };
     dragon.Roughness = 0.0f;
-    mEngine.GetScene()->AddMaterial("dragon", mShaderDesc.name, sizeof(MaterialConstants), &dragon);
+    mEngine.GetScene()->AddMaterial("dragon", mShaderDesc.name, "", sizeof(MaterialConstants), &dragon);
 
     auto& box = mMaterials["box"];
     box.name = "box";
     box.DiffuseAlbedo = { 0.3f, 0.3f, 0.4f, 1.0f };
     box.FresnelR0 = { 0.3f,0.3f,0.3f };
     box.Roughness = 0.3f;
-    mEngine.GetScene()->AddMaterial("box", mShaderDesc.name, sizeof(MaterialConstants), &box);
+    mEngine.GetScene()->AddMaterial("box", mShaderDesc.name, "", sizeof(MaterialConstants), &box);
 
     auto& sphere = mMaterials["sphere"];
     sphere.name = "sphere";
     sphere.DiffuseAlbedo = { 0.3f, 0.3f, 0.4f, 1.0f };
     sphere.FresnelR0 = { 0.5f,0.2f,0.2f };
     sphere.Roughness = 0.2f;
-    mEngine.GetScene()->AddMaterial("sphere", mShaderDesc.name, sizeof(MaterialConstants), &sphere);
+    mEngine.GetScene()->AddMaterial("sphere", mShaderDesc.name, "", sizeof(MaterialConstants), &sphere);
 
     auto& cyl = mMaterials["cyl"];
     cyl.name = "cyl";
     cyl.DiffuseAlbedo = { 0.3f, 0.3f, 0.1f, 1.0f };
     cyl.FresnelR0 = { 0.5f,0.8f,0.8f };
     cyl.Roughness = 0.1f;
-    mEngine.GetScene()->AddMaterial("cyl", mShaderDesc.name, sizeof(MaterialConstants), &cyl);
+    mEngine.GetScene()->AddMaterial("cyl", mShaderDesc.name, "", sizeof(MaterialConstants), &cyl);
 }
 
 void ShapesApp::BuildMesh()

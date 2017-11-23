@@ -188,9 +188,20 @@ struct stShaderDescription {
     unsigned int                passCBSize = 1;
     unsigned int                materialCBSize = 0;
 
-    unsigned int                materialRegister = -1;
-    unsigned int                passRegister = 1;
+    unsigned int                maxTexSRVDescriptor = 4;
 
+    unsigned int                texParamIndex = -1;
+    unsigned int                objParamIndex = 1;
+    unsigned int                matParamIndex = -1;
+    unsigned int                passParamIndex = 2;
+
+    void ParamDefault()
+    {
+        texParamIndex = 0;
+        objParamIndex = 1;
+        matParamIndex = 2;
+        passParamIndex = 3;
+    }
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {
         shaderStage.emplace_back(file, type, entry, target);

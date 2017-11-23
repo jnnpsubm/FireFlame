@@ -1,3 +1,4 @@
+#include "PCH.h"
 #include "FLScene.h"
 #include "..\Renderer\FLD3DRenderer.h"
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
@@ -6,6 +7,8 @@
 #include "..\PSOManager\FLD3DPSOManager.h"
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
+#include "..\Material\FLTexture.h"
+#include "..\3rd_utils\DDSTextureLoader12.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -91,19 +94,19 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
             );
             cmdList->SetPipelineState(pso);
 
-            ID3D12DescriptorHeap* CBVHeap = Shader->GetCBVHeap();
+            auto CBVHeap = Shader->GetCBVHeap();
             ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
             cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
             cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
 
-            if (Shader->GetPassRegister() != (UINT)-1)
+            if (Shader->GetPassParamIndex() != (UINT)-1)
             {
                 int passCbvIndex = pass->CBIndex;
                 passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
                 auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
                 passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
-                cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassRegister(), passCbvHandle);
+                cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
             }
 
             for (auto& itemsOpaqueStatus : itemsShader.second) {
@@ -148,9 +151,17 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     else {
         shader = mShaders[shaderDesc.name];
     }
-    shader->SetConstBufferRegisert(shaderDesc.passRegister, shaderDesc.materialRegister);
+    shader->SetParamIndex
+    (
+        shaderDesc.texParamIndex, shaderDesc.objParamIndex,
+        shaderDesc.matParamIndex, shaderDesc.passParamIndex
+    );
     //shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), 1);
     //shader->BuildConstantBuffers(mRenderer->GetDevice(), shaderDesc.objCBSize);
+    if (shaderDesc.maxTexSRVDescriptor)
+    {
+        shader->BuildTexSRVHeap(shaderDesc.maxTexSRVDescriptor);
+    }
     shader->BuildFrameCBResources
     (
         shaderDesc.objCBSize,      100,
@@ -268,6 +279,24 @@ void Scene::AddRenderItem
     mRenderItems.emplace(desc.name, renderItem);
 }
 
+void Scene::AddTexture(const std::string& name, const std::wstring& filename)
+{
+    auto tex = std::make_shared<Texture>(name, filename);
+    std::unique_ptr<std::uint8_t[]> ddsdata;
+    std::vector<D3D12_SUBRESOURCE_DATA> subresources;
+    ThrowIfFailed
+    (
+        DirectX::LoadDDSTextureFromFile
+        (
+            Engine::GetEngine()->GetRenderer()->GetDevice(),
+            filename.c_str(),
+            tex->resource.GetAddressOf(),
+            ddsdata, subresources
+        )
+    );
+    mTextures[tex->name] = std::move(tex);
+}
+
 void Scene::AddMaterial
 (
     const std::string& name,
@@ -282,6 +311,7 @@ void Scene::AddMaterial
 
     auto mat = std::make_shared<Material>(name, Engine::NumFrameResources());
     mat->MatCBIndex = shader->GetFreeMatCBV();
+    //mat->DiffuseSrvHeapIndex = shader->GetFreeSRV();
     if (dataLen && data)
     {
         mat->data = new char[dataLen];
@@ -290,6 +320,39 @@ void Scene::AddMaterial
     }
     mMaterials.emplace(name, mat);
 }
+
+void Scene::AddMaterial
+(
+    const std::string& name,
+    const std::string& shaderName,     // different shader may have different material definition
+    const std::string& texName,
+    size_t dataLen, const void* data
+)
+{
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end())
+        throw std::exception("cannot find shader in AddMaterial");
+    auto shader = itShader->second;
+
+    auto mat = std::make_shared<Material>(name, Engine::NumFrameResources());
+    mat->MatCBIndex = shader->GetFreeMatCBV();
+    if (!texName.empty())
+    {
+        auto itTex = mTextures.find(texName);
+        if (itTex != mTextures.end())
+        {
+            mat->DiffuseSrvHeapIndex = shader->CreateTexSRV(itTex->second->resource.Get());
+        }
+    }
+    if (dataLen && data)
+    {
+        mat->data = new char[dataLen];
+        mat->dataLen = dataLen;
+        memcpy(mat->data, data, dataLen);
+    }
+    mMaterials.emplace(name, mat);
+}
+
 void Scene::AddPass(const std::string& shaderName, const std::string& passName)
 {
     auto itShader = mShaders.find(shaderName);

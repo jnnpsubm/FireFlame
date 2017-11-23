@@ -201,8 +201,8 @@ void PlyModelViewer::AddShaders()
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
     mShaderDesc.materialCBSize = sizeof(MaterialConstants);
-    mShaderDesc.materialRegister = 1;
-    mShaderDesc.passRegister = 2;
+    mShaderDesc.matParamIndex = 2;
+    mShaderDesc.passParamIndex = 3;
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddShaderStage(shaderdata/*L"Shaders\\ViewerShader.hlsl"*/, Shader_Type::VS, "VS", "vs_5_0");

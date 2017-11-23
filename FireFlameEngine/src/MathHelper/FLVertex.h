@@ -26,4 +26,16 @@ struct FLVertexNormal
         Normal(u, v, w)
     {}
 };
+struct FLVertexNormalTex
+{
+    Vector3f Pos;
+    Vector3f Normal;
+    Vector2f Tex;
+    FLVertexNormalTex() = default;
+    FLVertexNormalTex(float x, float y, float z, float u, float v, float w, float s, float t) :
+        Pos(x, y, z),
+        Normal(u, v, w),
+        Tex(s, t)
+    {}
+};
 }

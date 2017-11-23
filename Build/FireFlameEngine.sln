@@ -49,6 +49,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{A5EE
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlyModelViewer", "..\Tools\PlyModelViewer\PlyModelViewer.vcxproj", "{E3FAB0E0-11EB-4B56-96F1-C822337F12A4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crate_Sample", "..\Samples\Crate_Sample\Crate_Sample.vcxproj", "{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -225,6 +227,14 @@ Global
 		{E3FAB0E0-11EB-4B56-96F1-C822337F12A4}.Release|x64.Build.0 = Release|x64
 		{E3FAB0E0-11EB-4B56-96F1-C822337F12A4}.Release|x86.ActiveCfg = Release|Win32
 		{E3FAB0E0-11EB-4B56-96F1-C822337F12A4}.Release|x86.Build.0 = Release|Win32
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Debug|x64.ActiveCfg = Debug|x64
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Debug|x64.Build.0 = Debug|x64
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Debug|x86.ActiveCfg = Debug|Win32
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Debug|x86.Build.0 = Debug|Win32
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Release|x64.ActiveCfg = Release|x64
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Release|x64.Build.0 = Release|x64
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Release|x86.ActiveCfg = Release|Win32
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -249,6 +259,7 @@ Global
 		{FE8F9AEA-5276-4654-AAA4-9CD4FDC88E3D} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{0E807DEE-8A04-400C-9523-F0EC0D20A0B6} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{5D2F3590-BA96-4E2D-9CC5-386E17758C4E} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
+		{24AD7A42-B2BE-4C5E-9DEE-DB5F7BBCA77C} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}

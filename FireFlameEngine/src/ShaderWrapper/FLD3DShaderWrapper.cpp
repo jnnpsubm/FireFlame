@@ -1,3 +1,4 @@
+#include "PCH.h"
 #include "FLD3DShaderWrapper.h"
 #include "..\FLD3DUtils.h"
 #include "ShaderConstBuffer\FLShaderConstBuffer.h"
@@ -32,30 +33,40 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // thought of as defining the function signature.  
 
     // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+    CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
-    // Create a single descriptor table of CBVs.
+    CD3DX12_DESCRIPTOR_RANGE texTable;
+    texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+    // Object constants index 1
     CD3DX12_DESCRIPTOR_RANGE cbvTable0;
     cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 
+    // Material constants index 2
     CD3DX12_DESCRIPTOR_RANGE cbvTable1;
     cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
 
+    // Pass constants index 3
     CD3DX12_DESCRIPTOR_RANGE cbvTable2;
     cbvTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
 
+    // index 4 not used
     CD3DX12_DESCRIPTOR_RANGE cbvTable3;
     cbvTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 3);
 
-    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
-    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
-    slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable2);
-    slotRootParameter[3].InitAsDescriptorTable(1, &cbvTable3);
+    slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable0);
+    slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable1);
+    slotRootParameter[3].InitAsDescriptorTable(1, &cbvTable2);
+    slotRootParameter[4].InitAsDescriptorTable(1, &cbvTable3);
+
+    auto staticSamplers = GetStaticSamplers();
 
     // A root signature is an array of root parameters.
     CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc
     (
-        4, slotRootParameter, 0, nullptr,
+        5, slotRootParameter, 
+        (UINT)staticSamplers.size(), staticSamplers.data(),
         D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
     );
 
@@ -84,6 +95,64 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
         )
     );
 }
+
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> D3DShaderWrapper::GetStaticSamplers()
+{
+    // Applications usually only need a handful of samplers.  So just define them all up front
+    // and keep them available as part of the root signature.  
+
+    const CD3DX12_STATIC_SAMPLER_DESC pointWrap(
+        0, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP); // addressW
+
+    const CD3DX12_STATIC_SAMPLER_DESC pointClamp(
+        1, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
+
+    const CD3DX12_STATIC_SAMPLER_DESC linearWrap(
+        2, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP); // addressW
+
+    const CD3DX12_STATIC_SAMPLER_DESC linearClamp(
+        3, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
+
+    const CD3DX12_STATIC_SAMPLER_DESC anisotropicWrap(
+        4, // shaderRegister
+        D3D12_FILTER_ANISOTROPIC, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressW
+        0.0f,                             // mipLODBias
+        8);                               // maxAnisotropy
+
+    const CD3DX12_STATIC_SAMPLER_DESC anisotropicClamp(
+        5, // shaderRegister
+        D3D12_FILTER_ANISOTROPIC, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressW
+        0.0f,                              // mipLODBias
+        8);                                // maxAnisotropy
+
+    return {
+        pointWrap, pointClamp,
+        linearWrap, linearClamp,
+        anisotropicWrap, anisotropicClamp };
+}
+
 //void D3DShaderWrapper::BuildConstantBuffers(ID3D12Device* device, UINT CBSize){
 //    mShaderCB = std::make_unique<UploadBuffer>(true);
 //    mShaderCB->Init(device, 1, CBSize);
@@ -124,12 +193,65 @@ void D3DShaderWrapper::UpdatePassCBData(unsigned int index, size_t size, const v
     auto currPassCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->PassCB.get();
     currPassCB->CopyData(index, size, data);
 }
+
+void D3DShaderWrapper::BuildTexSRVHeap(UINT maxDescriptor)
+{
+    auto device = Engine::GetEngine()->GetRenderer()->GetDevice();
+
+    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+    srvHeapDesc.NumDescriptors = maxDescriptor;
+    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    srvHeapDesc.NodeMask = 0;
+    ThrowIfFailed(device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mTexSrvDescriptorHeap)));
+    for (UINT i = 0; i < maxDescriptor; ++i)
+    {
+        mTexSrvHeapFreeList.push_front(i);
+    }
+}
+
+UINT D3DShaderWrapper::CreateTexSRV(ID3D12Resource* res)
+{
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    auto device = renderer->GetDevice();
+
+    if (mTexSrvHeapFreeList.empty())
+        throw std::exception("todo : dynamically grow size of texture shader resource view");
+    UINT index = mTexSrvHeapFreeList.front();
+    // todo : material cbv management
+    mTexSrvHeapFreeList.pop_front();
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mTexSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    hDescriptor.Offset(index, renderer->GetCbvSrvUavDescriptorSize());
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = res->GetDesc().Format;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.Texture2D.MipLevels = res->GetDesc().MipLevels;
+    srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+    device->CreateShaderResourceView(res, &srvDesc, hDescriptor);
+    return index;
+}
+
+#ifdef TEX_SRV_USE_CB_HEAP
+void D3DShaderWrapper::BuildFrameCBResources
+(
+    UINT objConstSize, UINT maxObjConstCount,
+    UINT passConstSize, UINT maxPassConstCount,
+    UINT matConstSize, UINT maxMatConstCount,
+    UINT texSRVCount
+)
+#else
 void D3DShaderWrapper::BuildFrameCBResources
 (
     UINT objConstSize, UINT maxObjConstCount,
     UINT passConstSize, UINT maxPassConstCount,
     UINT matConstSize, UINT maxMatConstCount
 )
+#endif
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
     auto device = renderer->GetDevice();
@@ -147,9 +269,16 @@ void D3DShaderWrapper::BuildFrameCBResources
     // +1 for the perPass CBV for each frame resource.
     UINT numDescriptors = (objCount + maxPassConstCount + maxMatConstCount) * numFrameResources;
 
+#ifdef TEX_SRV_USE_CB_HEAP
+    numFrameResources += texSRVCount;
+#endif
+
     // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
     mPassCbvOffset = objCount * numFrameResources;
     mMaterialCbvOffset = mPassCbvOffset + maxPassConstCount*numFrameResources;
+#ifdef TEX_SRV_USE_CB_HEAP
+    mTexSrvOffset = mMaterialCbvOffset + maxMatConstCount * numFrameResources;
+#endif
 
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
     cbvHeapDesc.NumDescriptors = numDescriptors;

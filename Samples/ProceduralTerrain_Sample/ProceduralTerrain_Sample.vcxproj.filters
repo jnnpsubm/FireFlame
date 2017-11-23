@@ -15,8 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\ProceduralTerrain.hlsl" />
     <None Include="..\Common\LightingUtil.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\ProceduralTerrain.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

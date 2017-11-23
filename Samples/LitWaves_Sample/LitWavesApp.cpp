@@ -153,8 +153,8 @@ void LitWavesApp::BuildShaders()
     mShaderDesc.AddVertexInput("NORMAL",   FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddShaderStage(L"Shaders\\LitWaves.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDesc.AddShaderStage(L"Shaders\\LitWaves.hlsl", Shader_Type::PS, "PS", "ps_5_0");
-    mShaderDesc.materialRegister = 1;
-    mShaderDesc.passRegister = 2;
+    mShaderDesc.matParamIndex = 2;
+    mShaderDesc.passParamIndex = 3;
 
     mEngine.GetScene()->AddShader(mShaderDesc);
 }

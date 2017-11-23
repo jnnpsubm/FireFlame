@@ -12,6 +12,7 @@ class D3DRenderer;
 class StopWatch;
 struct Pass;
 struct Material;
+struct Texture;
 class Scene {
 public:
     typedef std::vector<D3DRenderItem*>                        VecRItem;
@@ -41,10 +42,18 @@ public:
         const std::string&      shaderName,
         const stRenderItemDesc& desc
     );
+    void AddTexture(const std::string& name, const std::wstring& filename);
     void AddMaterial
     (
         const std::string& name, 
         const std::string& shaderName, 
+        size_t dataLen, const void* data
+    );
+    void AddMaterial
+    (
+        const std::string& name,
+        const std::string& shaderName,
+        const std::string& texName,
         size_t dataLen, const void* data
     );
     void AddPass(const std::string& shaderName, const std::string& passName);
@@ -83,5 +92,6 @@ private:
 
     // todo : move to primitive
     std::unordered_map<std::string, std::shared_ptr<Material>>         mMaterials;
+    std::unordered_map<std::string, std::shared_ptr<Texture>>          mTextures;
 };
 }

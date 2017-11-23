@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <array>
 #include <forward_list>
 #include <map>
 #include <unordered_map>
@@ -17,10 +18,12 @@ class D3DShaderWrapper {
 public:
     D3DShaderWrapper(const std::string& name) : mName(name) {}
 
-    void SetConstBufferRegisert(UINT passRegister, UINT materialRegister)
+    void SetParamIndex(UINT texParamIndex, UINT objParamIndex, UINT matParamIndex, UINT passParamIndex)
     {
-        mPassRegister = passRegister;
-        mMaterialRegister = materialRegister;
+        mTexParamIndex = texParamIndex;
+        mObjParamIndex = objParamIndex;
+        mMatParamIndex = matParamIndex;
+        mPassParamIndex = passParamIndex;
     }
     void UpdateObjCBData(unsigned int index, size_t size, const void* data);
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
@@ -30,23 +33,39 @@ public:
     //void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
     //void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
+    void BuildTexSRVHeap(UINT maxDescriptor);
+#ifdef TEX_SRV_USE_CB_HEAP
     void BuildFrameCBResources
     (
         UINT objConstSize, UINT maxObjConstCount,
         UINT passConstSize, UINT maxPassConstCount,
-        UINT matConstSize, UINT maxMatConstCount
+        UINT matConstSize, UINT maxMatConstCount,
+        UINT texSRVCount
     );
+#else
+    void BuildFrameCBResources
+    (
+        UINT objConstSize, UINT maxObjConstCount,
+        UINT passConstSize, UINT maxPassConstCount,
+        UINT matConstSize, UINT maxMatConstCount,
+        UINT texSRVCount
+    );
+#endif
+    UINT CreateTexSRV(ID3D12Resource* res);
 
     // Get Methods
     // todo : variant heaps with variant shaders
-    ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();       }
-    ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get(); }
-    UINT GetMatCBVOffset()                      const { return mMaterialCbvOffset;   }
-    UINT GetMaterialCBVMaxCount()               const { return mMatCbvMaxCount;      }
-    UINT GetPassCBVMaxCount()                   const { return mPassCbvMaxCount;     }
-    UINT GetObjCBVMaxCount()                    const { return mObjCbvMaxCount;      }
-    UINT GetPassRegister()                      const { return mPassRegister;        }
-    UINT GetMaterialRegister()                  const { return mMaterialRegister;    }
+    ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();              }
+    ID3D12DescriptorHeap* GetTexSRVHeap()       const { return mTexSrvDescriptorHeap.Get(); }
+    ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get();        }
+    UINT GetMatCBVOffset()                      const { return mMaterialCbvOffset;          }
+    UINT GetMaterialCBVMaxCount()               const { return mMatCbvMaxCount;             }
+    UINT GetPassCBVMaxCount()                   const { return mPassCbvMaxCount;            }
+    UINT GetObjCBVMaxCount()                    const { return mObjCbvMaxCount;             }
+    UINT GetTexParamIndex()                     const { return mTexParamIndex;              }
+    UINT GetObjParamIndex()                     const { return mObjParamIndex;              }
+    UINT GetMatParamIndex()                     const { return mMatParamIndex;              }
+    UINT GetPassParamIndex()                    const { return mPassParamIndex;             }
     UINT GetFreeObjCBV() { 
         if (mObjCbvHeapFreeList.empty())
             throw std::exception("todo : dynamically grow size of shader object const buff");
@@ -83,15 +102,21 @@ private:
     Microsoft::WRL::ComPtr<ID3DBlob> mTSByteCode = nullptr;
     Microsoft::WRL::ComPtr<ID3DBlob> mGSByteCode = nullptr;
 
-    std::unique_ptr<UploadBuffer>                  mShaderCB      = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap       = nullptr;
+    std::unique_ptr<UploadBuffer>                  mShaderCB             = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap              = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mTexSrvDescriptorHeap = nullptr;
 
-    UINT                                           mPassRegister = 2;
-    UINT                                           mMaterialRegister = 1;
+    UINT                                           mTexParamIndex = 0;
+    UINT                                           mObjParamIndex = 1;
+    UINT                                           mMatParamIndex = 2;
+    UINT                                           mPassParamIndex = 3;
 
     UINT                                           mMaterialCbvOffset = 0;
     UINT                                           mPassCbvOffset = 0;
+#ifdef TEX_SRV_USE_CB_HEAP
+    UINT                                           mTexSrvOffset = 0;
+#endif
 
     UINT                                           mPassCbvMaxCount = 0;
     UINT                                           mObjCbvMaxCount = 0;
@@ -100,8 +125,10 @@ private:
     std::forward_list<UINT>                        mObjCbvHeapFreeList;
     std::forward_list<UINT>                        mPassCbvHeapFreeList;
     std::forward_list<UINT>                        mMatCbvHeapFreeList;
+    std::forward_list<UINT>                        mTexSrvHeapFreeList;
 
     void BuildInputLayout(const stShaderDescription& shaderDesc);
+    std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 };
 
 } // end namespace
