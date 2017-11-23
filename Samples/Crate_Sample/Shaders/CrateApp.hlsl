@@ -21,7 +21,12 @@
 #include "..\..\Common\LightingUtil.hlsli"
 
 Texture2D    gDiffuseMap : register(t0);
-SamplerState gsamLinear  : register(s0);
+SamplerState gSamPointWrap     : register(s0);
+SamplerState gSamPointClamp    : register(s1);
+SamplerState gSamLinearWrap    : register(s2);
+SamplerState gSamLinearClamp   : register(s3);
+SamplerState gSamAnisotropWrap : register(s4);
+SamplerState gSamAnisotropClamp: register(s5);
 
 
 // Constant data that varies per frame.
@@ -103,7 +108,7 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    float4 diffuseAlbedo = gDiffuseMap.Sample(gsamLinear, pin.TexC) * gDiffuseAlbedo;
+    float4 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropWrap, pin.TexC) * gDiffuseAlbedo;
 
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);

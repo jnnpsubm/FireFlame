@@ -142,6 +142,10 @@ int Scene::GetReady() {
     mRenderer->ExecuteCommand();
     // Wait until initialization is complete.
     mRenderer->WaitForGPU();
+    for (auto& namedPrimitive : mPrimitives) {
+        auto& primitive = namedPrimitive.second;
+        primitive->GetMesh()->DisposeUploaders();
+    }
     return 0;
 }
 

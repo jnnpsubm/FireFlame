@@ -8,7 +8,7 @@ struct NamedMaterialConstants : MaterialConstants
 
 class CrateApp : public FLEngineApp {
 public:
-    CrateApp(FireFlame::Engine& e) : FLEngineApp(e) {}
+    CrateApp(FireFlame::Engine& e) : FLEngineApp(e) { mRadius = 4.f; }
     void Initialize() override;
 
     void UpdateMainPassCB(float time_elapsed) override;
