@@ -1,14 +1,22 @@
 #include "TexColumnsApp.h"
 
+//#define SHOW_GENESHA
+
 void TexColumnsApp::Initialize()
 {
     AddShaders();
+
     AddTextures();
-    AddGeneshaTextures();
     AddMaterials();
     AddGeoMeshs();
-    AddGaneshaMesh();
     AddRenderItems();
+
+#ifdef SHOW_GENESHA
+    AddGeneshaTextures();
+    AddGeneshaMaterial();
+    AddGeneshaMesh();
+    AddGeneshaRenderItem();
+#endif
 
     mPasses.push_back("DefaultPass");
     mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
@@ -110,7 +118,10 @@ void TexColumnsApp::AddMaterials()
         mShaderDesc.name, "tileTex",
         sizeof(MaterialConstants), &tile0
     );
+}
 
+void TexColumnsApp::AddGeneshaMaterial()
+{
     auto& genesha = mMaterials["genesha"];
     genesha.name = "genesha";
     genesha.DiffuseAlbedo = FireFlame::Vector4f(0.2f, 0.2f, 0.2f, 1.0f);
@@ -215,7 +226,7 @@ void TexColumnsApp::AddGeoMeshs()
     mEngine.GetScene()->AddPrimitive(mMeshDesc.back());
 }
 
-void TexColumnsApp::AddGaneshaMesh()
+void TexColumnsApp::AddGeneshaMesh()
 {
     std::vector<FireFlame::FLVertexNormalTex> vertices;
     std::vector<std::uint32_t>             indices;
@@ -278,33 +289,6 @@ void TexColumnsApp::AddRenderItems()
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[0].name,
-        mShaderDesc.name,
-        RItem
-    );
-
-    // genesha
-    RItem.name = "genesha";
-    RItem.mat = "genesha";
-    RItem.subMesh = mMeshDesc[1].subMeshs[0];
-    XMStoreFloat4x4
-    (
-        &trans[0],
-        XMMatrixTranspose
-        (
-            XMMatrixScaling(mGeneshaScale * 5, mGeneshaScale * 5, mGeneshaScale * 5)*
-            XMMatrixTranslation(-15.0f, mGeneshaTransY+4.f, 0.0f)*
-            XMMatrixRotationY(FireFlame::MathHelper::FL_PI)
-        )
-    );
-    XMStoreFloat4x4
-    (
-        &trans[1],
-        XMMatrixTranspose(XMMatrixIdentity())
-    );
-    mRenderItems.emplace_back(RItem);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[1].name,
         mShaderDesc.name,
         RItem
     );
@@ -388,6 +372,43 @@ void TexColumnsApp::AddRenderItems()
             RItem
         );
     }
+}
+
+void TexColumnsApp::AddGeneshaRenderItem()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem;
+    XMFLOAT4X4 trans[2];
+
+    // genesha
+    RItem.name = "genesha";
+    RItem.mat = "genesha";
+    RItem.subMesh = mMeshDesc[1].subMeshs[0];
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose
+        (
+            XMMatrixScaling(mGeneshaScale * 5, mGeneshaScale * 5, mGeneshaScale * 5)*
+            XMMatrixTranslation(-15.0f, mGeneshaTransY + 4.f, 0.0f)*
+            XMMatrixRotationY(FireFlame::MathHelper::FL_PI)
+        )
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    mRenderItems.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[1].name,
+        mShaderDesc.name,
+        RItem
+    );
 }
 
 void TexColumnsApp::OnKeyUp(WPARAM wParam, LPARAM lParam)

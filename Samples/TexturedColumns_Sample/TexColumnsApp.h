@@ -24,9 +24,11 @@ private:
     void AddTextures();
     void AddGeneshaTextures();
     void AddMaterials();
+    void AddGeneshaMaterial();
     void AddGeoMeshs();
-    void AddGaneshaMesh();
+    void AddGeneshaMesh();
     void AddRenderItems();
+    void AddGeneshaRenderItem();
 
     float mGeneshaScale = 1.f;
     float mGeneshaTransY = 0.f;
