@@ -4,8 +4,10 @@ void TexColumnsApp::Initialize()
 {
     AddShaders();
     AddTextures();
+    AddGeneshaTextures();
     AddMaterials();
     AddGeoMeshs();
+    AddGaneshaMesh();
     AddRenderItems();
 
     mPasses.push_back("DefaultPass");
@@ -62,6 +64,15 @@ void TexColumnsApp::AddTextures()
     );
 }
 
+void TexColumnsApp::AddGeneshaTextures()
+{
+    mEngine.GetScene()->AddTexture
+    (
+        "geneshaTex",
+        L"..\\..\\Resources\\ganesha\\textures\\ganesha.dds"
+    );
+}
+
 void TexColumnsApp::AddMaterials()
 {
     auto& bricks0 = mMaterials["bricks0"];
@@ -98,6 +109,18 @@ void TexColumnsApp::AddMaterials()
         tile0.name,
         mShaderDesc.name, "tileTex",
         sizeof(MaterialConstants), &tile0
+    );
+
+    auto& genesha = mMaterials["genesha"];
+    genesha.name = "genesha";
+    genesha.DiffuseAlbedo = FireFlame::Vector4f(0.2f, 0.2f, 0.2f, 1.0f);
+    genesha.FresnelR0 = FireFlame::Vector3f(0.8f, 0.8f, 0.4f);
+    genesha.Roughness = 0.8f;
+    mEngine.GetScene()->AddMaterial
+    (
+        genesha.name,
+        mShaderDesc.name, "", //"geneshaTex",
+        sizeof(MaterialConstants), &genesha
     );
 }
 
@@ -192,6 +215,46 @@ void TexColumnsApp::AddGeoMeshs()
     mEngine.GetScene()->AddPrimitive(mMeshDesc.back());
 }
 
+void TexColumnsApp::AddGaneshaMesh()
+{
+    std::vector<FireFlame::FLVertexNormalTex> vertices;
+    std::vector<std::uint32_t>             indices;
+    if (FireFlame::PLYLoader::Load("..\\..\\Resources\\ganesha\\geometry\\ganesha.ply", vertices, indices))
+    {
+        mMeshDesc.emplace_back();
+        mMeshDesc.back().name = "ganesha";
+        mMeshDesc.back().indexCount = (unsigned int)indices.size();
+        mMeshDesc.back().indexFormat = FireFlame::Index_Format::UINT32;
+        mMeshDesc.back().indices = indices.data();
+
+        mMeshDesc.back().vertexDataCount.push_back((unsigned int)vertices.size());
+        mMeshDesc.back().vertexDataSize.push_back(sizeof(FireFlame::FLVertexNormalTex));
+        mMeshDesc.back().vertexData.push_back(vertices.data());
+
+        // sub meshes
+        mMeshDesc.back().subMeshs.emplace_back("All", (UINT)indices.size());
+        mEngine.GetScene()->AddPrimitive(mMeshDesc.back());
+
+        // decide scale
+        float maxX = 0.f, maxY = 0.f, maxZ = 0.f;
+        float minY = (std::numeric_limits<float>::max)();
+        for (size_t i = 0; i < vertices.size(); ++i)
+        {
+            if (std::abs(vertices[i].Pos.x) > maxX)
+                maxX = std::abs(vertices[i].Pos.x);
+            if (std::abs(vertices[i].Pos.y) > maxY)
+                maxY = std::abs(vertices[i].Pos.y);
+            if (std::abs(vertices[i].Pos.z) > maxZ)
+                maxZ = std::abs(vertices[i].Pos.z);
+
+            if (vertices[i].Pos.y < minY)
+                minY = vertices[i].Pos.y;
+        }
+        mGeneshaScale = mRadius / (((std::max)((std::max)(maxX, maxY), maxZ) - minY)*4.f);
+        mGeneshaTransY = -minY*mGeneshaScale;
+    }
+}
+
 void TexColumnsApp::AddRenderItems()
 {
     using namespace DirectX;
@@ -215,6 +278,33 @@ void TexColumnsApp::AddRenderItems()
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[0].name,
+        mShaderDesc.name,
+        RItem
+    );
+
+    // genesha
+    RItem.name = "genesha";
+    RItem.mat = "genesha";
+    RItem.subMesh = mMeshDesc[1].subMeshs[0];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose
+        (
+            XMMatrixScaling(mGeneshaScale * 5, mGeneshaScale * 5, mGeneshaScale * 5)*
+            XMMatrixTranslation(-15.0f, mGeneshaTransY+4.f, 0.0f)*
+            XMMatrixRotationY(FireFlame::MathHelper::FL_PI)
+        )
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    mRenderItems.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[1].name,
         mShaderDesc.name,
         RItem
     );

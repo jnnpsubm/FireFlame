@@ -22,9 +22,14 @@ public:
 private:
     void AddShaders();
     void AddTextures();
+    void AddGeneshaTextures();
     void AddMaterials();
     void AddGeoMeshs();
+    void AddGaneshaMesh();
     void AddRenderItems();
+
+    float mGeneshaScale = 1.f;
+    float mGeneshaTransY = 0.f;
 
     std::unordered_map<std::string, NamedMaterialConstants> mMaterials;
 };

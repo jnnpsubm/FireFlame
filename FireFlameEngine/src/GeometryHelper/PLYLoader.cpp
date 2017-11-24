@@ -16,6 +16,181 @@ namespace FireFlame
 
 bool PLYLoader::Load
 (
+    const std::string& filename,
+    std::vector<FLVertexNormalTex>& verticesOut,
+    std::vector<std::uint32_t>&  indicesOut
+)
+{
+    using namespace tinyply;
+    try
+    {
+        // Read the file and create a std::istringstream suitable
+        // for the lib -- tinyply does not perform any file i/o.
+        std::ifstream ss(filename, std::ios::binary);
+
+        if (ss.fail())
+        {
+            throw std::runtime_error("failed to open " + filename);
+        }
+
+        PlyFile file;
+        file.parse_header(ss);
+
+        std::shared_ptr<PlyData> vertices, vnormals, fnormals, face_indices_num, faces, texcoords;
+
+        // The header information can be used to programmatically extract properties on elements
+        // known to exist in the file header prior to reading the data. For brevity of this sample, properties 
+        // like vertex position are hard-coded: 
+        try { vertices = file.request_properties_from_element("vertex", { "x", "y", "z" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        try { vnormals = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        try { texcoords = file.request_properties_from_element("vertex", { "u", "v" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        //try { colors = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" }); }
+        //catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        try { faces = file.request_properties_from_element("face", { "vertex_indices" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        try { face_indices_num = file.request_properties_from_element("face", { "list" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        try { fnormals = file.request_properties_from_element("face", { "nx", "ny", "nz" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        file.read(ss);
+
+        if (vertices)
+        {
+            verticesOut.resize(vertices->count);
+            if (vertices->t != Type::FLOAT32)
+            {
+                throw std::exception("only support float32 now");
+            }
+            std::uint8_t* buffer = vertices->buffer.get();
+            size_t sizeEle = vertices->buffer.size_bytes() / vertices->count;
+            for (size_t i = 0; i < verticesOut.size(); ++i)
+            {
+                memcpy(&verticesOut[i].Pos, buffer, sizeEle);
+                buffer += sizeEle;
+            }
+            if (vnormals)
+            {
+                if (vnormals->t != Type::FLOAT32)
+                {
+                    throw std::exception("vnormals only support float32 now");
+                }
+                buffer = vnormals->buffer.get();
+                sizeEle = vnormals->buffer.size_bytes() / vnormals->count;
+                for (size_t i = 0; i < verticesOut.size(); ++i)
+                {
+                    memcpy(&verticesOut[i].Normal, buffer, sizeEle);
+                    buffer += sizeEle;
+                }
+            }
+            if (texcoords)
+            {
+                if (texcoords->t != Type::FLOAT32)
+                {
+                    throw std::exception("texcoords only support float32 now");
+                }
+                buffer = texcoords->buffer.get();
+                sizeEle = texcoords->buffer.size_bytes() / texcoords->count;
+                for (size_t i = 0; i < verticesOut.size(); ++i)
+                {
+                    memcpy(&verticesOut[i].Tex, buffer, sizeEle);
+                    buffer += sizeEle;
+                }
+            }
+        }
+        if (faces)
+        {
+            std::uint8_t* buffer = faces->buffer.get();
+            indicesOut.resize(faces->count * 3);
+            size_t stride = PropertyTable[faces->t].stride;
+            size_t indicesPerFace = faces->buffer.size_bytes() / stride / faces->count;
+            std::cout << "index per face:" << indicesPerFace << std::endl;
+            if (faces->t == Type::INT32)
+            {
+                for (size_t i = 0; i < indicesOut.size(); ++i)
+                {
+                    indicesOut[i] = *((std::int32_t*)buffer);
+                    buffer += sizeof(std::int32_t);
+                }
+            }
+            else if (faces->t == Type::UINT32)
+            {
+                for (size_t i = 0; i < indicesOut.size(); ++i)
+                {
+                    indicesOut[i] = *((std::uint32_t*)buffer);
+                    buffer += sizeof(std::uint32_t);
+                }
+            }
+            else if (faces->t == Type::INT16)
+            {
+                for (size_t i = 0; i < indicesOut.size(); ++i)
+                {
+                    indicesOut[i] = *((std::int16_t*)buffer);
+                    buffer += sizeof(std::int16_t);
+                }
+            }
+            else if (faces->t == Type::UINT16)
+            {
+                for (size_t i = 0; i < indicesOut.size(); ++i)
+                {
+                    indicesOut[i] = *((std::uint16_t*)buffer);
+                    buffer += sizeof(std::uint16_t);
+                }
+            }
+            else
+            {
+                throw std::exception("unknown index type......");
+            }
+        }
+        if (!vnormals && fnormals)
+        {
+            std::cout << "no vertex normals,use face normals to calculate vertex normals..." << std::endl;
+            if (fnormals->t != Type::FLOAT32)
+            {
+                throw std::exception("only support float32 now");
+            }
+            float* buffer = (float*)fnormals->buffer.get();
+            for (size_t i = 0; i < faces->count; ++i)
+            {
+                Vector3f fn(*(buffer), *(buffer + 1), *(buffer + 2));
+                verticesOut[indicesOut[3 * i + 0]].Normal += fn;
+                verticesOut[indicesOut[3 * i + 1]].Normal += fn;
+                verticesOut[indicesOut[3 * i + 2]].Normal += fn;
+                buffer += 3;
+            }
+            for (size_t i = 0; i < verticesOut.size(); ++i)
+            {
+                verticesOut[i].Normal.Normalize();
+            }
+            std::cout << "vertex normals generated..." << std::endl;
+        }
+        if (!vnormals && !fnormals && faces)
+        {
+            for (size_t i = 0; i < faces->count; ++i)
+            {
+
+            }
+        }
+    }
+    catch (const std::exception & e)
+    {
+        std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool PLYLoader::Load
+(
     const std::string& filename, 
     std::vector<FLVertexNormal>& verticesOut,
     std::vector<std::uint32_t>&  indicesOut

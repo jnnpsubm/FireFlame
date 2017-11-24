@@ -14,6 +14,12 @@ public:
         std::vector<FLVertexNormal>& verticesOut,
         std::vector<std::uint32_t>&  indicesOut
     );
+    static bool Load
+    (
+        const std::string& filename,
+        std::vector<FLVertexNormalTex>& verticesOut,
+        std::vector<std::uint32_t>&  indicesOut
+    );
 
 private:
     /*static bool LoadBinaryLE_V1_0(const std::string& filename);
