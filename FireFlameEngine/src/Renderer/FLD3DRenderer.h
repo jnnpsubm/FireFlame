@@ -144,7 +144,7 @@ private:
 
     UINT        mMSAAMode    = 0;
 	UINT        mMSAAQuality = 0;
-	UINT        mSampleCount = 4;
+	UINT        mSampleCount = 8;
 
     D3D12_CULL_MODE mCullMode = D3D12_CULL_MODE_BACK;
     D3D12_FILL_MODE mFillMode = D3D12_FILL_MODE_SOLID;
