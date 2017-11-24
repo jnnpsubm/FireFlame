@@ -56,6 +56,7 @@ public:
         const std::string& texName,
         size_t dataLen, const void* data
     );
+    void AddMaterial(const stMaterialDesc& matDesc);
     void AddPass(const std::string& shaderName, const std::string& passName);
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);

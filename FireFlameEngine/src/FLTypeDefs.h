@@ -188,7 +188,8 @@ struct stShaderDescription {
     unsigned int                passCBSize = 1;
     unsigned int                materialCBSize = 0;
 
-    unsigned int                maxTexSRVDescriptor = 4;
+    unsigned int                maxTexSRVDescriptor = 64;
+    unsigned int                texSRVDescriptorTableSize = 1;
 
     unsigned int                texParamIndex = -1;
     unsigned int                objParamIndex = 1;
@@ -236,6 +237,16 @@ struct stViewport {
     float z0;
     float z1;
 };
+
+struct stMaterialDesc
+{
+    std::string name;
+    std::string shaderName;
+    std::vector<std::string> texNames;
+    size_t dataLen;
+    const void* data;
+};
+
 struct stMSAADesc {
     stMSAADesc(UINT s, UINT q) :sampleCount(s), qualityLevels(q) {}
     UINT sampleCount;

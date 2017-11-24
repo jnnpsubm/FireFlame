@@ -33,7 +33,6 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
         if (Mat->DiffuseSrvHeapIndex != -1)
         {
             auto texSRVIndex = Mat->DiffuseSrvHeapIndex;
-
 #ifdef TEX_SRV_USE_CB_HEAP
             auto texSRVHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
             texSRVIndex += Shader->GetTexSrvOffset();
@@ -45,7 +44,6 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
             auto texSRVHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(texSRVHeap->GetGPUDescriptorHandleForHeapStart());
             texSRVHandle.Offset(texSRVIndex, renderer->GetCbvSrvUavDescriptorSize());
 #endif
-
             cmdList->SetGraphicsRootDescriptorTable(Shader->GetTexParamIndex(), texSRVHandle);
 #ifndef TEX_SRV_USE_CB_HEAP
             cmdList->SetDescriptorHeaps(1, &CBVHeap);

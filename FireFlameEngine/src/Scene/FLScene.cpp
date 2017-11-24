@@ -72,21 +72,24 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList)
 }
 void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
 {
-    for (auto& namedPrimitive : mPrimitives) {
+    for (auto& namedPrimitive : mPrimitives) 
+    {
         auto& primitive = namedPrimitive.second;
         auto mesh = primitive->GetMesh();
-        if (!mesh->ResidentOnGPU()) {
+        if (!mesh->ResidentOnGPU()) 
+        {
             mesh->MakeResident2GPU(mRenderer->GetDevice(), mRenderer->GetCommandList());
         }
-        //primitive->Draw(mRenderer.get());
     }
 
     // todo : some render items share the same pso and shader etc...
     // need to handle outside for loop
     auto renderer = Engine::GetEngine()->GetRenderer();
-    for (auto& itemsTopType : mMappedRItems) {
+    for (auto& itemsTopType : mMappedRItems) 
+    {
         D3D12_PRIMITIVE_TOPOLOGY_TYPE topType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)itemsTopType.first;
-        for (auto& itemsShader : itemsTopType.second) {
+        for (auto& itemsShader : itemsTopType.second) 
+        {
             D3DShaderWrapper* Shader = mShaders[itemsShader.first].get();
             auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
             (
@@ -113,10 +116,12 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
                 cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
             }
 
-            for (auto& itemsOpaqueStatus : itemsShader.second) {
+            for (auto& itemsOpaqueStatus : itemsShader.second) 
+            {
                 bool opaqueStatus = itemsOpaqueStatus.first;
                 opaqueStatus;
-                for (auto& renderItem : itemsOpaqueStatus.second) {
+                for (auto& renderItem : itemsOpaqueStatus.second) 
+                {
                     renderItem->Render(Shader);
                 }
             }
@@ -172,7 +177,7 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
         shaderDesc.objCBSize, 100,
         shaderDesc.passCBSize, 3,
         shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
-        shaderDesc.maxTexSRVDescriptor
+        shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor
     );
 #else
     if (shaderDesc.maxTexSRVDescriptor)
@@ -186,8 +191,6 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
         shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0
     );
 #endif
-    
-    
     shader->BuildRootSignature(mRenderer->GetDevice());
     shader->BuildShadersAndInputLayout(shaderDesc);
     shader->BuildPSO
@@ -389,6 +392,36 @@ void Scene::AddMaterial
         memcpy(mat->data, data, dataLen);
     }
     mMaterials.emplace(name, mat);
+}
+
+void Scene::AddMaterial(const stMaterialDesc& matDesc)
+{
+    auto itShader = mShaders.find(matDesc.shaderName);
+    if (itShader == mShaders.end())
+        throw std::exception("cannot find shader in AddMaterial");
+    auto shader = itShader->second;
+
+    auto mat = std::make_shared<Material>(matDesc.name, Engine::NumFrameResources());
+    mat->MatCBIndex = shader->GetFreeMatCBV();
+    assert(matDesc.texNames.size() <= shader->GetTexSRVDescriptorTableSize());
+    std::vector<ID3D12Resource*> vecRes;
+    for (const auto& texName : matDesc.texNames)
+    {
+        auto itTex = mTextures.find(texName);
+        if (itTex != mTextures.end())
+        {
+            vecRes.push_back(itTex->second->resource.Get());
+        }
+    }
+    mat->DiffuseSrvHeapIndex = shader->CreateTexSRV(vecRes);
+    
+    if (matDesc.dataLen && matDesc.data)
+    {
+        mat->data = new char[matDesc.dataLen];
+        mat->dataLen = matDesc.dataLen;
+        memcpy(mat->data, matDesc.data, matDesc.dataLen);
+    }
+    mMaterials.emplace(matDesc.name, mat);
 }
 
 void Scene::AddPass(const std::string& shaderName, const std::string& passName)

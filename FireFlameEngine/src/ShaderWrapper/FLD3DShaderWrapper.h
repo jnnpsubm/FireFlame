@@ -39,7 +39,7 @@ public:
         UINT objConstSize, UINT maxObjConstCount,
         UINT passConstSize, UINT maxPassConstCount,
         UINT matConstSize, UINT maxMatConstCount,
-        UINT texSRVCount
+        UINT texSRVTableSize, UINT texSRVCount
     );
 #else
     void BuildFrameCBResources
@@ -51,6 +51,7 @@ public:
     void BuildTexSRVHeap(UINT maxDescriptor);
 #endif
     UINT CreateTexSRV(ID3D12Resource* res);
+    UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
 
     // Get Methods
     // todo : variant heaps with variant shaders
@@ -59,6 +60,7 @@ public:
     ID3D12DescriptorHeap* GetTexSRVHeap()       const { return mTexSrvDescriptorHeap.Get(); }
 #endif
     ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get();        }
+    UINT GetTexSRVDescriptorTableSize()         const { return mTexSrvDescriptorTableSize;  }
 #ifdef TEX_SRV_USE_CB_HEAP
     UINT GetTexSrvOffset()                      const { return mTexSrvOffset;               }
 #endif
@@ -112,6 +114,8 @@ private:
 #ifndef TEX_SRV_USE_CB_HEAP
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mTexSrvDescriptorHeap = nullptr;
 #endif
+
+    UINT                                           mTexSrvDescriptorTableSize = 4;
 
     UINT                                           mTexParamIndex = 0;
     UINT                                           mObjParamIndex = 1;

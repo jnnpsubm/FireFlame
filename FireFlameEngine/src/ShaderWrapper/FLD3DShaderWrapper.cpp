@@ -36,7 +36,7 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
     CD3DX12_DESCRIPTOR_RANGE texTable;
-    texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+    texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mTexSrvDescriptorTableSize, 0);
 
     // Object constants index 1
     CD3DX12_DESCRIPTOR_RANGE cbvTable0;
@@ -243,13 +243,42 @@ UINT D3DShaderWrapper::CreateTexSRV(ID3D12Resource* res)
     return index;
 }
 
+UINT D3DShaderWrapper::CreateTexSRV(const std::vector<ID3D12Resource *>& vecRes)
+{
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    auto device = renderer->GetDevice();
+
+    if (mTexSrvHeapFreeList.empty())
+        throw std::exception("todo : dynamically grow size of texture shader resource view");
+    UINT index = mTexSrvHeapFreeList.front();
+    // todo : material cbv management
+    mTexSrvHeapFreeList.pop_front();
+
+    for (size_t i = 0; i < vecRes.size(); i++)
+    {
+        CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+        hDescriptor.Offset(index + mTexSrvOffset + (UINT)i, renderer->GetCbvSrvUavDescriptorSize());
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.Format = vecRes[i]->GetDesc().Format;
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.MipLevels = vecRes[i]->GetDesc().MipLevels;
+        srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+        device->CreateShaderResourceView(vecRes[i], &srvDesc, hDescriptor);
+    }
+    return index;
+}
+
 #ifdef TEX_SRV_USE_CB_HEAP
 void D3DShaderWrapper::BuildFrameCBResources
 (
     UINT objConstSize, UINT maxObjConstCount,
     UINT passConstSize, UINT maxPassConstCount,
     UINT matConstSize, UINT maxMatConstCount,
-    UINT texSRVCount
+    UINT texSRVTableSize, UINT texSRVCount
 )
 #else
 void D3DShaderWrapper::BuildFrameCBResources
@@ -380,7 +409,9 @@ void D3DShaderWrapper::BuildFrameCBResources
     }
 
 #ifdef TEX_SRV_USE_CB_HEAP
-    for (UINT i = 0; i < texSRVCount; ++i) {
+    mTexSrvDescriptorTableSize = texSRVTableSize;
+    assert(0 == texSRVCount%mTexSrvDescriptorTableSize);
+    for (int i = texSRVCount-mTexSrvDescriptorTableSize; i >= 0; i -= mTexSrvDescriptorTableSize) {
         mTexSrvHeapFreeList.push_front(i);
     }
 #endif
