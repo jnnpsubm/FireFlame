@@ -86,6 +86,12 @@ public:
 #undef dot
 	}
 
+    Matrix4X4& operator=(const DirectX::XMFLOAT4X4& rhs)
+    {
+        memcpy(this, &rhs, sizeof(DirectX::XMFLOAT4X4));
+        return *this;
+    }
+
 	operator DirectX::XMMATRIX() const {
 		return DirectX::XMMatrixSet(m00, m01, m02, m03,
 			m10, m11, m12, m13,

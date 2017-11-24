@@ -24,6 +24,19 @@ void CrateApp::UpdateMainPassCB(float time_elapsed)
     mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
     mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
     mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+
+    auto& matConst = mMaterials["woodCrate"];
+    DirectX::XMFLOAT4X4 m;
+    DirectX::XMStoreFloat4x4
+    (
+        &m,
+        DirectX::XMMatrixTranspose
+        (
+            DirectX::XMMatrixRotationZ(totalTime)
+        )
+    );
+    matConst.MatTransform = m;
+    mEngine.GetScene()->UpdateMaterialCBData(matConst.name, sizeof(MaterialConstants), &matConst);
 }
 
 void CrateApp::AddShaders()
