@@ -1,10 +1,10 @@
 #include "ProceduralTerrainApp.h"
 #include <fstream>
 
-ProceduralTerrainApp::ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e,100.f,1500.f) 
+ProceduralTerrainApp::ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e,1010.f,1500.f) 
 {
-    mRadius = 120.f;
-    mPixelStep *= 1.f;
+    mRadius = 1200.f;
+    mPixelStep *= 10.f;
 
     //mTheta = 0.f;
     //mPhi = 0.f;
@@ -13,6 +13,8 @@ ProceduralTerrainApp::ProceduralTerrainApp(FireFlame::Engine& e) :FLEngineApp(e,
 void ProceduralTerrainApp::Initialize()
 {
     BuildShaders();
+    BuildNoiseData();
+    AddTextures();
     AddMaterials();
     BuildGeometry();
     BuildRenderItems();
@@ -21,14 +23,61 @@ void ProceduralTerrainApp::Initialize()
     mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
 }
 
+void ProceduralTerrainApp::BuildNoiseData()
+{
+    const float step = (float)length / pixel_width;
+    mNoiseData = std::make_unique<float[]>(pixel_width*pixel_width);
+
+    for (size_t i = 0; i < pixel_width; ++i)
+    {
+        for (size_t j = 0; j < pixel_width; ++j)
+        {
+            mNoiseData[j*pixel_width + i] = std::abs(FireFlame::Noise::Evaluate(i*step, j*step, 0.5f));
+            //mNoiseData[j*pixel_width + i] = FireFlame::Noise::Evaluate(i*step, j*step, 0.5f);
+        }
+    }
+}
+
 void ProceduralTerrainApp::AddMaterials()
 {
     auto& terrain = mMaterials["terrain"];
     terrain.name = "terrain";
-    terrain.DiffuseAlbedo = { 0.2f, 0.8f, 0.5f, 1.0f };
-    terrain.FresnelR0 = { 0.1f,0.1f,0.1f };
-    terrain.Roughness = 0.9f;
-    mEngine.GetScene()->AddMaterial("terrain", mShaderDesc.name, "", sizeof(MaterialConstants), &terrain);
+    terrain.DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+    terrain.FresnelR0 = { 0.0f,0.0f,0.0f };
+    terrain.Roughness = 0.0f;
+    mEngine.GetScene()->AddMaterial
+    (
+    {
+        "terrain",
+        mShaderDesc.name, { "darkdirtTex", "lightdirtTex", "snowTex", "heightMap" },
+        sizeof(MaterialConstants), &terrain
+    }
+    );
+}
+
+void ProceduralTerrainApp::AddTextures()
+{
+    mEngine.GetScene()->AddTexture
+    (
+        "darkdirtTex",
+        L"..\\..\\Resources\\terrain\\darkdirt.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "lightdirtTex",
+        L"..\\..\\Resources\\terrain\\lightdirt.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "snowTex",
+        L"..\\..\\Resources\\terrain\\snow.dds"
+    );
+    mEngine.GetScene()->AddTexture2D
+    (
+        "heightMap", (const std::uint8_t*)mNoiseData.get(),
+        FireFlame::VERTEX_FORMAT_FLOAT1,
+        pixel_width, pixel_width
+    );
 }
 
 void ProceduralTerrainApp::UpdateMainPassCB(float time_elapsed)
@@ -90,10 +139,11 @@ void ProceduralTerrainApp::BuildShaders()
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
     mShaderDesc.materialCBSize = sizeof(MaterialConstants);
-    mShaderDesc.matParamIndex = 2;
-    mShaderDesc.passParamIndex = 3;
+    mShaderDesc.ParamDefault();
+    mShaderDesc.texSRVDescriptorTableSize = 4;
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
     mShaderDesc.AddShaderStage(L"Shaders\\ProceduralTerrain.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDesc.AddShaderStage(L"Shaders\\ProceduralTerrain.hlsl", Shader_Type::PS, "PS", "ps_5_0");
 
@@ -105,15 +155,16 @@ void ProceduralTerrainApp::BuildGeometry()
     using namespace FireFlame;
 
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(100.f, 8);
+    GeometryGenerator::MeshData earth = geoGen.CreateGeosphere(10.f, 10);
 
-    std::vector<FireFlame::FLVertexNormal> vertices(earth.Vertices.size());
+    std::vector<FireFlame::FLVertexNormalTex> vertices(earth.Vertices.size());
     for (size_t i = 0; i < earth.Vertices.size(); ++i)
     {
         vertices[i].Pos = earth.Vertices[i].Position;
         //vertices[i].Pos.y += Noise::FBm(vertices[i].Pos, 1.9f, 1)*1.f;
-        vertices[i].Pos.y += Noise::Evaluate(vertices[i].Pos)*0.5f;
+        //vertices[i].Pos.y += std::abs(Noise::Evaluate(vertices[i].Pos)*1.f);
         vertices[i].Normal = { 0.f,0.f,0.f };
+        vertices[i].Tex = earth.Vertices[i].TexC;
     }
     std::vector<std::uint32_t> indices = earth.Indices32;
 
@@ -147,7 +198,7 @@ void ProceduralTerrainApp::BuildGeometry()
     mMeshDesc.back().indices = indices.data();
 
     mMeshDesc.back().vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc.back().vertexDataSize.push_back(sizeof(FLVertexNormal));
+    mMeshDesc.back().vertexDataSize.push_back(sizeof(FLVertexNormalTex));
     mMeshDesc.back().vertexData.push_back(vertices.data());
 
     // sub meshes
@@ -156,66 +207,24 @@ void ProceduralTerrainApp::BuildGeometry()
     mEngine.GetScene()->AddPrimitive(mMeshDesc.back());
 }
 
-void ProceduralTerrainApp::LoadSkull(const std::string& filePath)
-{
-    std::ifstream inFile(filePath);
-    std::string nouse;
-    size_t vertexCount = 0;
-    size_t indexCount = 0;
-    inFile >> nouse;             // VertexCount:
-    inFile >> vertexCount;
-    inFile >> nouse;             // TriangleCount:
-    inFile >> indexCount;
-    inFile >> nouse;             // VertexList
-    inFile >> nouse;             // (pos,
-    inFile >> nouse;             // normal)
-    inFile >> nouse;             // {
-
-    indexCount *= 3;
-
-    std::vector<FireFlame::FLVertexNormal> vertices;
-    vertices.reserve(vertexCount);
-    for (size_t i = 0; i < vertexCount; i++)
-    {
-        float x, y, z, u, v, w;
-        inFile >> x >> y >> z >> u >> v >> w;
-        vertices.emplace_back(x, y, z, u, v, w);
-    }
-
-    inFile >> nouse >> nouse >> nouse;
-    std::vector<std::uint16_t> indices;
-    indices.reserve(indexCount);
-    for (size_t i = 0; i < indexCount; i++)
-    {
-        std::uint16_t index = 0;
-        inFile >> index;
-        indices.push_back(index);
-    }
-    inFile.close();
-
-    mMeshDesc.emplace_back();
-    mMeshDesc[1].name = "Skull";
-    mMeshDesc[1].indexCount = (unsigned int)indices.size();
-    mMeshDesc[1].indexFormat = FireFlame::Index_Format::UINT16;
-    mMeshDesc[1].indices = indices.data();
-
-    mMeshDesc[1].vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc[1].vertexDataSize.push_back(sizeof(FireFlame::FLVertexNormal));
-    mMeshDesc[1].vertexData.push_back(vertices.data());
-
-    // sub meshes
-    mMeshDesc[1].subMeshs.emplace_back("All", (UINT)indices.size());
-    mEngine.GetScene()->AddPrimitive(mMeshDesc[1]);
-}
-
 void ProceduralTerrainApp::BuildRenderItems()
 {
     using namespace DirectX;
 
     FireFlame::stRenderItemDesc RItem("Earth", mMeshDesc[0].subMeshs[0]);
-    XMFLOAT4X4 worldTrans = FireFlame::Matrix4X4();
-    RItem.dataLen = sizeof(XMFLOAT4X4);
-    RItem.data = &worldTrans;
+    XMFLOAT4X4 trans[2];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose(XMMatrixScaling(100.f,100.f,100.f))
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixTranspose(XMMatrixScaling(50.f, 50.f, 50.f))
+    );
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
     RItem.mat = mMaterials["terrain"].name;
     mRenderItems.emplace_back(RItem);
     mEngine.GetScene()->AddRenderItem

@@ -338,6 +338,31 @@ void Scene::AddTexture(const std::string& name, const std::wstring& filename)
     mTextures[tex->name] = std::move(tex);
 }
 
+void Scene::AddTexture2D
+(
+    const std::string& name,
+    const std::uint8_t* data,
+    unsigned long format,
+    unsigned long width,
+    unsigned long height
+)
+{
+    auto tex = std::make_shared<Texture>(name);
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    renderer->ResetCommandList();
+    tex->resource = D3DUtils::CreateDefaultTexture2D
+    (
+        renderer->GetDevice(),
+        renderer->GetCommandList(),
+        data, FireFlame::FLVertexFormat2DXGIFormat(format), width, height,
+        tex->uploadHeap
+    );
+    renderer->ExecuteCommand();
+    renderer->WaitForGPU();
+    tex->uploadHeap = nullptr;
+    mTextures[tex->name] = std::move(tex);
+}
+
 void Scene::AddMaterial
 (
     const std::string& name,

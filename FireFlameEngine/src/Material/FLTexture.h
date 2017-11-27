@@ -7,6 +7,9 @@ namespace FireFlame
 {
 struct Texture
 {
+    Texture(const std::string& name) :
+        name(name)
+    {}
     Texture(const std::string& name, const std::wstring& filename) : 
         name(name),
         filename(filename) 

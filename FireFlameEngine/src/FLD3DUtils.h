@@ -16,6 +16,13 @@ public:
         UINT64 byteSize,
         Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer
     );
+    static Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultTexture2D(
+        ID3D12Device* device,
+        ID3D12GraphicsCommandList* cmdList,
+        const void* initData, DXGI_FORMAT format,
+        UINT64 width, UINT height,
+        Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer
+    );
     static Microsoft::WRL::ComPtr<ID3DBlob> D3DUtils::CompileShader(
         const std::wstring& filename,
         const D3D_SHADER_MACRO* defines,

@@ -43,6 +43,14 @@ public:
         const stRenderItemDesc& desc
     );
     void AddTexture(const std::string& name, const std::wstring& filename);
+    void AddTexture2D
+    (
+        const std::string& name, 
+        const std::uint8_t* data,
+        unsigned long format, 
+        unsigned long width, 
+        unsigned long height
+    );
     void AddMaterial
     (
         const std::string& name, 
