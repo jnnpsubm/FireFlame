@@ -15,6 +15,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <functional>
 #include "..\MathHelper\FLVector.h"
 
 namespace FireFlame {
@@ -96,7 +97,11 @@ public:
     /// Creates an mxn grid in the xz-plane with m rows and n columns, centered
     /// at the origin with the specified width and depth.
     ///</summary>
-    MeshData CreateGrid(float width, float depth, uint32 m, uint32 n);
+    MeshData CreateGrid
+    (
+        float width, float depth, uint32 m, uint32 n, 
+        std::function<void(float)> report = nullptr
+    );
 
     ///<summary>
     /// Creates a quad aligned with the screen.  This is useful for postprocessing and screen effects.

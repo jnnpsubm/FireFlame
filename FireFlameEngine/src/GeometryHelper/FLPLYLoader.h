@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <functional>
 #include "..\MathHelper\FLVertex.h"
 
 namespace FireFlame
@@ -19,6 +20,14 @@ public:
         const std::string& filename,
         std::vector<FLVertexNormalTex>& verticesOut,
         std::vector<std::uint32_t>&  indicesOut
+    );
+
+    static void Save
+    (
+        const std::string& filename,
+        const std::vector<FLVertexNormalTex>& vertices,
+        const std::vector<std::uint32_t>&  indices, 
+        std::function<void(float)> report
     );
 
 private:

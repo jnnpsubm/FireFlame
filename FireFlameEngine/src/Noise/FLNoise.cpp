@@ -102,12 +102,12 @@ Noise::Float Noise::FBm
     // Compute sum of octaves of noise for FBm
     Float sum = 0, lambda = 1, o = 1;
     for (int i = 0; i < nInt; ++i) {
-        sum += o * Evaluate(lambda * p);
+        sum += o * EvaluatePoint(lambda * p);
         lambda *= 1.99f;
         o *= omega;
     }
     Float nPartial = n - nInt;
-    sum += o * MathHelper::SmoothStep(.3f, .7f, nPartial) * Evaluate(lambda * p);
+    sum += o * MathHelper::SmoothStep(.3f, .7f, nPartial) * EvaluatePoint(lambda * p);
     return sum;
 }
 
@@ -123,12 +123,12 @@ Noise::Float Noise::FBm
     // Compute sum of octaves of noise for FBm
     Float sum = 0, lambda = 1, o = 1;
     for (int i = 0; i < nInt; ++i) {
-        sum += o * Evaluate(lambda * p);
+        sum += o * EvaluatePoint(lambda * p);
         lambda *= 1.99f;
         o *= omega;
     }
     Float nPartial = n - nInt;
-    sum += o * MathHelper::SmoothStep(.3f, .7f, nPartial) * Evaluate(lambda * p);
+    sum += o * MathHelper::SmoothStep(.3f, .7f, nPartial) * EvaluatePoint(lambda * p);
     return sum;
 }
 
@@ -147,7 +147,7 @@ Noise::Float Noise::Turbulence
     // Compute sum of octaves of noise for turbulence
     Float sum = 0, lambda = 1, o = 1;
     for (int i = 0; i < nInt; ++i) {
-        sum += o * std::abs(Evaluate(lambda * p));
+        sum += o * std::abs(EvaluatePoint(lambda * p));
         lambda *= 1.99f;
         o *= omega;
     }
@@ -155,7 +155,7 @@ Noise::Float Noise::Turbulence
     // Account for contributions of clamped octaves in turbulence
     Float nPartial = n - nInt;
     sum += o * MathHelper::Lerp(MathHelper::SmoothStep(.3f, .7f, nPartial), 0.2f,
-        std::abs(Evaluate(lambda * p)));
+        std::abs(EvaluatePoint(lambda * p)));
     for (int i = nInt; i < maxOctaves; ++i) {
         sum += o * 0.2f;
         o *= omega;
@@ -175,7 +175,7 @@ Noise::Float Noise::Turbulence
     // Compute sum of octaves of noise for turbulence
     Float sum = 0, lambda = 1, o = 1;
     for (int i = 0; i < nInt; ++i) {
-        sum += o * std::abs(Evaluate(lambda * p));
+        sum += o * std::abs(EvaluatePoint(lambda * p));
         lambda *= 1.99f;
         o *= omega;
     }
@@ -183,7 +183,7 @@ Noise::Float Noise::Turbulence
     // Account for contributions of clamped octaves in turbulence
     Float nPartial = n - nInt;
     sum += o * MathHelper::Lerp(MathHelper::SmoothStep(.3f, .7f, nPartial), 0.2f,
-        std::abs(Evaluate(lambda * p)));
+        std::abs(EvaluatePoint(lambda * p)));
     for (int i = nInt; i < maxOctaves; ++i) {
         sum += o * 0.2f;
         o *= omega;

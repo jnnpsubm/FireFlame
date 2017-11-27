@@ -79,7 +79,7 @@ struct PlyFile::PlyFileImpl
     std::vector<std::string> objInfo;
 
     void read(std::istream & is);
-    void write(std::ostream & os, bool isBinary);
+    void write(std::ostream & os, bool isBinary, std::function<void(float)> report);
 
     std::shared_ptr<PlyData> request_properties_from_element(const std::string & elementKey, const std::initializer_list<std::string> propertyKeys);
     void add_properties_to_element(const std::string & elementKey, const std::initializer_list<std::string> propertyKeys, const Type type, const size_t count, uint8_t * data, const Type listType, const size_t listCount);
@@ -98,7 +98,7 @@ struct PlyFile::PlyFileImpl
 
     void write_header(std::ostream & os);
     void write_ascii_internal(std::ostream & os);
-    void write_binary_internal(std::ostream & os);
+    void write_binary_internal(std::ostream & os, std::function<void(float)> report);
     void write_property_ascii(Type t, std::ostream & os, uint8_t * src, size_t & srcOffset);
     void write_property_binary(Type t, std::ostream & os, uint8_t * src, size_t & srcOffset);
 };
@@ -356,17 +356,31 @@ void PlyFile::PlyFileImpl::read(std::istream & is)
     parse_data(is, false);
 }
 
-void PlyFile::PlyFileImpl::write(std::ostream & os, bool _isBinary)
+void PlyFile::PlyFileImpl::write(std::ostream & os, bool _isBinary, std::function<void(float)> report)
 {
-    if (_isBinary) write_binary_internal(os);
+    if (_isBinary) write_binary_internal(os, report);
     else write_ascii_internal(os);
 }
 
-void PlyFile::PlyFileImpl::write_binary_internal(std::ostream & os)
+void PlyFile::PlyFileImpl::write_binary_internal(std::ostream & os, std::function<void(float)> report)
 {
     isBinary = true;
     write_header(os);
 
+    // todo
+    size_t totalWrite = 0;
+    size_t written = 0;
+    for (auto & e : elements)
+    {
+        for (size_t i = 0; i < e.size; ++i)
+        {
+            for (auto & p : e.properties)
+            {
+                ++totalWrite;
+            }
+        }
+    }
+    // end
     for (auto & e : elements)
     {
         for (size_t i = 0; i < e.size; ++i)
@@ -389,6 +403,8 @@ void PlyFile::PlyFileImpl::write_binary_internal(std::ostream & os)
                 {
                     write_property_binary(p.propertyType, os, (helper.data->buffer.get() + helper.cursor->byteOffset), helper.cursor->byteOffset);
                 }
+                if (report && (++written) % 5000 == 0)
+                    report((float)written / totalWrite*100.f);
             }
         }
     }
@@ -607,7 +623,7 @@ PlyFile::PlyFile() { impl.reset(new PlyFileImpl()); };
 PlyFile::~PlyFile() { };
 bool PlyFile::parse_header(std::istream & is) { return impl->parse_header(is); }
 void PlyFile::read(std::istream & is) { return impl->read(is); }
-void PlyFile::write(std::ostream & os, bool isBinary) { return impl->write(os, isBinary); }
+void PlyFile::write(std::ostream & os, bool isBinary, std::function<void(float)> report) { return impl->write(os, isBinary, report); }
 std::vector<PlyElement> PlyFile::get_elements() const { return impl->elements; }
 std::vector<std::string> & PlyFile::get_comments() { return impl->comments; }
 std::vector<std::string> PlyFile::get_info() const { return impl->objInfo; }

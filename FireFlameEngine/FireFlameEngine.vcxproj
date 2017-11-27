@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\FireFlameHeader.h" />
+    <ClInclude Include="src\3rd_utils\cmdline.h" />
     <ClInclude Include="src\3rd_utils\d3dx12.h" />
     <ClInclude Include="src\3rd_utils\DDSTextureLoader12.h" />
     <ClInclude Include="src\3rd_utils\DDSTextureLoaderLuna.h" />

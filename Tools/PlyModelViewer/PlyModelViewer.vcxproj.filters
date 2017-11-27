@@ -18,11 +18,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shader1.bin" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shaders\ViewerShader.hlsl">
+    <None Include="Shaders\ViewerShader.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PlyModelViewer.rc" />

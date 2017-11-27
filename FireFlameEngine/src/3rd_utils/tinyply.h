@@ -14,6 +14,7 @@
 #include <sstream>
 #include <memory>
 #include <map>
+#include <functional>
 
 namespace tinyply
 {
@@ -103,7 +104,7 @@ namespace tinyply
 
         void read(std::istream & is);
 
-        void write(std::ostream & os, bool isBinary);
+        void write(std::ostream & os, bool isBinary, std::function<void(float)> report);
 
         std::vector<PlyElement> get_elements() const;
         std::vector<std::string> & get_comments();

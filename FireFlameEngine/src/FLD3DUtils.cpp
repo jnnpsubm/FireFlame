@@ -63,6 +63,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultTexture2D
 {
     using Microsoft::WRL::ComPtr;
     ComPtr<ID3D12Resource> defaultBuffer;
+    size_t bytePerPixel = BitsPerPixel(format) / 8;
 
     // Create the actual default buffer resource.
     ThrowIfFailed(device->CreateCommittedResource(
@@ -78,7 +79,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultTexture2D
     ThrowIfFailed(device->CreateCommittedResource(
         &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
         D3D12_HEAP_FLAG_NONE,
-        &CD3DX12_RESOURCE_DESC::Buffer(width*height*4), // todo
+        &CD3DX12_RESOURCE_DESC::Buffer(width*height*bytePerPixel),
         //&CD3DX12_RESOURCE_DESC::Tex2D(format, width, height),
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
@@ -90,7 +91,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultTexture2D
     // Describe the data we want to copy into the default buffer.
     D3D12_SUBRESOURCE_DATA subResourceData = {};
     subResourceData.pData = initData;
-    subResourceData.RowPitch = (LONG_PTR)width*4; // todo
+    subResourceData.RowPitch = (LONG_PTR)width*bytePerPixel;
     subResourceData.SlicePitch = subResourceData.RowPitch;
 
     // Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources

@@ -13,8 +13,16 @@ public:
     //typedef double Float;
 
 public:
-    static Float Evaluate(Vector3f p) { return Evaluate(p.x, p.y, p.z); }
+    static Float EvaluatePoint(Vector3f p) { return Evaluate(p.x, p.y, p.z); }
     static Float Evaluate(Float x, Float y, Float z);
+    static Float EvaluatePointAbs(Vector3f p)
+    {
+        return std::abs(EvaluatePoint(p));
+    }
+    static Float EvaluateAbs(Float x, Float y, Float z)
+    {
+        return std::abs(Evaluate(x, y, z));
+    }
     static Float FBm
     (
         const Vector3f &p, 

@@ -523,7 +523,11 @@ void GeometryGenerator::BuildCylinderBottomCap(float bottomRadius, float topRadi
     }
 }
 
-GeometryGenerator::MeshData GeometryGenerator::CreateGrid(float width, float depth, uint32 m, uint32 n)
+GeometryGenerator::MeshData GeometryGenerator::CreateGrid
+(
+    float width, float depth, uint32 m, uint32 n,
+    std::function<void(float)> report
+)
 {
     MeshData meshData;
 
@@ -559,6 +563,8 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGrid(float width, float dep
             meshData.Vertices[i*n + j].TexC.x = j*du;
             meshData.Vertices[i*n + j].TexC.y = i*dv;
         }
+        if (i % 200 == 0 && report)
+            report((float)i / m*100.f);
     }
 
     //
