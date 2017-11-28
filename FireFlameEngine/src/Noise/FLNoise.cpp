@@ -1,5 +1,7 @@
 #include "FLNoise.h"
 #include <cmath>
+#include <random>
+#include <algorithm>
 #include "..\MathHelper\FLMathHelper.h"
 
 namespace FireFlame
@@ -42,6 +44,19 @@ static int NoisePerm[2 * NoisePermSize] =
     121, 50, 45, 127, 4, 150, 254, 138, 236, 205, 93, 222, 114, 67, 29, 24, 72,
     243, 141, 128, 195, 78, 66, 215, 61, 156, 180 
 };
+
+void Noise::Permutate(unsigned seed)
+{
+    for (int i = 0; i < NoisePermSize; i++)
+    {
+        NoisePerm[i] = i;
+    }
+    std::shuffle(std::begin(NoisePerm), std::end(NoisePerm), std::default_random_engine(seed));
+    for (int i = NoisePermSize; i < NoisePermSize*2; i++)
+    {
+        NoisePerm[i] = NoisePerm[i - NoisePermSize];
+    }
+}
 
 inline Noise::Float Grad(int x, int y, int z, Noise::Float dx, Noise::Float dy, Noise::Float dz) {
     int h = NoisePerm[NoisePerm[NoisePerm[x] + y] + z];

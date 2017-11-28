@@ -13,6 +13,8 @@ public:
     //typedef double Float;
 
 public:
+    static void Permutate(unsigned seed);
+
     static Float EvaluatePoint(Vector3f p) { return Evaluate(p.x, p.y, p.z); }
     static Float Evaluate(Float x, Float y, Float z);
     static Float EvaluatePointAbs(Vector3f p)

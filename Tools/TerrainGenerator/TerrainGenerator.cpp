@@ -1,4 +1,5 @@
 #include "TerrainGenerator.h"
+#include <chrono>
 
 float eva(float, float, float)
 {
@@ -38,8 +39,10 @@ TerrainGenerator::TerrainGenerator
     {
         mNoiseLen = (std::float_t)(std::max)(mWidth, mHeight) / 128.f;
     }
+    unsigned seed = (unsigned)std::chrono::system_clock::now().time_since_epoch().count();
     mFileName += "_w" + std::to_string(mWidth) + "_h" + std::to_string(mHeight) +
-        +"_n" + std::to_string((int)mNoiseLen);
+        +"_n" + std::to_string((int)mNoiseLen) + 
+        "_seed" + std::to_string(seed);
     if (abs)
         mFileName += "_abs";
     mFileName += ".ply";
@@ -48,6 +51,8 @@ TerrainGenerator::TerrainGenerator
         mNoiseEvaFunc = &FireFlame::Noise::EvaluateAbs;
     else
         mNoiseEvaFunc = &FireFlame::Noise::Evaluate;
+    
+    FireFlame::Noise::Permutate(seed);
 }
 
 void TerrainGenerator::Go()
