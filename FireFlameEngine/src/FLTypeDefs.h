@@ -80,6 +80,15 @@ enum class Primitive_Topology_Type {
     Triangle,
     Patch
 };
+enum class Cull_Mode {
+    None = 1,
+    Front,
+    Back
+};
+enum class Fill_Mode {
+    Wireframe = 2,
+    Solid = 3
+};
 struct stRawMesh {
     stRawMesh() = default;
     explicit stRawMesh(const std::string& _name) 
@@ -136,6 +145,7 @@ struct stRenderItemDesc {
     Primitive_Topology topology = Primitive_Topology::TriangleList;
 
     bool opaque = true;
+    Cull_Mode cullMode = Cull_Mode::Back;
 
     size_t dataLen = 0;
     void*  data = nullptr;
@@ -155,6 +165,12 @@ struct stShaderStage {
                   const std::string& _entry, const std::string& _target)
         : file(_file),type(_type),entry(_entry),target(_target)
     {/*=======================================================================================*/}
+    stShaderStage(const std::wstring& _file, Shader_Type _type,
+                  const std::string& _entry, const std::string& _target, 
+                  std::vector<std::pair<std::string, std::string>>& macros)
+        : file(_file), type(_type), entry(_entry), target(_target), Macros(macros)
+    {/*=======================================================================================*/
+    }
     stShaderStage(const std::string& _data, Shader_Type _type,
             const std::string& _entry, const std::string& _target)
         : data(_data), type(_type), entry(_entry), target(_target)
@@ -168,6 +184,17 @@ struct stShaderStage {
     std::vector<std::pair<std::string, std::string>> Macros;
     void AddMacro(const std::string& name, const std::string& def) {
         Macros.push_back(std::make_pair(name, def));
+    }
+    std::string Macros2String() const {
+        std::string ret;
+        for (const auto& macro : Macros)
+        {
+            ret += macro.first;
+            ret += '_';
+            ret += macro.second;
+            ret += '_';
+        }
+        return std::move(ret);
     }
 };
 
@@ -211,13 +238,21 @@ struct stShaderDescription {
         passParamIndex = 3;
     }
 
-    void AddShaderStage(const std::wstring& file, Shader_Type type, 
+    const stShaderStage& AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {
         shaderStage.emplace_back(file, type, entry, target);
+        return shaderStage.back();
     }
-    void AddShaderStage(const std::string& data, Shader_Type type,
+    const stShaderStage& AddShaderStage(const std::wstring& file, Shader_Type type,
+                        const std::string& entry, const std::string& target,
+                        std::vector<std::pair<std::string, std::string>>& macros) {
+        shaderStage.emplace_back(file, type, entry, target, macros);
+        return shaderStage.back();
+    }
+    const stShaderStage& AddShaderStage(const std::string& data, Shader_Type type,
         const std::string& entry, const std::string& target) {
         shaderStage.emplace_back(data, type, entry, target);
+        return shaderStage.back();
     }
     void AddVertexInput(const std::string& semanticName, unsigned long format, 
                         unsigned int slot = 0, unsigned int semanticIndex = 0) 
@@ -228,15 +263,6 @@ struct stShaderDescription {
     }
 };
 
-enum class Cull_Mode {
-    None = 1,
-    Front,
-    Back
-};
-enum class Fill_Mode {
-    Wireframe = 2,
-    Solid = 3
-};
 struct stViewport {
     float x;
     float y;

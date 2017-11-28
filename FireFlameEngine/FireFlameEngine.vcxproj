@@ -30,6 +30,7 @@
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
     <ClInclude Include="src\FLTypeDefs.h" />
+    <ClInclude Include="src\FLUtils.h" />
     <ClInclude Include="src\FrameResource\FLD3DFrameResource.h" />
     <ClInclude Include="src\FrameResource\FLFrameResource.h" />
     <ClInclude Include="src\GeometryHelper\FLGeometryGenerator.h" />

@@ -88,26 +88,41 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
     for (auto& itemsTopType : mMappedRItems) 
     {
         D3D12_PRIMITIVE_TOPOLOGY_TYPE topType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)itemsTopType.first;
-        for (auto& itemsShader : itemsTopType.second) 
+        for (auto& itemsCullMode : itemsTopType.second)
         {
-            D3DShaderWrapper* Shader = mShaders[itemsShader.first].get();
-
-            auto CBVHeap = Shader->GetCBVHeap();
-            ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
-            cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
-            cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
-
-            if (Shader->GetPassParamIndex() != (UINT)-1)
+            auto cullMode = itemsCullMode.first;
+            for (auto& itemsShader : itemsCullMode.second)
             {
-                int passCbvIndex = pass->CBIndex;
-                passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
-                auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
-                passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
-                cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
+                D3DShaderWrapper* Shader = mShaders[itemsShader.first].get();
+
+                auto CBVHeap = Shader->GetCBVHeap();
+                ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
+                cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+                cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
+
+                if (Shader->GetPassParamIndex() != (UINT)-1)
+                {
+                    int passCbvIndex = pass->CBIndex;
+                    passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
+                    auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+                    passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
+                    cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
+                }
+                for (auto& itemsMacro : itemsShader.second)
+                {
+                    DrawRenderItems
+                    (
+                        cmdList, itemsMacro.second, Shader, itemsMacro.first, 
+                        topType, cullMode, true
+                    );
+                    DrawRenderItems
+                    (
+                        cmdList, itemsMacro.second, Shader, itemsMacro.first, 
+                        topType, cullMode, false
+                    );
+                }
             }
-            DrawRenderItems(cmdList, itemsShader.second, Shader, topType, true);
-            DrawRenderItems(cmdList, itemsShader.second, Shader, topType, false);
         }
     }
 }
@@ -115,23 +130,26 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
 void Scene::DrawRenderItems
 (
     ID3D12GraphicsCommandList* cmdList,
-    PSOMappedVecRItem& mappedRItems, 
+    OpacityMappedVecRItem& mappedRItems,
     D3DShaderWrapper* Shader,
+    const std::string& shaderMacros,
     D3D12_PRIMITIVE_TOPOLOGY_TYPE topType,
+    D3D12_CULL_MODE cullMode,
     bool opaque
 )
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
-    
+
     auto& vecRItems = mappedRItems[opaque];
     if (vecRItems.empty()) return;
     auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
     (
         Shader->GetName(),
+        shaderMacros,
         renderer->GetMSAAMode(),
         opaque,
         topType,
-        renderer->GetCullMode(),
+        cullMode,
         renderer->GetFillMode()
     );
     cmdList->SetPipelineState(pso);
@@ -230,7 +248,13 @@ void Scene::PrimitiveUseShader(const std::string& primitive, const std::string& 
     if (itShader == mShaders.end()) throw std::exception("cannot find shader");
     itPrimitive->second->SetShader(itShader->second);
 }
-void Scene::RenderItemChangeShader(const std::string& renderItem, const std::string& shader) {
+void Scene::RenderItemChangeShader
+(
+    const std::string& renderItem, 
+    const std::string& shader,
+    const std::string& shaderMacros
+) 
+{
     auto itRItem = mRenderItems.find(renderItem);
     if (itRItem == mRenderItems.end()) 
         throw std::exception("cannot find render item in function(RenderItemChangeShader)");
@@ -240,25 +264,36 @@ void Scene::RenderItemChangeShader(const std::string& renderItem, const std::str
     std::string oldShader = itRItem->second->Shader;
     itRItem->second->SetShader(shader);
 
-    // first remove the render itme
+    // first remove the render item
+    bool bOpacity = true;
+    D3D12_CULL_MODE cullMode = D3D12_CULL_MODE_BACK;
     for (auto& itemsTopType : mMappedRItems) {
-        auto& itemsShader = itemsTopType.second;
-        auto it = itemsShader.find(oldShader);
-        if (it == itemsShader.end()) continue;
-        for (auto& itemsOpaqueStatus : it->second) {
-            auto& vecRItems = itemsOpaqueStatus.second;
-            for (auto it = vecRItems.begin(); it != vecRItems.end(); ++it) {
-                if ((*it)->Name == renderItem) {
-                    vecRItems.erase(it);
-                    break;
+        for (auto& itemsCullMode : itemsTopType.second) {
+            auto& itemsShader = itemsCullMode.second;
+            auto it = itemsShader.find(oldShader);
+            if (it == itemsShader.end()) continue;
+            for (auto& itemsMacro : it->second)
+            {
+                for (auto& itemsOpaqueStatus : itemsMacro.second) {
+                    auto& vecRItems = itemsOpaqueStatus.second;
+                    for (auto it = vecRItems.begin(); it != vecRItems.end(); ++it) {
+                        if ((*it)->Name == renderItem) {
+                            vecRItems.erase(it);
+                            bOpacity = itemsOpaqueStatus.first;
+                            cullMode = itemsCullMode.first;
+                            break;
+                        }
+                    }
                 }
             }
         }
     }
-    // readd render item
-    auto& shaderMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(itRItem->second->PrimitiveType)];
-    auto& psoMappedRItem = shaderMappedRItem[shader];
-    auto& vecItems = psoMappedRItem[true];
+    // add render item back to new place
+    auto& cullModeMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(itRItem->second->PrimitiveType)];
+    auto& shaderMappedRItem = cullModeMappedRItem[cullMode];
+    auto& macroMappedRItem = shaderMappedRItem[shader];
+    auto& opacityMappedRItem = macroMappedRItem[shaderMacros];
+    auto& vecItems = opacityMappedRItem[bOpacity];
     vecItems.push_back(itRItem->second.get());
 }
 
@@ -308,9 +343,61 @@ void Scene::AddRenderItem
     }
 
     // All the render items are opaque(true). for now...
-    auto& shaderMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
-    auto& psoMappedRItem = shaderMappedRItem[shaderName];
-    auto& vecItems = psoMappedRItem[desc.opaque];
+    auto& cullModeMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
+    auto& shaderMappedRItem = cullModeMappedRItem[FLCullMode2D3DCullMode(desc.cullMode)];
+    auto& macroMappedRItem = shaderMappedRItem[shaderName];
+    auto& opacityMappedRItem = macroMappedRItem[""];
+    auto& vecItems = opacityMappedRItem[desc.opaque];
+    vecItems.push_back(renderItem.get());
+    mRenderItems.emplace(desc.name, renderItem);
+}
+
+void Scene::AddRenderItem
+(
+    const std::string&      primitiveName,
+    const std::string&      shaderName,
+    const std::string&      shaderMacros,
+    const stRenderItemDesc& desc
+)
+{
+    auto itPrimitive = mPrimitives.find(primitiveName);
+    if (itPrimitive == mPrimitives.end()) throw std::exception("cannot find primitive");
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end()) throw std::exception("cannot find shader");
+
+    D3DMesh* mesh = itPrimitive->second->GetMesh();
+    D3DShaderWrapper* shader = itShader->second.get();
+
+    auto renderItem = std::make_shared<D3DRenderItem>();
+    renderItem->Name = desc.name;
+    renderItem->NumFramesDirty = Engine::NumFrameResources();
+    renderItem->IndexCount = desc.subMesh.indexCount;
+    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
+    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
+    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
+    renderItem->Mesh = mesh;
+    renderItem->Shader = shaderName;
+    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
+    if (desc.data && desc.dataLen)
+    {
+        renderItem->Data = new char[desc.dataLen];
+        renderItem->DataLen = desc.dataLen;
+        memcpy(renderItem->Data, desc.data, desc.dataLen);
+    }
+    if (!desc.mat.empty())
+    {
+        auto itMat = mMaterials.find(desc.mat);
+        if (itMat == mMaterials.end())
+            throw std::exception("cannot find material in AddRenderItem");
+        renderItem->Mat = itMat->second.get();
+    }
+
+    // All the render items are opaque(true). for now...
+    auto& cullModeMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
+    auto& shaderMappedRItem = cullModeMappedRItem[FLCullMode2D3DCullMode(desc.cullMode)];
+    auto& macroMappedRItem = shaderMappedRItem[shaderName];
+    auto& opacityMappedRItem = macroMappedRItem[shaderMacros];
+    auto& vecItems = opacityMappedRItem[desc.opaque];
     vecItems.push_back(renderItem.get());
     mRenderItems.emplace(desc.name, renderItem);
 }

@@ -11,3 +11,4 @@
 #include "..\src\3rd_utils\FLConsole.h"
 #include "..\src\Noise\FLNoise.h"
 #include "..\src\3rd_utils\cmdline.h"
+#include "..\src\FLUtils.h"

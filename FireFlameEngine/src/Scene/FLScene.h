@@ -15,10 +15,12 @@ struct Material;
 struct Texture;
 class Scene {
 public:
-    typedef std::vector<D3DRenderItem*>                        VecRItem;
-    typedef std::unordered_map<bool, VecRItem>                 PSOMappedVecRItem;
-    typedef std::unordered_map<std::string, PSOMappedVecRItem> ShaderMappedVecRItem;
-    typedef std::unordered_map<UINT, ShaderMappedVecRItem>     TopologyMappedVecRItem;
+    typedef std::vector<D3DRenderItem*>                               VecRItem;
+    typedef std::unordered_map<bool, VecRItem>                        OpacityMappedVecRItem;
+    typedef std::unordered_map<std::string, OpacityMappedVecRItem>    MacroMappedVecRItem;
+    typedef std::unordered_map<std::string, MacroMappedVecRItem>      ShaderMappedVecRItem;
+    typedef std::unordered_map<D3D12_CULL_MODE, ShaderMappedVecRItem> CullModeMappedVecRItem;
+    typedef std::unordered_map<UINT, CullModeMappedVecRItem>          TopologyMappedVecRItem;
 
 	Scene(std::shared_ptr<D3DRenderer>& renderer);
 
@@ -40,6 +42,13 @@ public:
     (
         const std::string&      primitiveName,
         const std::string&      shaderName,
+        const stRenderItemDesc& desc
+    );
+    void AddRenderItem
+    (
+        const std::string&      primitiveName,
+        const std::string&      shaderName,
+        const std::string&      shaderMacros,
         const stRenderItemDesc& desc
     );
     void AddTexture(const std::string& name, const std::wstring& filename);
@@ -68,7 +77,12 @@ public:
     void AddPass(const std::string& shaderName, const std::string& passName);
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
-    void RenderItemChangeShader(const std::string& renderItem, const std::string& shader);
+    void RenderItemChangeShader
+    (
+        const std::string& renderItem, 
+        const std::string& shader, 
+        const std::string& shaderMacros = ""
+    );
 
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
     void UpdateMaterialCBData(const std::string& name, size_t size, const void* data);
@@ -87,9 +101,11 @@ private:
     void DrawRenderItems
     (
         ID3D12GraphicsCommandList* cmdList,
-        PSOMappedVecRItem& mappedRItems, 
+        OpacityMappedVecRItem& mappedRItems,
         D3DShaderWrapper* Shader,
+        const std::string& shaderMacros,
         D3D12_PRIMITIVE_TOPOLOGY_TYPE topType,
+        D3D12_CULL_MODE cullMode,
         bool opaque
     );
 

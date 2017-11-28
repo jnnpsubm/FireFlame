@@ -16,6 +16,7 @@ private:
     typedef std::tuple
     <
         std::string,                     // ShaderName
+        std::string,                     // Shader Macros
         UINT,                            // MSAAMode
         bool,                            // opaque
         D3D12_PRIMITIVE_TOPOLOGY_TYPE, 
@@ -28,6 +29,7 @@ public:
     ID3D12PipelineState*  GetPSO
     (
         const std::string& shaderName,
+        const std::string& shaderMacros,
         UINT MSAAMode, 
         bool opaque,
         D3D12_PRIMITIVE_TOPOLOGY_TYPE ptype,
@@ -35,17 +37,23 @@ public:
         D3D12_FILL_MODE fill = D3D12_FILL_MODE_SOLID
     ) const
     {
-        auto it = mPSOs.find({ shaderName, MSAAMode, opaque, ptype,cull,fill });
+        auto it = mPSOs.find({ shaderName, shaderMacros, MSAAMode, opaque, ptype,cull,fill });
         if (it != mPSOs.end()) return it->second.Get();
         return nullptr;
     }
-    bool AddPSO(const std::string& shaderName, D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc);
+    bool AddPSO
+    (
+        const std::string& shaderName,
+        const std::string& shaderMacros,
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc
+    );
 
 private:
     void AddOpaquePSO
     (
         D3DRenderer* renderer,
         const std::string& shaderName, 
+        const std::string& shaderMacros,
         UINT MSAAMode, 
         D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc
     );
@@ -53,6 +61,7 @@ private:
     (
         D3DRenderer* renderer,
         const std::string& shaderName,
+        const std::string& shaderMacros,
         UINT MSAAMode,
         D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc
     );

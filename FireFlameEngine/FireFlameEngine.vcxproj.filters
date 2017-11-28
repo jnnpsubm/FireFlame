@@ -228,6 +228,9 @@
     <ClInclude Include="src\3rd_utils\cmdline.h">
       <Filter>src\3rd_utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\FLUtils.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">

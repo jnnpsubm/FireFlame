@@ -103,9 +103,31 @@ void BlendApp::AddShaders()
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
-    mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::VS, "VS", "vs_5_0");
-    mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    auto vs = mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::VS, "VS", "vs_5_0");
 
+    // ps with macros
+    auto& ps = mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    mShaderMacros[""] = ShaderMacros2String(vs.Macros2String(), ps.Macros2String());
+
+    std::vector<std::pair<std::string, std::string>> macros = { { "FOG", "1" } };
+    auto& psFogged = mShaderDesc.AddShaderStage
+    (
+        L"Shaders\\BlendApp.hlsl",
+        Shader_Type::PS, "PS", "ps_5_0",
+        macros
+    );
+    mShaderMacros["fogged"] = ShaderMacros2String(vs.Macros2String(), psFogged.Macros2String());
+
+    macros.emplace_back("ALPHA_CLIP", "1");
+    auto& psAlphaClip = mShaderDesc.AddShaderStage
+    (
+        L"Shaders\\BlendApp.hlsl",
+        Shader_Type::PS, "PS", "ps_5_0",
+        macros
+    );
+    mShaderMacros["fogged_and_alpha_clip"] = ShaderMacros2String(vs.Macros2String(), psAlphaClip.Macros2String());
+    // end
+    
     mEngine.GetScene()->AddShader(mShaderDesc);
 }
 
@@ -409,11 +431,13 @@ void BlendApp::AddRenderItems()
     );
     RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
     RItem.data = &trans[0];
+    RItem.cullMode = FireFlame::Cull_Mode::None;
     mRenderItems.emplace_back(RItem);
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[0].name,
         mShaderDesc.name,
+        mShaderMacros["fogged_and_alpha_clip"],
         RItem
     );
 
@@ -433,9 +457,15 @@ void BlendApp::AddRenderItems()
     RItem2.mat = "water";
     RItem2.opaque = false;
     mRenderItems.emplace_back(RItem2);
-    mEngine.GetScene()->AddRenderItem(mMeshDesc[1].name, mShaderDesc.name, RItem2);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[1].name, 
+        mShaderDesc.name, 
+        mShaderMacros["fogged"],
+        RItem2
+    );
 
-    FireFlame::stRenderItemDesc RItem3("grass", mMeshDesc[2].subMeshs[0]);
+    FireFlame::stRenderItemDesc RItem3("grid", mMeshDesc[2].subMeshs[0]);
     XMStoreFloat4x4
     (
         &trans[0],
@@ -450,7 +480,13 @@ void BlendApp::AddRenderItems()
     RItem3.data = &trans[0];
     RItem3.mat = "grass";
     mRenderItems.emplace_back(RItem3);
-    mEngine.GetScene()->AddRenderItem(mMeshDesc[2].name, mShaderDesc.name, RItem3);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[2].name, 
+        mShaderDesc.name, 
+        mShaderMacros["fogged"],
+        RItem3
+    );
 }
 
 void BlendApp::OnKeyUp(WPARAM wParam, LPARAM lParam)

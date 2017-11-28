@@ -13,17 +13,32 @@ void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferForm
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
     psoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
     psoDesc.pRootSignature = mRootSignature.Get();
-    psoDesc.VS = {
+    /*psoDesc.VS = {
         reinterpret_cast<BYTE*>(mVSByteCode->GetBufferPointer()),
         mVSByteCode->GetBufferSize()
     };
     psoDesc.PS = {
         reinterpret_cast<BYTE*>(mPSByteCode->GetBufferPointer()),
         mPSByteCode->GetBufferSize()
-    };
+    };*/
     psoDesc.RTVFormats[0] = backBufferFormat;
     psoDesc.DSVFormat = DSFormat;
-    Engine::GetEngine()->GetPSOManager()->AddPSO(mName, psoDesc);
+    for (const auto& vs : mVSByteCodes)
+    {
+        psoDesc.VS = {
+            reinterpret_cast<BYTE*>(vs.second->GetBufferPointer()),
+            vs.second->GetBufferSize()
+        };
+        for (const auto& ps : mPSByteCodes)
+        {
+            psoDesc.PS = {
+                reinterpret_cast<BYTE*>(ps.second->GetBufferPointer()),
+                ps.second->GetBufferSize()
+            };
+            auto shaderMacros = ShaderMacros2String(vs.first, ps.first, "", "");
+            Engine::GetEngine()->GetPSOManager()->AddPSO(mName, shaderMacros, psoDesc);
+        }
+    }
 }
 void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // Shader programs typically require resources as input (constant buffers,
@@ -423,11 +438,23 @@ void D3DShaderWrapper::BuildFrameCBResources
 void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc) {
     for (const auto& shaderStage : shaderDesc.shaderStage) {
         Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
+        D3D_SHADER_MACRO* defines = nullptr; 
+        if (!shaderStage.Macros.empty())
+        {
+            defines = new D3D_SHADER_MACRO[shaderStage.Macros.size() + 1];
+            for (size_t i = 0; i < shaderStage.Macros.size(); ++i)
+            {
+                defines[i].Name = shaderStage.Macros[i].first.c_str();
+                defines[i].Definition = shaderStage.Macros[i].second.c_str();
+            }
+            defines[shaderStage.Macros.size()].Name = NULL;
+            defines[shaderStage.Macros.size()].Definition = NULL;
+        }
         if (!shaderStage.file.empty())
         {
             byteCode = D3DUtils::CompileShader
             (
-                shaderStage.file, nullptr,
+                shaderStage.file, defines,
                 shaderStage.entry,
                 shaderStage.target
             );
@@ -436,18 +463,19 @@ void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& sha
         {
             byteCode = D3DUtils::CompileShader
             (
-                shaderStage.data, nullptr,
+                shaderStage.data, defines,
                 shaderStage.entry,
                 shaderStage.target
             );
         }
+        delete[] defines;
 
         switch (shaderStage.type){
         case Shader_Type::VS:{
-            mVSByteCode = byteCode;
+            mVSByteCodes[shaderStage.Macros2String()] = byteCode;
         }break;
         case Shader_Type::PS: {
-            mPSByteCode = byteCode;
+            mPSByteCodes[shaderStage.Macros2String()] = byteCode;
         }break;
         default:
             throw std::exception("unhandled shader stage type......");

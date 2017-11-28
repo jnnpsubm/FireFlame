@@ -114,7 +114,7 @@ float4 PS(VertexOut pin) : SV_Target
     else
         diffuseAlbedo = gDiffuseAlbedo;
 
-#ifdef ALPAH_CLIP
+#ifdef ALPHA_CLIP
     clip(diffuseAlbedo.a - 0.1f);
 #endif
 

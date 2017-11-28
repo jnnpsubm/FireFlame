@@ -104,10 +104,10 @@ private:
     std::string                           mName;
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
-    Microsoft::WRL::ComPtr<ID3DBlob> mVSByteCode = nullptr;
-    Microsoft::WRL::ComPtr<ID3DBlob> mPSByteCode = nullptr;
-    Microsoft::WRL::ComPtr<ID3DBlob> mTSByteCode = nullptr;
-    Microsoft::WRL::ComPtr<ID3DBlob> mGSByteCode = nullptr;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mVSByteCodes;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mTSByteCodes;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mGSByteCodes;
 
     std::unique_ptr<UploadBuffer>                  mShaderCB             = nullptr;
     Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;

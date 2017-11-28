@@ -4,7 +4,13 @@
 #include "..\Renderer\FLD3DRenderer.h"
 
 namespace FireFlame {
-bool D3DPSOManager::AddPSO(const std::string& shaderName, D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc){
+bool D3DPSOManager::AddPSO
+(
+    const std::string& shaderName, 
+    const std::string& shaderMacros,
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc
+)
+{
     auto renderer = Engine::GetEngine()->GetRenderer();
     auto msaaVec = renderer->GetMSAASupported();
 
@@ -30,8 +36,8 @@ bool D3DPSOManager::AddPSO(const std::string& shaderName, D3D12_GRAPHICS_PIPELIN
                     fill <= D3D12_FILL_MODE_SOLID; ++fill)
                 {
                     psoDesc.RasterizerState.FillMode = (D3D12_FILL_MODE)fill;
-                    AddOpaquePSO(renderer.get(), shaderName, i, psoDesc);
-                    AddTransparentPSO(renderer.get(), shaderName, i, psoDesc);
+                    AddOpaquePSO(renderer.get(), shaderName, shaderMacros, i, psoDesc);
+                    AddTransparentPSO(renderer.get(), shaderName, shaderMacros, i, psoDesc);
                 }
             }
         }
@@ -42,7 +48,9 @@ bool D3DPSOManager::AddPSO(const std::string& shaderName, D3D12_GRAPHICS_PIPELIN
 void D3DPSOManager::AddOpaquePSO
 (
     D3DRenderer* renderer,
-    const std::string& shaderName, UINT MSAAMode, 
+    const std::string& shaderName, 
+    const std::string& shaderMacros,
+    UINT MSAAMode, 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc
 )
 {
@@ -50,6 +58,7 @@ void D3DPSOManager::AddOpaquePSO
     PSO_TRAIT PSOTrait
     (
         shaderName,
+        shaderMacros,
         MSAAMode,
         true,
         psoDesc.PrimitiveTopologyType,
@@ -65,6 +74,9 @@ void D3DPSOManager::AddOpaquePSO
             IID_PPV_ARGS(pso.GetAddressOf())
         )
     );
+#ifdef _DEBUG
+    //std::cout << "Add PSO : " << 
+#endif
     mPSOs.emplace(PSOTrait, pso);
 }
 
@@ -72,6 +84,7 @@ void D3DPSOManager::AddTransparentPSO
 (
     D3DRenderer* renderer, 
     const std::string& shaderName, 
+    const std::string& shaderMacros,
     UINT MSAAMode, 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc
 )
@@ -91,6 +104,7 @@ void D3DPSOManager::AddTransparentPSO
     PSO_TRAIT PSOTrait
     (
         shaderName,
+        shaderMacros,
         MSAAMode,
         false,
         psoDesc.PrimitiveTopologyType,
