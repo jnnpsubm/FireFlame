@@ -63,6 +63,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerrainGenerator", "..\Tool
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blend_Sample", "..\Samples\Blend_Sample\Blend_Sample.vcxproj", "{B1086B7A-0282-49E1-BE17-394C15CCEBCF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools_Ext", "Tools_Ext", "{ADE52CD0-7569-496C-9729-BB3F8AA50F29}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

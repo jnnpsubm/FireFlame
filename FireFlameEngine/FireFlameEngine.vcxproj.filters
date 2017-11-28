@@ -85,6 +85,15 @@
     <ClCompile Include="src\3rd_utils\DDSTextureLoaderLuna.cpp">
       <Filter>src\3rd_utils\DDS</Filter>
     </ClCompile>
+    <ClCompile Include="src\3rd_utils\spdlog\fmt\bundled\format.cc">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\spdlog\fmt\bundled\ostream.cc">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -231,6 +240,117 @@
     <ClInclude Include="src\FLUtils.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\async_logger.h">
+      <Filter>src\3rd_utils\spdlog</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\common.h">
+      <Filter>src\3rd_utils\spdlog</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\formatter.h">
+      <Filter>src\3rd_utils\spdlog</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\logger.h">
+      <Filter>src\3rd_utils\spdlog</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\spdlog.h">
+      <Filter>src\3rd_utils\spdlog</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\tweakme.h">
+      <Filter>src\3rd_utils\spdlog</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\async_log_helper.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\async_logger_impl.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\file_helper.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\log_msg.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\logger_impl.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\mpmc_bounded_q.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\null_mutex.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\os.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\pattern_formatter_impl.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\registry.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\details\spdlog_impl.h">
+      <Filter>src\3rd_utils\spdlog\details</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\fmt\fmt.h">
+      <Filter>src\3rd_utils\spdlog\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\fmt\ostr.h">
+      <Filter>src\3rd_utils\spdlog\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\fmt\bundled\format.h">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\fmt\bundled\ostream.h">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\fmt\bundled\posix.h">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\fmt\bundled\printf.h">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\fmt\bundled\time.h">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\android_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\ansicolor_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\base_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\dist_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\file_sinks.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\msvc_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\null_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\ostream_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\stdout_sinks.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\syslog_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\wincolor_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\spdlog\sinks\windebug_sink.h">
+      <Filter>src\3rd_utils\spdlog\sinks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -314,5 +434,25 @@
     <Filter Include="src\3rd_utils\DDS">
       <UniqueIdentifier>{a7e79032-05dd-4509-9c65-b1b3c597450a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\3rd_utils\spdlog">
+      <UniqueIdentifier>{320d2bc8-e139-400e-bf7f-9663f05e6b00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils\spdlog\details">
+      <UniqueIdentifier>{ee811ff3-1209-4eff-8ed2-7a250c3d6607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils\spdlog\fmt">
+      <UniqueIdentifier>{7a091350-36e9-470f-b2d7-7caad5f45c53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils\spdlog\fmt\bundled">
+      <UniqueIdentifier>{32522436-b221-42d4-854e-fea83838f8de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils\spdlog\sinks">
+      <UniqueIdentifier>{60c5bcd2-e78f-4ebe-b4b5-c8fae40c5922}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\3rd_utils\spdlog\fmt\bundled\printf.cc">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </None>
   </ItemGroup>
 </Project>

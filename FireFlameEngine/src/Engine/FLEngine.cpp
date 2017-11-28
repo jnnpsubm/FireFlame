@@ -1,4 +1,6 @@
 #include "FLEngine.h"
+#include "..\src\3rd_utils\spdlog\spdlog.h"
+#include "..\src\3rd_utils\FLConsole.h"
 #include "..\Renderer\FLD3DRenderer.h"
 #include "..\PSOManager\FLD3DPSOManager.h"
 #include "..\FLD3DUtils.h"
@@ -6,6 +8,10 @@
 namespace FireFlame {
 Engine* Engine::theEngine = nullptr;
 Engine::Engine(HINSTANCE hinst) {
+    FireFlame::OpenConsole();
+    auto console = spdlog::stdout_color_mt("console");
+    console->info("Welcome to FireFlame Engine!");
+
 	assert(theEngine == nullptr);
 	theEngine = this;
 	mRenderer = std::make_shared<D3DRenderer>();

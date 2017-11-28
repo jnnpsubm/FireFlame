@@ -2,6 +2,7 @@
 #include <string>
 #include "FLWindow.h"
 #include "..\Engine\FLEngine.h"
+#include "..\src\3rd_utils\spdlog\spdlog.h"
 
 namespace FireFlame {
 Window* Window::theWindow = nullptr;
@@ -77,6 +78,12 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	return ::DefWindowProc(hwnd, msg, wParam, lParam);
 }
 int Window::InitMainWindow(int x, int y, int w, int h) {
+    spdlog::get("console")->info
+    (
+        "left:{0:d},top:{1:d},client width:{2:d},client height:{3:d}",
+        x, y, w, h
+    );
+    
 	mClientWidth = w;
 	mClientHeight = h;
 

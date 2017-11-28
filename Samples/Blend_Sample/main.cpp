@@ -34,6 +34,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         // add shader, mesh, render item to scene
         app.Initialize();
 
+        spdlog::get("console")->info("Application Initialized, start rendering......");
+
         // some initial work like scene management and 
         // make resource resident to GPU memory
         engine.GetScene()->GetReady();

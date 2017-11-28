@@ -12,3 +12,4 @@
 #include "..\src\Noise\FLNoise.h"
 #include "..\src\3rd_utils\cmdline.h"
 #include "..\src\FLUtils.h"
+#include "..\src\3rd_utils\spdlog\spdlog.h"
