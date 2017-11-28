@@ -135,6 +135,8 @@ struct stRenderItemDesc {
     stRawMesh::stSubMesh subMesh;
     Primitive_Topology topology = Primitive_Topology::TriangleList;
 
+    bool opaque = true;
+
     size_t dataLen = 0;
     void*  data = nullptr;
 
@@ -162,6 +164,11 @@ struct stShaderStage {
     Shader_Type  type;
     std::string  entry;
     std::string  target;
+
+    std::vector<std::pair<std::string, std::string>> Macros;
+    void AddMacro(const std::string& name, const std::string& def) {
+        Macros.push_back(std::make_pair(name, def));
+    }
 };
 
 struct stShaderDescription {
@@ -203,6 +210,7 @@ struct stShaderDescription {
         matParamIndex = 2;
         passParamIndex = 3;
     }
+
     void AddShaderStage(const std::wstring& file, Shader_Type type, 
                         const std::string& entry, const std::string& target) {
         shaderStage.emplace_back(file, type, entry, target);

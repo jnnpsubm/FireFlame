@@ -55,6 +55,7 @@ public:
 
     // Get Methods
     // todo : variant heaps with variant shaders
+    const std::string&    GetName()             const { return mName;                       }
     ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();              }
 #ifndef TEX_SRV_USE_CB_HEAP
     ID3D12DescriptorHeap* GetTexSRVHeap()       const { return mTexSrvDescriptorHeap.Get(); }

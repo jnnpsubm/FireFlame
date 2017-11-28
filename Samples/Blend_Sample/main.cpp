@@ -9,7 +9,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 #endif
 
     FireFlame::Engine engine(hInstance);
-    BlendApp       app(engine);
+    BlendApp          app(engine);
     try {
         using namespace FireFlame;
         using namespace std::placeholders;

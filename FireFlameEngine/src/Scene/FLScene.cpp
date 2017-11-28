@@ -91,15 +91,6 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
         for (auto& itemsShader : itemsTopType.second) 
         {
             D3DShaderWrapper* Shader = mShaders[itemsShader.first].get();
-            auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
-            (
-                itemsShader.first,
-                renderer->GetMSAAMode(),
-                topType,
-                renderer->GetCullMode(),
-                renderer->GetFillMode()
-            );
-            cmdList->SetPipelineState(pso);
 
             auto CBVHeap = Shader->GetCBVHeap();
             ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
@@ -115,19 +106,41 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
                 passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
                 cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
             }
-
-            for (auto& itemsOpaqueStatus : itemsShader.second) 
-            {
-                bool opaqueStatus = itemsOpaqueStatus.first;
-                opaqueStatus;
-                for (auto& renderItem : itemsOpaqueStatus.second) 
-                {
-                    renderItem->Render(Shader);
-                }
-            }
+            DrawRenderItems(cmdList, itemsShader.second, Shader, topType, true);
+            DrawRenderItems(cmdList, itemsShader.second, Shader, topType, false);
         }
     }
 }
+
+void Scene::DrawRenderItems
+(
+    ID3D12GraphicsCommandList* cmdList,
+    PSOMappedVecRItem& mappedRItems, 
+    D3DShaderWrapper* Shader,
+    D3D12_PRIMITIVE_TOPOLOGY_TYPE topType,
+    bool opaque
+)
+{
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    
+    auto& vecRItems = mappedRItems[opaque];
+    if (vecRItems.empty()) return;
+    auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
+    (
+        Shader->GetName(),
+        renderer->GetMSAAMode(),
+        opaque,
+        topType,
+        renderer->GetCullMode(),
+        renderer->GetFillMode()
+    );
+    cmdList->SetPipelineState(pso);
+    for (auto& renderItem : vecRItems)
+    {
+        renderItem->Render(Shader);
+    }
+}
+
 int Scene::GetReady() {
     mRenderer->RegisterPreRenderFunc(std::bind(&Scene::PreRender, this));
     mRenderer->RegisterDrawFunc(std::bind(&Scene::Draw, this, std::placeholders::_1));
@@ -297,7 +310,7 @@ void Scene::AddRenderItem
     // All the render items are opaque(true). for now...
     auto& shaderMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
     auto& psoMappedRItem = shaderMappedRItem[shaderName];
-    auto& vecItems = psoMappedRItem[true];
+    auto& vecItems = psoMappedRItem[desc.opaque];
     vecItems.push_back(renderItem.get());
     mRenderItems.emplace(desc.name, renderItem);
 }

@@ -84,6 +84,14 @@ private:
     void PreRender();
     void Draw(ID3D12GraphicsCommandList* cmdList);
     void DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass);
+    void DrawRenderItems
+    (
+        ID3D12GraphicsCommandList* cmdList,
+        PSOMappedVecRItem& mappedRItems, 
+        D3DShaderWrapper* Shader,
+        D3D12_PRIMITIVE_TOPOLOGY_TYPE topType,
+        bool opaque
+    );
 
     // callbacks
     std::function<void(float)> mUpdateFunc = [](float) {};

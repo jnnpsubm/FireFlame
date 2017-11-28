@@ -103,8 +103,8 @@ void BlendApp::AddShaders()
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
-    mShaderDesc.AddShaderStage(L"Shaders\\TexWaves.hlsl", Shader_Type::VS, "VS", "vs_5_0");
-    mShaderDesc.AddShaderStage(L"Shaders\\TexWaves.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::PS, "PS", "ps_5_0");
 
     mEngine.GetScene()->AddShader(mShaderDesc);
 }
@@ -114,7 +114,7 @@ void BlendApp::AddTextures()
     mEngine.GetScene()->AddTexture
     (
         "wirefenceTex",
-        L"..\\..\\Resources\\Textures\\WoodCrate01.dds"
+        L"..\\..\\Resources\\Textures\\WireFence.dds"
     );
     mEngine.GetScene()->AddTexture
     (
@@ -158,14 +158,14 @@ void BlendApp::AddMaterials()
 
     auto& water = mMaterials["water"];
     water.name = "water";
-    water.DiffuseAlbedo = FireFlame::Vector4f(0.1f, 0.1f, 0.6f, 1.0f);
-    water.FresnelR0 = FireFlame::Vector3f(0.2f, 0.2f, 0.2f);
-    water.Roughness = 0.2f;
-    water.UseTexture = 0;
+    water.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.5f);
+    water.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
+    water.Roughness = 0.0f;
+    water.UseTexture = 1;
     mEngine.GetScene()->AddMaterial
     (
         water.name,
-        mShaderDesc.name, "", //"waterTex",
+        mShaderDesc.name, "waterTex",
         sizeof(MaterialConstants2), &water
     );
 }
@@ -431,6 +431,7 @@ void BlendApp::AddRenderItems()
     RItem2.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
     RItem2.data = &trans[0];
     RItem2.mat = "water";
+    RItem2.opaque = false;
     mRenderItems.emplace_back(RItem2);
     mEngine.GetScene()->AddRenderItem(mMeshDesc[1].name, mShaderDesc.name, RItem2);
 

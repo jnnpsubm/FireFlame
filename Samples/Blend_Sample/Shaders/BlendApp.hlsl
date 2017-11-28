@@ -114,6 +114,10 @@ float4 PS(VertexOut pin) : SV_Target
     else
         diffuseAlbedo = gDiffuseAlbedo;
 
+#ifdef ALPAH_CLIP
+    clip(diffuseAlbedo.a - 0.1f);
+#endif
+
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);
 
