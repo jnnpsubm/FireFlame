@@ -14,6 +14,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         using namespace FireFlame;
         using namespace std::placeholders;
 
+        if (__argc < 2) return 0;
+        app.SetTerrainFile(__argv[1]);
+
         FireFlame::OpenConsole();
 
         // application handles

@@ -12,19 +12,26 @@ public:
     ProceduralTerrainApp(FireFlame::Engine& e);
 
     void Initialize() override;
+    void Update(float time_elapsed) override;
     void UpdateMainPassCB(float time_elapsed) override;
 
+    void SetTerrainFile(const char* terrainFile) { mTerrainFile = terrainFile; }
+
 private:
+    std::string mTerrainFile;
+
+    float  mModelScale = 1.0f;
+    float  mModelTransY = 0.0f;
+    float  mMinHeight = 0.f;
+    float  mMaxHeight = 0.f;
+
     void BuildShaders();
-    void BuildNoiseData();
     void BuildGeometry();
     void AddTextures();
     void AddMaterials();
     void BuildRenderItems();
 
-    static const size_t pixel_width = 4096;
-    static const size_t length = 32;
-    std::unique_ptr<float[]> mNoiseData;
+    std::pair<std::uint8_t*,size_t> GetResource(int resID, const wchar_t* resType);
 
     std::unordered_map<std::string, NamedMaterialConstants> mMaterials;
 };

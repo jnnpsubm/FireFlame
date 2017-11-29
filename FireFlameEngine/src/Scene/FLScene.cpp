@@ -448,6 +448,42 @@ void Scene::AddTexture(const std::string& name, const std::wstring& filename)
     mTextures[tex->name] = std::move(tex);
 }
 
+void Scene::AddTexture(const std::string& name, std::uint8_t* data, size_t len)
+{
+    auto tex = std::make_shared<Texture>(name);
+    std::unique_ptr<std::uint8_t[]> ddsdata;
+    std::vector<D3D12_SUBRESOURCE_DATA> subresources;
+#ifdef USE_MS_DDS_LOADER
+    ThrowIfFailed
+    (
+        DirectX::LoadDDSTextureFromFile
+        (
+            Engine::GetEngine()->GetRenderer()->GetDevice(),
+            filename.c_str(),
+            tex->resource.GetAddressOf(),
+            ddsdata, subresources
+        )
+    );
+#else
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    renderer->ResetCommandList();
+    ThrowIfFailed
+    (
+        DirectX::CreateDDSTextureFromMemory12
+        (
+            renderer->GetDevice(),
+            renderer->GetCommandList(),
+            data,len,
+            tex->resource, tex->uploadHeap
+        )
+    );
+    renderer->ExecuteCommand();
+    renderer->WaitForGPU();
+    tex->uploadHeap = nullptr;
+#endif
+    mTextures[tex->name] = std::move(tex);
+}
+
 void Scene::AddTexture2D
 (
     const std::string& name,

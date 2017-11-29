@@ -27,25 +27,28 @@ TerrainGenerator::TerrainGenerator
     const std::string& output, 
     const std::string& geoType, 
     std::uint8_t subDivideLevel,
+    std::float_t noise_scale,
     bool abs
 ) : mWidth(width),
     mHeight(height),
     mNoiseLen(noise_len),
     mFileName(output), 
     mGeoType(geoType), 
-    mSubDivideLevel(subDivideLevel)
+    mSubDivideLevel(subDivideLevel),
+    mNoiseScale(noise_scale)
 {
     if (mNoiseLen == 0.f)
     {
         mNoiseLen = (std::float_t)(std::max)(mWidth, mHeight) / 128.f;
     }
     unsigned seed = (unsigned)std::chrono::system_clock::now().time_since_epoch().count();
-    mFileName += "_w" + std::to_string(mWidth) + "_h" + std::to_string(mHeight) +
-        +"_n" + std::to_string((int)mNoiseLen) + 
+    std::string info = "_w" + std::to_string(mWidth) + "_h" + std::to_string(mHeight) +
+        +"_n" + std::to_string((int)mNoiseLen) +
+        +"_s" + std::to_string((int)mNoiseScale) +
         "_seed" + std::to_string(seed);
     if (abs)
-        mFileName += "_abs";
-    mFileName += ".ply";
+        info += "_abs";
+    mFileName.insert(mFileName.rfind('.'), info, 0, info.size());
 
     if (abs)
         mNoiseEvaFunc = &FireFlame::Noise::EvaluateAbs;
@@ -93,7 +96,7 @@ void TerrainGenerator::GenerateHeightMap()
     {
         for (size_t j = 0; j < mWidth; ++j)
         {
-            mNoiseData[i*mWidth + j] = mNoiseEvaFunc(i*steph, j*stepw, 0.5f) / 4.f;
+            mNoiseData[i*mWidth + j] = mNoiseEvaFunc(i*steph, j*stepw, 0.5f) / mNoiseScale;
         }
         if (i % 200 == 0)
             printf("Noise Data:%.2lf%%\r", (float)i / mHeight * 100.f);
@@ -146,7 +149,23 @@ void TerrainGenerator::GenerateGrid()
     std::cout << "Face Count:" << mIndices.size() / 3 << std::endl;
 
     // begin normals
+    for (size_t i = 0; i < mIndices.size() / 3; i++)
+    {
+        auto& v0 = mVertices[mIndices[i * 3 + 0]];
+        auto& v1 = mVertices[mIndices[i * 3 + 1]];
+        auto& v2 = mVertices[mIndices[i * 3 + 2]];
+        auto e0 = v1.Pos - v0.Pos;
+        auto e1 = v2.Pos - v0.Pos;
+        auto normal = FireFlame::Vector3Cross(e0, e1);
 
+        v0.Normal += normal;
+        v1.Normal += normal;
+        v2.Normal += normal;
+    }
+    for (auto& vertex : mVertices)
+    {
+        vertex.Normal.Normalize();
+    }
     // end normals
 }
 

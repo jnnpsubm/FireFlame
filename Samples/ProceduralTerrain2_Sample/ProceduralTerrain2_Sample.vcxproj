@@ -157,14 +157,25 @@
   <ItemGroup>
     <ClInclude Include="..\Common\FLEngineApp.h" />
     <ClInclude Include="ProceduralTerrainApp.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\LightingUtil.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="dds3.bin" />
+    <None Include="shader1.bin" />
     <None Include="Shaders\ProceduralTerrain.hlsl">
       <FileType>Document</FileType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ProceduralTerrain2_Sample.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Resources\terrain\darkdirt.dds" />
+    <Image Include="..\..\Resources\terrain\lightdirt.dds" />
+    <Image Include="..\..\Resources\terrain\snow.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

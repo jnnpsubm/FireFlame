@@ -55,7 +55,13 @@ public:
         z += rhs.z;
         return *this;
     }
-    
+    Vector3<T>& operator*=(T val)
+    {
+        x *= val;
+        y *= val;
+        z *= val;
+        return *this;
+    }
     Vector3<T> operator/(const Vector3<T>& rhs)
     {
         return Vector3<T>(x / rhs.x, y / rhs.y, z / rhs.z);

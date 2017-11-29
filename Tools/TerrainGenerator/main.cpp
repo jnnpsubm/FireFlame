@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
     cmdParser.add<std::uint32_t>("width", 'w', "terrain width", false, 4096, cmdline::range(256, 40960));
     cmdParser.add<std::uint32_t>("height", 'h', "terrain height", false, 4096, cmdline::range(256, 40960));
     cmdParser.add<std::float_t>("noise", 'n', "noise length", false, 0.f, cmdline::range(0.f, 512.f));
+    cmdParser.add<std::float_t>("scale", 's', "noise scale", false, 4.f, cmdline::range(1.f, 32.f));
     cmdParser.add("abs", '\0', "use absolute noise value");
     cmdParser.parse_check(argc, argv);
 
@@ -23,6 +24,7 @@ int main(int argc, char* argv[])
         cmdParser.get<std::string>("output"),
         cmdParser.get<std::string>("type"),
         cmdParser.get<std::uint8_t>("subdivide"),
+        cmdParser.get<std::float_t>("scale"),
         cmdParser.exist("abs")
     );
     generator.Go();

@@ -46,8 +46,8 @@ struct PassConstants
     float FogColor[4]{ 0.7f, 0.7f, 0.7f, 1.0f };
     float FogStart = 5.f;
     float FogRange = 150.f;
-    float reserve1;
-    float reserve2;
+    float minHeight;
+    float maxHeight;
 };
 
 

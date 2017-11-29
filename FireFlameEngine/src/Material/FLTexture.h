@@ -12,13 +12,13 @@ struct Texture
     {}
     Texture(const std::string& name, const std::wstring& filename) : 
         name(name),
-        filename(filename) 
+        filenameTex(filename)
     {}
 
     // Unique material name for lookup.
     std::string name;
 
-    std::wstring filename;
+    std::wstring filenameTex;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> uploadHeap = nullptr;

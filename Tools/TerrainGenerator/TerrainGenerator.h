@@ -12,6 +12,7 @@ public:
         const std::string& output, 
         const std::string& geoType, 
         std::uint8_t subDivideLevel,
+        std::float_t noise_scale,
         bool abs
     );
     void Go();
@@ -45,6 +46,7 @@ private:
     std::vector<std::uint32_t> mIndices;
     std::vector<FireFlame::FLVertexNormalTex> mVertices;
 
+    std::float_t  mNoiseScale = 4.f;
     std::float_t  mNoiseLen = 2.f;
     std::unique_ptr<std::float_t[]> mNoiseData;
 
