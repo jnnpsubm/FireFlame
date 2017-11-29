@@ -89,7 +89,7 @@ void D3DPSOManager::AddTransparentPSO
     D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc
 )
 {
-    psoDesc.BlendState.AlphaToCoverageEnable = TRUE;
+    psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
     psoDesc.BlendState.IndependentBlendEnable = FALSE;
     psoDesc.BlendState.RenderTarget[0].BlendEnable = TRUE;
     psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
