@@ -20,6 +20,7 @@ public:
         mPhi = FireFlame::MathHelper::FL_PIDIV2 - 0.1f;
         mRadius = 50.f;
     }
+    void PreInitialize() override;
     void Initialize() override;
 
     void UpdateMainPassCB(float time_elapsed) override;

@@ -42,6 +42,12 @@ struct PassConstants
     // indices [NUM_DIR_LIGHTS+NUM_POINT_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHT+NUM_SPOT_LIGHTS)
     // are spot lights for a maximum of MaxLights per object.
     FireFlame::Light Lights[FireFlame::Light::MaxLights];
+
+    float FogColor[4]{ 0.7f, 0.7f, 0.7f, 1.0f };
+    float FogStart = 5.f;
+    float FogRange = 150.f;
+    float reserve1;
+    float reserve2;
 };
 
 
@@ -55,6 +61,7 @@ public:
     FLEngineApp(FireFlame::Engine& engine, float cameraMinDis = 3.0f, float cameraMaxDis = 150.f);
     virtual ~FLEngineApp();
 
+    virtual void PreInitialize() {}
     virtual void Initialize() = 0;
 
     const FireFlame::stShaderDescription& GetShaderDesc()        const { return mShaderDesc; }

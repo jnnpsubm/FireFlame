@@ -53,6 +53,10 @@ public:
     int GetCurrFrameResIndex()                               { return mCurrFrameResourceIndex; }
 
     // Set Methods
+    void SetDefaultClearColor(const float(&color)[4]) 
+    { 
+        memcpy(mDefaultClearColor, color, sizeof(mDefaultClearColor)); 
+    }
     void SetCullMode(D3D12_CULL_MODE mode)       { mCullMode = mode; }
     void SetFillMode(D3D12_FILL_MODE mode)       { mFillMode = mode; }
     void SetCurrentPSO(ID3D12PipelineState* pso) { mCurrPSO = pso; }
@@ -107,6 +111,8 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE OffscreenRenderTargetView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
+
+    float                mDefaultClearColor[4]{ 0.823529482f, 0.411764741f, 0.117647067f, 1.000000000f };
 
     ID3D12PipelineState* mCurrPSO = nullptr;
 

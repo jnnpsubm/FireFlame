@@ -56,6 +56,9 @@ int Engine::InitMainWindow(int x, int y, int w, int h) {
 int Engine::InitRenderer(API_Feature api) {
 	return mRenderer->Initialize(api);
 }
+void Engine::SetDefaultClearColor(const float(&color)[4]) {
+    mRenderer->SetDefaultClearColor(color);
+}
 void Engine::SetCullMode(Cull_Mode mode) {
     // only support D3D right now
     mRenderer->SetCullMode(FLCullMode2D3DCullMode(mode));

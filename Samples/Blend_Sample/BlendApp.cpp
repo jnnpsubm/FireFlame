@@ -1,5 +1,10 @@
 #include "BlendApp.h"
 
+void BlendApp::PreInitialize()
+{
+    mEngine.SetDefaultClearColor(mMainPassCB.FogColor);
+}
+
 void BlendApp::Initialize()
 {
     AddShaders();

@@ -68,6 +68,11 @@ cbuffer cbPass : register(b2)
     // indices [NUM_DIR_LIGHTS+NUM_POINT_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHT+NUM_SPOT_LIGHTS)
     // are spot lights for a maximum of MaxLights per object.
     Light gLights[MaxLights];
+
+    float4 gFogColor;
+    float  gFogStart;
+    float  gFogRange;
+    float2 reserve;
 };
 
 struct VertexIn
@@ -122,7 +127,9 @@ float4 PS(VertexOut pin) : SV_Target
     pin.NormalW = normalize(pin.NormalW);
 
     // Vector from point being lit to eye. 
-    float3 toEyeW = normalize(gEyePosW - pin.PosW);
+    float3 toEyeW = gEyePosW - pin.PosW;
+    float toEyeDis = distance(pin.PosW, gEyePosW);
+    toEyeW /= toEyeDis;
 
     // Light terms.
     float4 ambient = gAmbientLight*diffuseAlbedo;
@@ -134,6 +141,11 @@ float4 PS(VertexOut pin) : SV_Target
         pin.NormalW, toEyeW, shadowFactor);
 
     float4 litColor = ambient + directLight;
+
+#ifdef FOG
+    float step = smoothstep(gFogStart, gFogStart+gFogRange, toEyeDis);
+    litColor = lerp(litColor, gFogColor, step);
+#endif
 
     // Common convention to take alpha from diffuse albedo.
     litColor.a = diffuseAlbedo.a;

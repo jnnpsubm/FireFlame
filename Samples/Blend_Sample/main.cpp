@@ -15,6 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         using namespace std::placeholders;
 
         FireFlame::OpenConsole();
+        app.PreInitialize();
 
         // application handles
         engine.RegisterUpdateFunc(std::bind(&FLEngineApp::Update, &app, std::placeholders::_1));
