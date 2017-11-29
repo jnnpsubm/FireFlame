@@ -173,4 +173,7 @@ void FLEngineApp::OnKeyboardInput(float time_elapsed)
         mSunPhi += 1.0f*time_elapsed;
 
     mSunPhi = FireFlame::MathHelper::Clamp(mSunPhi, 0.1f, FireFlame::MathHelper::FL_PIDIV2);
+
+    if (GetAsyncKeyState(VK_F5) & 0x8000)
+        mEngine.GetScene()->PrintScene();
 }

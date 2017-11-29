@@ -27,6 +27,9 @@ public:
     void ExecuteCommand();
 	void WaitForGPU();
     void WaitForGPUFrame();
+    void WaitForGPUCurrentFrame();
+
+    void GrabScreen(const std::wstring& filename);
 
 	void Resize();
 
@@ -108,6 +111,7 @@ private:
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	ID3D12Resource* CurrentBackBuffer() const;
+    ID3D12Resource* CurrentFrontBuffer() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE OffscreenRenderTargetView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
@@ -134,6 +138,7 @@ private:
 
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer                   = 0;
+    int mCurrFrontBuffer                  = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
 	Microsoft::WRL::ComPtr<ID3D12Resource> mOffscreenRenderTarget; // for MSAA
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;

@@ -8,6 +8,7 @@
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
 #include "..\Material\FLTexture.h"
+#include "..\chrono\FLchrono.h"
 #ifdef USE_MS_DDS_LOADER
 #include "..\3rd_utils\DDSTextureLoader12.h"
 #else
@@ -59,6 +60,15 @@ void Scene::UpdateMaterialCBs(const StopWatch& gt)
 
 void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);
+    
+    if (mPrintScene)
+    {
+        mPrintScene = false;
+        std::wstring filename(L"ScreenShot_");
+        filename += AnsiToWString(NowAsFileName());
+        filename += L".bmp";
+        mRenderer->GrabScreen(filename);
+    }
 }
 void Scene::PreRender() {
     mRenderer->SetCurrentPSO(nullptr);

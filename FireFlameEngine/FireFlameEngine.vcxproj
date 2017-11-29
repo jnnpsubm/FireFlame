@@ -25,6 +25,8 @@
     <ClInclude Include="src\3rd_utils\DDSTextureLoader12.h" />
     <ClInclude Include="src\3rd_utils\DDSTextureLoaderLuna.h" />
     <ClInclude Include="src\3rd_utils\FLConsole.h" />
+    <ClInclude Include="src\3rd_utils\ScreenGrab\ScreenGrab.h" />
+    <ClInclude Include="src\3rd_utils\ScreenGrab\ScreenGrab12.h" />
     <ClInclude Include="src\3rd_utils\spdlog\async_logger.h" />
     <ClInclude Include="src\3rd_utils\spdlog\common.h" />
     <ClInclude Include="src\3rd_utils\spdlog\details\async_logger_impl.h" />
@@ -63,9 +65,11 @@
     <ClInclude Include="src\3rd_utils\spdlog\spdlog.h" />
     <ClInclude Include="src\3rd_utils\spdlog\tweakme.h" />
     <ClInclude Include="src\3rd_utils\tinyply.h" />
+    <ClInclude Include="src\chrono\FLchrono.h" />
     <ClInclude Include="src\Engine\FLEngine.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
+    <ClInclude Include="src\FLStringUtils.h" />
     <ClInclude Include="src\FLTypeDefs.h" />
     <ClInclude Include="src\FLUtils.h" />
     <ClInclude Include="src\FrameResource\FLD3DFrameResource.h" />
@@ -113,6 +117,8 @@
     <None Include="src\3rd_utils\spdlog\fmt\bundled\ostream.cc" />
     <None Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc" />
     <None Include="src\3rd_utils\spdlog\fmt\bundled\printf.cc" />
+    <ClCompile Include="src\3rd_utils\ScreenGrab\ScreenGrab.cpp" />
+    <ClCompile Include="src\3rd_utils\ScreenGrab\ScreenGrab12.cpp" />
     <ClCompile Include="src\3rd_utils\tinyply.cpp" />
     <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />

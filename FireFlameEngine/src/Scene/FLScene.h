@@ -33,6 +33,8 @@ public:
     void UpdateObjectCBs(const StopWatch& gt);
     void UpdateMaterialCBs(const StopWatch& gt);
 
+    void PrintScene() { mPrintScene = true; }
+
     void AddShader(const stShaderDescription& shaderDesc);
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
@@ -108,6 +110,8 @@ private:
         D3D12_CULL_MODE cullMode,
         bool opaque
     );
+
+    bool mPrintScene = false;
 
     // callbacks
     std::function<void(float)> mUpdateFunc = [](float) {};

@@ -225,6 +225,7 @@ LRESULT Window::OnSysKeyDown(WPARAM wParam, LPARAM lParam) {
 		}
 		mFullScreen = !mFullScreen;
 	}
+    mEngine.OnWindowSysKeyDown(wParam, lParam);
 	return 0;
 }
 void Window::OnMouseDown(WPARAM btnState, int x, int y) {

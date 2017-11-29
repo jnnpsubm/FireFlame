@@ -3,11 +3,13 @@
 #include <DirectXColors.h>
 #include "FLD3DRenderer.h"
 #include "..\Engine\FLEngine.h"
-#include "../Window/FLWindow.h"
-#include "../FLD3DUtils.h"
-#include "../Exception/FLException.h"
-#include "../Timer/FLStopWatch.h"
-#include "../3rd_utils/d3dx12.h"
+#include "..\Window\FLWindow.h"
+#include "..\FLD3DUtils.h"
+#include "..\Exception\FLException.h"
+#include "..\Timer\FLStopWatch.h"
+#include "..\3rd_utils\spdlog\spdlog.h"
+#include "..\3rd_utils\d3dx12.h"
+#include "..\3rd_utils\ScreenGrab\ScreenGrab12.h"
 
 namespace FireFlame {
 //D3DRenderer::~D3DRenderer() {
@@ -38,6 +40,7 @@ void D3DRenderer::Render(const StopWatch& gt) {
 
 	// swap the back and front buffers
 	ThrowIfFailed(mSwapChain->Present(0, 0));
+    mCurrFrontBuffer = mCurrBackBuffer;
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
     // Advance the fence value to mark commands up to this fence point.
@@ -172,6 +175,11 @@ void D3DRenderer::WaitForGPUFrame() {
         info += L"\n";
         OutputDebugString(info.c_str());
 #endif
+        spdlog::get("console")->info
+        (
+            "WaitForGPUFrame:Wait For GPU finishing Frame{0:d}......", 
+            mCurrFrameResource->Fence
+        );
 
         HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
         ThrowIfFailed(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
@@ -179,6 +187,43 @@ void D3DRenderer::WaitForGPUFrame() {
         CloseHandle(eventHandle);
     }
 }
+
+void D3DRenderer::WaitForGPUCurrentFrame()
+{
+    mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
+
+    // Has the GPU finished processing the commands of the current frame resource?
+    // If not, wait until the GPU has completed commands up to this fence point.
+    if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
+    {
+        spdlog::get("console")->info
+        (
+            "WaitForGPUCurrentFrame:Wait For GPU finishing current Frame{0:d}......",
+            mCurrFrameResource->Fence
+        );
+
+        HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+        ThrowIfFailed(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
+        WaitForSingleObject(eventHandle, INFINITE);
+        CloseHandle(eventHandle);
+    }
+}
+
+#include <wincodec.h>
+void D3DRenderer::GrabScreen(const std::wstring& filename)
+{
+    WaitForGPUCurrentFrame();
+    //DirectX::SaveDDSTextureToFile(mCommandQueue.Get(), CurrentFrontBuffer(), filename.c_str(),
+        //D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_PRESENT);
+    DirectX::SaveWICTextureToFile
+    (
+        mCommandQueue.Get(), CurrentFrontBuffer(), 
+        GUID_ContainerFormatBmp, filename.c_str(),
+        D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_PRESENT
+    );
+    spdlog::get("console")->info("screen shot saved.........");
+}
+
 int D3DRenderer::Initialize(API_Feature api) {
 	assert(!mRenderWnd.expired());
 	auto renderWindow = mRenderWnd.lock();
@@ -287,6 +332,7 @@ void D3DRenderer::Resize(){
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
 	mCurrBackBuffer = 0;
+    mCurrFrontBuffer = 0;
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	for (UINT i = 0; i < SwapChainBufferCount; i++){
@@ -470,6 +516,9 @@ void D3DRenderer::CreateCommandObjects()
 }
 ID3D12Resource* D3DRenderer::CurrentBackBuffer() const {
 	return mSwapChainBuffer[mCurrBackBuffer].Get();
+}
+ID3D12Resource* D3DRenderer::CurrentFrontBuffer() const {
+    return mSwapChainBuffer[mCurrFrontBuffer].Get();
 }
 D3D12_CPU_DESCRIPTOR_HANDLE D3DRenderer::CurrentBackBufferView() const {
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(

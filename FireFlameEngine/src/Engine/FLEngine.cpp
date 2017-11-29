@@ -120,6 +120,9 @@ LRESULT Engine::OnWindowKeyUp(WPARAM wParam, LPARAM lParam) {
 	}
 	return 0;
 }
+LRESULT Engine::OnWindowSysKeyDown(WPARAM wParam, LPARAM lParam) {
+    return 0;
+}
 // =====================================End Windows Msg Handling====================
 
 // system probe

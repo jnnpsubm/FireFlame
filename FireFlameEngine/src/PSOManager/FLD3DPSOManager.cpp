@@ -1,4 +1,5 @@
 #include "FLD3DPSOManager.h"
+#include "..\src\3rd_utils\spdlog\spdlog.h"
 #include "..\FLD3DUtils.h"
 #include "..\Engine\FLEngine.h"
 #include "..\Renderer\FLD3DRenderer.h"
@@ -42,6 +43,7 @@ bool D3DPSOManager::AddPSO
             }
         }
     }
+    spdlog::get("console")->info("PSO Created:{0:d}", mPSOs.size());
     return true;
 }
 
@@ -74,9 +76,6 @@ void D3DPSOManager::AddOpaquePSO
             IID_PPV_ARGS(pso.GetAddressOf())
         )
     );
-#ifdef _DEBUG
-    //std::cout << "Add PSO : " << 
-#endif
     mPSOs.emplace(PSOTrait, pso);
 }
 

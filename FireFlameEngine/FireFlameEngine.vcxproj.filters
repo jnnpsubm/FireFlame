@@ -85,14 +85,11 @@
     <ClCompile Include="src\3rd_utils\DDSTextureLoaderLuna.cpp">
       <Filter>src\3rd_utils\DDS</Filter>
     </ClCompile>
-    <ClCompile Include="src\3rd_utils\spdlog\fmt\bundled\format.cc">
-      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    <ClCompile Include="src\3rd_utils\ScreenGrab\ScreenGrab.cpp">
+      <Filter>src\3rd_utils\ScreenGrab</Filter>
     </ClCompile>
-    <ClCompile Include="src\3rd_utils\spdlog\fmt\bundled\ostream.cc">
-      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
-    </ClCompile>
-    <ClCompile Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc">
-      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    <ClCompile Include="src\3rd_utils\ScreenGrab\ScreenGrab12.cpp">
+      <Filter>src\3rd_utils\ScreenGrab</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -351,6 +348,18 @@
     <ClInclude Include="src\3rd_utils\spdlog\sinks\windebug_sink.h">
       <Filter>src\3rd_utils\spdlog\sinks</Filter>
     </ClInclude>
+    <ClInclude Include="src\3rd_utils\ScreenGrab\ScreenGrab.h">
+      <Filter>src\3rd_utils\ScreenGrab</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\ScreenGrab\ScreenGrab12.h">
+      <Filter>src\3rd_utils\ScreenGrab</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chrono\FLchrono.h">
+      <Filter>src\chrono</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FLStringUtils.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -449,10 +458,19 @@
     <Filter Include="src\3rd_utils\spdlog\sinks">
       <UniqueIdentifier>{60c5bcd2-e78f-4ebe-b4b5-c8fae40c5922}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\3rd_utils\ScreenGrab">
+      <UniqueIdentifier>{88ed2d39-d4da-4322-9476-2ebbcd6059db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\chrono">
+      <UniqueIdentifier>{2a5419b4-f9d7-48d8-ba0b-a2af616bfd10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\3rd_utils\spdlog\fmt\bundled\printf.cc">
       <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
     </None>
+    <None Include="src\3rd_utils\spdlog\fmt\bundled\format.cc" />
+    <None Include="src\3rd_utils\spdlog\fmt\bundled\ostream.cc" />
+    <None Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc" />
   </ItemGroup>
 </Project>
