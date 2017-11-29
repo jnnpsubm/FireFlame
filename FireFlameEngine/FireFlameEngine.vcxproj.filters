@@ -469,8 +469,14 @@
     <None Include="src\3rd_utils\spdlog\fmt\bundled\printf.cc">
       <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
     </None>
-    <None Include="src\3rd_utils\spdlog\fmt\bundled\format.cc" />
-    <None Include="src\3rd_utils\spdlog\fmt\bundled\ostream.cc" />
-    <None Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc" />
+    <None Include="src\3rd_utils\spdlog\fmt\bundled\format.cc">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </None>
+    <None Include="src\3rd_utils\spdlog\fmt\bundled\ostream.cc">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </None>
+    <None Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc">
+      <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
+    </None>
   </ItemGroup>
 </Project>
