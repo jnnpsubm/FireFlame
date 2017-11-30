@@ -354,11 +354,11 @@
     <ClInclude Include="src\3rd_utils\ScreenGrab\ScreenGrab12.h">
       <Filter>src\3rd_utils\ScreenGrab</Filter>
     </ClInclude>
-    <ClInclude Include="src\chrono\FLchrono.h">
-      <Filter>src\chrono</Filter>
-    </ClInclude>
     <ClInclude Include="src\FLStringUtils.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\chrono\FLchrono.h">
+      <Filter>src\Utility\chrono</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -461,7 +461,10 @@
     <Filter Include="src\3rd_utils\ScreenGrab">
       <UniqueIdentifier>{88ed2d39-d4da-4322-9476-2ebbcd6059db}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\chrono">
+    <Filter Include="src\Utility">
+      <UniqueIdentifier>{02075fba-5cdf-43be-8b1a-e00247198697}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utility\chrono">
       <UniqueIdentifier>{2a5419b4-f9d7-48d8-ba0b-a2af616bfd10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

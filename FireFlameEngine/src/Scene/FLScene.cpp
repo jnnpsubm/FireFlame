@@ -8,7 +8,7 @@
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
 #include "..\Material\FLTexture.h"
-#include "..\chrono\FLchrono.h"
+#include "..\Utility\chrono\FLchrono.h"
 #ifdef USE_MS_DDS_LOADER
 #include "..\3rd_utils\DDSTextureLoader12.h"
 #else

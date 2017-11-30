@@ -65,7 +65,6 @@
     <ClInclude Include="src\3rd_utils\spdlog\spdlog.h" />
     <ClInclude Include="src\3rd_utils\spdlog\tweakme.h" />
     <ClInclude Include="src\3rd_utils\tinyply.h" />
-    <ClInclude Include="src\chrono\FLchrono.h" />
     <ClInclude Include="src\Engine\FLEngine.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
@@ -106,6 +105,7 @@
     <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h" />
     <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
+    <ClInclude Include="src\Utility\chrono\FLchrono.h" />
     <ClInclude Include="src\ViewFrustum\FLViewFrustum.h" />
     <ClInclude Include="src\Window\FLWindow.h" />
   </ItemGroup>
