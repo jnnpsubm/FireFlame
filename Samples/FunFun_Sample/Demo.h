@@ -49,6 +49,8 @@ private:
 
     ObjectConstants mShaderConstants;
 
+    FireFlame::stRenderItemDesc mRItemDesc;
+
     struct stShaderFun {
         stShaderFun(const std::string& name, const std::wstring& file)
             : shaderName(name),shaderPSFile(file){}

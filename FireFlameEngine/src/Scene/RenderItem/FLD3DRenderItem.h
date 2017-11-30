@@ -43,5 +43,7 @@ struct D3DRenderItem {
     UINT IndexCount = 0;
     UINT StartIndexLocation = 0;
     int BaseVertexLocation = 0;
+
+    bool opaque = true;
 };
 }

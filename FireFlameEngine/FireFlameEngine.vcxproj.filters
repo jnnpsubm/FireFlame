@@ -91,6 +91,9 @@
     <ClCompile Include="src\3rd_utils\ScreenGrab\ScreenGrab12.cpp">
       <Filter>src\3rd_utils\ScreenGrab</Filter>
     </ClCompile>
+    <ClCompile Include="src\PSOManager\FLD3DPSOManager2.cpp">
+      <Filter>src\PSOManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -359,6 +362,12 @@
     </ClInclude>
     <ClInclude Include="src\Utility\chrono\FLchrono.h">
       <Filter>src\Utility\chrono</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PSOManager\FLD3DPSOManager2.h">
+      <Filter>src\PSOManager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PSOManager\FLPSOTrait.h">
+      <Filter>src\PSOManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,7 +15,7 @@ class D3DPSOManager : public PSOManager {
 private:
     typedef std::tuple
     <
-        std::string,                     // ShaderName
+        std::string,                     // Shader Name
         std::string,                     // Shader Macros
         UINT,                            // MSAAMode
         bool,                            // opaque

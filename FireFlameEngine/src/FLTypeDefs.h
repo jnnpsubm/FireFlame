@@ -1,6 +1,7 @@
 #pragma once
 #include "Matrix\FLMatrix4X4.h"
 #include <vector>
+#include <string>
 
 namespace FireFlame {
 enum class ControllerInputMode {
@@ -32,7 +33,7 @@ inline unsigned int IndexFormatByteLength(Index_Format format) {
 	case Index_Format::UINT32:
 		return 4;
 	default:
-        throw std::exception("unkown IndexFormatByteLength");
+        throw std::exception("unknown IndexFormatByteLength");
 	}
 }
  
@@ -89,6 +90,53 @@ enum class Fill_Mode {
     Wireframe = 2,
     Solid = 3
 };
+
+inline Primitive_Topology_Type FLTopology2FLTopologyType(Primitive_Topology top)
+{
+    switch (top)
+    {
+    case FireFlame::Primitive_Topology::PointList:
+        return Primitive_Topology_Type::Point;
+    case FireFlame::Primitive_Topology::LineStrip:
+        return Primitive_Topology_Type::Line;
+    case FireFlame::Primitive_Topology::LineList:
+        return Primitive_Topology_Type::Line;
+    case FireFlame::Primitive_Topology::TriangleStrip:
+        return Primitive_Topology_Type::Triangle;
+    case FireFlame::Primitive_Topology::TriangleList:
+        return Primitive_Topology_Type::Triangle;
+    default:
+        throw std::exception("unknown primitive topology in FLTopology2FLTopologyType");
+    }
+}
+
+struct PSODesc
+{
+    PSODesc
+    (
+        const std::string& shaderName,
+        const std::string& shaderMacroVS,
+        const std::string& shaderMacroPS,
+        bool opaque = true,
+        Primitive_Topology topology = Primitive_Topology::TriangleList,
+        Cull_Mode cullMode = Cull_Mode::Back
+    ) : shaderName(shaderName),
+        shaderMacroVS(shaderMacroVS),
+        shaderMacroPS(shaderMacroPS),
+        opaque(opaque),
+        topology(topology),
+        cullMode(cullMode)
+    {}
+    std::string shaderName;
+    std::string shaderMacroVS;
+    std::string shaderMacroPS;
+    
+    Primitive_Topology topology = Primitive_Topology::TriangleList;
+    Cull_Mode cullMode = Cull_Mode::Back;
+
+    bool opaque = true;
+};
+
 struct stRawMesh {
     stRawMesh() = default;
     explicit stRawMesh(const std::string& _name) 
@@ -151,6 +199,13 @@ struct stRenderItemDesc {
     void*  data = nullptr;
 
     std::string mat;
+
+    std::string AsPSOName() const
+    {
+        return std::to_string(opaque) +
+               std::to_string(int(FLTopology2FLTopologyType(topology))) +
+               std::to_string(int(cullMode));
+    }
 };
 
 enum class Shader_Type {

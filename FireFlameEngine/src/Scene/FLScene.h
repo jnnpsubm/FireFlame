@@ -4,11 +4,11 @@
 #include "Primitive\FLD3DPrimitive.h"
 #include "Vertex\FLVertex.h"
 #include "..\FLTypeDefs.h"
-#include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 #include "RenderItem\FLD3DRenderItem.h"
 
 namespace FireFlame {
 class D3DRenderer;
+class D3DShaderWrapper;
 class StopWatch;
 struct Pass;
 struct Material;
@@ -16,13 +16,17 @@ struct Texture;
 class Scene {
 public:
     typedef std::vector<D3DRenderItem*>                               VecRItem;
-    typedef std::unordered_map<bool, VecRItem>                        OpacityMappedVecRItem;
-    typedef std::unordered_map<std::string, OpacityMappedVecRItem>    MacroMappedVecRItem;
-    typedef std::unordered_map<std::string, MacroMappedVecRItem>      ShaderMappedVecRItem;
-    typedef std::unordered_map<D3D12_CULL_MODE, ShaderMappedVecRItem> CullModeMappedVecRItem;
-    typedef std::unordered_map<UINT, CullModeMappedVecRItem>          TopologyMappedVecRItem;
+    typedef std::unordered_map<std::string, VecRItem>                 PSOMappedRItem;
+    typedef std::unordered_map<std::string, PSOMappedRItem>           ShaderMappedRItem;
 
 	Scene(std::shared_ptr<D3DRenderer>& renderer);
+
+    D3DShaderWrapper* GetShader(const std::string& name) const 
+    {
+        auto it = mShaders.find(name);
+        if (it != mShaders.end()) return it->second.get();
+        return nullptr;
+    }
 
     // some scene management
     int  GetReady();
@@ -36,6 +40,7 @@ public:
     void PrintScene() { mPrintScene = true; }
 
     void AddShader(const stShaderDescription& shaderDesc);
+    void AddPSO(const std::string& name, const PSODesc& desc);
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);
@@ -50,7 +55,8 @@ public:
     (
         const std::string&      primitiveName,
         const std::string&      shaderName,
-        const std::string&      shaderMacros,
+        const std::string&      shaderMacroVS,
+        const std::string&      shaderMacroPS,
         const stRenderItemDesc& desc
     );
     void AddTexture(const std::string& name, const std::wstring& filename);
@@ -83,8 +89,10 @@ public:
     void RenderItemChangeShader
     (
         const std::string& renderItem, 
-        const std::string& shader, 
-        const std::string& shaderMacros = ""
+        const stRenderItemDesc& desc,
+        const std::string&      shader,
+        const std::string&      shaderMacroVS = "",
+        const std::string&      shaderMacroPS = ""
     );
 
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
@@ -100,15 +108,11 @@ private:
 
     void PreRender();
     void Draw(ID3D12GraphicsCommandList* cmdList);
-    void DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass);
+    void DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass);
     void DrawRenderItems
     (
         ID3D12GraphicsCommandList* cmdList,
-        OpacityMappedVecRItem& mappedRItems,
-        D3DShaderWrapper* Shader,
-        const std::string& shaderMacros,
-        D3D12_PRIMITIVE_TOPOLOGY_TYPE topType,
-        D3D12_CULL_MODE cullMode,
+        const Pass* pass,
         bool opaque
     );
 
@@ -120,7 +124,10 @@ private:
 	// todo : scene manage
     std::unordered_map<std::string, std::shared_ptr<D3DRenderItem>>    mRenderItems;
     // true for opaque
-    TopologyMappedVecRItem                                             mMappedRItems;
+    ShaderMappedRItem& GetShaderMappedRItem(bool opaque) {
+        return opaque ? mShaderMappedRItems[0] : mShaderMappedRItems[1];
+    }
+    ShaderMappedRItem                                                  mShaderMappedRItems[2];
 
     // passes
     std::unordered_map<std::string, std::shared_ptr<Pass>>             mPasses;

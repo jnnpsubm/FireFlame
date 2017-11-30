@@ -112,7 +112,7 @@ void BlendApp::AddShaders()
 
     // ps with macros
     auto& ps = mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::PS, "PS", "ps_5_0");
-    mShaderMacros[""] = ShaderMacros2String(vs.Macros2String(), ps.Macros2String());
+    mShaderMacrosPS[""] = ShaderMacros2String(vs.Macros2String(), ps.Macros2String());
 
     std::vector<std::pair<std::string, std::string>> macros = { { "FOG", "1" } };
     auto& psFogged = mShaderDesc.AddShaderStage
@@ -121,7 +121,7 @@ void BlendApp::AddShaders()
         Shader_Type::PS, "PS", "ps_5_0",
         macros
     );
-    mShaderMacros["fogged"] = ShaderMacros2String(vs.Macros2String(), psFogged.Macros2String());
+    mShaderMacrosPS["fogged"] = ShaderMacros2String(vs.Macros2String(), psFogged.Macros2String());
 
     macros.emplace_back("ALPHA_CLIP", "1");
     auto& psAlphaClip = mShaderDesc.AddShaderStage
@@ -130,7 +130,7 @@ void BlendApp::AddShaders()
         Shader_Type::PS, "PS", "ps_5_0",
         macros
     );
-    mShaderMacros["fogged_and_alpha_clip"] = ShaderMacros2String(vs.Macros2String(), psAlphaClip.Macros2String());
+    mShaderMacrosPS["fogged_and_alpha_clip"] = ShaderMacros2String(vs.Macros2String(), psAlphaClip.Macros2String());
     // end
     
     mEngine.GetScene()->AddShader(mShaderDesc);
@@ -442,7 +442,8 @@ void BlendApp::AddRenderItems()
     (
         mMeshDesc[0].name,
         mShaderDesc.name,
-        mShaderMacros["fogged_and_alpha_clip"],
+        "",
+        mShaderMacrosPS["fogged_and_alpha_clip"],
         RItem
     );
 
@@ -466,7 +467,8 @@ void BlendApp::AddRenderItems()
     (
         mMeshDesc[1].name, 
         mShaderDesc.name, 
-        mShaderMacros["fogged"],
+        "",
+        mShaderMacrosPS["fogged"],
         RItem2
     );
 
@@ -489,13 +491,15 @@ void BlendApp::AddRenderItems()
     (
         mMeshDesc[2].name, 
         mShaderDesc.name, 
-        mShaderMacros["fogged"],
+        "",
+        mShaderMacrosPS["fogged"],
         RItem3
     );
 }
 
 void BlendApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 {
+    FLEngineApp::OnKeyUp(wParam, lParam);
     if ((int)wParam == 'R')
     {
         mEngine.Resume();

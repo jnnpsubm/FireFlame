@@ -409,6 +409,7 @@ inline D3D12_PRIMITIVE_TOPOLOGY_TYPE FLPrimitiveType2D3DPrimitiveType(Primitive_
         throw std::exception("unknown primitive topology type");
     }
 }
+
 inline std::wstring AnsiToWString(const std::string& str)
 {
 	WCHAR buffer[512];

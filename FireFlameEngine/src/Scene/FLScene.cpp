@@ -5,10 +5,12 @@
 #include "..\Timer\FLStopWatch.h"
 #include "..\Engine\FLEngine.h"
 #include "..\PSOManager\FLD3DPSOManager.h"
+#include "..\PSOManager\FLD3DPSOManager2.h"
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
 #include "..\Material\FLTexture.h"
 #include "..\Utility\chrono\FLchrono.h"
+#include "..\3rd_utils\spdlog\spdlog.h"
 #ifdef USE_MS_DDS_LOADER
 #include "..\3rd_utils\DDSTextureLoader12.h"
 #else
@@ -80,7 +82,7 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList)
         DrawPass(cmdList, pass.second.get());
     }
 }
-void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
+void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass)
 {
     for (auto& namedPrimitive : mPrimitives) 
     {
@@ -92,80 +94,51 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, Pass* pass)
         }
     }
 
-    // todo : some render items share the same pso and shader etc...
-    // need to handle outside for loop
-    auto renderer = Engine::GetEngine()->GetRenderer();
-    for (auto& itemsTopType : mMappedRItems) 
-    {
-        D3D12_PRIMITIVE_TOPOLOGY_TYPE topType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)itemsTopType.first;
-        for (auto& itemsCullMode : itemsTopType.second)
-        {
-            auto cullMode = itemsCullMode.first;
-            for (auto& itemsShader : itemsCullMode.second)
-            {
-                D3DShaderWrapper* Shader = mShaders[itemsShader.first].get();
-
-                auto CBVHeap = Shader->GetCBVHeap();
-                ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
-                cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
-                cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
-
-                if (Shader->GetPassParamIndex() != (UINT)-1)
-                {
-                    int passCbvIndex = pass->CBIndex;
-                    passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
-                    auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
-                    passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
-                    cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
-                }
-                for (auto& itemsMacro : itemsShader.second)
-                {
-                    DrawRenderItems
-                    (
-                        cmdList, itemsMacro.second, Shader, itemsMacro.first, 
-                        topType, cullMode, true
-                    );
-                    DrawRenderItems
-                    (
-                        cmdList, itemsMacro.second, Shader, itemsMacro.first, 
-                        topType, cullMode, false
-                    );
-                }
-            }
-        }
-    }
+    DrawRenderItems(cmdList, pass, true);
+    DrawRenderItems(cmdList, pass, false);
 }
 
 void Scene::DrawRenderItems
 (
     ID3D12GraphicsCommandList* cmdList,
-    OpacityMappedVecRItem& mappedRItems,
-    D3DShaderWrapper* Shader,
-    const std::string& shaderMacros,
-    D3D12_PRIMITIVE_TOPOLOGY_TYPE topType,
-    D3D12_CULL_MODE cullMode,
+    const Pass* pass,
     bool opaque
 )
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
-
-    auto& vecRItems = mappedRItems[opaque];
-    if (vecRItems.empty()) return;
-    auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
-    (
-        Shader->GetName(),
-        shaderMacros,
-        renderer->GetMSAAMode(),
-        opaque,
-        topType,
-        cullMode,
-        renderer->GetFillMode()
-    );
-    cmdList->SetPipelineState(pso);
-    for (auto& renderItem : vecRItems)
+    auto shaderMapped = GetShaderMappedRItem(opaque);
+    for (auto& itSameShader : shaderMapped)
     {
-        renderItem->Render(Shader);
+        D3DShaderWrapper* Shader = mShaders[itSameShader.first].get();
+
+        auto CBVHeap = Shader->GetCBVHeap();
+        ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
+        cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+        cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
+
+        if (Shader->GetPassParamIndex() != (UINT)-1)
+        {
+            int passCbvIndex = pass->CBIndex;
+            passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
+            auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+            passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
+            cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
+        }
+        for (auto& itSamePSO : itSameShader.second)
+        {
+            auto pso = Engine::GetEngine()->GetPSOManager2()->GetPSO
+            (
+                itSamePSO.first,
+                renderer->GetMSAAMode(),
+                renderer->GetFillMode()
+            );
+            cmdList->SetPipelineState(pso);
+            for (auto& renderItem : itSamePSO.second)
+            {
+                renderItem->Render(Shader);
+            }
+        }
     }
 }
 
@@ -234,13 +207,13 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
 #endif
     shader->BuildRootSignature(mRenderer->GetDevice());
     shader->BuildShadersAndInputLayout(shaderDesc);
-    shader->BuildPSO
-    (
-        mRenderer->GetDevice(),             
-        mRenderer->GetBackBufferFormat(),
-        mRenderer->GetDepthStencilFormat()
-    );
 }
+
+void Scene::AddPSO(const std::string& name, const PSODesc& desc)
+{
+    Engine::GetEngine()->GetPSOManager2()->AddPSO(name, desc);
+}
+
 void Scene::AddPrimitive(const stRawMesh& mesh) {
     mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
 }
@@ -260,9 +233,11 @@ void Scene::PrimitiveUseShader(const std::string& primitive, const std::string& 
 }
 void Scene::RenderItemChangeShader
 (
-    const std::string& renderItem, 
-    const std::string& shader,
-    const std::string& shaderMacros
+    const std::string& renderItem,
+    const stRenderItemDesc& desc,
+    const std::string&      shader,
+    const std::string&      shaderMacroVS,
+    const std::string&      shaderMacroPS
 ) 
 {
     auto itRItem = mRenderItems.find(renderItem);
@@ -272,38 +247,42 @@ void Scene::RenderItemChangeShader
     if (itShader == mShaders.end()) 
         throw std::exception("cannot find shader in function(RenderItemChangeShader)");
     std::string oldShader = itRItem->second->Shader;
-    itRItem->second->SetShader(shader);
+
+    auto& shaderMapped = GetShaderMappedRItem(itRItem->second->opaque);
+    auto itSameShader = shaderMapped.find(oldShader);
+    if (itSameShader == shaderMapped.end())
+    {
+        spdlog::get("console")->error("cannot find old shader {0}", oldShader);
+        return;
+    }
 
     // first remove the render item
-    bool bOpacity = true;
-    D3D12_CULL_MODE cullMode = D3D12_CULL_MODE_BACK;
-    for (auto& itemsTopType : mMappedRItems) {
-        for (auto& itemsCullMode : itemsTopType.second) {
-            auto& itemsShader = itemsCullMode.second;
-            auto it = itemsShader.find(oldShader);
-            if (it == itemsShader.end()) continue;
-            for (auto& itemsMacro : it->second)
-            {
-                for (auto& itemsOpaqueStatus : itemsMacro.second) {
-                    auto& vecRItems = itemsOpaqueStatus.second;
-                    for (auto it = vecRItems.begin(); it != vecRItems.end(); ++it) {
-                        if ((*it)->Name == renderItem) {
-                            vecRItems.erase(it);
-                            bOpacity = itemsOpaqueStatus.first;
-                            cullMode = itemsCullMode.first;
-                            break;
-                        }
-                    }
-                }
+    bool bFound = false;
+    for (auto& itSamePSO : itSameShader->second) {
+        auto& vecRItems = itSamePSO.second;
+        for (auto it = vecRItems.begin(); it != vecRItems.end(); ++it) {
+            if ((*it)->Name == renderItem) {
+                vecRItems.erase(it);
+                bFound = true;
+                break;
             }
         }
     }
+    if (!bFound)
+    {
+        spdlog::get("console")->error("cannot find render item {0}", renderItem);
+        return;
+    }
+    itRItem->second->SetShader(shader);
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    auto PSOName = shader + shaderMacroVS + shaderMacroPS + desc.AsPSOName();
+    if (!PSOManager->NameExist(PSOName))
+    {
+        AddPSO(PSOName, { shader,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode });
+    }
     // add render item back to new place
-    auto& cullModeMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(itRItem->second->PrimitiveType)];
-    auto& shaderMappedRItem = cullModeMappedRItem[cullMode];
-    auto& macroMappedRItem = shaderMappedRItem[shader];
-    auto& opacityMappedRItem = macroMappedRItem[shaderMacros];
-    auto& vecItems = opacityMappedRItem[bOpacity];
+    auto& PSOMapped = shaderMapped[shader];
+    auto& vecItems = PSOMapped[PSOName];
     vecItems.push_back(itRItem->second.get());
 }
 
@@ -328,6 +307,13 @@ void Scene::AddRenderItem
     D3DMesh* mesh = itPrimitive->second->GetMesh();
     D3DShaderWrapper* shader = itShader->second.get();
 
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    auto PSOName = shaderName + desc.AsPSOName();
+    if (!PSOManager->NameExist(PSOName))
+    {
+        AddPSO(PSOName, { shaderName,"","",desc.opaque,desc.topology,desc.cullMode });
+    }
+
     auto renderItem = std::make_shared<D3DRenderItem>();
     renderItem->Name = desc.name;
     renderItem->NumFramesDirty = Engine::NumFrameResources();
@@ -338,6 +324,7 @@ void Scene::AddRenderItem
     renderItem->Mesh = mesh;
     renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
+    renderItem->opaque = desc.opaque;
     if (desc.data && desc.dataLen)
     {
         renderItem->Data = new char[desc.dataLen];
@@ -352,12 +339,9 @@ void Scene::AddRenderItem
         renderItem->Mat = itMat->second.get();
     }
 
-    // All the render items are opaque(true). for now...
-    auto& cullModeMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
-    auto& shaderMappedRItem = cullModeMappedRItem[FLCullMode2D3DCullMode(desc.cullMode)];
-    auto& macroMappedRItem = shaderMappedRItem[shaderName];
-    auto& opacityMappedRItem = macroMappedRItem[""];
-    auto& vecItems = opacityMappedRItem[desc.opaque];
+    auto& shaderMapped = GetShaderMappedRItem(desc.opaque);
+    auto& PSOMapped = shaderMapped[shaderName];
+    auto& vecItems = PSOMapped[PSOName];
     vecItems.push_back(renderItem.get());
     mRenderItems.emplace(desc.name, renderItem);
 }
@@ -366,7 +350,8 @@ void Scene::AddRenderItem
 (
     const std::string&      primitiveName,
     const std::string&      shaderName,
-    const std::string&      shaderMacros,
+    const std::string&      shaderMacroVS,
+    const std::string&      shaderMacroPS,
     const stRenderItemDesc& desc
 )
 {
@@ -378,6 +363,13 @@ void Scene::AddRenderItem
     D3DMesh* mesh = itPrimitive->second->GetMesh();
     D3DShaderWrapper* shader = itShader->second.get();
 
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    auto PSOName = shaderName + shaderMacroVS + shaderMacroPS + desc.AsPSOName();
+    if (!PSOManager->NameExist(PSOName))
+    {
+        AddPSO(PSOName,{ shaderName,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode });
+    }
+
     auto renderItem = std::make_shared<D3DRenderItem>();
     renderItem->Name = desc.name;
     renderItem->NumFramesDirty = Engine::NumFrameResources();
@@ -388,6 +380,7 @@ void Scene::AddRenderItem
     renderItem->Mesh = mesh;
     renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
+    renderItem->opaque = desc.opaque;
     if (desc.data && desc.dataLen)
     {
         renderItem->Data = new char[desc.dataLen];
@@ -402,12 +395,9 @@ void Scene::AddRenderItem
         renderItem->Mat = itMat->second.get();
     }
 
-    // All the render items are opaque(true). for now...
-    auto& cullModeMappedRItem = mMappedRItems[(UINT)D3DPrimitiveType(renderItem->PrimitiveType)];
-    auto& shaderMappedRItem = cullModeMappedRItem[FLCullMode2D3DCullMode(desc.cullMode)];
-    auto& macroMappedRItem = shaderMappedRItem[shaderName];
-    auto& opacityMappedRItem = macroMappedRItem[shaderMacros];
-    auto& vecItems = opacityMappedRItem[desc.opaque];
+    auto& shaderMapped = GetShaderMappedRItem(desc.opaque);
+    auto& PSOMapped = shaderMapped[shaderName];
+    auto& vecItems = PSOMapped[PSOName];
     vecItems.push_back(renderItem.get());
     mRenderItems.emplace(desc.name, renderItem);
 }

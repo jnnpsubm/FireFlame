@@ -44,5 +44,6 @@ private:
     bool                                                    mWaveStart = true;
     std::unique_ptr<Waves>                                  mWaves;
     std::unordered_map<std::string, NamedMaterialConstants> mMaterials;
-    std::unordered_map<std::string, std::string>            mShaderMacros;
+    std::unordered_map<std::string, std::string>            mShaderMacrosVS;
+    std::unordered_map<std::string, std::string>            mShaderMacrosPS;
 };

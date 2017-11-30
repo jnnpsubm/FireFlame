@@ -52,11 +52,10 @@ void Demo::AddGeometry() {
     mEngine.GetScene()->AddPrimitive(meshDesc, mShaders[0].shaderName);
     mEngine.GetScene()->PrimitiveAddSubMesh(meshDesc.name, subMesh);
 
-    FireFlame::stRenderItemDesc RItemDesc;
-    RItemDesc.name = meshDesc.name;
-    RItemDesc.subMesh = subMesh;
-    RItemDesc.topology = FireFlame::Primitive_Topology::TriangleList;
-    mEngine.GetScene()->AddRenderItem(meshDesc.name, mShaders[0].shaderName, RItemDesc);
+    mRItemDesc.name = meshDesc.name;
+    mRItemDesc.subMesh = subMesh;
+    mRItemDesc.topology = FireFlame::Primitive_Topology::TriangleList;
+    mEngine.GetScene()->AddRenderItem(meshDesc.name, mShaders[0].shaderName, mRItemDesc);
 
     UseShader(mShaders[0].shaderName);
     UseGeometry(meshDesc.name);
@@ -136,7 +135,7 @@ void Demo::OnKeyDown(WPARAM wParam, LPARAM lParam) {
         }
         UseShader(mShaders[mode].shaderName);
         //mEngine.GetScene()->PrimitiveUseShader(mCurrGeo, mCurrShader);
-        mEngine.GetScene()->RenderItemChangeShader(mCurrGeo, mCurrShader);
+        mEngine.GetScene()->RenderItemChangeShader(mCurrGeo, mRItemDesc, mCurrShader);
         strDebug += L"Shader:" + FireFlame::AnsiToWString(mCurrShader);
     }
     else if ((int)wParam == 'K')

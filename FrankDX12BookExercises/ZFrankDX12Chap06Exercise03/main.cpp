@@ -13,10 +13,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 #endif
 
     FireFlame::Engine engine(hInstance);
-    //PointListDemo         demo(engine);
+    PointListDemo         demo(engine);
     //LineStripDemo         demo(engine);
     //LineListDemo          demo(engine);
-    TriangleStripDemo     demo(engine);
+    //TriangleStripDemo     demo(engine);
     //TriangleListDemo     demo(engine);
     try {
         using namespace FireFlame;

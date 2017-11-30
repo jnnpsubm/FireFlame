@@ -487,11 +487,13 @@ void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& sha
 void D3DShaderWrapper::BuildInputLayout(const stShaderDescription& shaderDesc) {
     // bug? pointer to temp char*
     std::unordered_map<UINT, UINT> slotOffset;
+    mSemanticNames.reserve(shaderDesc.semanticNames.size()); // must not grow size and reallocation
     for (size_t i = 0; i < shaderDesc.semanticNames.size(); i++){
+        mSemanticNames.push_back(shaderDesc.semanticNames[i].name);
         mInputLayout.push_back
         (
         {
-            shaderDesc.semanticNames[i].name.c_str(), 
+            mSemanticNames.back().data(), 
             shaderDesc.semanticNames[i].index,
             FLVertexFormat2DXGIFormat(shaderDesc.vertexFormats[i]), 
             shaderDesc.inputSlots[i],

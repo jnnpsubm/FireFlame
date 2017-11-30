@@ -54,8 +54,34 @@ public:
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
 
     // Get Methods
+    const std::string&    GetName()             const { return mName; }
+
+    std::pair<size_t, void*> GetInputLayout()   const 
+    {
+        return std::make_pair(mInputLayout.size(), (void*)mInputLayout.data()); 
+    }
+    std::pair<void*, size_t> GetVS(const std::string& macro) const
+    {
+        auto it = mVSByteCodes.find(macro);
+        if (it == mVSByteCodes.end()) return std::make_pair(nullptr, 0);
+        return std::make_pair
+        (
+            reinterpret_cast<void*>(it->second->GetBufferPointer()), 
+            it->second->GetBufferSize()
+        );
+    }
+    std::pair<void*, size_t> GetPS(const std::string& macro) const
+    {
+        auto it = mPSByteCodes.find(macro);
+        if (it == mPSByteCodes.end()) return std::make_pair(nullptr, 0);
+        return std::make_pair
+        (
+            reinterpret_cast<void*>(it->second->GetBufferPointer()),
+            it->second->GetBufferSize()
+        );
+    }
+    
     // todo : variant heaps with variant shaders
-    const std::string&    GetName()             const { return mName;                       }
     ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();              }
 #ifndef TEX_SRV_USE_CB_HEAP
     ID3D12DescriptorHeap* GetTexSRVHeap()       const { return mTexSrvDescriptorHeap.Get(); }
@@ -103,6 +129,7 @@ public:
 private:
     std::string                           mName;
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+    std::vector<std::string>              mSemanticNames;
 
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mVSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
