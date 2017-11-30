@@ -1,10 +1,20 @@
 #include "MPSApp.h"
 
+MPSApp::MPSApp(FireFlame::Engine& e) : FLEngineApp2(e)
+{
+    float mTheta = 1.24f*FireFlame::MathHelper::FL_PI;
+    float mPhi = 0.42f*FireFlame::MathHelper::FL_PI;
+    float mRadius = 12.0f;
+}
+
 void MPSApp::Initialize()
 {
     AddShaders();
     AddPSOs();
     AddMeshs();
+    AddTextures();
+    AddMaterials();
+    AddRenderItems();
 }
 
 void MPSApp::AddShaders()
@@ -127,6 +137,7 @@ void MPSApp::AddRoomMesh()
     };
 
     mMeshDesc["room"].name = "room";
+
     mMeshDesc["room"].indexCount = (unsigned int)indices.size();
     mMeshDesc["room"].indexFormat = Index_Format::UINT16;
     mMeshDesc["room"].indices = indices.data();
@@ -140,4 +151,169 @@ void MPSApp::AddRoomMesh()
     mMeshDesc["room"].subMeshs.emplace_back("wall", 18, 6);
     mMeshDesc["room"].subMeshs.emplace_back("mirror", 6, 24);
     mEngine.GetScene()->AddPrimitive(mMeshDesc["room"]);
+}
+
+void MPSApp::AddTextures()
+{
+    mEngine.GetScene()->AddTexture
+    (
+        "bricksTex",
+        L"..\\..\\Resources\\Textures\\bricks3.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "checkboardTex",
+        L"..\\..\\Resources\\Textures\\checkboard.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "iceTex",
+        L"..\\..\\Resources\\Textures\\ice.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "white1x1Tex",
+        L"..\\..\\Resources\\Textures\\white1x1.dds"
+    );
+}
+
+void MPSApp::AddMaterials()
+{
+    auto& bricks = mMaterials["bricks"];
+    bricks.Name = "bricks";
+    bricks.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    bricks.FresnelR0 = FireFlame::Vector3f(0.05f, 0.05f, 0.05f);
+    bricks.Roughness = 0.25f;
+    mEngine.GetScene()->AddMaterial
+    (
+        bricks.Name,
+        mShaderDesc.name, "bricksTex",
+        sizeof(MaterialConstants), &bricks
+    );
+
+    auto& checkertile = mMaterials["checkertile"];
+    checkertile.Name = "checkertile";
+    checkertile.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    checkertile.FresnelR0 = FireFlame::Vector3f(0.07f, 0.07f, 0.07f);
+    checkertile.Roughness = 0.3f;
+    mEngine.GetScene()->AddMaterial
+    (
+        checkertile.Name,
+        mShaderDesc.name, "checkboardTex",
+        sizeof(MaterialConstants), &checkertile
+    );
+
+    auto& icemirror = mMaterials["icemirror"];
+    icemirror.Name = "icemirror";
+    icemirror.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    icemirror.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
+    icemirror.Roughness = 0.5f;
+    mEngine.GetScene()->AddMaterial
+    (
+        icemirror.Name,
+        mShaderDesc.name, "iceTex",
+        sizeof(MaterialConstants), &icemirror
+    );
+
+    auto& skullMat = mMaterials["skullMat"];
+    skullMat.Name = "skullMat";
+    skullMat.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    skullMat.FresnelR0 = FireFlame::Vector3f(0.05f, 0.05f, 0.05f);
+    skullMat.Roughness = 0.3f;
+    mEngine.GetScene()->AddMaterial
+    (
+        skullMat.Name,
+        mShaderDesc.name, "white1x1Tex",
+        sizeof(MaterialConstants), &skullMat
+    );
+
+    auto& shadowMat = mMaterials["shadowMat"];
+    shadowMat.Name = "shadowMat";
+    shadowMat.DiffuseAlbedo = FireFlame::Vector4f(0.0f, 0.0f, 0.0f, 0.5f);
+    shadowMat.FresnelR0 = FireFlame::Vector3f(0.001f, 0.001f, 0.001f);
+    shadowMat.Roughness = 0.0f;
+    mEngine.GetScene()->AddMaterial
+    (
+        shadowMat.Name,
+        mShaderDesc.name, "white1x1Tex",
+        sizeof(MaterialConstants), &shadowMat
+    );
+}
+
+void MPSApp::AddRenderItems()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("floor", mMeshDesc["room"].subMeshs[0]);
+    RItem.mat = "checkertile";
+    XMFLOAT4X4 trans[2];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixIdentity()
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixIdentity()
+    );
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc["room"].name,
+        mShaderDesc.name,
+        "default",
+        RItem
+    );
+
+    /*FireFlame::stRenderItemDesc RItem2("Waves", mMeshDesc[1].subMeshs[0]);
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixTranspose(XMMatrixScaling(5.0f, 5.0f, 1.0f))
+    );
+    RItem2.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem2.data = &trans[0];
+    RItem2.mat = "water";
+    RItem2.opaque = false;
+    mRenderItems.emplace_back(RItem2);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[1].name,
+        mShaderDesc.name,
+        "",
+        mShaderMacrosPS["fogged"],
+        RItem2
+    );
+
+    FireFlame::stRenderItemDesc RItem3("grid", mMeshDesc[2].subMeshs[0]);
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixTranspose(XMMatrixScaling(5.0f, 5.0f, 1.0f))
+    );
+    RItem3.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem3.data = &trans[0];
+    RItem3.mat = "grass";
+    mRenderItems.emplace_back(RItem3);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[2].name,
+        mShaderDesc.name,
+        "",
+        mShaderMacrosPS["fogged"],
+        RItem3
+    );*/
 }

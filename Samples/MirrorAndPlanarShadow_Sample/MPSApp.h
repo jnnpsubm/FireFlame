@@ -4,7 +4,7 @@
 class MPSApp : public FLEngineApp2
 {
 public:
-    MPSApp(FireFlame::Engine& e) :FLEngineApp2(e) {}
+    MPSApp(FireFlame::Engine& e);
     void Initialize() override;
 
 private:

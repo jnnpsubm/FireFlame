@@ -59,9 +59,8 @@ struct PassConstants
 class FLEngineApp2
 {
 public:
-    typedef std::vector<FireFlame::stRenderItemDesc> VecRItem;
-
     typedef std::unordered_map<std::string, FireFlame::stRawMesh>        RawMeshMap;
+    typedef std::unordered_map<std::string, FireFlame::stRenderItemDesc> RItemMap;
 
 public:
     FLEngineApp2(FireFlame::Engine& engine, float cameraMinDis = 3.0f, float cameraMaxDis = 150.f);
@@ -88,10 +87,10 @@ protected:
 
     FireFlame::stShaderDescription mShaderDesc;
     RawMeshMap                     mMeshDesc;
-    VecRItem                       mRenderItems;
+    RItemMap                       mRenderItems;
     std::vector<std::string>       mPasses;
 
-    PassConstants       mMainPassCB;
+    PassConstants                  mMainPassCB;
 
     DirectX::XMFLOAT3   mEyePos = { 0.0f, 0.0f, 0.0f };
     DirectX::XMFLOAT4X4 mView = FireFlame::Matrix4X4();
