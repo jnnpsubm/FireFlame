@@ -255,6 +255,7 @@ struct stShaderStage {
 
 struct stShaderDescription {
     stShaderDescription() = default;
+    stShaderDescription(const std::string& name) :name(name) {}
     stShaderDescription(const std::string& _name,
                         const std::vector<unsigned long>& _vertexFormats,
                         const std::vector<stSemanticName>& _semanticNames,

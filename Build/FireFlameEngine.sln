@@ -65,6 +65,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blend_Sample", "..\Samples\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools_Ext", "Tools_Ext", "{ADE52CD0-7569-496C-9729-BB3F8AA50F29}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MirrorAndPlanarShadow_Sample", "..\Samples\MirrorAndPlanarShadow_Sample\MirrorAndPlanarShadow_Sample.vcxproj", "{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -297,6 +299,14 @@ Global
 		{B1086B7A-0282-49E1-BE17-394C15CCEBCF}.Release|x64.Build.0 = Release|x64
 		{B1086B7A-0282-49E1-BE17-394C15CCEBCF}.Release|x86.ActiveCfg = Release|Win32
 		{B1086B7A-0282-49E1-BE17-394C15CCEBCF}.Release|x86.Build.0 = Release|Win32
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Debug|x64.ActiveCfg = Debug|x64
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Debug|x64.Build.0 = Debug|x64
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Debug|x86.ActiveCfg = Debug|Win32
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Debug|x86.Build.0 = Debug|Win32
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Release|x64.ActiveCfg = Release|x64
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Release|x64.Build.0 = Release|x64
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Release|x86.ActiveCfg = Release|Win32
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -327,6 +337,7 @@ Global
 		{14219D5B-3303-4440-82B3-CF4D76B15345} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{CE06C196-2ACE-4DE7-87C3-C4A851F8DE43} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{B1086B7A-0282-49E1-BE17-394C15CCEBCF} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
+		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}

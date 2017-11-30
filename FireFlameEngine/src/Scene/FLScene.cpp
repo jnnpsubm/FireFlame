@@ -211,7 +211,13 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
 
 void Scene::AddPSO(const std::string& name, const PSODesc& desc)
 {
-    Engine::GetEngine()->GetPSOManager2()->AddPSO(name, desc);
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    if (PSOManager->NameExist(name))
+    {
+        spdlog::get("console")->error("PSO {0} already exist......", name);
+        return;
+    }
+    PSOManager->AddPSO(name, desc);
 }
 
 void Scene::AddPrimitive(const stRawMesh& mesh) {
@@ -369,6 +375,68 @@ void Scene::AddRenderItem
     {
         AddPSO(PSOName,{ shaderName,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode });
     }
+
+    auto renderItem = std::make_shared<D3DRenderItem>();
+    renderItem->Name = desc.name;
+    renderItem->NumFramesDirty = Engine::NumFrameResources();
+    renderItem->IndexCount = desc.subMesh.indexCount;
+    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
+    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
+    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
+    renderItem->Mesh = mesh;
+    renderItem->Shader = shaderName;
+    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
+    renderItem->opaque = desc.opaque;
+    if (desc.data && desc.dataLen)
+    {
+        renderItem->Data = new char[desc.dataLen];
+        renderItem->DataLen = desc.dataLen;
+        memcpy(renderItem->Data, desc.data, desc.dataLen);
+    }
+    if (!desc.mat.empty())
+    {
+        auto itMat = mMaterials.find(desc.mat);
+        if (itMat == mMaterials.end())
+            throw std::exception("cannot find material in AddRenderItem");
+        renderItem->Mat = itMat->second.get();
+    }
+
+    auto& shaderMapped = GetShaderMappedRItem(desc.opaque);
+    auto& PSOMapped = shaderMapped[shaderName];
+    auto& vecItems = PSOMapped[PSOName];
+    vecItems.push_back(renderItem.get());
+    mRenderItems.emplace(desc.name, renderItem);
+}
+
+void Scene::AddRenderItem
+(
+    const std::string&      primitiveName,
+    const std::string&      shaderName,
+    const std::string&      PSOName,
+    const stRenderItemDesc& desc
+)
+{
+    auto itPrimitive = mPrimitives.find(primitiveName);
+    if (itPrimitive == mPrimitives.end()) 
+    { 
+        spdlog::get("console")->error("cannot find primitive {0}", primitiveName);
+        throw std::exception("cannot find primitive"); 
+    }
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end()) 
+    { 
+        spdlog::get("console")->error("cannot find shader {0}", shaderName);
+        throw std::exception("cannot find shader"); 
+    }
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    if (!PSOManager->NameExist(PSOName))
+    {
+        spdlog::get("console")->error("cannot find PSO {0}", PSOName);
+        throw std::exception("cannot find PSO in AddRenderItem");
+    }
+
+    D3DMesh* mesh = itPrimitive->second->GetMesh();
+    D3DShaderWrapper* shader = itShader->second.get();
 
     auto renderItem = std::make_shared<D3DRenderItem>();
     renderItem->Name = desc.name;

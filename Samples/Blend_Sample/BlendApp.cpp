@@ -112,7 +112,7 @@ void BlendApp::AddShaders()
 
     // ps with macros
     auto& ps = mShaderDesc.AddShaderStage(L"Shaders\\BlendApp.hlsl", Shader_Type::PS, "PS", "ps_5_0");
-    mShaderMacrosPS[""] = ShaderMacros2String(vs.Macros2String(), ps.Macros2String());
+    mShaderMacrosPS[""] = ps.Macros2String();
 
     std::vector<std::pair<std::string, std::string>> macros = { { "FOG", "1" } };
     auto& psFogged = mShaderDesc.AddShaderStage
@@ -121,7 +121,7 @@ void BlendApp::AddShaders()
         Shader_Type::PS, "PS", "ps_5_0",
         macros
     );
-    mShaderMacrosPS["fogged"] = ShaderMacros2String(vs.Macros2String(), psFogged.Macros2String());
+    mShaderMacrosPS["fogged"] = psFogged.Macros2String();
 
     macros.emplace_back("ALPHA_CLIP", "1");
     auto& psAlphaClip = mShaderDesc.AddShaderStage
@@ -130,7 +130,7 @@ void BlendApp::AddShaders()
         Shader_Type::PS, "PS", "ps_5_0",
         macros
     );
-    mShaderMacrosPS["fogged_and_alpha_clip"] = ShaderMacros2String(vs.Macros2String(), psAlphaClip.Macros2String());
+    mShaderMacrosPS["fogged_and_alpha_clip"] = psAlphaClip.Macros2String();
     // end
     
     mEngine.GetScene()->AddShader(mShaderDesc);

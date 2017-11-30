@@ -59,6 +59,13 @@ public:
         const std::string&      shaderMacroPS,
         const stRenderItemDesc& desc
     );
+    void AddRenderItem
+    (
+        const std::string&      primitiveName,
+        const std::string&      shaderName,
+        const std::string&      PSOName,
+        const stRenderItemDesc& desc
+    );
     void AddTexture(const std::string& name, const std::wstring& filename);
     void AddTexture(const std::string& name, std::uint8_t* data, size_t len);
     void AddTexture2D
