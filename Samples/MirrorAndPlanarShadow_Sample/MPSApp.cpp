@@ -15,6 +15,7 @@ void MPSApp::Initialize()
     AddTextures();
     AddMaterials();
     AddRenderItems();
+    AddPasses();
 }
 
 void MPSApp::AddShaders()
@@ -316,4 +317,10 @@ void MPSApp::AddRenderItems()
         mShaderMacrosPS["fogged"],
         RItem3
     );*/
+}
+
+void MPSApp::AddPasses()
+{
+    mPasses.push_back("DefaultPass");
+    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
 }

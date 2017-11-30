@@ -14,6 +14,7 @@ private:
     void AddTextures();
     void AddMaterials();
     void AddRenderItems();
+    void AddPasses();
 
     void AddRoomMesh();
 };
