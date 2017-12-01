@@ -108,6 +108,9 @@
     <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
     <ClInclude Include="src\Utility\chrono\FLchrono.h" />
+    <ClInclude Include="src\Utility\io\io.h" />
+    <ClInclude Include="src\Utility\loader\FLHKXLoader.h" />
+    <ClInclude Include="src\Utility\loader\FLVERLoader.h" />
     <ClInclude Include="src\ViewFrustum\FLViewFrustum.h" />
     <ClInclude Include="src\Window\FLWindow.h" />
   </ItemGroup>
@@ -146,6 +149,8 @@
     <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapper.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLShaderWrapper.cpp" />
     <ClCompile Include="src\Timer\FLStopWatch.cpp" />
+    <ClCompile Include="src\Utility\loader\FLHKXLoader.cpp" />
+    <ClCompile Include="src\Utility\loader\FLVERLoader.cpp" />
     <ClCompile Include="src\Window\FLWindow.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

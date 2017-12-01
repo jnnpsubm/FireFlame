@@ -13,3 +13,5 @@
 #include "..\src\3rd_utils\cmdline.h"
 #include "..\src\FLUtils.h"
 #include "..\src\3rd_utils\spdlog\spdlog.h"
+#include "..\src\Utility\loader\FLHKXLoader.h"
+#include "..\src\Utility\loader\FLVERLoader.h"

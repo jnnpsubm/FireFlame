@@ -69,6 +69,10 @@ public:
         );
     }
 
+    static float ToRadius(float d) {
+        return (d*180.f) / FL_PI;
+    }
+
     static const float FL_PI;
     static const float FL_2PI;
     static const float FL_1DIVPI;

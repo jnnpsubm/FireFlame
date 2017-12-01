@@ -94,6 +94,12 @@
     <ClCompile Include="src\PSOManager\FLD3DPSOManager2.cpp">
       <Filter>src\PSOManager</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utility\loader\FLHKXLoader.cpp">
+      <Filter>src\Utility\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\loader\FLVERLoader.cpp">
+      <Filter>src\Utility\Loader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -369,6 +375,15 @@
     <ClInclude Include="src\PSOManager\FLPSOTrait.h">
       <Filter>src\PSOManager</Filter>
     </ClInclude>
+    <ClInclude Include="src\Utility\loader\FLHKXLoader.h">
+      <Filter>src\Utility\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\loader\FLVERLoader.h">
+      <Filter>src\Utility\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\io\io.h">
+      <Filter>src\Utility\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -475,6 +490,12 @@
     </Filter>
     <Filter Include="src\Utility\chrono">
       <UniqueIdentifier>{2a5419b4-f9d7-48d8-ba0b-a2af616bfd10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utility\Loader">
+      <UniqueIdentifier>{75230123-3609-4393-a630-09e8b0536a96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utility\IO">
+      <UniqueIdentifier>{e82da30f-8cf5-474c-9f36-a6db0771e3a8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
