@@ -45,7 +45,7 @@ void FLVERLoader::load(const std::string& filename)
     // data offset
     long dataOffset = 0;
     IO::read_type(file, dataOffset);
-    spdlog::get("console")->info("Data Offset : {0:d}", dataOffset);
+    spdlog::get("console")->info("Data Offset : 0x{0:x}", dataOffset);
 
     long dataSize = 0;
     IO::read_type(file, dataSize);
@@ -195,6 +195,120 @@ void FLVERLoader::load(const std::string& filename)
     }
 
     spdlog::get("console")->info("Face Info Start @ 0x{0:x}", file.tellg());
+    for (long i = 0; i < numParts; i++)
+    {
+        if (lodCounts[i] > 0)
+        {
+            long lodID;
+            IO::read_type(file, lodID);
+
+            char Unk1, Unk2, Unk3, Unk4;
+            IO::read_type(file, Unk1); IO::read_type(file, Unk2); 
+            IO::read_type(file, Unk3); IO::read_type(file, Unk4);
+
+            long faceCount, faceOffset, faceSize, faceFlag;
+            IO::read_type(file, faceCount);
+            IO::read_type(file, faceOffset);
+            IO::read_type(file, faceSize);
+            IO::skip<long>(file);
+            IO::read_type(file, faceFlag);
+            IO::skip<long>(file);
+
+            spdlog::get("console")->info
+            (
+                "Face Count:{0:d},Face Offset:0x{1:x},Face Size:{2:d},Face Flag:{3:d}",
+                faceCount,faceOffset,faceSize,faceFlag
+            );
+            mFaceInfo.emplace_back(faceCount,faceOffset,faceSize);
+            // Skip other lod
+            for (long i = 0; i < lodCounts[i]-1; i++)
+            {
+                file.seekg(32, std::ios::cur);
+            }
+        }
+        else
+        {
+            spdlog::get("console")->critical("No Lod for part : {0:d}?", i);
+        }
+    }
+    spdlog::get("console")->info("Face Info End @ 0x{0:x}", file.tellg());
+
+    for (long i = 0; i < numParts; i++)
+    {
+        long buffCount, vertexType, vertexSize;
+        IO::read_type(file, buffCount, vertexType, vertexSize);
+
+        long vertexCount, Unk1, Unk2, vertexSecSize, vertexOffset;
+        IO::read_type(file, vertexCount, Unk1, Unk2, vertexSecSize, vertexOffset);
+
+        //spdlog::get("console")->info("Vertex Size : {0:d}", vertexSize);
+        long uvType = 0, uvSize = 0, uvCount = 0, /*Unk1 = 0, Unk2 = 0,*/ uvSecSize = 0, uvOffset = 0;
+        if (vertexSize == 20) // Hmmm...
+        {
+            IO::skip<long>(file);
+            IO::read_type(file, uvType, uvSize, uvCount, Unk1, Unk2, uvSecSize, uvOffset);
+        }
+        spdlog::get("console")->info
+        (
+            "Vertex Type:{0:d},Vertex Size:{1},Vertex Count:{2},Vertex Offset:{3}", 
+            vertexType,vertexSize,vertexCount,vertexOffset
+        );
+        mVertexInfo.emplace_back(vertexType, vertexSize, vertexCount, vertexOffset);
+        mUVInfo.emplace_back(uvType, uvSize, uvCount, uvOffset);
+    }
+    for (const auto& uv : mUVInfo)
+    {
+        spdlog::get("console")->info
+        (
+            "UV Type:{0:d},UV Size:{1},UV Count:{2},UV Offset:{3}",
+            uv.UVType, uv.UVSize, uv.UVCount, uv.UVOffset
+        );
+    }
+
+    spdlog::get("console")->info("Vertex Info End @ 0x{0:x}", file.tellg());
+
+    for (long i = 0; i < numParts; i++)
+    {
+        long faceOffset = dataOffset + mFaceInfo[i].faceOffset;
+        file.seekg(faceOffset, std::ios::beg);
+        spdlog::get("console")->info("Face Start @ 0x{0:x}", file.tellg());
+        while (file.tellg() < (faceOffset+mFaceInfo[i].faceSize))
+        {
+            std::uint16_t f1, f2, f3;
+            IO::read_type(file, f1, f2, f3);
+            mFaces.push_back(f1); mFaces.push_back(f2); mFaces.push_back(f3);
+        }
+        //spdlog::get("console")->info("0x{0:x}:0x{1:x}", file.tellg(), faceOffset + mFaceInfo[i].faceSize);
+
+        long vertexOffset = dataOffset + mVertexInfo[i].vertexOffset;
+        file.seekg(vertexOffset, std::ios::beg);
+        spdlog::get("console")->info("Vertex Start @ 0x{0:x}", file.tellg());
+        if (mVertexInfo[i].vertexSize == 48)
+        {
+            for (long i = 0; i < mVertexInfo[i].vertexCount; i++)
+            {
+                float vx, vy, vz;
+                IO::read_type(file, vx, vy, vz);
+                file.seekg(0xc, std::ios::cur);
+
+                unsigned char bone[6],weight[6];
+                IO::read_type(file, bone[0], bone[1], bone[2], bone[3], bone[4], bone[5]);
+                IO::read_type(file, weight[0], weight[1], weight[2], weight[3], weight[4], weight[5]);
+                file.seekg(0x4, std::ios::cur);
+
+                short tu, tv;
+                IO::read_type(file, tu, tv);
+                tv = -tv; // todo
+                file.seekg(0x4, std::ios::cur);
+
+                // todo : handle weight and bone
+                {}
+
+                mVertices.emplace_back(vx, vy, vz);
+                mUVs.emplace_back(tu, tv);
+            }
+        }
+    }
 }
 
 } // end FireFlame
