@@ -342,7 +342,7 @@ void ViewerApp::AddHKXModel(size_t part, bool reverseNormal)
     material.Name = matName;
     material.DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
     material.FresnelR0 = { 0.05f,0.05f,0.05f };
-    material.Roughness = 1.0f;
+    material.Roughness = 0.6f;
 
     std::string specularTex;
     if (mTexMap[part] == "")
