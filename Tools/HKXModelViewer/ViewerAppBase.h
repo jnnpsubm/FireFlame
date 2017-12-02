@@ -18,6 +18,7 @@ struct MaterialConstants
     FireFlame::Matrix4X4 MatTransform = FireFlame::Matrix4X4();
 
     int UseTexture = 1;
+    int UseSpecularMap = 1;
 };
 
 struct NamedMaterialConstants : MaterialConstants

@@ -502,6 +502,7 @@ void Scene::AddTexture(const std::string& name, const std::wstring& filename)
     renderer->ExecuteCommand();
     renderer->WaitForGPU();
     tex->uploadHeap = nullptr;
+    D3D12_RESOURCE_DESC desc = tex->resource->GetDesc();
 #endif
     mTextures[tex->name] = std::move(tex);
 }

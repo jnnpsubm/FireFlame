@@ -21,10 +21,28 @@ void ViewerApp::Initialize()
 
     AddFloor();
     auto partCount = flverloader.get_part_count();
-    for (size_t i = 0; i < partCount; i++)
+    for (size_t i = 0; i < 2; i++)
     {
-        AddHKXModel(i);
+        
     }
+    AddHKXModel(0, true);
+    AddHKXModel(1, true);
+    AddHKXModel(2, true);
+    AddHKXModel(3, true);
+    AddHKXModel(4, true);
+    AddHKXModel(5, true);
+    AddHKXModel(6, true);
+    AddHKXModel(7, true);
+    AddHKXModel(8, true);
+    AddHKXModel(9, true);
+    AddHKXModel(10, true);
+    AddHKXModel(11, true);
+    AddHKXModel(12, true);
+    AddHKXModel(13, true);
+    AddHKXModel(14, true);
+    AddHKXModel(15, true);
+    AddHKXModel(16, true);
+    AddHKXModel(17, false);
 }
 
 void ViewerApp::AddShaders()
@@ -34,7 +52,7 @@ void ViewerApp::AddShaders()
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
     mShaderDesc.materialCBSize = sizeof(MaterialConstants);
-    mShaderDesc.texSRVDescriptorTableSize = 1;
+    mShaderDesc.texSRVDescriptorTableSize = 2;
     mShaderDesc.ParamDefault();
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
@@ -61,37 +79,74 @@ void ViewerApp::AddTextures()
     mEngine.GetScene()->AddTexture
     (
         "arm",
-        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_arm_a.dds"
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_arm_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "arm_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_arm_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
         "body",
-        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_body_a.dds"
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_body_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "body_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_body_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
         "hair",
-        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_hair_a.dds"
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "hair_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
         "head",
-        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_head_a.dds"
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_head_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "head_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_head_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
         "leg",
-        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_leg_a.dds"
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_leg_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "leg_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_leg_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
         "manteau",
-        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_manteau_a.dds"
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_manteau_a.dds"
+        //L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_manteau_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "manteau_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_manteau_r.dds"
+        //L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_manteau_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
         "skin",
-        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_skin_a.dds"
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_skin_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "skin_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_skin_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
@@ -99,23 +154,42 @@ void ViewerApp::AddTextures()
         L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_v.dds"
     );
 
-    mTexMap[0] = "hair";
+    //mTexMap[0] = "hair";
+    //mTexMap[1] = "skin";
+    //mTexMap[2] = "head"; // Í·¹Ú
+    //mTexMap[3] = "skin";
+    //mTexMap[4] = "body";
+    //mTexMap[5] = "manteau";
+    //mTexMap[6] = "body";
+    //mTexMap[7] = "body";
+    //mTexMap[8] = "leg";
+    //mTexMap[9] = "body";
+    //mTexMap[10] = "leg";
+    //mTexMap[11] = "manteau";
+    //mTexMap[12] = "body";
+    //mTexMap[13] = "manteau";
+    //mTexMap[14] = "manteau";
+    //mTexMap[15] = "manteau";
+    //mTexMap[16] = "body";
+    //mTexMap[17] = "hair";
+
+    mTexMap[0] = "";
     mTexMap[1] = "body";
-    mTexMap[2] = "skin"; // Í·¹Ú
+    mTexMap[2] = "head"; // Í·¹Ú
     mTexMap[3] = "skin";
     mTexMap[4] = "skin";
-    mTexMap[5] = "manteau";
+    mTexMap[5] = "body";
     mTexMap[6] = "body";
-    mTexMap[7] = "skin";
-    mTexMap[8] = "leg";
-    mTexMap[9] = "skin";
-    mTexMap[10] = "leg";
-    mTexMap[11] = "manteau";
+    mTexMap[7] = "body";
+    mTexMap[8] = "body";
+    mTexMap[9] = "body";
+    mTexMap[10] = "skin";
+    mTexMap[11] = "leg";
     mTexMap[12] = "body";
     mTexMap[13] = "manteau";
     mTexMap[14] = "manteau";
-    mTexMap[15] = "manteau";
-    mTexMap[16] = "body";
+    mTexMap[15] = "body";
+    mTexMap[16] = "arm";
     mTexMap[17] = "hair";
 }
 
@@ -199,7 +273,7 @@ void ViewerApp::AddFloor()
     );
 }
 
-void ViewerApp::AddHKXModel(size_t part)
+void ViewerApp::AddHKXModel(size_t part, bool reverseNormal)
 {
     using namespace FireFlame;
 
@@ -222,7 +296,7 @@ void ViewerApp::AddHKXModel(size_t part)
         (
             rawVertices[part][i].x, rawVertices[part][i].y, rawVertices[part][i].z,
             0.f, 0.f, 0.f,
-            rawUVs[part][i].u, rawUVs[part][i].v
+            rawUVs[part][i].u, -rawUVs[part][i].v
         );
     }
 
@@ -234,7 +308,7 @@ void ViewerApp::AddHKXModel(size_t part)
         auto& v2 = vertices[indices[i * 3 + 2]];
         auto e0 = v1.Pos - v0.Pos;
         auto e1 = v2.Pos - v0.Pos;
-        auto normal = FireFlame::Vector3Cross(e0, e1);
+        auto normal = FireFlame::Vector3Cross(reverseNormal ? e1 : e0, reverseNormal ? e0 : e1);
 
         v0.Normal += normal;
         v1.Normal += normal;
@@ -267,14 +341,27 @@ void ViewerApp::AddHKXModel(size_t part)
     auto& material = mMaterials[matName];
     material.Name = matName;
     material.DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-    material.FresnelR0 = { 0.1f,0.1f,0.1f };
-    material.Roughness = 0.0f;
-    material.UseTexture = 1;
+    material.FresnelR0 = { 0.05f,0.05f,0.05f };
+    material.Roughness = 1.0f;
+
+    std::string specularTex;
+    if (mTexMap[part] == "")
+    {
+        material.UseTexture = 2;
+    }
+    else
+    {
+        material.UseTexture = 1;
+        specularTex = mTexMap[part] + "_r";
+    }
+    
     mEngine.GetScene()->AddMaterial
     (
+    {
         material.Name,
-        mShaderDesc.name, mTexMap[part],
+        mShaderDesc.name,{ mTexMap[part],specularTex },
         sizeof(MaterialConstants), &material
+    }
     );
 
     // add render item
@@ -432,4 +519,35 @@ void ViewerApp::save_whole(FireFlame::FLVERLoader& loader)
     std::string filename("D:\\test_whole.ply");
     FireFlame::PLYLoader::Save(filename, vertices, indices, report);
     std::cout << "Save To " << filename << " Completed!" << std::endl;
+}
+
+void ViewerApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
+{
+    if (wParam == 'M')
+    {
+        auto part_num = flverloader.get_part_count();
+        std::string name("mat_");
+        for (size_t i = 0; i < part_num; i++)
+        {
+            auto& mat = mMaterials[name + std::to_string(i)];
+            mat.UseSpecularMap = 1;
+            mEngine.GetScene()->UpdateMaterialCBData
+            (
+                name+std::to_string(i),sizeof(MaterialConstants),&mat
+            );
+        }
+    }else if (wParam == 'N')
+    {
+        auto part_num = flverloader.get_part_count();
+        std::string name("mat_");
+        for (size_t i = 0; i < part_num; i++)
+        {
+            auto& mat = mMaterials[name + std::to_string(i)];
+            mat.UseSpecularMap = 0;
+            mEngine.GetScene()->UpdateMaterialCBData
+            (
+                name + std::to_string(i), sizeof(MaterialConstants), &mat
+            );
+        }
+    }
 }

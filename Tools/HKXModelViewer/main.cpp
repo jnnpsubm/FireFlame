@@ -21,6 +21,7 @@ int main()
             std::bind(&ViewerApp::OnMouseUp, &viewer, _1, _2, _3),
             std::bind(&ViewerApp::OnMouseMove, &viewer, _1, _2, _3)
         );
+        engine.GetWindow()->RegisterKeyUpHandler(std::bind(&ViewerApp::OnKeyUp, &viewer, _1, _2));
 
         // engine initialization
         engine.InitMainWindow(150, 80, 1280, 600);

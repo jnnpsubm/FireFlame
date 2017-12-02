@@ -8,6 +8,8 @@ public:
 
     void Initialize() override;
 
+    void OnKeyUp(WPARAM wParam, LPARAM lParam) override;
+
 private:
     //FireFlame::HKXLoader hkxloader;
     FireFlame::FLVERLoader flverloader;
@@ -23,7 +25,7 @@ private:
     void AddPasses();
 
     void AddFloor();
-    void AddHKXModel(size_t part);
+    void AddHKXModel(size_t part, bool reverseNormal);
 
     void DecideScaleAndTrans();
     void save_whole(FireFlame::FLVERLoader& loader);

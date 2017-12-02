@@ -50,51 +50,19 @@ void ViewerAppBase::Update(float time_elapsed) {
     mMainPassCB.DeltaTime = mEngine.DeltaTime();
 
     using namespace FireFlame;
-    mMainPassCB.AmbientLight = { 0.01f,0.01f,0.01f,1.0f };
-    // above
-    mMainPassCB.Lights[0].Direction = -MathHelper::SphericalToCartesian
-    (
-        1.0f,
-        0.f,
-        0.f
-    );
-    mMainPassCB.Lights[0].Strength = { 0.8f, 0.8f, 0.8f };
+    mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
 
-    // right
-    mMainPassCB.Lights[1].Direction = -MathHelper::SphericalToCartesian
-    (
-        1.0f,
-        0.f,
-        MathHelper::FL_PIDIV4
-    );
-    mMainPassCB.Lights[1].Strength = { 0.6f, 0.3f, 0.2f };
+    mMainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+    mMainPassCB.Lights[0].Strength = { 0.57735f, 0.57735f, 0.57735f };
+    //mMainPassCB.Lights[0].Strength = { 0.0f, 0.0f, 0.0f };
 
-    // left
-    mMainPassCB.Lights[2].Direction = -MathHelper::SphericalToCartesian
-    (
-        1.0f,
-        MathHelper::FL_PI,
-        MathHelper::FL_PIDIV4
-    );
-    mMainPassCB.Lights[2].Strength = { 0.6f, 0.3f, 0.2f };
+    mMainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+    mMainPassCB.Lights[1].Strength = { 0.57735f, 0.57735f, 0.57735f };
+    //mMainPassCB.Lights[1].Strength = { 0.0f, 0.0f, 0.0f };
 
-    mMainPassCB.Lights[3].Direction = -MathHelper::SphericalToCartesian
-    (
-        1.0f,
-        MathHelper::FL_PIDIV2,
-        MathHelper::FL_PIDIV2
-    );
-    mMainPassCB.Lights[3].Strength = { 0.3f, 0.5f, 0.5f };
-
-    Vector3f sum(0.f, 0.f, 0.f);
-    for (size_t i = 0; i < 4; ++i)
-    {
-        //sum += mMainPassCB.Lights[i].Strength;
-    }
-    for (size_t i = 0; i < 4; ++i)
-    {
-        //mMainPassCB.Lights[i].Strength = mMainPassCB.Lights[i].Strength / sum;
-    }
+    mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+    mMainPassCB.Lights[2].Strength = { 0.57735f, 0.57735f, 0.57735f };
+    //mMainPassCB.Lights[2].Strength = { 0.0f, 0.0f, 0.0f };
 
     UpdateMainPassCB(time_elapsed);
     if (mPasses.size())

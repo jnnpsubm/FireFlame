@@ -17,6 +17,7 @@
 #include "..\..\Common\LightingUtil.hlsli"
 
 Texture2D    gDiffuseMap : register(t0);
+Texture2D    gSpecularMap : register(t1);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -40,6 +41,7 @@ cbuffer cbMaterial : register(b1)
     float4x4 gMatTransform;
 
     int      gUseTexture;
+    int      gUseSpecularMap;
 };
 
 // Constant data that varies per material.
@@ -112,9 +114,18 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : SV_Target
 {
     float4 diffuseAlbedo = gDiffuseAlbedo;
-    if (gUseTexture) {
+    float roughness = gRoughness;
+    if (gUseTexture == 1) {
         diffuseAlbedo *= gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
-        diffuseAlbedo = clamp(diffuseAlbedo, 0.8f, 1.0f);
+        if (gUseSpecularMap) {
+            roughness = gSpecularMap.Sample(gsamAnisotropicWrap, pin.TexC).r;
+            roughness = 1.f - roughness;
+            //diffuseAlbedo = float4(roughness, roughness, roughness, roughness);
+        }
+        //diffuseAlbedo = clamp(diffuseAlbedo, 0.8f, 1.0f);
+    }
+    else if (gUseTexture == 2) {
+        diffuseAlbedo = float4(0.5f, 0.5f, 0.5f, 1.0f);
     }
 
     // Interpolating normal can unnormalize it, so renormalize it.
@@ -128,7 +139,7 @@ float4 PS(VertexOut pin) : SV_Target
     // Light terms.
     float4 ambient = gAmbientLight*diffuseAlbedo;
 
-    const float shininess = 1.0f - gRoughness;
+    const float shininess = 1.0f - roughness;
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };
     float3 shadowFactor = 1.0f;
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
