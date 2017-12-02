@@ -15,13 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\Default.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\Common\LightingUtil.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\Default.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Shaders\Todo.TXT" />
   </ItemGroup>
 </Project>
