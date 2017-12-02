@@ -17,6 +17,7 @@ void ViewerApp::Initialize()
     AddShaders();
     AddPSOs();
     AddTextures();
+    AddMaterials();
     AddPasses();
 
     AddFloor();
@@ -71,6 +72,7 @@ void ViewerApp::AddPSOs()
 
     PSODesc desc(mShaderDesc.name, mShaderMacrosVS[""], mShaderMacrosPS[""]);
     desc.cullMode = Cull_Mode::None;
+    desc.opaque = false;
     scene->AddPSO("default", desc);
 }
 
@@ -99,12 +101,14 @@ void ViewerApp::AddTextures()
     mEngine.GetScene()->AddTexture
     (
         "hair",
-        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_a.dds"
+        //L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_a.dds"
+        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_hair_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
         "hair_r",
-        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_r.dds"
+        //L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_r.dds"
+        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_hair_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
@@ -173,7 +177,7 @@ void ViewerApp::AddTextures()
     //mTexMap[16] = "body";
     //mTexMap[17] = "hair";
 
-    mTexMap[0] = "";
+    mTexMap[0] = "hair";
     mTexMap[1] = "body";
     mTexMap[2] = "head"; // Í·¹Ú
     mTexMap[3] = "skin";
@@ -191,6 +195,58 @@ void ViewerApp::AddTextures()
     mTexMap[15] = "body";
     mTexMap[16] = "arm";
     mTexMap[17] = "hair";
+}
+
+void ViewerApp::AddMaterials()
+{
+    auto par_count = flverloader.get_part_count();
+    for (size_t part = 0; part < par_count; part++)
+    {
+        std::string matName = "mat_" + std::to_string(part);
+        auto& material = mMaterials[matName];
+        material.Name = matName;
+
+        if (part == 2)
+        {
+            material.DiffuseAlbedo = { 4.f, 4.f, 4.f, 1.0f };
+            material.FresnelR0 = { 1.0f,1.0f,1.0f };
+            material.Roughness = 0.0f;
+            material.UseSpecularMap = 0;
+        }else if (part == 0 || part == 17)
+        {
+            material.DiffuseAlbedo = { 1.3f, 1.3f, 1.3f, 1.0f };
+            material.FresnelR0 = { 0.6f,0.6f,0.6f };
+            material.Roughness = 0.0f;
+            material.UseSpecularMap = 1;
+        }
+        else
+        {
+            material.DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+            material.FresnelR0 = { 0.05f,0.05f,0.05f };
+            material.Roughness = 0.6f;
+            material.UseSpecularMap = 1;
+        }
+        
+        std::string specularTex;
+        if (mTexMap[part] == "")
+        {
+            material.UseTexture = 2;
+        }
+        else
+        {
+            material.UseTexture = 1;
+            specularTex = mTexMap[part] + "_r";
+        }
+
+        mEngine.GetScene()->AddMaterial
+        (
+        {
+            material.Name,
+            mShaderDesc.name,{ mTexMap[part],specularTex },
+            sizeof(MaterialConstants), &material
+        }
+        );
+    }
 }
 
 void ViewerApp::AddPasses()
@@ -338,36 +394,11 @@ void ViewerApp::AddHKXModel(size_t part, bool reverseNormal)
 
     // material
     std::string matName = "mat_" + std::to_string(part);
-    auto& material = mMaterials[matName];
-    material.Name = matName;
-    material.DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-    material.FresnelR0 = { 0.05f,0.05f,0.05f };
-    material.Roughness = 0.6f;
-
-    std::string specularTex;
-    if (mTexMap[part] == "")
-    {
-        material.UseTexture = 2;
-    }
-    else
-    {
-        material.UseTexture = 1;
-        specularTex = mTexMap[part] + "_r";
-    }
-    
-    mEngine.GetScene()->AddMaterial
-    (
-    {
-        material.Name,
-        mShaderDesc.name,{ mTexMap[part],specularTex },
-        sizeof(MaterialConstants), &material
-    }
-    );
 
     // add render item
     using namespace DirectX;
     FireFlame::stRenderItemDesc RItem(meshName, mMeshDesc[meshName].subMeshs[0]);
-    RItem.mat = material.Name;
+    RItem.mat = matName;
     XMFLOAT4X4 trans[2];
     XMStoreFloat4x4
     (

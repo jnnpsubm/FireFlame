@@ -22,6 +22,7 @@ private:
     void AddShaders();
     void AddPSOs();
     void AddTextures();
+    void AddMaterials();
     void AddPasses();
 
     void AddFloor();
