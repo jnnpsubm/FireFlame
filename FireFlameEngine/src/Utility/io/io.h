@@ -95,5 +95,12 @@ void read_type(std::istream& is, T1& val1, T2& val2, T3& val3, T4& val4, T5& val
     is.read((char*)&val7, sizeof(T7));
 }
 
+template <typename T, typename... Args>
+void read_type(std::istream& is, T& val, Args&... rest)
+{
+    read_type(is, val);
+    read_type(is, rest...);
+}
+
 } // end IO
 } // end FireFlame

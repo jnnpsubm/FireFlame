@@ -30,6 +30,22 @@ public:
         std::function<void(float)> report
     );
 
+    static void Save
+    (
+        const std::string& filename,
+        const std::vector<FLVertexTex>& vertices,
+        const std::vector<std::uint32_t>&  indices,
+        std::function<void(float)> report
+    );
+
+    static void Save
+    (
+        const std::string& filename,
+        const std::vector<FLVertexTex>& vertices,
+        const std::vector<std::uint16_t>&  indices,
+        std::function<void(float)> report
+    );
+
 private:
     /*static bool LoadBinaryLE_V1_0(const std::string& filename);
 

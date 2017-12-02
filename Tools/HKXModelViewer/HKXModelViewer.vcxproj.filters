@@ -2,5 +2,26 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ViewerAppBase.cpp" />
+    <ClCompile Include="ViewerApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ViewerAppBase.h" />
+    <ClInclude Include="ViewerApp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{0e641972-86cc-4c4a-806a-e9fb7c78de55}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\Default.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Common\LightingUtil.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

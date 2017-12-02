@@ -51,9 +51,9 @@ void FLVERLoader::load(const std::string& filename)
     IO::read_type(file, dataSize);
     spdlog::get("console")->info("Data Size : {0:d}", dataSize);
 
-    long count = 0;
-    IO::read_type(file, count);
-    spdlog::get("console")->info("Count : {0:d}", count);
+    long count2 = 0;
+    IO::read_type(file, count2);
+    spdlog::get("console")->info("Count : {0:d}", count2);
 
     long numMat = 0;
     IO::read_type(file, numMat);
@@ -83,7 +83,7 @@ void FLVERLoader::load(const std::string& filename)
     spdlog::get("console")->info("Skip Count 2 : {0:d}", skipCount2);
 
     file.seekg(0x80, std::ios::beg);
-    for (long i = 0; i < count; i++)
+    for (long i = 0; i < count2; i++)
     {
         file.seekg(64, std::ios::cur);
     }
@@ -267,6 +267,9 @@ void FLVERLoader::load(const std::string& filename)
 
     spdlog::get("console")->info("Vertex Info End @ 0x{0:x}", file.tellg());
 
+    mFaces.resize(numParts);
+    mVertices.resize(numParts);
+    mUVs.resize(numParts);
     for (long i = 0; i < numParts; i++)
     {
         long faceOffset = dataOffset + mFaceInfo[i].faceOffset;
@@ -276,16 +279,23 @@ void FLVERLoader::load(const std::string& filename)
         {
             std::uint16_t f1, f2, f3;
             IO::read_type(file, f1, f2, f3);
-            mFaces.push_back(f1); mFaces.push_back(f2); mFaces.push_back(f3);
+            //mFaces[i].push_back(f1 + 1); mFaces[i].push_back(f2 + 1); mFaces[i].push_back(f3 + 1);
+            mFaces[i].push_back(f1); mFaces[i].push_back(f2); mFaces[i].push_back(f3);
         }
         //spdlog::get("console")->info("0x{0:x}:0x{1:x}", file.tellg(), faceOffset + mFaceInfo[i].faceSize);
 
         long vertexOffset = dataOffset + mVertexInfo[i].vertexOffset;
         file.seekg(vertexOffset, std::ios::beg);
         spdlog::get("console")->info("Vertex Start @ 0x{0:x}", file.tellg());
+
+        spdlog::get("console")->info
+        (
+            "Vertex Type:{0:d},Vertex Size:{1:d}",
+            mVertexInfo[i].vertexType, mVertexInfo[i].vertexSize
+        );
         if (mVertexInfo[i].vertexSize == 48)
         {
-            for (long i = 0; i < mVertexInfo[i].vertexCount; i++)
+            for (long j = 0; j < mVertexInfo[i].vertexCount; j++)
             {
                 float vx, vy, vz;
                 IO::read_type(file, vx, vy, vz);
@@ -304,11 +314,247 @@ void FLVERLoader::load(const std::string& filename)
                 // todo : handle weight and bone
                 {}
 
-                mVertices.emplace_back(vx, vy, vz);
-                mUVs.emplace_back(tu, tv);
+                mVertices[i].emplace_back(vx*100.f, vy*100.f, vz*100.f);
+                mUVs[i].emplace_back((float)tu/2048.f, (float)tv/2048.f);
             }
         }
+        else if (mVertexInfo[i].vertexType == 9 && mVertexInfo[i].vertexSize == 44)
+        {
+            for (long j = 0; j < mVertexInfo[i].vertexCount; j++)
+            {
+                auto pos = file.tellg();
+                pos += (std::streampos)mVertexInfo[i].vertexSize;
+
+                float vx, vy, vz;
+                IO::read_type(file, vx, vy, vz);
+
+                file.seekg(0x8, std::ios::cur);
+                std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                file.seekg(0x4, std::ios::cur);
+                short tu, tv;
+                IO::read_type(file, tu, tv);
+                tv = -tv;
+
+                file.seekg(0x8, std::ios::cur);
+                // Toto : handle bone and weight
+                {}
+
+                file.seekg(pos, std::ios::beg);
+                mVertices[i].emplace_back(vx*100.f, vy*100.f, vz*100.f);
+                mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+            }
+        }
+        else if (mVertexInfo[i].vertexType != 9 && mVertexInfo[i].vertexSize == 44)
+        {
+            for (long j = 0; j < mVertexInfo[i].vertexCount; j++)
+            {
+                auto pos = file.tellg() + (std::streampos)mVertexInfo[i].vertexSize;
+
+                float vx, vy, vz;
+                IO::read_type(file, vx, vy, vz);
+
+                file.seekg(0xc, std::ios::cur);
+                std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                file.seekg(0x4, std::ios::cur);
+                short tu, tv;
+                IO::read_type(file, tu, tv);
+                tv = -tv;
+
+                file.seekg(0x4, std::ios::cur);
+                // Todo:bone and weight
+                {}
+                file.seekg(pos, std::ios::beg);
+                mVertices[i].emplace_back(vx*100.f, vy*100.f, vz*100.f);
+                mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+            }
+        }
+        else if (mVertexInfo[i].vertexSize == 40)
+        {
+            for (long j = 0; j < mVertexInfo[i].vertexCount; j++)
+            {
+                float vx, vy, vz;
+                IO::read_type(file, vx, vy, vz);
+
+                file.seekg(0x8, std::ios::cur);
+                std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                short tu, tv;
+                IO::read_type(file, tu, tv);
+                tv = -tv;
+
+                file.seekg(0x8, std::ios::cur);
+                // Todo:bone and weight
+                {}
+                
+                mVertices[i].emplace_back(vx*100.f, vy*100.f, vz*100.f);
+                mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+            }
+        }
+        else if (mVertexInfo[i].vertexSize == 36)
+        {
+            for (long j = 0; j < mVertexInfo[i].vertexCount; j++)
+            {
+                float vx, vy, vz;
+                IO::read_type(file, vx, vy, vz);
+
+                file.seekg(0x8, std::ios::cur);
+                std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                file.seekg(0x4, std::ios::cur);
+                short tu, tv;
+                IO::read_type(file, tu, tv);
+                tv = -tv;
+
+                // Todo:bone and weight
+                {}
+                mVertices[i].emplace_back(vx*100.f, vy*100.f, vz*100.f);
+                mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+            }
+        }
+        else if (mVertexInfo[i].vertexSize == 32)
+        {
+            for (long j = 0; j < mVertexInfo[i].vertexCount; j++)
+            {
+                float vx, vy, vz;
+                IO::read_type(file, vx, vy, vz);
+
+                std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                file.seekg(0xc, std::ios::cur);
+                short tu, tv;
+                IO::read_type(file, tu, tv);
+                tv = -tv;
+
+                file.seekg(0x4, std::ios::cur);
+                // Todo:bone and weight
+                {}
+                mVertices[i].emplace_back(vx*100.f, vy*100.f, vz*100.f);
+                mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+            }
+        }
+        else if (mVertexInfo[i].vertexSize == 20)
+        {
+            for (long j = 0; j < mVertexInfo[i].vertexCount; j++)
+            {
+                float vx, vy, vz;
+                IO::read_type(file, vx, vy, vz);
+                mVertices[i].emplace_back(vx*100.f, vy*100.f, vz*100.f);
+
+                file.seekg(0x8, std::ios::cur);
+            }
+            spdlog::get("console")->info("Vertex End @ 0x{0:x}", file.tellg());
+
+            std::uint64_t uvOffset = dataOffset + mUVInfo[i].UVOffset;
+            file.seekg(uvOffset, std::ios::beg);
+            spdlog::get("console")->info("UV Start @ 0x{0:x}", file.tellg());
+            if (mUVInfo[i].UVSize == 24)
+            {
+                for (long j = 0; j < mUVInfo[i].UVCount; j++)
+                {
+                    auto pos = file.tellg() + (std::streampos)mUVInfo[i].UVSize;
+
+                    file.seekg(0x4, std::ios::cur);
+                    std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                    IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                    short tu, tv;
+                    IO::read_type(file, tu, tv);
+                    tv = -tv;
+
+                    file.seekg(0x4, std::ios::cur);
+                    // Todo:bone and weight
+                    {}
+
+                    file.seekg(pos, std::ios::beg);
+                    mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+                }
+            }
+            else if (mUVInfo[i].UVType == 11 && mUVInfo[i].UVSize == 28)
+            {
+                for (long j = 0; j < mUVInfo[i].UVCount; j++)
+                {
+                    auto pos = file.tellg() + (std::streampos)mUVInfo[i].UVSize;
+
+                    file.seekg(0x4, std::ios::cur);
+                    std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                    IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                    file.seekg(0x4, std::ios::cur);
+                    short tu, tv;
+                    IO::read_type(file, tu, tv);
+                    tv = -tv;
+
+                    // Todo:bone and weight
+                    {}
+
+                    file.seekg(pos, std::ios::beg);
+                    mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+                }
+            }
+            else if (mUVInfo[i].UVType != 11 && mUVInfo[i].UVSize == 28)
+            {
+                for (long j = 0; j < mUVInfo[i].UVCount; j++)
+                {
+                    auto pos = file.tellg() + (std::streampos)mUVInfo[i].UVSize;
+
+                    file.seekg(0x8, std::ios::cur);
+                    std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                    IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                    file.seekg(0x4, std::ios::cur);
+                    short tu, tv;
+                    IO::read_type(file, tu, tv);
+                    tv = -tv;
+
+                    // Todo:bone and weight
+                    {}
+
+                    file.seekg(pos, std::ios::beg);
+                    mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+                }
+            }
+            else if (mUVInfo[i].UVSize == 32)
+            {
+                for (long j = 0; j < mUVInfo[i].UVCount; j++)
+                {
+                    auto pos = file.tellg() + (std::streampos)mUVInfo[i].UVSize;
+
+                    file.seekg(0x8, std::ios::cur);
+                    std::uint8_t bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4;
+                    IO::read_type(file, bone1, bone2, bone3, bone4, weight1, weight2, weight3, weight4);
+
+                    file.seekg(0x4, std::ios::cur);
+                    short tu, tv;
+                    IO::read_type(file, tu, tv);
+                    tv = -tv;
+
+                    // Todo:bone and weight
+                    {}
+
+                    file.seekg(pos, std::ios::beg);
+                    mUVs[i].emplace_back((float)tu / 2048.f, (float)tv / 2048.f);
+                }
+            }
+            else
+            {
+                spdlog::get("console")->critical("UV Format Unknown......");
+            }
+            spdlog::get("console")->info("UV End @ 0x{0:x}", file.tellg());
+        }
+        else
+        {
+            spdlog::get("console")->critical("Vertex Format Unknown......");
+        }
     }
+
+    spdlog::get("console")->info("FLVER file : {0} Loaded!", filename);
 }
 
 } // end FireFlame

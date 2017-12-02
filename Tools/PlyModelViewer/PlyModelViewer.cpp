@@ -141,6 +141,11 @@ void PlyModelViewer::AddPlyMesh(const char* fileName)
             if (vertices[i].Pos.y < minY)
                 minY = vertices[i].Pos.y;
         }
+        spdlog::get("console")->info
+        (
+            "mRadius:{0:f},maxX:{1:f},maxY:{2:f},maxZ:{3:f},minY:{4:f}",
+            mRadius, maxX, maxY, maxZ, minY
+        );
         mModelScale = mRadius / (((std::max)((std::max)(maxX, maxY), maxZ)-minY)*4.f);
         mModelTransY = -minY*mModelScale;
 

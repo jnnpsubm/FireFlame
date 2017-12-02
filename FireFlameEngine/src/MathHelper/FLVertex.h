@@ -16,6 +16,16 @@ struct FLVertex
         Color(r, g, b, a) 
     {}
 };
+struct FLVertexTex
+{
+    Vector3f Pos;
+    Vector2f Tex;
+    FLVertexTex() = default;
+    FLVertexTex(float x, float y, float z, float s, float t) :
+        Pos(x, y, z),
+        Tex(s, t)
+    {}
+};
 struct FLVertexNormal
 {
     Vector3f Pos;

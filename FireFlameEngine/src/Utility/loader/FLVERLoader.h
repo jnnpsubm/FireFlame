@@ -53,11 +53,17 @@ public:
 
 public:
     void load(const std::string& filename);
+
+    size_t get_part_count() const { return mFaces.size(); }
+
+    std::vector<std::vector<std::uint16_t>>& get_indices() { return mFaces; }
+    std::vector<std::vector<Vertex>>&        get_vertices(){ return mVertices; }
+    std::vector<std::vector<UV>>&            get_uvs()     { return mUVs; }
             
 private:
-    std::vector<std::uint16_t> mFaces;
-    std::vector<Vertex>        mVertices;
-    std::vector<UV>            mUVs;
+    std::vector<std::vector<std::uint16_t>> mFaces;
+    std::vector<std::vector<Vertex>>        mVertices;
+    std::vector<std::vector<UV>>            mUVs;
 
     std::vector<FaceInfo>   mFaceInfo;
     std::vector<VertexInfo> mVertexInfo;
