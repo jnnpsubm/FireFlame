@@ -77,7 +77,7 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
             psoDesc.RasterizerState.FillMode = (D3D12_FILL_MODE)fill;
             psoDesc.RasterizerState.FrontCounterClockwise = desc.frontCounterClockwise;
 
-            psoDesc.BlendState.AlphaToCoverageEnable = !desc.opaque;
+            psoDesc.BlendState.AlphaToCoverageEnable = false;
             psoDesc.BlendState.IndependentBlendEnable = FALSE;
             psoDesc.BlendState.RenderTarget[0].BlendEnable = !desc.opaque;
             psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;

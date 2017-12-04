@@ -32,6 +32,11 @@ cbuffer cbPerObject : register(b0)
     float4x4 gTexTransform;
 };
 
+cbuffer cbMultiObjects : register(b3)
+{
+    Light gLights2[MaxLights];
+};
+
 cbuffer cbMaterial : register(b1)
 {
     float4   gDiffuseAlbedo;
@@ -129,7 +134,7 @@ float4 PS(VertexOut pin) : SV_Target
     const float shininess = 1.0f - gRoughness;
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };
     float3 shadowFactor = 1.0f;
-    float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
+    float4 directLight = ComputeLighting(gLights2, mat, pin.PosW,
     pin.NormalW, toEyeW, shadowFactor);
 
     float4 litColor = ambient + directLight;

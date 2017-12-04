@@ -18,7 +18,7 @@ class D3DShaderWrapper {
 public:
     D3DShaderWrapper(const std::string& name) : mName(name) {}
 
-    void SetParamIndex(UINT texParamIndex, UINT objParamIndex, UINT matParamIndex, UINT passParamIndex)
+    void SetParamIndex(UINT texParamIndex, UINT objParamIndex, UINT multiObjParamIndex, UINT matParamIndex, UINT passParamIndex)
     {
         mTexParamIndex = texParamIndex;
         mObjParamIndex = objParamIndex;
@@ -26,6 +26,7 @@ public:
         mPassParamIndex = passParamIndex;
     }
     void UpdateObjCBData(unsigned int index, size_t size, const void* data);
+    void UpdateMultiObjCBData(unsigned int index, size_t size, const void* data);
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
     void BuildRootSignature(ID3D12Device* device);
@@ -33,23 +34,14 @@ public:
     //void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
     //void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
-#ifdef TEX_SRV_USE_CB_HEAP
     void BuildFrameCBResources
     (
         UINT objConstSize, UINT maxObjConstCount,
         UINT passConstSize, UINT maxPassConstCount,
         UINT matConstSize, UINT maxMatConstCount,
-        UINT texSRVTableSize, UINT texSRVCount
+        UINT texSRVTableSize, UINT texSRVCount,
+        UINT multiObjConstSize, UINT maxMultiObjConstCount
     );
-#else
-    void BuildFrameCBResources
-    (
-        UINT objConstSize, UINT maxObjConstCount,
-        UINT passConstSize, UINT maxPassConstCount,
-        UINT matConstSize, UINT maxMatConstCount
-    );
-    void BuildTexSRVHeap(UINT maxDescriptor);
-#endif
     UINT CreateTexSRV(ID3D12Resource* res);
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
 
@@ -94,17 +86,27 @@ public:
     UINT GetMatCBVOffset()                      const { return mMaterialCbvOffset;          }
     UINT GetMaterialCBVMaxCount()               const { return mMatCbvMaxCount;             }
     UINT GetPassCBVMaxCount()                   const { return mPassCbvMaxCount;            }
+    UINT GetMultiObjCBVMaxCount()               const { return mMultiObjCbvMaxCount; }
     UINT GetObjCBVMaxCount()                    const { return mObjCbvMaxCount;             }
     UINT GetTexParamIndex()                     const { return mTexParamIndex;              }
     UINT GetObjParamIndex()                     const { return mObjParamIndex;              }
     UINT GetMatParamIndex()                     const { return mMatParamIndex;              }
     UINT GetPassParamIndex()                    const { return mPassParamIndex;             }
+    UINT GetMultiObjParamIndex()                const { return mMultiParamIndex; }
     UINT GetFreeObjCBV() { 
         if (mObjCbvHeapFreeList.empty())
             throw std::exception("todo : dynamically grow size of shader object const buff");
         UINT ret = mObjCbvHeapFreeList.front();
         mObjCbvHeapFreeList.pop_front();
         return ret; 
+    }
+    UINT GetFreeMultiObjCBV() {
+        if (mMultiObjCbvHeapFreeList.empty())
+            throw std::exception("todo : dynamically grow size of shader multiobject const buff");
+        UINT index = mMultiObjCbvHeapFreeList.front();
+        index += mMultiObjCbvOffset;
+        mMultiObjCbvHeapFreeList.pop_front();
+        return index;
     }
     UINT GetFreePassCBV() {
         if (mPassCbvHeapFreeList.empty())
@@ -147,20 +149,22 @@ private:
 
     UINT                                           mTexParamIndex = 0;
     UINT                                           mObjParamIndex = 1;
+    UINT                                           mMultiParamIndex = 4;
     UINT                                           mMatParamIndex = 2;
     UINT                                           mPassParamIndex = 3;
 
     UINT                                           mMaterialCbvOffset = 0;
     UINT                                           mPassCbvOffset = 0;
-#ifdef TEX_SRV_USE_CB_HEAP
     UINT                                           mTexSrvOffset = 0;
-#endif
+    UINT                                           mMultiObjCbvOffset = 0;
 
     UINT                                           mPassCbvMaxCount = 0;
     UINT                                           mObjCbvMaxCount = 0;
+    UINT                                           mMultiObjCbvMaxCount = 0;
     UINT                                           mMatCbvMaxCount = 0;
 
     std::forward_list<UINT>                        mObjCbvHeapFreeList;
+    std::forward_list<UINT>                        mMultiObjCbvHeapFreeList;
     std::forward_list<UINT>                        mPassCbvHeapFreeList;
     std::forward_list<UINT>                        mMatCbvHeapFreeList;
     std::forward_list<UINT>                        mTexSrvHeapFreeList;

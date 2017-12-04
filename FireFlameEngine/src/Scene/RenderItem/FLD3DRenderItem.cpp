@@ -17,6 +17,15 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
     ID3D12GraphicsCommandList* cmdList = renderer->GetCommandList();
     auto CBVHeap = Shader->GetCBVHeap();
 
+    if (Shader->GetMultiObjParamIndex() != (UINT)-1 && MultiObjCBIndex != (UINT)-1)
+    {
+        int multiObjCbvIndex = MultiObjCBIndex;
+        multiObjCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetMultiObjCBVMaxCount();
+        auto multiObjCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+        multiObjCbvHandle.Offset(multiObjCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
+        cmdList->SetGraphicsRootDescriptorTable(Shader->GetMultiObjParamIndex(), multiObjCbvHandle);
+    }
+
     // Offset to the CBV in the descriptor heap for this object and for this frame resource.
     UINT cbvIndex = renderer->GetCurrFrameResIndex()*Shader->GetObjCBVMaxCount() + ObjCBIndex;
     auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(Shader->GetCBVHeap()->GetGPUDescriptorHandleForHeapStart());

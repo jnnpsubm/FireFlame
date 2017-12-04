@@ -23,6 +23,8 @@ struct D3DRenderItem {
     // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
     UINT ObjCBIndex = -1;
 
+    UINT MultiObjCBIndex = -1;
+
     D3DMesh* Mesh            = nullptr;
 
     Material* Mat = nullptr;

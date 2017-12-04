@@ -202,6 +202,12 @@ void D3DShaderWrapper::UpdateObjCBData(unsigned int index, size_t size, const vo
     auto currObjectCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ObjectCB.get();
     currObjectCB->CopyData(index, size, data);
 }
+void D3DShaderWrapper::UpdateMultiObjCBData(unsigned int index, size_t size, const void* data)
+{
+    index -= mMultiObjCbvOffset;
+    auto currMultiObjCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->MultiObjectCB.get();
+    currMultiObjCB->CopyData(index, size, data);
+}
 void D3DShaderWrapper::UpdatePassCBData(unsigned int index, size_t size, const void* data)
 {
     index -= mPassCbvOffset;
@@ -287,22 +293,14 @@ UINT D3DShaderWrapper::CreateTexSRV(const std::vector<ID3D12Resource *>& vecRes)
     return index;
 }
 
-#ifdef TEX_SRV_USE_CB_HEAP
 void D3DShaderWrapper::BuildFrameCBResources
 (
     UINT objConstSize, UINT maxObjConstCount,
     UINT passConstSize, UINT maxPassConstCount,
     UINT matConstSize, UINT maxMatConstCount,
-    UINT texSRVTableSize, UINT texSRVCount
+    UINT texSRVTableSize, UINT texSRVCount,
+    UINT multiObjConstSize, UINT maxMultiObjConstCount
 )
-#else
-void D3DShaderWrapper::BuildFrameCBResources
-(
-    UINT objConstSize, UINT maxObjConstCount,
-    UINT passConstSize, UINT maxPassConstCount,
-    UINT matConstSize, UINT maxMatConstCount
-)
-#endif
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
     auto device = renderer->GetDevice();
@@ -311,6 +309,7 @@ void D3DShaderWrapper::BuildFrameCBResources
         if (objConstSize) frameRes->ObjectCB->Init(device, maxObjConstCount, objConstSize);
         if (passConstSize) frameRes->PassCB->Init(device, maxPassConstCount, passConstSize);
         if (matConstSize) frameRes->MaterialCB->Init(device, maxMatConstCount, matConstSize);
+        if (multiObjConstSize) frameRes->MultiObjectCB->Init(device, maxMultiObjConstCount, multiObjConstSize);
     }
 
     UINT numFrameResources = (UINT)frameResources.size();
@@ -319,16 +318,14 @@ void D3DShaderWrapper::BuildFrameCBResources
     // Need a CBV descriptor for each object for each frame resource,
     // +1 for the perPass CBV for each frame resource.
     UINT numDescriptors = (objCount + maxPassConstCount + maxMatConstCount) * numFrameResources;
-#ifdef TEX_SRV_USE_CB_HEAP
+    numDescriptors += maxMultiObjConstCount * numFrameResources;
     numDescriptors += texSRVCount;
-#endif
-
+    
     // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
     mPassCbvOffset = objCount * numFrameResources;
     mMaterialCbvOffset = mPassCbvOffset + maxPassConstCount*numFrameResources;
-#ifdef TEX_SRV_USE_CB_HEAP
-    mTexSrvOffset = mMaterialCbvOffset + maxMatConstCount * numFrameResources;
-#endif
+    mMultiObjCbvOffset = mMaterialCbvOffset + maxMatConstCount*numFrameResources;
+    mTexSrvOffset = mMultiObjCbvOffset + maxMultiObjConstCount * numFrameResources;
 
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
     cbvHeapDesc.NumDescriptors = numDescriptors;
@@ -345,7 +342,6 @@ void D3DShaderWrapper::BuildFrameCBResources
     );
 
     UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(objConstSize);
-
     // Need a CBV descriptor for each object for each frame resource.
     for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex){
         auto objectCB = frameResources[frameIndex]->ObjectCB->Resource();
@@ -423,6 +419,32 @@ void D3DShaderWrapper::BuildFrameCBResources
         mMatCbvHeapFreeList.push_front(i);
     }
 
+    // multiObject  CBV
+    UINT multiObjCBByteSize = D3DUtils::CalcConstantBufferByteSize(multiObjConstSize);
+    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+        auto multiObjCB = frameResources[frameIndex]->MultiObjectCB->Resource();
+        for (UINT i = 0; i < maxMultiObjConstCount; ++i) {
+            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = multiObjCB->GetGPUVirtualAddress();
+
+            // Offset to the ith object constant buffer in the buffer.
+            cbAddress += i*multiObjCBByteSize;
+
+            // Offset to the mat cbv in the descriptor heap.
+            int heapIndex = mMultiObjCbvOffset + frameIndex*maxMultiObjConstCount + i;
+            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+
+            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+            cbvDesc.BufferLocation = cbAddress;
+            cbvDesc.SizeInBytes = multiObjCBByteSize;
+
+            device->CreateConstantBufferView(&cbvDesc, handle);
+        }
+    }
+    for (UINT i = 0; i < maxMultiObjConstCount; ++i) {
+        mMultiObjCbvHeapFreeList.push_front(i);
+    }
+
 #ifdef TEX_SRV_USE_CB_HEAP
     mTexSrvDescriptorTableSize = texSRVTableSize;
     assert(0 == texSRVCount%mTexSrvDescriptorTableSize);
@@ -433,6 +455,7 @@ void D3DShaderWrapper::BuildFrameCBResources
 
     mPassCbvMaxCount = maxPassConstCount;
     mObjCbvMaxCount  = maxObjConstCount;
+    mMultiObjCbvMaxCount = maxMultiObjConstCount;
     mMatCbvMaxCount = maxMatConstCount;
 }
 void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc) {

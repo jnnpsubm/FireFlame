@@ -19,6 +19,34 @@ void MPSApp::Initialize()
     AddPasses();
 }
 
+void MPSApp::Update(float time_elapsed)
+{
+    FLEngineApp2::Update(time_elapsed);
+
+    MultiObjectCBData multiObjCBData;
+    multiObjCBData.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+    multiObjCBData.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+    multiObjCBData.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+    multiObjCBData.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
+    multiObjCBData.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+    multiObjCBData.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+    mEngine.GetScene()->UpdateMultiObjCBData("default", sizeof(MultiObjectCBData), &multiObjCBData);
+
+    // Reflect the lighting.
+    using namespace DirectX;
+    XMVECTOR mirrorPlane = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f); // xy plane
+    XMMATRIX R = XMMatrixReflect(mirrorPlane);
+    for (int i = 0; i < 3; ++i)
+    {
+        XMFLOAT3 lightDir3(multiObjCBData.Lights[i].Direction.x, multiObjCBData.Lights[i].Direction.y, multiObjCBData.Lights[i].Direction.z);
+        XMVECTOR lightDir = XMLoadFloat3(&lightDir3);
+        XMVECTOR reflectedLightDir = XMVector3TransformNormal(lightDir, R);
+        XMStoreFloat3(&lightDir3, reflectedLightDir);
+        multiObjCBData.Lights[i].Direction = { lightDir3.x,lightDir3.y,lightDir3.z };
+    }
+    mEngine.GetScene()->UpdateMultiObjCBData("mirror", sizeof(MultiObjectCBData), &multiObjCBData);
+}
+
 void MPSApp::AddShaders()
 {
     using namespace FireFlame;
@@ -26,7 +54,8 @@ void MPSApp::AddShaders()
     mShaderDesc.objCBSize = sizeof(ObjectConsts);
     mShaderDesc.passCBSize = sizeof(PassConstants);
     mShaderDesc.materialCBSize = sizeof(MaterialConstants);
-    mShaderDesc.ParamDefault();
+    mShaderDesc.multiObjCBSize = sizeof(MultiObjectCBData);
+    mShaderDesc.ParamDefault2();
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
@@ -54,6 +83,9 @@ void MPSApp::AddShaders()
     mShaderMacrosPS["fog_and_alpha_clip"] = psAlphaClip.Macros2String();
 
     mEngine.GetScene()->AddShader(mShaderDesc);
+
+    mEngine.GetScene()->AddMultiObjCB(mShaderDesc.name, "default");
+    mEngine.GetScene()->AddMultiObjCB(mShaderDesc.name, "mirror");
 }
 
 void MPSApp::AddPSOs()
@@ -85,6 +117,11 @@ void MPSApp::AddPSOs()
     desc.stencilFunc = COMPARISON_FUNC::EQUAL;
     desc.frontCounterClockwise = true;
     scene->AddPSO("drawStencilReflections", desc);
+
+    // transparent
+    desc.default();
+    desc.opaque = false;
+    scene->AddPSO("transparent", desc);
 }
 
 void MPSApp::AddMeshs()
@@ -288,7 +325,7 @@ void MPSApp::AddMaterials()
 
     auto& icemirror = mMaterials["icemirror"];
     icemirror.Name = "icemirror";
-    icemirror.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    icemirror.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.5f);
     icemirror.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
     icemirror.Roughness = 0.5f;
     mEngine.GetScene()->AddMaterial
@@ -341,12 +378,14 @@ void MPSApp::AddRenderItemFloor()
     XMStoreFloat4x4
     (
         &trans[0],
-        XMMatrixIdentity()
+        //XMMatrixIdentity()
+        XMMatrixTranspose(XMMatrixScaling(10.f, 10.f, 10.f) * XMMatrixTranslation(0.f, 0.f, 30.f))
     );
     XMStoreFloat4x4
     (
         &trans[1],
-        XMMatrixIdentity()
+        //XMMatrixIdentity()
+        XMMatrixTranspose(XMMatrixScaling(10.f, 10.f, 10.f))
     );
     RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
     RItem.data = &trans[0];
@@ -356,6 +395,8 @@ void MPSApp::AddRenderItemFloor()
         mMeshDesc["room"].name,
         mShaderDesc.name,
         "default",
+        "default",
+        0,
         RItem
     );
 }
@@ -385,6 +426,8 @@ void MPSApp::AddRenderItemWall()
         mMeshDesc["room"].name,
         mShaderDesc.name,
         "default",
+        "default",
+        0,
         RItem
     );
 }
@@ -414,6 +457,8 @@ void MPSApp::AddRenderItemSkull()
         mMeshDesc["skull"].name,
         mShaderDesc.name,
         "default",
+        "default",
+        0,
         RItem
     );
 
@@ -425,6 +470,7 @@ void MPSApp::AddRenderItemSkull()
         mMeshDesc["skull"].name,
         mShaderDesc.name,
         "drawStencilReflections",
+        "mirror",
         2,
         RItem
     );
@@ -456,7 +502,21 @@ void MPSApp::AddRenderItemMirror()
         mMeshDesc["room"].name,
         mShaderDesc.name,
         "markStencilMirrors",
+        "default",
         1,
+        RItem
+    );
+
+    RItem.name = "mirror_blend";
+    RItem.opaque = false;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc["room"].name,
+        mShaderDesc.name,
+        "transparent",
+        //"default",
+        "default",
+        3,
         RItem
     );
 }

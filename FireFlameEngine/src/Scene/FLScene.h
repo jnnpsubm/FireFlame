@@ -15,6 +15,7 @@ class StopWatch;
 struct Pass;
 struct Material;
 struct Texture;
+struct MultiObjectConsts;
 class Scene {
 public:
     typedef std::vector<D3DRenderItem*>                               VecRItem;
@@ -81,6 +82,15 @@ public:
         int                     priority,
         const stRenderItemDesc& desc
     );
+    void AddRenderItem
+    (
+        const std::string&      primitiveName,
+        const std::string&      shaderName,
+        const std::string&      PSOName,
+        const std::string&      MultiObjCBName,
+        int                     priority,
+        const stRenderItemDesc& desc
+    );
     void AddTexture(const std::string& name, const std::wstring& filename);
     void AddTexture(const std::string& name, std::uint8_t* data, size_t len);
     void AddTexture2D
@@ -105,6 +115,7 @@ public:
         size_t dataLen, const void* data
     );
     void AddMaterial(const stMaterialDesc& matDesc);
+    void AddMultiObjCB(const std::string& shaderName, const std::string& name);
     void AddPass(const std::string& shaderName, const std::string& passName);
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
@@ -119,7 +130,9 @@ public:
     );
 
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
+    
     void UpdateMaterialCBData(const std::string& name, size_t size, const void* data);
+    void UpdateMultiObjCBData(const std::string& name, size_t size, const void* data);
     void UpdatePassCBData(const std::string& name, size_t size, const void* data);
     void UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t size, const void* data);
 
@@ -157,6 +170,8 @@ private:
 
     // passes
     std::unordered_map<std::string, std::shared_ptr<Pass>>             mPasses;
+
+    std::unordered_map<std::string, std::shared_ptr<MultiObjectConsts>> mMultiObjCBs;
 
 	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>>     mPrimitives; 
     std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>> mShaders;

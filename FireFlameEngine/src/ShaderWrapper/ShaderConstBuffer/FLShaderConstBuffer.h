@@ -7,6 +7,16 @@ struct ObjectConstants
     DirectX::XMFLOAT4X4 World = Matrix4X4();
 };
 
+struct MultiObjectConsts
+{
+    MultiObjectConsts() = default;
+    explicit MultiObjectConsts(const std::string& name, const std::string& shaderName, unsigned int CBIndex = 0)
+        :name(name), shaderName(shaderName), CBIndex(CBIndex) {}
+    std::string name;
+    std::string shaderName;
+    unsigned int CBIndex = -1;
+};
+
 struct PassConstants
 {
     DirectX::XMFLOAT4X4 View = Matrix4X4();

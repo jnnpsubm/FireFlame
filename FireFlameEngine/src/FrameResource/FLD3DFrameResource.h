@@ -20,6 +20,7 @@ public:
     // that reference it.  So each frame needs their own cbuffers.
     std::unique_ptr<UploadBuffer> PassCB = nullptr;
     std::unique_ptr<UploadBuffer> ObjectCB = nullptr;
+    std::unique_ptr<UploadBuffer> MultiObjectCB = nullptr;
     std::unique_ptr<UploadBuffer> MaterialCB = nullptr;
 
     // some mesh have dynamic VB updated with frame...

@@ -7,6 +7,9 @@ public:
     MPSApp(FireFlame::Engine& e);
 
     void Initialize()                        override;
+
+    void Update(float time_elapsed) override;
+
     void OnKeyboardInput(float time_elapsed) override;
 
 private:

@@ -16,6 +16,7 @@
 #else
 #include "..\3rd_utils\DDSTextureLoaderLuna.h"
 #endif
+#include "..\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -197,7 +198,7 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     }
     shader->SetParamIndex
     (
-        shaderDesc.texParamIndex, shaderDesc.objParamIndex,
+        shaderDesc.texParamIndex, shaderDesc.objParamIndex, shaderDesc.multiObjParamIndex,
         shaderDesc.matParamIndex, shaderDesc.passParamIndex
     );
     //shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), 1);
@@ -208,7 +209,8 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
         shaderDesc.objCBSize, 100,
         shaderDesc.passCBSize, 3,
         shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
-        shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor
+        shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
+        shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
     );
 #else
     if (shaderDesc.maxTexSRVDescriptor)
@@ -556,6 +558,79 @@ void Scene::AddRenderItem
     mRenderItems.emplace(desc.name, renderItem);
 }
 
+void Scene::AddRenderItem
+(
+    const std::string&      primitiveName,
+    const std::string&      shaderName,
+    const std::string&      PSOName,
+    const std::string&      MultiObjCBName,
+    int                     priority,
+    const stRenderItemDesc& desc
+)
+{
+    auto itPrimitive = mPrimitives.find(primitiveName);
+    if (itPrimitive == mPrimitives.end())
+    {
+        spdlog::get("console")->error("cannot find primitive {0}", primitiveName);
+        throw std::exception("cannot find primitive");
+    }
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end())
+    {
+        spdlog::get("console")->error("cannot find shader {0}", shaderName);
+        throw std::exception("cannot find shader");
+    }
+
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    if (!PSOManager->NameExist(PSOName))
+    {
+        spdlog::get("console")->error("cannot find PSO {0}", PSOName);
+        throw std::exception("cannot find PSO in AddRenderItem");
+    }
+    D3DMesh* mesh = itPrimitive->second->GetMesh();
+    D3DShaderWrapper* shader = itShader->second.get();
+
+    auto renderItem = std::make_shared<D3DRenderItem>();
+    renderItem->Name = desc.name;
+    renderItem->NumFramesDirty = Engine::NumFrameResources();
+    renderItem->IndexCount = desc.subMesh.indexCount;
+    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
+    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
+    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
+    if (!MultiObjCBName.empty())
+    {
+        auto itMultiObj = mMultiObjCBs.find(MultiObjCBName);
+        if (itMultiObj == mMultiObjCBs.end())
+            throw std::exception("cannot find MultiObjCB in AddRenderItem");
+        renderItem->MultiObjCBIndex = itMultiObj->second->CBIndex;
+    }
+    renderItem->Mesh = mesh;
+    renderItem->Shader = shaderName;
+    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
+    renderItem->opaque = desc.opaque;
+    renderItem->stencilRef = desc.stencilRef;
+    if (desc.data && desc.dataLen)
+    {
+        renderItem->Data = new char[desc.dataLen];
+        renderItem->DataLen = desc.dataLen;
+        memcpy(renderItem->Data, desc.data, desc.dataLen);
+    }
+    if (!desc.mat.empty())
+    {
+        auto itMat = mMaterials.find(desc.mat);
+        if (itMat == mMaterials.end())
+            throw std::exception("cannot find material in AddRenderItem");
+        renderItem->Mat = itMat->second.get();
+    }
+
+    auto& shaderMapped = GetShaderMappedRItem(priority, desc.opaque);
+    auto& PSOMapped = shaderMapped[shaderName];
+    auto& vecItems = PSOMapped[PSOName];
+    vecItems.push_back(renderItem.get());
+
+    mRenderItems.emplace(desc.name, renderItem);
+}
+
 void Scene::AddTexture(const std::string& name, const std::wstring& filename)
 {
     auto tex = std::make_shared<Texture>(name, filename);
@@ -740,6 +815,18 @@ void Scene::AddMaterial(const stMaterialDesc& matDesc)
     mMaterials.emplace(matDesc.name, mat);
 }
 
+void Scene::AddMultiObjCB(const std::string& shaderName, const std::string& name)
+{
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end()) throw std::exception("cannot find shader in function call(AddMultiObjCB)");
+    auto shader = itShader->second;
+    mMultiObjCBs.emplace
+    (
+        name, 
+        std::make_shared<MultiObjectConsts>(name, shaderName, shader->GetFreeMultiObjCBV())
+    );
+}
+
 void Scene::AddPass(const std::string& shaderName, const std::string& passName)
 {
     auto itShader = mShaders.find(shaderName);
@@ -777,6 +864,20 @@ void Scene::UpdateMaterialCBData(const std::string& name, size_t size, const voi
     }
     assert(mat->dataLen == size);
     memcpy(mat->data, data, size);
+}
+
+void Scene::UpdateMultiObjCBData(const std::string& name, size_t size, const void* data)
+{
+    auto itMultiObjCB = mMultiObjCBs.find(name);
+    if (itMultiObjCB == mMultiObjCBs.end())
+        throw std::exception("cannot find multiObjCB in UpdateMultiObjCBData function");
+    auto itShader = mShaders.find(itMultiObjCB->second->shaderName);
+    if (itShader == mShaders.end())
+        throw std::exception("cannot find shader in UpdateMultiObjCBData function");
+    auto shader = itShader->second;
+
+    auto multiObjCbvIndex = itMultiObjCB->second->CBIndex;
+    shader->UpdateMultiObjCBData(multiObjCbvIndex, size, data);
 }
 
 void Scene::UpdatePassCBData(const std::string& name, size_t size, const void* data) {
@@ -825,5 +926,6 @@ void Scene::PrintAllRenderItems()
             }
         }
     }
+    std::cout << "=============================End All RenderItems===============================" << std::endl;
 }
 } // end namespace

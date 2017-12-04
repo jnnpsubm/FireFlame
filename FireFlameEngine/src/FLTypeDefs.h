@@ -364,6 +364,7 @@ struct stShaderDescription {
     std::vector<stSemanticName> semanticNames;   // order mush match vertexFormats
 
     unsigned int                objCBSize = 1;
+    unsigned int                multiObjCBSize = 0;
     unsigned int                passCBSize = 1;
     unsigned int                materialCBSize = 0;
 
@@ -372,6 +373,7 @@ struct stShaderDescription {
 
     unsigned int                texParamIndex = -1;
     unsigned int                objParamIndex = 1;
+    unsigned int                multiObjParamIndex = -1;
     unsigned int                matParamIndex = -1;
     unsigned int                passParamIndex = 2;
 
@@ -381,6 +383,14 @@ struct stShaderDescription {
         objParamIndex = 1;
         matParamIndex = 2;
         passParamIndex = 3;
+    }
+    void ParamDefault2()
+    {
+        texParamIndex = 0;
+        objParamIndex = 1;
+        matParamIndex = 2;
+        passParamIndex = 3;
+        multiObjParamIndex = 4;
     }
 
     const stShaderStage& AddShaderStage(const std::wstring& file, Shader_Type type, 
