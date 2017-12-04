@@ -23,7 +23,7 @@ public:
     typedef std::map<bool, ShaderMappedRItem>                         OpacityMappedRItem;
     typedef std::map<int, OpacityMappedRItem>                         PriorityMappedRItem;
 
-    typedef std::pair<int, OpacityMappedRItem&>                       RItemsWithPriority;
+    typedef std::pair<int, OpacityMappedRItem*>                       RItemsWithPriority;
 
 	Scene(std::shared_ptr<D3DRenderer>& renderer);
 
@@ -70,6 +70,15 @@ public:
         const std::string&      primitiveName,
         const std::string&      shaderName,
         const std::string&      PSOName,
+        const stRenderItemDesc& desc
+    );
+    // priority:0 > 1 > 2......
+    void AddRenderItem
+    (
+        const std::string&      primitiveName,
+        const std::string&      shaderName,
+        const std::string&      PSOName,
+        int                     priority,
         const stRenderItemDesc& desc
     );
     void AddTexture(const std::string& name, const std::wstring& filename);
@@ -130,6 +139,7 @@ private:
         int priority,
         bool opaque
     );
+    void PrintAllRenderItems();
 
     bool mPrintScene = false;
 

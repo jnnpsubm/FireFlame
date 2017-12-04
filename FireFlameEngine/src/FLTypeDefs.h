@@ -1,5 +1,6 @@
 #pragma once
 #include "Matrix\FLMatrix4X4.h"
+#include <array>
 #include <vector>
 #include <string>
 
@@ -110,6 +111,39 @@ inline Primitive_Topology_Type FLTopology2FLTopologyType(Primitive_Topology top)
     }
 }
 
+enum class COLOR_WRITE_ENABLE :std::uint8_t
+{
+    RED = 1,
+    GREEN = 2,
+    BLUE = 4,
+    ALPHA = 8,
+    ALL = (((RED | GREEN) | BLUE) | ALPHA)
+};
+
+enum class STENCIL_OP:std::uint8_t
+{
+    KEEP = 1,
+    ZERO = 2,
+    REPLACE = 3,
+    INCR_SAT = 4,
+    DECR_SAT = 5,
+    INVERT = 6,
+    INCR = 7,
+    DECR = 8
+};
+
+enum class COMPARISON_FUNC
+{
+    NEVER = 1,
+    LESS = 2,
+    EQUAL = 3,
+    LESS_EQUAL = 4,
+    GREATER = 5,
+    NOT_EQUAL = 6,
+    GREATER_EQUAL = 7,
+    ALWAYS = 8
+};
+
 struct PSODesc
 {
     PSODesc
@@ -127,14 +161,67 @@ struct PSODesc
         topology(topology),
         cullMode(cullMode)
     {}
+    void default() {
+        topology = Primitive_Topology::TriangleList;
+        cullMode = Cull_Mode::Back;
+        frontCounterClockwise = false;
+
+        opaque = true;
+
+        stencilEnable = false;
+        stencilReadMask = 0xff;
+        stencilWriteMask = 0xff;
+        std::uint8_t depthWriteMask = 1;
+
+        stencilFailOp = STENCIL_OP::KEEP;
+        stencilDepthFailOp = STENCIL_OP::KEEP;
+        stencilPassOp = STENCIL_OP::KEEP;
+        stencilFunc = COMPARISON_FUNC::ALWAYS;
+
+        colorWriteEnable =
+        {
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+            (std::uint8_t)COLOR_WRITE_ENABLE::ALL
+        };
+    }
     std::string shaderName;
     std::string shaderMacroVS;
     std::string shaderMacroPS;
     
     Primitive_Topology topology = Primitive_Topology::TriangleList;
     Cull_Mode cullMode = Cull_Mode::Back;
+    bool frontCounterClockwise = false;
 
     bool opaque = true;
+
+    bool stencilEnable = false;
+    std::uint8_t stencilReadMask = 0xff;
+    std::uint8_t stencilWriteMask = 0xff;
+
+    STENCIL_OP      stencilFailOp = STENCIL_OP::KEEP;
+    STENCIL_OP      stencilDepthFailOp = STENCIL_OP::KEEP;
+    STENCIL_OP      stencilPassOp = STENCIL_OP::KEEP;
+    COMPARISON_FUNC stencilFunc = COMPARISON_FUNC::ALWAYS;
+
+    std::uint8_t depthWriteMask = 1;
+    std::array<std::uint8_t,8> colorWriteEnable =
+    //std::uint8_t colorWriteEnable[8] =
+    {
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL,
+        (std::uint8_t)COLOR_WRITE_ENABLE::ALL
+    };
 };
 
 struct stRawMesh {
@@ -199,6 +286,8 @@ struct stRenderItemDesc {
     void*  data = nullptr;
 
     std::string mat;
+
+    std::uint32_t stencilRef = -1;
 
     std::string AsPSOName() const
     {

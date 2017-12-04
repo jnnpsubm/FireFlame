@@ -52,6 +52,11 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
         }
     }
 
+    if (stencilRef != (std::uint32_t)-1)
+    {
+        cmdList->OMSetStencilRef(stencilRef);
+    }
+
     if (Mesh->VertexBufferInFrameRes())
     {
         auto VB = renderer->GetCurrFrameResource()->VBResources[Mesh->GetName()].get();

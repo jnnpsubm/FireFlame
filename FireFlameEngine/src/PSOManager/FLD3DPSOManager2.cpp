@@ -75,6 +75,7 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
             fill <= D3D12_FILL_MODE_SOLID; ++fill)
         {
             psoDesc.RasterizerState.FillMode = (D3D12_FILL_MODE)fill;
+            psoDesc.RasterizerState.FrontCounterClockwise = desc.frontCounterClockwise;
 
             psoDesc.BlendState.AlphaToCoverageEnable = !desc.opaque;
             psoDesc.BlendState.IndependentBlendEnable = FALSE;
@@ -85,9 +86,20 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
             psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
             psoDesc.BlendState.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
             psoDesc.BlendState.RenderTarget[0].LogicOpEnable = FALSE;
-            psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+            psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = FLColorWriteMask2D3DColorWriteMask(desc.colorWriteEnable[0]);
             psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
             psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+
+            psoDesc.DepthStencilState.DepthWriteMask = FLDepthWriteMask2D3DDepthWriteMask(desc.depthWriteMask);
+            psoDesc.DepthStencilState.StencilEnable = desc.stencilEnable;
+            psoDesc.DepthStencilState.StencilReadMask = desc.stencilReadMask;
+            psoDesc.DepthStencilState.StencilWriteMask = desc.stencilWriteMask;
+
+            psoDesc.DepthStencilState.FrontFace.StencilFailOp = FLStencilOp2D3DStencilOp(desc.stencilFailOp);
+            psoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = FLStencilOp2D3DStencilOp(desc.stencilDepthFailOp);
+            psoDesc.DepthStencilState.FrontFace.StencilPassOp = FLStencilOp2D3DStencilOp(desc.stencilPassOp);
+            psoDesc.DepthStencilState.FrontFace.StencilFunc = FLCompareFunc2D3DCompareFunc(desc.stencilFunc);
+
             PSO_TRAIT PSOTrait(name, i, psoDesc.RasterizerState.FillMode);
             PSO_ComPtr pso = nullptr;
             ThrowIfFailed

@@ -63,6 +63,28 @@ void MPSApp::AddPSOs()
 
     PSODesc desc(mShaderDesc.name, mShaderMacrosVS[""], mShaderMacrosPS[""]);
     scene->AddPSO("default", desc);
+
+    //PSODesc* pDesc = new (&desc) PSODesc(mShaderDesc.name, mShaderMacrosVS[""], mShaderMacrosPS[""]);
+    desc.default();
+    desc.colorWriteEnable[0] = (std::uint8_t)0/*COLOR_WRITE_ENABLE::COLOR_WRITE_ENABLE_ALL*/;
+    desc.depthWriteMask = 0;
+
+    desc.stencilEnable = true;
+    desc.stencilFailOp = STENCIL_OP::KEEP;
+    desc.stencilDepthFailOp = STENCIL_OP::KEEP;
+    desc.stencilPassOp = STENCIL_OP::REPLACE;
+    desc.stencilFunc = COMPARISON_FUNC::ALWAYS;
+
+    scene->AddPSO("markStencilMirrors", desc);
+
+    desc.default();
+    desc.stencilEnable = true;
+    desc.stencilFailOp = STENCIL_OP::KEEP;
+    desc.stencilDepthFailOp = STENCIL_OP::KEEP;
+    desc.stencilPassOp = STENCIL_OP::KEEP;
+    desc.stencilFunc = COMPARISON_FUNC::EQUAL;
+    desc.frontCounterClockwise = true;
+    scene->AddPSO("drawStencilReflections", desc);
 }
 
 void MPSApp::AddMeshs()
@@ -306,6 +328,7 @@ void MPSApp::AddRenderItems()
     AddRenderItemFloor();
     AddRenderItemWall();
     AddRenderItemSkull();
+    AddRenderItemMirror();
 }
 
 void MPSApp::AddRenderItemFloor()
@@ -393,6 +416,49 @@ void MPSApp::AddRenderItemSkull()
         "default",
         RItem
     );
+
+    RItem.name = "skullReflec";
+    RItem.stencilRef = 1;
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc["skull"].name,
+        mShaderDesc.name,
+        "drawStencilReflections",
+        2,
+        RItem
+    );
+}
+
+void MPSApp::AddRenderItemMirror()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("mirror", mMeshDesc["room"].subMeshs[2]);
+    RItem.mat = "icemirror";
+    XMFLOAT4X4 trans[2];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixIdentity()
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixIdentity()
+    );
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    RItem.stencilRef = 1;
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc["room"].name,
+        mShaderDesc.name,
+        "markStencilMirrors",
+        1,
+        RItem
+    );
 }
 
 void MPSApp::AddPasses()
@@ -434,10 +500,12 @@ void MPSApp::OnKeyboardInput(float time_elapsed)
     DirectX::XMStoreFloat4x4(&transform[1], DirectX::XMMatrixIdentity());
     mEngine.GetScene()->UpdateRenderItemCBData("skull", sizeof(transform), &transform[0]);
 
-    //// Update reflection world matrix.
-    //XMVECTOR mirrorPlane = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f); // xy plane
-    //XMMATRIX R = XMMatrixReflect(mirrorPlane);
-    //XMStoreFloat4x4(&mReflectedSkullRitem->World, skullWorld * R);
+    // Update reflection world matrix.
+    DirectX::XMVECTOR mirrorPlane = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f); // xy plane
+    DirectX::XMMATRIX R = DirectX::XMMatrixReflect(mirrorPlane);
+    DirectX::XMStoreFloat4x4(&transform[0], DirectX::XMMatrixTranspose(skullWorld*R));
+    DirectX::XMStoreFloat4x4(&transform[1], DirectX::XMMatrixIdentity());
+    mEngine.GetScene()->UpdateRenderItemCBData("skullReflec", sizeof(transform), &transform[0]);
 
     //// Update shadow world matrix.
     //XMVECTOR shadowPlane = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // xz plane

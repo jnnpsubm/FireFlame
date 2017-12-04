@@ -410,6 +410,86 @@ inline D3D12_PRIMITIVE_TOPOLOGY_TYPE FLPrimitiveType2D3DPrimitiveType(Primitive_
     }
 }
 
+inline std::uint8_t FLColorWriteMask2D3DColorWriteMask(std::uint8_t flMask) {
+    switch (flMask)
+    {
+    case (std::uint8_t)FireFlame::COLOR_WRITE_ENABLE::RED:
+        return D3D12_COLOR_WRITE_ENABLE_RED;
+    case (std::uint8_t)FireFlame::COLOR_WRITE_ENABLE::GREEN:
+        return D3D12_COLOR_WRITE_ENABLE_GREEN;
+    case (std::uint8_t)FireFlame::COLOR_WRITE_ENABLE::BLUE:
+        return D3D12_COLOR_WRITE_ENABLE_BLUE;
+    case (std::uint8_t)FireFlame::COLOR_WRITE_ENABLE::ALPHA:
+        return D3D12_COLOR_WRITE_ENABLE_ALPHA;
+    case (std::uint8_t)FireFlame::COLOR_WRITE_ENABLE::ALL:
+        return D3D12_COLOR_WRITE_ENABLE_ALL;
+    default:
+        return 0;
+    }
+}
+
+inline D3D12_DEPTH_WRITE_MASK FLDepthWriteMask2D3DDepthWriteMask(std::uint8_t mask) {
+    switch (mask)
+    {
+    case 0:
+        return D3D12_DEPTH_WRITE_MASK_ZERO;
+    case 1:
+        return D3D12_DEPTH_WRITE_MASK_ALL;
+    default:
+        return D3D12_DEPTH_WRITE_MASK_ALL;
+    }
+}
+
+inline D3D12_STENCIL_OP FLStencilOp2D3DStencilOp(STENCIL_OP op)
+{
+    switch (op)
+    {
+    case FireFlame::STENCIL_OP::KEEP:
+        return D3D12_STENCIL_OP_KEEP;
+    case FireFlame::STENCIL_OP::ZERO:
+        return D3D12_STENCIL_OP_ZERO;
+    case FireFlame::STENCIL_OP::REPLACE:
+        return D3D12_STENCIL_OP_REPLACE;
+    case FireFlame::STENCIL_OP::INCR_SAT:
+        return D3D12_STENCIL_OP_INCR_SAT;
+    case FireFlame::STENCIL_OP::DECR_SAT:
+        return D3D12_STENCIL_OP_DECR_SAT;
+    case FireFlame::STENCIL_OP::INVERT:
+        return D3D12_STENCIL_OP_INVERT;
+    case FireFlame::STENCIL_OP::INCR:
+        return D3D12_STENCIL_OP_INCR;
+    case FireFlame::STENCIL_OP::DECR:
+        return D3D12_STENCIL_OP_DECR;
+    default:
+        throw std::exception("unknown op in FLStencilOp2D3DStencilOp");
+    }
+}
+
+inline D3D12_COMPARISON_FUNC FLCompareFunc2D3DCompareFunc(COMPARISON_FUNC func)
+{
+    switch (func)
+    {
+    case FireFlame::COMPARISON_FUNC::NEVER:
+        return D3D12_COMPARISON_FUNC_NEVER;
+    case FireFlame::COMPARISON_FUNC::LESS:
+        return D3D12_COMPARISON_FUNC_LESS;
+    case FireFlame::COMPARISON_FUNC::EQUAL:
+        return D3D12_COMPARISON_FUNC_EQUAL;
+    case FireFlame::COMPARISON_FUNC::LESS_EQUAL:
+        return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    case FireFlame::COMPARISON_FUNC::GREATER:
+        return D3D12_COMPARISON_FUNC_GREATER;
+    case FireFlame::COMPARISON_FUNC::NOT_EQUAL:
+        return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+    case FireFlame::COMPARISON_FUNC::GREATER_EQUAL:
+        return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+    case FireFlame::COMPARISON_FUNC::ALWAYS:
+        return D3D12_COMPARISON_FUNC_ALWAYS;
+    default:
+        throw std::exception("unknown func in FLCompareFunc2D3DCompareFunc");
+    }
+}
+
 inline std::wstring AnsiToWString(const std::string& str)
 {
 	WCHAR buffer[512];

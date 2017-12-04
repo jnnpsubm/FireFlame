@@ -99,10 +99,10 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass)
     };
     std::priority_queue<RItemsWithPriority, std::vector<RItemsWithPriority>, decltype(cmp)>
         renderItemQueue(cmp);
-    for (auto& opacityMapped : mPriorityMappedRItems)
+    for (auto& pairPriorityAndOpacityMapped : mPriorityMappedRItems)
     {
-        int priority = opacityMapped.first;
-        renderItemQueue.emplace(priority, opacityMapped.second);
+        int priority = pairPriorityAndOpacityMapped.first;
+        renderItemQueue.emplace(priority, &pairPriorityAndOpacityMapped.second);
     }
     while (!renderItemQueue.empty()) {
         auto& items = renderItemQueue.top();
@@ -110,8 +110,6 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass)
         DrawRenderItems(cmdList, pass, items.first, false);
         renderItemQueue.pop();
     }
-    //DrawRenderItems(cmdList, pass, true);
-    //DrawRenderItems(cmdList, pass, false);
 }
 
 void Scene::DrawRenderItems
@@ -123,7 +121,7 @@ void Scene::DrawRenderItems
 )
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
-    auto shaderMapped = GetShaderMappedRItem(priority, opaque);
+    auto& shaderMapped = GetShaderMappedRItem(priority, opaque);
     for (auto& itSameShader : shaderMapped)
     {
         D3DShaderWrapper* Shader = mShaders[itSameShader.first].get();
@@ -182,6 +180,8 @@ int Scene::GetReady() {
         auto& primitive = namedPrimitive.second;
         primitive->GetMesh()->DisposeUploaders();
     }
+
+    PrintAllRenderItems();
     return 0;
 }
 
@@ -349,6 +349,7 @@ void Scene::AddRenderItem
     renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
     renderItem->opaque = desc.opaque;
+    renderItem->stencilRef = desc.stencilRef;
     if (desc.data && desc.dataLen)
     {
         renderItem->Data = new char[desc.dataLen];
@@ -405,6 +406,7 @@ void Scene::AddRenderItem
     renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
     renderItem->opaque = desc.opaque;
+    renderItem->stencilRef = desc.stencilRef;
     if (desc.data && desc.dataLen)
     {
         renderItem->Data = new char[desc.dataLen];
@@ -467,6 +469,7 @@ void Scene::AddRenderItem
     renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
     renderItem->opaque = desc.opaque;
+    renderItem->stencilRef = desc.stencilRef;
     if (desc.data && desc.dataLen)
     {
         renderItem->Data = new char[desc.dataLen];
@@ -485,6 +488,71 @@ void Scene::AddRenderItem
     auto& PSOMapped = shaderMapped[shaderName];
     auto& vecItems = PSOMapped[PSOName];
     vecItems.push_back(renderItem.get());
+    mRenderItems.emplace(desc.name, renderItem);
+}
+
+void Scene::AddRenderItem
+(
+    const std::string&      primitiveName,
+    const std::string&      shaderName,
+    const std::string&      PSOName,
+    int                     priority,
+    const stRenderItemDesc& desc
+)
+{
+    auto itPrimitive = mPrimitives.find(primitiveName);
+    if (itPrimitive == mPrimitives.end())
+    {
+        spdlog::get("console")->error("cannot find primitive {0}", primitiveName);
+        throw std::exception("cannot find primitive");
+    }
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end())
+    {
+        spdlog::get("console")->error("cannot find shader {0}", shaderName);
+        throw std::exception("cannot find shader");
+    }
+    
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    if (!PSOManager->NameExist(PSOName))
+    {
+        spdlog::get("console")->error("cannot find PSO {0}", PSOName);
+        throw std::exception("cannot find PSO in AddRenderItem");
+    }
+    D3DMesh* mesh = itPrimitive->second->GetMesh();
+    D3DShaderWrapper* shader = itShader->second.get();
+
+    auto renderItem = std::make_shared<D3DRenderItem>();
+    renderItem->Name = desc.name;
+    renderItem->NumFramesDirty = Engine::NumFrameResources();
+    renderItem->IndexCount = desc.subMesh.indexCount;
+    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
+    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
+    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
+    renderItem->Mesh = mesh;
+    renderItem->Shader = shaderName;
+    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
+    renderItem->opaque = desc.opaque;
+    renderItem->stencilRef = desc.stencilRef;
+    if (desc.data && desc.dataLen)
+    {
+        renderItem->Data = new char[desc.dataLen];
+        renderItem->DataLen = desc.dataLen;
+        memcpy(renderItem->Data, desc.data, desc.dataLen);
+    }
+    if (!desc.mat.empty())
+    {
+        auto itMat = mMaterials.find(desc.mat);
+        if (itMat == mMaterials.end())
+            throw std::exception("cannot find material in AddRenderItem");
+        renderItem->Mat = itMat->second.get();
+    }
+    
+    auto& shaderMapped = GetShaderMappedRItem(priority, desc.opaque);
+    auto& PSOMapped = shaderMapped[shaderName];
+    auto& vecItems = PSOMapped[PSOName];
+    vecItems.push_back(renderItem.get());
+
     mRenderItems.emplace(desc.name, renderItem);
 }
 
@@ -681,7 +749,8 @@ void Scene::AddPass(const std::string& shaderName, const std::string& passName)
 }
 void Scene::UpdateRenderItemCBData(const std::string& name, size_t size, const void* data) {
     if (mRenderItems.find(name) == mRenderItems.end()) {
-        throw std::exception("UpdateRenderItemCBData cannot find renderitem");
+        //throw std::exception("UpdateRenderItemCBData cannot find render item");
+        return;
     }
     auto& item = mRenderItems[name];
     if (item->Data == nullptr) {
@@ -731,5 +800,30 @@ void Scene::UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t 
         throw std::exception("cannot find VB in UpdateMeshCurrVBFrameRes");
     auto VB = itVBRes->second.get();
     VB->CopyData(index, size, data);
+}
+
+void Scene::PrintAllRenderItems()
+{
+    std::cout << "=============================All RenderItems===================================" << std::endl;
+    for (auto& pairPriorityAndOpacityMapped : mPriorityMappedRItems)
+    {
+        std::cout << "Priority:" << pairPriorityAndOpacityMapped.first << std::endl;
+        for (auto& itOpacityAndShaderMapped : pairPriorityAndOpacityMapped.second)
+        {
+            std::cout << "\tOpacity:" << itOpacityAndShaderMapped.first << std::endl;
+            for (auto& itShaderAndPSOMapped : itOpacityAndShaderMapped.second)
+            {
+                std::cout << "\t\tShader:" << itShaderAndPSOMapped.first << std::endl;
+                for (auto& itPSOAndVecItem : itShaderAndPSOMapped.second)
+                {
+                    std::cout << "\t\t\tPSO:" << itPSOAndVecItem.first << std::endl;
+                    for (auto& item : itPSOAndVecItem.second)
+                    {
+                        std::cout << "\t\t\t\titem:" << item->Name << std::endl;
+                    }
+                }
+            }
+        }
+    }
 }
 } // end namespace

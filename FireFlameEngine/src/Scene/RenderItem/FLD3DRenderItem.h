@@ -39,6 +39,8 @@ struct D3DRenderItem {
     // Primitive topology.
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+    std::uint32_t stencilRef = -1;
+
     // DrawIndexedInstanced parameters.
     UINT IndexCount = 0;
     UINT StartIndexLocation = 0;

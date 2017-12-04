@@ -24,6 +24,7 @@ private:
     void AddRenderItemFloor();
     void AddRenderItemWall();
     void AddRenderItemSkull();
+    void AddRenderItemMirror();
 
     void AddPasses();
 
