@@ -135,7 +135,7 @@ void Demo::OnKeyDown(WPARAM wParam, LPARAM lParam) {
         }
         UseShader(mShaders[mode].shaderName);
         //mEngine.GetScene()->PrimitiveUseShader(mCurrGeo, mCurrShader);
-        mEngine.GetScene()->RenderItemChangeShader(mCurrGeo, mRItemDesc, mCurrShader);
+        mEngine.GetScene()->RenderItemChangeShader(mCurrGeo, 0, mRItemDesc, mCurrShader);
         strDebug += L"Shader:" + FireFlame::AnsiToWString(mCurrShader);
     }
     else if ((int)wParam == 'K')

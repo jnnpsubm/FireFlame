@@ -1,4 +1,5 @@
 #include "MPSApp.h"
+#include <fstream>
 
 MPSApp::MPSApp(FireFlame::Engine& e) : FLEngineApp2(e)
 {
@@ -67,6 +68,7 @@ void MPSApp::AddPSOs()
 void MPSApp::AddMeshs()
 {
     AddRoomMesh();
+    AddSkullMesh();
 }
 
 void MPSApp::AddRoomMesh()
@@ -152,6 +154,64 @@ void MPSApp::AddRoomMesh()
     mMeshDesc["room"].subMeshs.emplace_back("wall", 18, 6);
     mMeshDesc["room"].subMeshs.emplace_back("mirror", 6, 24);
     mEngine.GetScene()->AddPrimitive(mMeshDesc["room"]);
+}
+
+void MPSApp::AddSkullMesh()
+{
+    using namespace FireFlame;
+
+    std::ifstream fin("../../Resources/geometry/skull.txt");
+
+    if (!fin)
+    {
+        MessageBox(0, L"../../Resources/geometry/skull.txt not found.", 0, 0);
+        return;
+    }
+
+    UINT vcount = 0;
+    UINT tcount = 0;
+    std::string ignore;
+
+    fin >> ignore >> vcount;
+    fin >> ignore >> tcount;
+    fin >> ignore >> ignore >> ignore >> ignore;
+
+    std::vector<FLVertexNormalTex> vertices(vcount);
+    for (UINT i = 0; i < vcount; ++i)
+    {
+        fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
+        fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
+
+        // Model does not have texture coordinates, so just zero them out.
+        vertices[i].Tex = { 0.0f, 0.0f };
+    }
+
+    fin >> ignore;
+    fin >> ignore;
+    fin >> ignore;
+
+    std::vector<std::uint32_t> indices(3 * tcount);
+    for (UINT i = 0; i < tcount; ++i)
+    {
+        fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
+    }
+
+    fin.close();
+
+    auto& meshDesc = mMeshDesc["skull"];
+    meshDesc.name = "skull";
+
+    meshDesc.indexCount = (unsigned int)indices.size();
+    meshDesc.indexFormat = Index_Format::UINT32;
+    meshDesc.indices = indices.data();
+
+    meshDesc.vertexDataCount.push_back((unsigned int)vertices.size());
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertexNormalTex));
+    meshDesc.vertexData.push_back(vertices.data());
+
+    // sub meshes
+    meshDesc.subMeshs.emplace_back("all", (unsigned int)indices.size());
+    mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
 void MPSApp::AddTextures()
@@ -243,6 +303,13 @@ void MPSApp::AddMaterials()
 
 void MPSApp::AddRenderItems()
 {
+    AddRenderItemFloor();
+    AddRenderItemWall();
+    AddRenderItemSkull();
+}
+
+void MPSApp::AddRenderItemFloor()
+{
     using namespace DirectX;
 
     FireFlame::stRenderItemDesc RItem("floor", mMeshDesc["room"].subMeshs[0]);
@@ -268,59 +335,118 @@ void MPSApp::AddRenderItems()
         "default",
         RItem
     );
+}
 
-    /*FireFlame::stRenderItemDesc RItem2("Waves", mMeshDesc[1].subMeshs[0]);
+void MPSApp::AddRenderItemWall()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("wall", mMeshDesc["room"].subMeshs[1]);
+    RItem.mat = "bricks";
+    XMFLOAT4X4 trans[2];
     XMStoreFloat4x4
     (
         &trans[0],
-        XMMatrixTranspose(XMMatrixIdentity())
+        XMMatrixIdentity()
     );
     XMStoreFloat4x4
     (
         &trans[1],
-        XMMatrixTranspose(XMMatrixScaling(5.0f, 5.0f, 1.0f))
+        XMMatrixIdentity()
     );
-    RItem2.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
-    RItem2.data = &trans[0];
-    RItem2.mat = "water";
-    RItem2.opaque = false;
-    mRenderItems.emplace_back(RItem2);
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    mRenderItems[RItem.name] = RItem;
     mEngine.GetScene()->AddRenderItem
     (
-        mMeshDesc[1].name,
+        mMeshDesc["room"].name,
         mShaderDesc.name,
-        "",
-        mShaderMacrosPS["fogged"],
-        RItem2
+        "default",
+        RItem
     );
+}
 
-    FireFlame::stRenderItemDesc RItem3("grid", mMeshDesc[2].subMeshs[0]);
+void MPSApp::AddRenderItemSkull()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("skull", mMeshDesc["skull"].subMeshs[0]);
+    RItem.mat = "skullMat";
+    XMFLOAT4X4 trans[2];
     XMStoreFloat4x4
     (
         &trans[0],
-        XMMatrixTranspose(XMMatrixIdentity())
+        XMMatrixIdentity()
     );
     XMStoreFloat4x4
     (
         &trans[1],
-        XMMatrixTranspose(XMMatrixScaling(5.0f, 5.0f, 1.0f))
+        XMMatrixIdentity()
     );
-    RItem3.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
-    RItem3.data = &trans[0];
-    RItem3.mat = "grass";
-    mRenderItems.emplace_back(RItem3);
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    mRenderItems[RItem.name] = RItem;
     mEngine.GetScene()->AddRenderItem
     (
-        mMeshDesc[2].name,
+        mMeshDesc["skull"].name,
         mShaderDesc.name,
-        "",
-        mShaderMacrosPS["fogged"],
-        RItem3
-    );*/
+        "default",
+        RItem
+    );
 }
 
 void MPSApp::AddPasses()
 {
     mPasses.push_back("DefaultPass");
     mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+}
+
+void MPSApp::OnKeyboardInput(float time_elapsed)
+{
+    //
+    // Allow user to move skull.
+    //
+
+    const float dt = mEngine.DeltaTime();
+
+    if (GetAsyncKeyState('A') & 0x8000)
+        mSkullTranslation.x -= 1.0f*dt;
+
+    if (GetAsyncKeyState('D') & 0x8000)
+        mSkullTranslation.x += 1.0f*dt;
+
+    if (GetAsyncKeyState('W') & 0x8000)
+        mSkullTranslation.y += 1.0f*dt;
+
+    if (GetAsyncKeyState('S') & 0x8000)
+        mSkullTranslation.y -= 1.0f*dt;
+
+    // Don't let user move below ground plane.
+    mSkullTranslation.y = (std::max)(mSkullTranslation.y, 0.0f);
+
+    // Update the new world matrix.
+    DirectX::XMMATRIX skullRotate = DirectX::XMMatrixRotationY(0.5f*FireFlame::MathHelper::FL_PI);
+    DirectX::XMMATRIX skullScale = DirectX::XMMatrixScaling(0.45f, 0.45f, 0.45f);
+    DirectX::XMMATRIX skullOffset = DirectX::XMMatrixTranslation(mSkullTranslation.x, mSkullTranslation.y, mSkullTranslation.z);
+    DirectX::XMMATRIX skullWorld = skullRotate*skullScale*skullOffset;
+    DirectX::XMFLOAT4X4 transform[2];
+    DirectX::XMStoreFloat4x4(&transform[0], DirectX::XMMatrixTranspose(skullWorld));
+    DirectX::XMStoreFloat4x4(&transform[1], DirectX::XMMatrixIdentity());
+    mEngine.GetScene()->UpdateRenderItemCBData("skull", sizeof(transform), &transform[0]);
+
+    //// Update reflection world matrix.
+    //XMVECTOR mirrorPlane = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f); // xy plane
+    //XMMATRIX R = XMMatrixReflect(mirrorPlane);
+    //XMStoreFloat4x4(&mReflectedSkullRitem->World, skullWorld * R);
+
+    //// Update shadow world matrix.
+    //XMVECTOR shadowPlane = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // xz plane
+    //XMVECTOR toMainLight = -XMLoadFloat3(&mMainPassCB.Lights[0].Direction);
+    //XMMATRIX S = XMMatrixShadow(shadowPlane, toMainLight);
+    //XMMATRIX shadowOffsetY = XMMatrixTranslation(0.0f, 0.001f, 0.0f);
+    //XMStoreFloat4x4(&mShadowedSkullRitem->World, skullWorld * S * shadowOffsetY);
+
+    //mSkullRitem->NumFramesDirty = gNumFrameResources;
+    //mReflectedSkullRitem->NumFramesDirty = gNumFrameResources;
+    //mShadowedSkullRitem->NumFramesDirty = gNumFrameResources;
 }

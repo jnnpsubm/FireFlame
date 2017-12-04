@@ -94,19 +94,36 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass)
         }
     }
 
-    DrawRenderItems(cmdList, pass, true);
-    DrawRenderItems(cmdList, pass, false);
+    auto cmp = [](const RItemsWithPriority& rhs, const RItemsWithPriority& lhs) {
+        return lhs.first < rhs.first;
+    };
+    std::priority_queue<RItemsWithPriority, std::vector<RItemsWithPriority>, decltype(cmp)>
+        renderItemQueue(cmp);
+    for (auto& opacityMapped : mPriorityMappedRItems)
+    {
+        int priority = opacityMapped.first;
+        renderItemQueue.emplace(priority, opacityMapped.second);
+    }
+    while (!renderItemQueue.empty()) {
+        auto& items = renderItemQueue.top();
+        DrawRenderItems(cmdList, pass, items.first, true);
+        DrawRenderItems(cmdList, pass, items.first, false);
+        renderItemQueue.pop();
+    }
+    //DrawRenderItems(cmdList, pass, true);
+    //DrawRenderItems(cmdList, pass, false);
 }
 
 void Scene::DrawRenderItems
 (
     ID3D12GraphicsCommandList* cmdList,
     const Pass* pass,
+    int priority,
     bool opaque
 )
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
-    auto shaderMapped = GetShaderMappedRItem(opaque);
+    auto shaderMapped = GetShaderMappedRItem(priority, opaque);
     for (auto& itSameShader : shaderMapped)
     {
         D3DShaderWrapper* Shader = mShaders[itSameShader.first].get();
@@ -240,6 +257,7 @@ void Scene::PrimitiveUseShader(const std::string& primitive, const std::string& 
 void Scene::RenderItemChangeShader
 (
     const std::string& renderItem,
+    int                priority,
     const stRenderItemDesc& desc,
     const std::string&      shader,
     const std::string&      shaderMacroVS,
@@ -254,7 +272,7 @@ void Scene::RenderItemChangeShader
         throw std::exception("cannot find shader in function(RenderItemChangeShader)");
     std::string oldShader = itRItem->second->Shader;
 
-    auto& shaderMapped = GetShaderMappedRItem(itRItem->second->opaque);
+    auto& shaderMapped = GetShaderMappedRItem(priority, itRItem->second->opaque);
     auto itSameShader = shaderMapped.find(oldShader);
     if (itSameShader == shaderMapped.end())
     {
@@ -345,7 +363,7 @@ void Scene::AddRenderItem
         renderItem->Mat = itMat->second.get();
     }
 
-    auto& shaderMapped = GetShaderMappedRItem(desc.opaque);
+    auto& shaderMapped = GetShaderMappedRItem(0, desc.opaque);
     auto& PSOMapped = shaderMapped[shaderName];
     auto& vecItems = PSOMapped[PSOName];
     vecItems.push_back(renderItem.get());
@@ -401,7 +419,7 @@ void Scene::AddRenderItem
         renderItem->Mat = itMat->second.get();
     }
 
-    auto& shaderMapped = GetShaderMappedRItem(desc.opaque);
+    auto& shaderMapped = GetShaderMappedRItem(0, desc.opaque);
     auto& PSOMapped = shaderMapped[shaderName];
     auto& vecItems = PSOMapped[PSOName];
     vecItems.push_back(renderItem.get());
@@ -463,7 +481,7 @@ void Scene::AddRenderItem
         renderItem->Mat = itMat->second.get();
     }
 
-    auto& shaderMapped = GetShaderMappedRItem(desc.opaque);
+    auto& shaderMapped = GetShaderMappedRItem(0, desc.opaque);
     auto& PSOMapped = shaderMapped[shaderName];
     auto& vecItems = PSOMapped[PSOName];
     vecItems.push_back(renderItem.get());

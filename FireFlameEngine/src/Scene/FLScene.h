@@ -1,6 +1,8 @@
 #pragma once
+#include <map>
 #include <unordered_map>
 #include <functional>
+#include <queue>
 #include "Primitive\FLD3DPrimitive.h"
 #include "Vertex\FLVertex.h"
 #include "..\FLTypeDefs.h"
@@ -18,6 +20,10 @@ public:
     typedef std::vector<D3DRenderItem*>                               VecRItem;
     typedef std::unordered_map<std::string, VecRItem>                 PSOMappedRItem;
     typedef std::unordered_map<std::string, PSOMappedRItem>           ShaderMappedRItem;
+    typedef std::map<bool, ShaderMappedRItem>                         OpacityMappedRItem;
+    typedef std::map<int, OpacityMappedRItem>                         PriorityMappedRItem;
+
+    typedef std::pair<int, OpacityMappedRItem&>                       RItemsWithPriority;
 
 	Scene(std::shared_ptr<D3DRenderer>& renderer);
 
@@ -96,6 +102,7 @@ public:
     void RenderItemChangeShader
     (
         const std::string& renderItem, 
+        int                priority,
         const stRenderItemDesc& desc,
         const std::string&      shader,
         const std::string&      shaderMacroVS = "",
@@ -120,6 +127,7 @@ private:
     (
         ID3D12GraphicsCommandList* cmdList,
         const Pass* pass,
+        int priority,
         bool opaque
     );
 
@@ -131,10 +139,11 @@ private:
 	// todo : scene manage
     std::unordered_map<std::string, std::shared_ptr<D3DRenderItem>>    mRenderItems;
     // true for opaque
-    ShaderMappedRItem& GetShaderMappedRItem(bool opaque) {
-        return opaque ? mShaderMappedRItems[0] : mShaderMappedRItems[1];
+    ShaderMappedRItem& GetShaderMappedRItem(int priority, bool opaque) {
+        auto& opacityMapped = mPriorityMappedRItems[priority];
+        return opacityMapped[opaque];
     }
-    ShaderMappedRItem                                                  mShaderMappedRItems[2];
+    PriorityMappedRItem                                                mPriorityMappedRItems;
 
     // passes
     std::unordered_map<std::string, std::shared_ptr<Pass>>             mPasses;
