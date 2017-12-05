@@ -312,6 +312,26 @@ void Scene::RenderItemChangeShader
     vecItems.push_back(itRItem->second.get());
 }
 
+void Scene::RenderItemChangeMaterial(const std::string& renderItem, const std::string& matname)
+{
+    auto itRItem = mRenderItems.find(renderItem);
+    if (itRItem == mRenderItems.end())
+    {
+        spdlog::get("console")->error("cannot find render item in function(RenderItemChangeMaterial)");
+        throw std::exception("cannot find render item in function(RenderItemChangeMaterial)");
+    } 
+    auto itMat = mMaterials.find(matname);
+    if (itMat == mMaterials.end())
+    {
+        spdlog::get("console")->error("cannot find material in function(RenderItemChangeMaterial)");
+        throw std::exception("cannot find material in function(RenderItemChangeMaterial)");
+    }
+
+    auto renderitem = itRItem->second;
+    auto mat = itMat->second;
+    renderitem->Mat = mat.get();
+}
+
 void Scene::PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh){
 	auto it = mPrimitives.find(name);
 	if (it == mPrimitives.end()) return;

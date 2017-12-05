@@ -51,9 +51,14 @@ private:
 
     FireFlame::FLVERLoader mFireKeeperLoader;
     std::map<size_t, std::string> mTexMapFK;
-
+    
     FireFlame::FLVERLoader mUndeadLegionLoader;
     std::map<size_t, std::string> mTexMapUL;
+    std::vector<std::string> mTexUL;
+    std::vector<std::string> mTestMatUL;
+
+    std::string mCurUndeadLegionPart;
+    int         mCurUndedaLegionMat = 0;
 
     unsigned long mNoiseTexWidth = 2048;
     std::unique_ptr<float[]> mNoiseData;

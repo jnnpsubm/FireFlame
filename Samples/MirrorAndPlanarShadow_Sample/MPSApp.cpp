@@ -760,9 +760,19 @@ void MPSApp::AddUndeadLegionTextures()
         "ul_weapon2_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_WP_A_0620_r.dds"
     );
-    mTexMapUL[0] = "ul_cape";
-    mTexMapUL[1] = "ul_cape";
-    mTexMapUL[2] = "ul_cape";
+    mTexUL.push_back("ul_AM");
+    mTexUL.push_back("ul_cape");
+    mTexUL.push_back("ul_chest");
+    mTexUL.push_back("ul_HD");
+    mTexUL.push_back("ul_hair");
+    mTexUL.push_back("lgpart01");
+    mTexUL.push_back("ul_lgpart02");
+    mTexUL.push_back("ul_weapon1");
+    mTexUL.push_back("ul_weapon2");
+    
+    mTexMapUL[0] = "";
+    mTexMapUL[1] = "";
+    mTexMapUL[2] = "";
     mTexMapUL[3] = "";
     mTexMapUL[4] = "";
     mTexMapUL[5] = "";
@@ -912,14 +922,14 @@ void MPSApp::AddUndeadLegionMaterials()
         }
         else if (part == 0)
         {
-            material.DiffuseAlbedo = { 5.0f, 5.0f, 5.0f, 5.0f };
+            material.DiffuseAlbedo = { 1.5f, 1.5f, 1.5f, 1.0f };
             material.FresnelR0 = { 0.05f,0.05f,0.05f };
             material.Roughness = 0.6f;
             material.UseSpecularMap = 1;
         }
         else
         {
-            material.DiffuseAlbedo = { 5.0f, 5.0f, 5.0f, 5.0f };
+            material.DiffuseAlbedo = { 1.5f, 1.5f, 1.5f, 1.0f };
             material.FresnelR0 = { 0.05f,0.05f,0.05f };
             material.Roughness = 0.6f;
             material.UseSpecularMap = 1;
@@ -935,12 +945,35 @@ void MPSApp::AddUndeadLegionMaterials()
             material.UseTexture = 1;
             specularTex = mTexMapUL[part] + "_r";
         }
-
         mEngine.GetScene()->AddMaterial
         (
         {
             material.Name,
             mShaderDesc.name,{ mTexMapUL[part],specularTex },
+            sizeof(MaterialConstants), &material
+        }
+        );
+    }
+
+    for (auto& texname : mTexUL)
+    {
+        std::string matName = "test_ul_mat_" + texname;
+        auto& material = mMaterials[matName];
+        material.Name = matName;
+        material.DiffuseAlbedo = { 5.0f, 5.0f, 5.0f, 5.0f };
+        material.FresnelR0 = { 0.05f,0.05f,0.05f };
+        material.Roughness = 0.6f;
+        material.UseSpecularMap = 1;
+
+        std::string specularTex;
+        material.UseTexture = 1;
+        specularTex = texname + "_r";
+        mTestMatUL.push_back(material.Name);
+        mEngine.GetScene()->AddMaterial
+        (
+        {
+            material.Name,
+            mShaderDesc.name,{ texname,specularTex },
             sizeof(MaterialConstants), &material
         }
         );
@@ -1179,7 +1212,7 @@ void MPSApp::AddRenderItemUndeadLegion()
         {
             float inst_x = -27.f + i*13.f + d(e);
             float inst_z = -60.f + j*12.f + d(e);
-            AddRenderItemUndeadLegionInst(j * 10 + i, inst_x, inst_z);
+            AddRenderItemUndeadLegionInst(j * 7 + i, inst_x, inst_z);
         }
     }
 }
@@ -1309,12 +1342,33 @@ void MPSApp::AddPasses()
 
 void MPSApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 {
-    if (wParam == '0')
+    if (wParam >= '0' && wParam <= '9')
     {
-        mTranslation = &mSkullTranslation;
-    }else if (wParam == '1')
+        mCurUndeadLegionPart = "ul_model_" + std::to_string(wParam - '0');
+    }
+    else if (wParam == 'Q')
     {
-        mTranslation = &mFKTranslation;
+        mCurUndeadLegionPart = "ul_model_10";
+    }
+    else if (wParam == 'W')
+    {
+        mCurUndeadLegionPart = "ul_model_11";
+    }
+    else if (wParam == 'E')
+    {
+        mCurUndeadLegionPart = "ul_model_12";
+    }
+    if (!mCurUndeadLegionPart.empty())
+    {
+        for (size_t i = 0; i < 49; i++)
+        {
+            std::string name = mCurUndeadLegionPart + "_inst" + std::to_string(i);
+            mEngine.GetScene()->RenderItemChangeMaterial
+            (
+                name, 
+                mTestMatUL[mCurUndedaLegionMat]
+            );
+        }
     }
 }
 

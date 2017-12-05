@@ -129,6 +129,11 @@ public:
         const std::string&      shaderMacroVS = "",
         const std::string&      shaderMacroPS = ""
     );
+    void RenderItemChangeMaterial
+    (
+        const std::string& renderItem,
+        const std::string& matname
+    );
 
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
     
