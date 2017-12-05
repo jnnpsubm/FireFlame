@@ -672,52 +672,52 @@ void MPSApp::AddUndeadLegionTextures()
 {
     mEngine.GetScene()->AddTexture
     (
-        "AM",
+        "ul_AM",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_AM_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "AM_r",
+        "ul_AM_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_AM_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "cape",
+        "ul_cape",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_BD_cape_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "cape_r",
+        "ul_cape_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_BD_cape_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "chest",
+        "ul_chest",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_BD_Chest_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "chest_r",
+        "ul_chest_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_BD_Chest_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "HD",
+        "ul_HD",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_HD_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "HD_r",
+        "ul_HD_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_HD_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "hair",
+        "ul_hair",
         L"D:\\DSIII_CHR\\c3040\\c3040\\C3040_HD_hair_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "hair_r",
+        "ul_hair_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\C3040_HD_hair_r.dds"
     );
     mEngine.GetScene()->AddTexture
@@ -727,42 +727,42 @@ void MPSApp::AddUndeadLegionTextures()
     );
     mEngine.GetScene()->AddTexture
     (
-        "lgpart01_r",
+        "ul_lgpart01_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_LG_part01_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "lgpart02",
+        "ul_lgpart02",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_LG_part02_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "lgpart02_r",
+        "ul_lgpart02_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_LG_part02_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "weapon1",
+        "ul_weapon1",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_WP_A_0113_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "weapon1_r",
+        "ul_weapon1_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_WP_A_0113_r.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "weapon2",
+        "ul_weapon2",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_WP_A_0620_a.dds"
     );
     mEngine.GetScene()->AddTexture
     (
-        "weapon2_r",
+        "ul_weapon2_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_WP_A_0620_r.dds"
     );
-    mTexMapUL[0] = "cape";
-    mTexMapUL[1] = "cape";
-    mTexMapUL[2] = "cape";
+    mTexMapUL[0] = "ul_cape";
+    mTexMapUL[1] = "ul_cape";
+    mTexMapUL[2] = "ul_cape";
     mTexMapUL[3] = "";
     mTexMapUL[4] = "";
     mTexMapUL[5] = "";
