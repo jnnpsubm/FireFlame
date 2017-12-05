@@ -1015,7 +1015,7 @@ HRESULT DirectX::SaveWICTextureToFile( ID3D12CommandQueue* pCommandQ,
     UINT64 totalResourceSize = 0;
     UINT64 fpRowPitch = 0;
     UINT fpRowCount = 0;
-    // Get the rowcount, pitch and size of the top mip
+    // Get the row count, pitch and size of the top mip
     device->GetCopyableFootprints(
         &desc,
         0,

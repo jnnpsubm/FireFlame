@@ -911,16 +911,16 @@ void Scene::PrintAllRenderItems()
         std::cout << "Priority:" << pairPriorityAndOpacityMapped.first << std::endl;
         for (auto& itOpacityAndShaderMapped : pairPriorityAndOpacityMapped.second)
         {
-            std::cout << "\tOpacity:" << itOpacityAndShaderMapped.first << std::endl;
+            std::cout << "   Opacity:" << itOpacityAndShaderMapped.first << std::endl;
             for (auto& itShaderAndPSOMapped : itOpacityAndShaderMapped.second)
             {
-                std::cout << "\t\tShader:" << itShaderAndPSOMapped.first << std::endl;
+                std::cout << "      Shader:" << itShaderAndPSOMapped.first << std::endl;
                 for (auto& itPSOAndVecItem : itShaderAndPSOMapped.second)
                 {
-                    std::cout << "\t\t\tPSO:" << itPSOAndVecItem.first << std::endl;
+                    std::cout << "         PSO:" << itPSOAndVecItem.first << std::endl;
                     for (auto& item : itPSOAndVecItem.second)
                     {
-                        std::cout << "\t\t\t\titem:" << item->Name << std::endl;
+                        std::cout << "            item:" << item->Name << std::endl;
                     }
                 }
             }

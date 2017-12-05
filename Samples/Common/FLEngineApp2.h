@@ -21,6 +21,9 @@ struct MaterialConstants
 
     // Used in texture mapping.
     FireFlame::Matrix4X4 MatTransform = FireFlame::Matrix4X4();
+
+    int      UseTexture = 1;
+    int      UseSpecularMap = 0;
 };
 
 struct NamedMaterialConstants : MaterialConstants

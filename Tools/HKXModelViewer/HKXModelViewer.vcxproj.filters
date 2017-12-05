@@ -18,7 +18,9 @@
     <None Include="..\Common\LightingUtil.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\Default.hlsl" />
+    <None Include="Shaders\Default.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\Todo.TXT" />

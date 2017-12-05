@@ -10,6 +10,10 @@ MPSApp::MPSApp(FireFlame::Engine& e) : FLEngineApp2(e)
 
 void MPSApp::Initialize()
 {
+    mFireKeeperLoader.load("D:\\DSIII_CHR\\c1400\\c1400.flver");
+
+    BuildNoiseData();
+
     AddShaders();
     AddPSOs();
     AddMeshs();
@@ -17,6 +21,26 @@ void MPSApp::Initialize()
     AddMaterials();
     AddRenderItems();
     AddPasses();
+}
+
+void MPSApp::BuildNoiseData()
+{
+    unsigned seed = (unsigned)std::chrono::system_clock::now().time_since_epoch().count();
+    FireFlame::Noise::Permutate(seed);
+
+    const float step = (float)32.0f / mNoiseTexWidth;
+    mNoiseData = std::make_unique<float[]>(mNoiseTexWidth*mNoiseTexWidth);
+
+    for (size_t i = 0; i < mNoiseTexWidth; ++i)
+    {
+        for (size_t j = 0; j < mNoiseTexWidth; ++j)
+        {
+            //mNoiseData[j*pixel_width + i] = std::abs(FireFlame::Noise::Evaluate(i*step, j*step, 0.5f));
+            mNoiseData[j*mNoiseTexWidth + i] = FireFlame::Noise::Evaluate(i*step, j*step, 0.5f);
+            //mNoiseData[j*mNoiseTexWidth + i] += 1.0f;
+            //mNoiseData[j*mNoiseTexWidth + i] /= 2.0f;
+        }
+    }
 }
 
 void MPSApp::Update(float time_elapsed)
@@ -55,6 +79,8 @@ void MPSApp::AddShaders()
     mShaderDesc.passCBSize = sizeof(PassConstants);
     mShaderDesc.materialCBSize = sizeof(MaterialConstants);
     mShaderDesc.multiObjCBSize = sizeof(MultiObjectCBData);
+    mShaderDesc.maxTexSRVDescriptor = 256;
+    mShaderDesc.texSRVDescriptorTableSize = 4;
     mShaderDesc.ParamDefault2();
     mShaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
@@ -64,7 +90,16 @@ void MPSApp::AddShaders()
     auto& ps = mShaderDesc.AddShaderStage(L"Shaders\\MPSShader.hlsl", Shader_Type::PS, "PS", "ps_5_0");
     mShaderMacrosPS[""] = "";
 
-    std::vector<std::pair<std::string, std::string>> macros = { { "FOG", "1" } };
+    std::vector<std::pair<std::string, std::string>> macros = { { "TERRAIN", "1" } };
+    auto& psTerrain = mShaderDesc.AddShaderStage
+    (
+        L"Shaders\\MPSShader.hlsl",
+        Shader_Type::PS, "PS", "ps_5_0",
+        macros
+    );
+    mShaderMacrosPS["terrain"] = psTerrain.Macros2String();
+
+    macros = { { "FOG", "1" } };
     auto& psFogged = mShaderDesc.AddShaderStage
     (
         L"Shaders\\MPSShader.hlsl",
@@ -95,6 +130,9 @@ void MPSApp::AddPSOs()
 
     PSODesc desc(mShaderDesc.name, mShaderMacrosVS[""], mShaderMacrosPS[""]);
     scene->AddPSO("default", desc);
+
+    PSODesc descTerrain(mShaderDesc.name, mShaderMacrosVS[""], mShaderMacrosPS["terrain"]);
+    scene->AddPSO("terrain", descTerrain);
 
     //PSODesc* pDesc = new (&desc) PSODesc(mShaderDesc.name, mShaderMacrosVS[""], mShaderMacrosPS[""]);
     desc.default();
@@ -133,6 +171,7 @@ void MPSApp::AddMeshs()
 {
     AddRoomMesh();
     AddSkullMesh();
+    AddFireKeeperMesh();
 }
 
 void MPSApp::AddRoomMesh()
@@ -153,10 +192,10 @@ void MPSApp::AddRoomMesh()
     std::array<FLVertexNormalTex, 20> vertices =
     {
         // Floor: Observe we tile texture coordinates.
-        FLVertexNormalTex(-3.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 4.0f), // 0 
+        FLVertexNormalTex(-3.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f), // 0 
         FLVertexNormalTex(-3.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f),
-        FLVertexNormalTex(7.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.0f, 4.0f, 0.0f),
-        FLVertexNormalTex(7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 4.0f, 4.0f),
+        FLVertexNormalTex(7.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+        FLVertexNormalTex(7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
 
         // Wall: Observe we tile texture coordinates, and that we
         // leave a gap in the middle for the mirror.
@@ -278,6 +317,92 @@ void MPSApp::AddSkullMesh()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
+void MPSApp::AddFireKeeperMesh()
+{
+    AddFireKeeperPart(0, true);
+    AddFireKeeperPart(1, true);
+    AddFireKeeperPart(2, true);
+    AddFireKeeperPart(3, true);
+    AddFireKeeperPart(4, true);
+    AddFireKeeperPart(5, true);
+    AddFireKeeperPart(6, true);
+    AddFireKeeperPart(7, true);
+    AddFireKeeperPart(8, true);
+    AddFireKeeperPart(9, true);
+    AddFireKeeperPart(10, true);
+    AddFireKeeperPart(11, true);
+    AddFireKeeperPart(12, true);
+    AddFireKeeperPart(13, true);
+    AddFireKeeperPart(14, true);
+    AddFireKeeperPart(15, true);
+    AddFireKeeperPart(16, true);
+    AddFireKeeperPart(17, false);
+}
+
+void MPSApp::AddFireKeeperPart(size_t part, bool reverseNormal)
+{
+    using namespace FireFlame;
+
+    // Mesh
+    std::vector<FireFlame::FLVertexNormalTex> vertices;
+    auto& rawUVs = mFireKeeperLoader.get_uvs();
+    auto& rawVertices = mFireKeeperLoader.get_vertices();
+    auto& rawIndices = mFireKeeperLoader.get_indices();
+
+    std::vector<std::uint32_t> indices;
+    for (const auto& index : rawIndices[part])
+    {
+        indices.push_back(index);
+    }
+
+    vertices.reserve(rawVertices[part].size());
+    for (size_t i = 0; i < rawVertices[part].size(); i++)
+    {
+        vertices.emplace_back
+        (
+            rawVertices[part][i].x, rawVertices[part][i].y, rawVertices[part][i].z,
+            0.f, 0.f, 0.f,
+            rawUVs[part][i].u, -rawUVs[part][i].v
+        );
+    }
+
+    // begin normals
+    for (size_t i = 0; i < indices.size() / 3; i++)
+    {
+        auto& v0 = vertices[indices[i * 3 + 0]];
+        auto& v1 = vertices[indices[i * 3 + 1]];
+        auto& v2 = vertices[indices[i * 3 + 2]];
+        auto e0 = v1.Pos - v0.Pos;
+        auto e1 = v2.Pos - v0.Pos;
+        auto normal = FireFlame::Vector3Cross(reverseNormal ? e1 : e0, reverseNormal ? e0 : e1);
+
+        v0.Normal += normal;
+        v1.Normal += normal;
+        v2.Normal += normal;
+    }
+    for (auto& vertex : vertices)
+    {
+        vertex.Normal.Normalize();
+    }
+    // end normals
+
+    std::string meshName = "fk_model_" + std::to_string(part);
+    auto& mesh = mMeshDesc[meshName];
+    mesh.name = meshName;
+    mesh.primitiveTopology = Primitive_Topology::TriangleList;
+    mesh.indexCount = (unsigned int)indices.size();
+    mesh.indexFormat = Index_Format::UINT32;
+    mesh.indices = indices.data();
+
+    mesh.vertexDataCount.push_back((unsigned int)vertices.size());
+    mesh.vertexDataSize.push_back(sizeof(FLVertexNormalTex));
+    mesh.vertexData.push_back(vertices.data());
+
+    // sub meshes
+    mesh.subMeshs.emplace_back("All", (UINT)indices.size());
+    mEngine.GetScene()->AddPrimitive(mesh);
+}
+
 void MPSApp::AddTextures()
 {
     mEngine.GetScene()->AddTexture
@@ -300,6 +425,138 @@ void MPSApp::AddTextures()
         "white1x1Tex",
         L"..\\..\\Resources\\Textures\\white1x1.dds"
     );
+
+    mEngine.GetScene()->AddTexture2D
+    (
+        "heightMap", (const std::uint8_t*)mNoiseData.get(),
+        FireFlame::VERTEX_FORMAT_FLOAT1,
+        mNoiseTexWidth, mNoiseTexWidth
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "darkdirtTex",
+        L"..\\..\\Resources\\terrain\\darkdirt.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "lightdirtTex",
+        L"..\\..\\Resources\\terrain\\lightdirt.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "snowTex",
+        L"..\\..\\Resources\\terrain\\snow.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "grassTex",
+        L"..\\..\\Resources\\terrain\\grass.dds"
+    );
+
+    // FireKeeper Textures
+    AddFireKeeperTextures();
+}
+
+void MPSApp::AddFireKeeperTextures()
+{
+
+    mEngine.GetScene()->AddTexture
+    (
+        "arm",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_arm_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "arm_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_arm_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "body",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_body_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "body_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_body_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "hair",
+        //L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_a.dds"
+        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_hair_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "hair_r",
+        //L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_hair_r.dds"
+        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_hair_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "head",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_head_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "head_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_head_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "leg",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_leg_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "leg_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_leg_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "manteau",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_manteau_a.dds"
+        //L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_manteau_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "manteau_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_manteau_r.dds"
+        //L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_manteau_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "skin",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_skin_a.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "skin_r",
+        L"..\\..\\Resources\\Textures\\FireKeeper\\c1400_skin_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "unknown",
+        L"D:\\DSIII_CHR\\c1400\\c1400\\c1400_v.dds"
+    );
+    mTexMapFK[0] = "hair";
+    mTexMapFK[1] = "body";
+    mTexMapFK[2] = "head"; // Í·¹Ú
+    mTexMapFK[3] = "skin";
+    mTexMapFK[4] = "skin";
+    mTexMapFK[5] = "body";
+    mTexMapFK[6] = "body";
+    mTexMapFK[7] = "body";
+    mTexMapFK[8] = "body";
+    mTexMapFK[9] = "body";
+    mTexMapFK[10] = "skin";
+    mTexMapFK[11] = "leg";
+    mTexMapFK[12] = "body";
+    mTexMapFK[13] = "manteau";
+    mTexMapFK[14] = "manteau";
+    mTexMapFK[15] = "body";
+    mTexMapFK[16] = "arm";
+    mTexMapFK[17] = "hair";
 }
 
 void MPSApp::AddMaterials()
@@ -323,9 +580,11 @@ void MPSApp::AddMaterials()
     checkertile.Roughness = 0.3f;
     mEngine.GetScene()->AddMaterial
     (
+    {
         checkertile.Name,
-        mShaderDesc.name, "checkboardTex",
+        mShaderDesc.name, { "heightMap", "darkdirtTex", "lightdirtTex", "snowTex" },
         sizeof(MaterialConstants), &checkertile
+    }
     );
 
     auto& icemirror = mMaterials["icemirror"];
@@ -363,6 +622,60 @@ void MPSApp::AddMaterials()
         mShaderDesc.name, "white1x1Tex",
         sizeof(MaterialConstants), &shadowMat
     );
+
+    AddFireKeeperMaterials();
+}
+
+void MPSApp::AddFireKeeperMaterials()
+{
+    auto par_count = mFireKeeperLoader.get_part_count();
+    for (size_t part = 0; part < par_count; part++)
+    {
+        std::string matName = "fk_mat_" + std::to_string(part);
+        auto& material = mMaterials[matName];
+        material.Name = matName;
+        if (part == 2)
+        {
+            material.DiffuseAlbedo = { 4.f, 4.f, 4.f, 1.0f };
+            material.FresnelR0 = { 1.0f,1.0f,1.0f };
+            material.Roughness = 0.0f;
+            material.UseSpecularMap = 0;
+        }
+        else if (part == 0 || part == 17)
+        {
+            material.DiffuseAlbedo = { 1.3f, 1.3f, 1.3f, 1.0f };
+            material.FresnelR0 = { 0.6f,0.6f,0.6f };
+            material.Roughness = 0.0f;
+            material.UseSpecularMap = 1;
+        }
+        else
+        {
+            material.DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+            material.FresnelR0 = { 0.05f,0.05f,0.05f };
+            material.Roughness = 0.6f;
+            material.UseSpecularMap = 1;
+        }
+
+        std::string specularTex;
+        if (mTexMapFK[part] == "")
+        {
+            material.UseTexture = 2;
+        }
+        else
+        {
+            material.UseTexture = 1;
+            specularTex = mTexMapFK[part] + "_r";
+        }
+
+        mEngine.GetScene()->AddMaterial
+        (
+        {
+            material.Name,
+            mShaderDesc.name,{ mTexMapFK[part],specularTex },
+            sizeof(MaterialConstants), &material
+        }
+        );
+    }
 }
 
 void MPSApp::AddRenderItems()
@@ -370,6 +683,7 @@ void MPSApp::AddRenderItems()
     AddRenderItemFloor();
     AddRenderItemWall();
     AddRenderItemSkull();
+    AddRenderItemFireKeeper();
     AddRenderItemMirror();
 }
 
@@ -390,7 +704,7 @@ void MPSApp::AddRenderItemFloor()
     (
         &trans[1],
         //XMMatrixIdentity()
-        XMMatrixTranspose(XMMatrixScaling(10.f, 10.f, 10.f))
+        XMMatrixTranspose(XMMatrixScaling(25.f, 25.f, 1.f))
     );
     RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
     RItem.data = &trans[0];
@@ -399,7 +713,7 @@ void MPSApp::AddRenderItemFloor()
     (
         mMeshDesc["room"].name,
         mShaderDesc.name,
-        "default",
+        "terrain",
         "default",
         0,
         RItem
@@ -495,6 +809,48 @@ void MPSApp::AddRenderItemSkull()
     );
 }
 
+void MPSApp::AddRenderItemFireKeeper()
+{
+    using namespace DirectX;
+    auto parts = mFireKeeperLoader.get_part_count();
+    for (size_t part = 0; part < parts; part++)
+    {
+        std::string matName = "fk_mat_" + std::to_string(part);
+        std::string meshName = "fk_model_" + std::to_string(part);
+
+        // add render item
+        FireFlame::stRenderItemDesc RItem(meshName, mMeshDesc[meshName].subMeshs[0]);
+        RItem.mat = matName;
+        XMFLOAT4X4 trans[2];
+        XMStoreFloat4x4
+        (
+            &trans[0],
+            XMMatrixTranspose
+            (
+                XMMatrixTranslation(0.0f, 0.0f, 0.0f)*
+                XMMatrixScaling(0.02f, 0.02f, 0.02f)
+            )
+        );
+        XMStoreFloat4x4
+        (
+            &trans[1],
+            XMMatrixIdentity()
+        );
+        RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+        RItem.data = &trans[0];
+        mRenderItems[RItem.name] = RItem;
+        mEngine.GetScene()->AddRenderItem
+        (
+            mMeshDesc[meshName].name,
+            mShaderDesc.name,
+            "default",
+            "default",
+            0,
+            RItem
+        );
+    }
+}
+
 void MPSApp::AddRenderItemMirror()
 {
     using namespace DirectX;
@@ -566,6 +922,11 @@ void MPSApp::OnKeyboardInput(float time_elapsed)
     if (GetAsyncKeyState('S') & 0x8000)
         mSkullTranslation.y -= 1.0f*dt;
 
+    MoveSkull();
+}
+
+void MPSApp::MoveSkull()
+{
     // Don't let user move below ground plane.
     mSkullTranslation.y = (std::max)(mSkullTranslation.y, 0.0f);
 
