@@ -206,7 +206,7 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
 #ifdef TEX_SRV_USE_CB_HEAP
     shader->BuildFrameCBResources
     (
-        shaderDesc.objCBSize, 100,
+        shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
         shaderDesc.passCBSize, 3,
         shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
         shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
@@ -634,20 +634,6 @@ void Scene::AddRenderItem
 void Scene::AddTexture(const std::string& name, const std::wstring& filename)
 {
     auto tex = std::make_shared<Texture>(name, filename);
-    std::unique_ptr<std::uint8_t[]> ddsdata;
-    std::vector<D3D12_SUBRESOURCE_DATA> subresources;
-#ifdef USE_MS_DDS_LOADER
-    ThrowIfFailed
-    (
-        DirectX::LoadDDSTextureFromFile
-        (
-            Engine::GetEngine()->GetRenderer()->GetDevice(),
-            filename.c_str(),
-            tex->resource.GetAddressOf(),
-            ddsdata, subresources
-        )
-    );
-#else
     auto renderer = Engine::GetEngine()->GetRenderer();
     renderer->ResetCommandList();
     ThrowIfFailed
@@ -664,8 +650,12 @@ void Scene::AddTexture(const std::string& name, const std::wstring& filename)
     renderer->WaitForGPU();
     tex->uploadHeap = nullptr;
     D3D12_RESOURCE_DESC desc = tex->resource->GetDesc();
-#endif
     mTextures[tex->name] = std::move(tex);
+}
+
+void Scene::AddTextureGroup(const std::string& name, std::vector<std::wstring> filenames)
+{
+
 }
 
 void Scene::AddTexture(const std::string& name, std::uint8_t* data, size_t len)
@@ -906,6 +896,7 @@ void Scene::UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t 
 void Scene::PrintAllRenderItems()
 {
     std::cout << "=============================All RenderItems===================================" << std::endl;
+    std::cout << "total render items:" << mRenderItems.size() << std::endl;
     for (auto& pairPriorityAndOpacityMapped : mPriorityMappedRItems)
     {
         std::cout << "Priority:" << pairPriorityAndOpacityMapped.first << std::endl;

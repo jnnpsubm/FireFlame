@@ -175,7 +175,7 @@ void D3DRenderer::WaitForGPUFrame() {
         info += L"\n";
         OutputDebugString(info.c_str());
 #endif
-        spdlog::get("console")->info
+        spdlog::get("console")->debug
         (
             "WaitForGPUFrame:Wait For GPU finishing Frame{0:d}......", 
             mCurrFrameResource->Fence
@@ -196,7 +196,7 @@ void D3DRenderer::WaitForGPUCurrentFrame()
     // If not, wait until the GPU has completed commands up to this fence point.
     if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
     {
-        spdlog::get("console")->info
+        spdlog::get("console")->debug
         (
             "WaitForGPUCurrentFrame:Wait For GPU finishing current Frame{0:d}......",
             mCurrFrameResource->Fence

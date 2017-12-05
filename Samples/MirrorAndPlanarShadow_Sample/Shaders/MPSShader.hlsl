@@ -124,7 +124,7 @@ float4 PS(VertexOut pin) : SV_Target
 {
     float roughness = gRoughness;
 #ifdef TERRAIN
-    float4 diffuseAlbedo;
+float4 diffuseAlbedo;// = gDiffuseMap3.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
     float4 diffuseAlbedo1 = gDiffuseMap1.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
     float4 diffuseAlbedo2 = gDiffuseMap2.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
     float4 diffuseAlbedo3 = gDiffuseMap3.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;

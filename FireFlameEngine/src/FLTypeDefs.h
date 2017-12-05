@@ -167,11 +167,12 @@ struct PSODesc
         frontCounterClockwise = false;
 
         opaque = true;
+        alpha2Coverage = false;
 
         stencilEnable = false;
         stencilReadMask = 0xff;
         stencilWriteMask = 0xff;
-        std::uint8_t depthWriteMask = 1;
+        depthWriteMask = 1;
 
         stencilFailOp = STENCIL_OP::KEEP;
         stencilDepthFailOp = STENCIL_OP::KEEP;
@@ -199,6 +200,7 @@ struct PSODesc
     bool frontCounterClockwise = false;
 
     bool opaque = true;
+    bool alpha2Coverage = false;
 
     bool stencilEnable = false;
     std::uint8_t stencilReadMask = 0xff;
@@ -364,6 +366,7 @@ struct stShaderDescription {
     std::vector<stSemanticName> semanticNames;   // order mush match vertexFormats
 
     unsigned int                objCBSize = 1;
+    unsigned int                maxObjCBDescriptor = 100;
     unsigned int                multiObjCBSize = 0;
     unsigned int                passCBSize = 1;
     unsigned int                materialCBSize = 0;
