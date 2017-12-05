@@ -122,6 +122,11 @@ void MPSApp::AddPSOs()
     desc.default();
     desc.opaque = false;
     scene->AddPSO("transparent", desc);
+
+    desc.stencilEnable = true;
+    desc.stencilPassOp = STENCIL_OP::INCR;
+    desc.stencilFunc = COMPARISON_FUNC::EQUAL;
+    scene->AddPSO("shadow", desc);
 }
 
 void MPSApp::AddMeshs()
@@ -325,7 +330,7 @@ void MPSApp::AddMaterials()
 
     auto& icemirror = mMaterials["icemirror"];
     icemirror.Name = "icemirror";
-    icemirror.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.5f);
+    icemirror.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.3f);
     icemirror.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
     icemirror.Roughness = 0.5f;
     mEngine.GetScene()->AddMaterial
@@ -474,6 +479,20 @@ void MPSApp::AddRenderItemSkull()
         2,
         RItem
     );
+
+    RItem.name = "skullShadow";
+    RItem.stencilRef = 0;
+    RItem.mat = "shadowMat";
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc["skull"].name,
+        mShaderDesc.name,
+        "shadow",
+        "default",
+        4,
+        RItem
+    );
 }
 
 void MPSApp::AddRenderItemMirror()
@@ -567,14 +586,16 @@ void MPSApp::OnKeyboardInput(float time_elapsed)
     DirectX::XMStoreFloat4x4(&transform[1], DirectX::XMMatrixIdentity());
     mEngine.GetScene()->UpdateRenderItemCBData("skullReflec", sizeof(transform), &transform[0]);
 
-    //// Update shadow world matrix.
-    //XMVECTOR shadowPlane = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // xz plane
-    //XMVECTOR toMainLight = -XMLoadFloat3(&mMainPassCB.Lights[0].Direction);
-    //XMMATRIX S = XMMatrixShadow(shadowPlane, toMainLight);
-    //XMMATRIX shadowOffsetY = XMMatrixTranslation(0.0f, 0.001f, 0.0f);
+    // Update shadow world matrix.
+    using namespace DirectX;
+    DirectX::XMVECTOR shadowPlane = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // xz plane
+    DirectX::XMFLOAT3 lightDir = {};
+    memcpy(&lightDir, &mMainPassCB.Lights[0].Direction, sizeof(DirectX::XMFLOAT3));
+    DirectX::XMVECTOR toMainLight = -DirectX::XMLoadFloat3(&lightDir);
+    DirectX::XMMATRIX S = DirectX::XMMatrixShadow(shadowPlane, toMainLight);
+    DirectX::XMMATRIX shadowOffsetY = DirectX::XMMatrixTranslation(0.0f, 0.001f, 0.0f);
     //XMStoreFloat4x4(&mShadowedSkullRitem->World, skullWorld * S * shadowOffsetY);
-
-    //mSkullRitem->NumFramesDirty = gNumFrameResources;
-    //mReflectedSkullRitem->NumFramesDirty = gNumFrameResources;
-    //mShadowedSkullRitem->NumFramesDirty = gNumFrameResources;
+    DirectX::XMStoreFloat4x4(&transform[0], DirectX::XMMatrixTranspose(skullWorld * S * shadowOffsetY));
+    DirectX::XMStoreFloat4x4(&transform[1], DirectX::XMMatrixIdentity());
+    mEngine.GetScene()->UpdateRenderItemCBData("skullShadow", sizeof(transform), &transform[0]);
 }
