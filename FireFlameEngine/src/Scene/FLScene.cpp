@@ -202,9 +202,6 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
         shaderDesc.texParamIndex, shaderDesc.objParamIndex, shaderDesc.multiObjParamIndex,
         shaderDesc.matParamIndex, shaderDesc.passParamIndex
     );
-    //shader->BuildCBVDescriptorHeaps(mRenderer->GetDevice(), 1);
-    //shader->BuildConstantBuffers(mRenderer->GetDevice(), shaderDesc.objCBSize);
-#ifdef TEX_SRV_USE_CB_HEAP
     shader->BuildFrameCBResources
     (
         shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
@@ -213,18 +210,33 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
         shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
         shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
     );
-#else
-    if (shaderDesc.maxTexSRVDescriptor)
-    {
-        shader->BuildTexSRVHeap(shaderDesc.maxTexSRVDescriptor);
+    shader->BuildRootSignature(mRenderer->GetDevice());
+    shader->BuildShadersAndInputLayout(shaderDesc);
+}
+
+void Scene::AddShader2(const stShaderDescription& shaderDesc) {
+    std::shared_ptr<D3DShaderWrapper> shader = nullptr;
+    auto it = mShaders.find(shaderDesc.name);
+    if (it == mShaders.end()) {
+        shader = std::make_shared<D3DShaderWrapper>(shaderDesc.name);
+        mShaders[shaderDesc.name] = shader;
     }
+    else {
+        shader = mShaders[shaderDesc.name];
+    }
+    shader->SetParamIndex
+    (
+        shaderDesc.texParamIndex, shaderDesc.objParamIndex, shaderDesc.multiObjParamIndex,
+        shaderDesc.matParamIndex, shaderDesc.passParamIndex
+    );
     shader->BuildFrameCBResources
     (
-        shaderDesc.objCBSize, 100,
+        shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
         shaderDesc.passCBSize, 3,
-        shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0
+        shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
+        shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
+        shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
     );
-#endif
     shader->BuildRootSignature(mRenderer->GetDevice());
     shader->BuildShadersAndInputLayout(shaderDesc);
 }

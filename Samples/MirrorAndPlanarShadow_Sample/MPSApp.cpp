@@ -173,6 +173,11 @@ void MPSApp::AddPSOs()
     desc.alpha2Coverage = true;
     scene->AddPSO("drawStencilReflections_fk_hair", desc);
 
+    // chap11 exercise05
+    desc.default();
+    desc.frontCounterClockwise = true;
+    scene->AddPSO("drawStencilReflections2", desc);
+
     // transparent
     desc.default();
     desc.opaque = false;
@@ -199,6 +204,10 @@ void MPSApp::AddPSOs()
     desc.alpha2Coverage = true;
     desc.cullMode = Cull_Mode::None;
     scene->AddPSO("firekeeper_hair", desc);
+
+    desc.default();
+    desc.depthEnable = false;
+    scene->AddPSO("depth_disabled", desc);
 }
 
 void MPSApp::AddMeshs()
@@ -1169,6 +1178,7 @@ void MPSApp::AddRenderItemWall()
         mMeshDesc["room"].name,
         mShaderDesc.name,
         "default",
+        //"depth_disabled", // chap11 exercise05
         "default",
         0,
         RItem
@@ -1213,7 +1223,8 @@ void MPSApp::AddRenderItemSkull()
         mMeshDesc["skull"].name,
         mShaderDesc.name,
         "drawStencilReflections",
-        //"default", chap11 exercise 03
+        //"drawStencilReflections2", // chap11 exercise05
+        //"default", // chap11 exercise03
         "mirror",
         2,
         RItem

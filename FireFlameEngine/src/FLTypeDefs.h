@@ -148,6 +148,13 @@ struct PSODesc
 {
     PSODesc
     (
+        const std::string& shaderName
+    ) : shaderName(shaderName)
+    {
+        default();
+    }
+    PSODesc
+    (
         const std::string& shaderName,
         const std::string& shaderMacroVS,
         const std::string& shaderMacroPS,
@@ -162,6 +169,9 @@ struct PSODesc
         cullMode(cullMode)
     {}
     void default() {
+        shaderMacroVS = "";
+        shaderMacroPS = "";
+
         topology = Primitive_Topology::TriangleList;
         cullMode = Cull_Mode::Back;
         frontCounterClockwise = false;
@@ -169,6 +179,7 @@ struct PSODesc
         opaque = true;
         alpha2Coverage = false;
 
+        depthEnable = true;
         stencilEnable = false;
         stencilReadMask = 0xff;
         stencilWriteMask = 0xff;
@@ -202,6 +213,7 @@ struct PSODesc
     bool opaque = true;
     bool alpha2Coverage = false;
 
+    bool depthEnable = true;
     bool stencilEnable = false;
     std::uint8_t stencilReadMask = 0xff;
     std::uint8_t stencilWriteMask = 0xff;

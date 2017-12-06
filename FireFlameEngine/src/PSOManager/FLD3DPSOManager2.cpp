@@ -90,6 +90,7 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
             psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
             psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 
+            psoDesc.DepthStencilState.DepthEnable = desc.depthEnable;
             psoDesc.DepthStencilState.DepthWriteMask = FLDepthWriteMask2D3DDepthWriteMask(desc.depthWriteMask);
             psoDesc.DepthStencilState.StencilEnable = desc.stencilEnable;
             psoDesc.DepthStencilState.StencilReadMask = desc.stencilReadMask;
@@ -99,6 +100,11 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
             psoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = FLStencilOp2D3DStencilOp(desc.stencilDepthFailOp);
             psoDesc.DepthStencilState.FrontFace.StencilPassOp = FLStencilOp2D3DStencilOp(desc.stencilPassOp);
             psoDesc.DepthStencilState.FrontFace.StencilFunc = FLCompareFunc2D3DCompareFunc(desc.stencilFunc);
+
+            psoDesc.DepthStencilState.BackFace.StencilFailOp = FLStencilOp2D3DStencilOp(desc.stencilFailOp);
+            psoDesc.DepthStencilState.BackFace.StencilDepthFailOp = FLStencilOp2D3DStencilOp(desc.stencilDepthFailOp);
+            psoDesc.DepthStencilState.BackFace.StencilPassOp = FLStencilOp2D3DStencilOp(desc.stencilPassOp);
+            psoDesc.DepthStencilState.BackFace.StencilFunc = FLCompareFunc2D3DCompareFunc(desc.stencilFunc);
 
             PSO_TRAIT PSOTrait(name, i, psoDesc.RasterizerState.FillMode);
             PSO_ComPtr pso = nullptr;

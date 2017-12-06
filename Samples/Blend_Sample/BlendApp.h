@@ -27,7 +27,10 @@ public:
     void OnKeyUp(WPARAM wParam, LPARAM lParam) override;
 
 private:
-    void AddShaders();
+    void AddShadersNormal();
+    void AddShadersDepthComplexity();
+    void AddPSOs();
+
     void AddTextures();
     void AddMaterials();
     void AddGeoMeshs();
@@ -40,6 +43,8 @@ private:
 
     float GetHillsHeight(float x, float z) const;
     FireFlame::Vector3f GetHillsNormal(float x, float z) const;
+
+    FireFlame::stShaderDescription mShaderDepthComplexity;
 
     bool                                                    mWaveStart = true;
     std::unique_ptr<Waves>                                  mWaves;

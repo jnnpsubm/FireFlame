@@ -7,7 +7,9 @@ void BlendApp::PreInitialize()
 
 void BlendApp::Initialize()
 {
-    AddShaders();
+    AddShadersNormal();
+    AddShadersDepthComplexity();
+    AddPSOs();
 
     AddTextures();
     AddMaterials();
@@ -97,7 +99,7 @@ void BlendApp::UpdateWaves()
     mEngine.GetScene()->UpdateMaterialCBData(waterMat.name, sizeof(MaterialConstants2), &waterMat);
 }
 
-void BlendApp::AddShaders()
+void BlendApp::AddShadersNormal()
 {
     using namespace FireFlame;
     mShaderDesc.name = "BlendApp";
@@ -134,6 +136,48 @@ void BlendApp::AddShaders()
     // end
     
     mEngine.GetScene()->AddShader(mShaderDesc);
+}
+
+void BlendApp::AddShadersDepthComplexity()
+{
+    using namespace FireFlame;
+    mShaderDepthComplexity.name = "DepthComplexity";
+    mShaderDepthComplexity.objCBSize = sizeof(ObjectConsts);
+    mShaderDepthComplexity.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderDepthComplexity.AddShaderStage(L"Shaders\\DepthComplexity.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    mShaderDepthComplexity.AddShaderStage(L"Shaders\\DepthComplexity.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+   
+    mEngine.GetScene()->AddShader2(mShaderDepthComplexity);
+}
+
+void BlendApp::AddPSOs()
+{
+    using namespace FireFlame;
+
+    PSODesc desc(mShaderDesc.name);
+    desc.cullMode = Cull_Mode::None;
+    desc.shaderMacroPS = mShaderMacrosPS["fogged_and_alpha_clip"];
+    // for depth complexity
+    desc.stencilEnable = true;
+    desc.stencilFailOp = STENCIL_OP::INCR;
+    desc.stencilDepthFailOp = STENCIL_OP::INCR;
+    desc.stencilPassOp = STENCIL_OP::INCR;
+    desc.stencilFunc = COMPARISON_FUNC::ALWAYS;
+    // end
+    mEngine.GetScene()->AddPSO("cull_none_ps_fogged_clipped", desc);
+
+    desc.default();
+    // for depth complexity
+    desc.stencilEnable = true;
+    desc.stencilFailOp = STENCIL_OP::INCR;
+    desc.stencilDepthFailOp = STENCIL_OP::INCR;
+    desc.stencilPassOp = STENCIL_OP::INCR;
+    desc.stencilFunc = COMPARISON_FUNC::ALWAYS;
+    // end
+    desc.shaderMacroPS = mShaderMacrosPS["fogged"];
+    mEngine.GetScene()->AddPSO("ps_fogged", desc);
+    desc.opaque = false;
+    mEngine.GetScene()->AddPSO("transparent_ps_fogged", desc);
 }
 
 void BlendApp::AddTextures()
@@ -442,8 +486,7 @@ void BlendApp::AddRenderItems()
     (
         mMeshDesc[0].name,
         mShaderDesc.name,
-        "",
-        mShaderMacrosPS["fogged_and_alpha_clip"],
+        "cull_none_ps_fogged_clipped",
         RItem
     );
 
@@ -467,8 +510,7 @@ void BlendApp::AddRenderItems()
     (
         mMeshDesc[1].name, 
         mShaderDesc.name, 
-        "",
-        mShaderMacrosPS["fogged"],
+        "transparent_ps_fogged",
         RItem2
     );
 
@@ -491,8 +533,7 @@ void BlendApp::AddRenderItems()
     (
         mMeshDesc[2].name, 
         mShaderDesc.name, 
-        "",
-        mShaderMacrosPS["fogged"],
+        "ps_fogged",
         RItem3
     );
 }
