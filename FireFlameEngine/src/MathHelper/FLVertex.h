@@ -3,6 +3,14 @@
 
 namespace FireFlame 
 {
+struct FLVertexPos
+{
+    Vector3f Pos;
+    FLVertexPos() = default;
+    FLVertexPos(float x, float y, float z) :
+        Pos(x, y, z)
+    {}
+};
 struct FLVertex
 {
     Vector3f Pos;

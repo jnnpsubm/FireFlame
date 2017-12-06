@@ -18,6 +18,8 @@ struct Material
     // Unique material name for lookup.
     std::string Name;
 
+    std::string ShaderName;
+
     // Index into constant buffer corresponding to this material.
     int MatCBIndex = -1;
 

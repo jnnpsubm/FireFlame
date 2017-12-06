@@ -9,6 +9,7 @@ void BlendApp::Initialize()
 {
     AddShadersNormal();
     AddShadersDepthComplexity();
+    AddShadersDepthComplexity2();
     AddPSOs();
 
     AddTextures();
@@ -17,10 +18,11 @@ void BlendApp::Initialize()
     AddBoxMesh();
     AddWavesMesh();
     AddLandMesh();
+    AddFullScreenRect();
     AddRenderItems();
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mShowDepthComplexity2?mShaderDepthComplexity2.name:mShaderDesc.name, mPasses[0]);
 }
 
 void BlendApp::UpdateMainPassCB(float time_elapsed)
@@ -142,17 +144,46 @@ void BlendApp::AddShadersDepthComplexity()
 {
     using namespace FireFlame;
     mShaderDepthComplexity.name = "DepthComplexity";
-    mShaderDepthComplexity.objCBSize = sizeof(ObjectConsts);
+    mShaderDepthComplexity.objCBSize = sizeof(DepthComplexityObjConsts);
     mShaderDepthComplexity.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     mShaderDepthComplexity.AddShaderStage(L"Shaders\\DepthComplexity.hlsl", Shader_Type::VS, "VS", "vs_5_0");
     mShaderDepthComplexity.AddShaderStage(L"Shaders\\DepthComplexity.hlsl", Shader_Type::PS, "PS", "ps_5_0");
    
-    mEngine.GetScene()->AddShader2(mShaderDepthComplexity);
+    mEngine.GetScene()->AddShader(mShaderDepthComplexity);
+}
+
+void BlendApp::AddShadersDepthComplexity2()
+{
+    using namespace FireFlame;
+    mShaderDepthComplexity2.name = "DC2";
+    mShaderDepthComplexity2.objCBSize = sizeof(ObjectConsts);
+    mShaderDepthComplexity2.passCBSize = sizeof(PassConstants);
+    mShaderDepthComplexity2.materialCBSize = sizeof(MaterialConstants2);
+    mShaderDepthComplexity2.ParamDefault();
+    mShaderDepthComplexity2.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderDepthComplexity2.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderDepthComplexity2.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    mShaderDepthComplexity2.AddShaderStage(L"Shaders\\DC2.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    mShaderDepthComplexity2.AddShaderStage(L"Shaders\\DC2.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    
+    mEngine.GetScene()->AddShader(mShaderDepthComplexity2);
 }
 
 void BlendApp::AddPSOs()
 {
     using namespace FireFlame;
+
+    PSODesc descDepthComplexity2(mShaderDepthComplexity2.name);
+    descDepthComplexity2.depthEnable = false;
+    descDepthComplexity2.opaque = false;
+    descDepthComplexity2.srcBlend = BLEND::ONE;
+    descDepthComplexity2.destBlend = BLEND::ONE;
+    mEngine.GetScene()->AddPSO("depth_complexity2_default", descDepthComplexity2);
+
+    PSODesc descDepthComplexity(mShaderDepthComplexity.name);
+    descDepthComplexity.stencilEnable = true;
+    descDepthComplexity.stencilFunc = COMPARISON_FUNC::EQUAL;
+    mEngine.GetScene()->AddPSO("depth_complexity_default", descDepthComplexity);
 
     PSODesc desc(mShaderDesc.name);
     desc.cullMode = Cull_Mode::None;
@@ -442,6 +473,38 @@ void BlendApp::AddLandMesh()
     mEngine.GetScene()->AddPrimitive(mMeshDesc[2]);
 }
 
+void BlendApp::AddFullScreenRect()
+{
+    using namespace FireFlame;
+
+    std::array<FLVertexPos, 4> vertices = {
+        // front face 
+        FLVertexPos(-1.0f, -1.0f,  0.0f),
+        FLVertexPos(-1.0f, +1.0f,  0.0f),
+        FLVertexPos(+1.0f, +1.0f,  0.0f),
+        FLVertexPos(+1.0f, -1.0f,  0.0f)
+    };
+    std::array<std::uint16_t, 6> indices = {
+        // front face
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    mMeshDesc.emplace_back();
+    mMeshDesc[3].name = "FullScreenRect";
+    mMeshDesc[3].indexCount = (unsigned int)indices.size();
+    mMeshDesc[3].indexFormat = Index_Format::UINT16;
+    mMeshDesc[3].indices = indices.data();
+
+    mMeshDesc[3].vertexDataCount.push_back((unsigned int)vertices.size());
+    mMeshDesc[3].vertexDataSize.push_back(sizeof(FLVertexPos));
+    mMeshDesc[3].vertexData.push_back(vertices.data());
+
+    // sub meshes
+    mMeshDesc[3].subMeshs.emplace_back("All", (UINT)indices.size());
+    mEngine.GetScene()->AddPrimitive(mMeshDesc[3]);
+}
+
 float BlendApp::GetHillsHeight(float x, float z) const
 {
     return 0.3f*(z*sinf(0.1f*x) + x*cosf(0.1f*z));
@@ -462,6 +525,12 @@ FireFlame::Vector3f BlendApp::GetHillsNormal(float x, float z) const
 }
 
 void BlendApp::AddRenderItems()
+{
+    AddRenderItemsNormal();
+    if (mShowDepthComplexity) AddRenderItemsDepthComplexity();
+}
+
+void BlendApp::AddRenderItemsNormal()
 {
     using namespace DirectX;
 
@@ -485,8 +554,9 @@ void BlendApp::AddRenderItems()
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[0].name,
-        mShaderDesc.name,
-        "cull_none_ps_fogged_clipped",
+        mShowDepthComplexity2 ? mShaderDepthComplexity2.name : mShaderDesc.name,
+        mShowDepthComplexity2 ? "depth_complexity2_default" : "cull_none_ps_fogged_clipped",
+        0,
         RItem
     );
 
@@ -508,9 +578,10 @@ void BlendApp::AddRenderItems()
     mRenderItems.emplace_back(RItem2);
     mEngine.GetScene()->AddRenderItem
     (
-        mMeshDesc[1].name, 
-        mShaderDesc.name, 
-        "transparent_ps_fogged",
+        mMeshDesc[1].name,
+        mShowDepthComplexity2 ? mShaderDepthComplexity2.name : mShaderDesc.name,
+        mShowDepthComplexity2 ? "depth_complexity2_default" : "transparent_ps_fogged",
+        0,
         RItem2
     );
 
@@ -531,10 +602,104 @@ void BlendApp::AddRenderItems()
     mRenderItems.emplace_back(RItem3);
     mEngine.GetScene()->AddRenderItem
     (
-        mMeshDesc[2].name, 
-        mShaderDesc.name, 
-        "ps_fogged",
+        mMeshDesc[2].name,
+        mShowDepthComplexity2 ? mShaderDepthComplexity2.name : mShaderDesc.name,
+        mShowDepthComplexity2 ? "depth_complexity2_default" : "ps_fogged",
+        0,
         RItem3
+    );
+}
+
+void BlendApp::AddRenderItemsDepthComplexity()
+{
+    std::string itmename = "DepthComplexity";
+    FireFlame::stRenderItemDesc RItem4(itmename, mMeshDesc[3].subMeshs[0]);
+    DepthComplexityObjConsts consts;
+    RItem4.dataLen = sizeof(DepthComplexityObjConsts);
+    RItem4.data = &consts;
+
+    // depth == 0
+    RItem4.name = itmename + "Depth:0";
+    consts.color = { 1.0f,1.0f,1.0f };
+    RItem4.stencilRef = 0;
+    mRenderItems.emplace_back(RItem4);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[3].name,
+        mShaderDepthComplexity.name,
+        "depth_complexity_default",
+        1,
+        RItem4
+    );
+
+    // depth == 1
+    RItem4.name = itmename + "Depth:1";
+    consts.color += { -0.2f, -0.2f, -0.2f };
+    RItem4.stencilRef = 1;
+    mRenderItems.emplace_back(RItem4);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[3].name,
+        mShaderDepthComplexity.name,
+        "depth_complexity_default",
+        1,
+        RItem4
+    );
+
+    // depth == 2
+    RItem4.name = itmename + "Depth:2";
+    consts.color += { -0.2f, -0.2f, -0.2f };
+    RItem4.stencilRef = 2;
+    mRenderItems.emplace_back(RItem4);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[3].name,
+        mShaderDepthComplexity.name,
+        "depth_complexity_default",
+        1,
+        RItem4
+    );
+
+    // depth == 3
+    RItem4.name = itmename + "Depth:3";
+    consts.color += { -0.2f, -0.2f, -0.2f };
+    RItem4.stencilRef = 3;
+    mRenderItems.emplace_back(RItem4);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[3].name,
+        mShaderDepthComplexity.name,
+        "depth_complexity_default",
+        1,
+        RItem4
+    );
+
+    // depth == 4
+    RItem4.name = itmename + "Depth:4";
+    consts.color += { -0.2f, -0.2f, -0.2f };
+    RItem4.stencilRef = 4;
+    mRenderItems.emplace_back(RItem4);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[3].name,
+        mShaderDepthComplexity.name,
+        "depth_complexity_default",
+        1,
+        RItem4
+    );
+
+    // depth == 5
+    RItem4.name = itmename + "Depth:5";
+    consts.color += { -0.2f, -0.2f, -0.2f };
+    RItem4.stencilRef = 5;
+    mRenderItems.emplace_back(RItem4);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[3].name,
+        mShaderDepthComplexity.name,
+        "depth_complexity_default",
+        1,
+        RItem4
     );
 }
 

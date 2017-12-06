@@ -28,7 +28,8 @@ void Scene::Update(const StopWatch& gt) {
     UpdateMaterialCBs(gt);
 }
 void Scene::UpdateObjectCBs(const StopWatch& gt){
-    auto currObjectCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ObjectCB.get();
+    //auto currObjectCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ObjectCB.get();
+    auto& shaderRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ShaderResources;
     for (auto& e : mRenderItems){
         // Only update the cbuffer data if the constants have changed.  
         // This needs to be tracked per frame resource.
@@ -36,6 +37,7 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
         if (item->NumFramesDirty > 0){
             auto shaderName = item->Shader;
             auto shader = mShaders[shaderName];
+            auto currObjectCB = shaderRes[shaderName].ObjectCB.get();
             //currObjectCB->CopyData(e->ObjCBIndex, objConstants);
             shader->UpdateObjCBData(item->ObjCBIndex, item->DataLen, item->Data);
             //Matrix4X4* m = (Matrix4X4*)item->Data;
@@ -47,7 +49,8 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
 
 void Scene::UpdateMaterialCBs(const StopWatch& gt)
 {
-    auto currMaterialCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->MaterialCB.get();
+    //auto currMaterialCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->MaterialCB.get();
+    auto& shaderRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ShaderResources;
     for (auto& e : mMaterials)
     {
         // Only update the cbuffer data if the constants have changed.  If the cbuffer
@@ -55,6 +58,7 @@ void Scene::UpdateMaterialCBs(const StopWatch& gt)
         Material* mat = e.second.get();
         if (mat->NumFramesDirty > 0)
         {
+            auto currMaterialCB = shaderRes[mat->ShaderName].MaterialCB.get();
             currMaterialCB->CopyData(mat->MatCBIndex, mat->dataLen, mat->data);
             mat->NumFramesDirty--;
         }
@@ -188,33 +192,6 @@ int Scene::GetReady() {
 }
 
 void Scene::AddShader(const stShaderDescription& shaderDesc) {
-    std::shared_ptr<D3DShaderWrapper> shader = nullptr;
-    auto it = mShaders.find(shaderDesc.name);
-    if (it == mShaders.end()) {
-        shader = std::make_shared<D3DShaderWrapper>(shaderDesc.name);
-        mShaders[shaderDesc.name] = shader;
-    }
-    else {
-        shader = mShaders[shaderDesc.name];
-    }
-    shader->SetParamIndex
-    (
-        shaderDesc.texParamIndex, shaderDesc.objParamIndex, shaderDesc.multiObjParamIndex,
-        shaderDesc.matParamIndex, shaderDesc.passParamIndex
-    );
-    shader->BuildFrameCBResources
-    (
-        shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
-        shaderDesc.passCBSize, 3,
-        shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
-        shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
-        shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
-    );
-    shader->BuildRootSignature(mRenderer->GetDevice());
-    shader->BuildShadersAndInputLayout(shaderDesc);
-}
-
-void Scene::AddShader2(const stShaderDescription& shaderDesc) {
     std::shared_ptr<D3DShaderWrapper> shader = nullptr;
     auto it = mShaders.find(shaderDesc.name);
     if (it == mShaders.end()) {
@@ -766,6 +743,7 @@ void Scene::AddMaterial
 
     auto mat = std::make_shared<Material>(name, Engine::NumFrameResources());
     mat->MatCBIndex = shader->GetFreeMatCBV();
+    mat->ShaderName = shaderName;
     //mat->DiffuseSrvHeapIndex = shader->GetFreeSRV();
     if (dataLen && data)
     {
@@ -790,6 +768,7 @@ void Scene::AddMaterial
     auto shader = itShader->second;
 
     auto mat = std::make_shared<Material>(name, Engine::NumFrameResources());
+    mat->ShaderName = shaderName;
     mat->MatCBIndex = shader->GetFreeMatCBV();
     if (!texName.empty())
     {
@@ -816,6 +795,7 @@ void Scene::AddMaterial(const stMaterialDesc& matDesc)
     auto shader = itShader->second;
 
     auto mat = std::make_shared<Material>(matDesc.name, Engine::NumFrameResources());
+    mat->ShaderName = matDesc.shaderName;
     mat->MatCBIndex = shader->GetFreeMatCBV();
     assert(matDesc.texNames.size() <= shader->GetTexSRVDescriptorTableSize());
     std::vector<ID3D12Resource*> vecRes;
@@ -958,7 +938,7 @@ void Scene::PrintAllPasses()
     std::cout << "Pass Count:" << mPasses.size() << std::endl;
     for (const auto& pass : mPasses)
     {
-        std::cout << "   " << pass.second->name;
+        std::cout << "   " << pass.second->name << std::endl;
     }
 }
 

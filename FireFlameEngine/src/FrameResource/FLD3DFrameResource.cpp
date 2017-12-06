@@ -1,6 +1,12 @@
 #include "FLD3DFrameResource.h"
 
 namespace FireFlame {
+D3DFrameResource::Shader_Res::Shader_Res() {
+    PassCB = std::make_unique<UploadBuffer>(true);
+    ObjectCB = std::make_unique<UploadBuffer>(true);
+    MultiObjectCB = std::make_unique<UploadBuffer>(true);
+    MaterialCB = std::make_unique<UploadBuffer>(true);
+}
 D3DFrameResource::D3DFrameResource(ID3D12Device* device) {
     ThrowIfFailed
     (
@@ -9,9 +15,9 @@ D3DFrameResource::D3DFrameResource(ID3D12Device* device) {
             IID_PPV_ARGS(CmdListAlloc.GetAddressOf()))
     );
 
-    PassCB = std::make_unique<UploadBuffer>(true);
+    /*PassCB = std::make_unique<UploadBuffer>(true);
     ObjectCB = std::make_unique<UploadBuffer>(true);
     MultiObjectCB = std::make_unique<UploadBuffer>(true);
-    MaterialCB = std::make_unique<UploadBuffer>(true);
+    MaterialCB = std::make_unique<UploadBuffer>(true);*/
 }
 }

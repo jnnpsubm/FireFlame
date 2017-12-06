@@ -322,7 +322,7 @@ inline UINT FLVertexFormatByteSize(unsigned long format) {
     case VERTEX_FORMAT_FLOAT4:
         return 16;
     default:
-        throw std::exception("unknonw FLVertexFormatByteSize");
+        throw std::exception("unknown FLVertexFormatByteSize");
     }
 }
 inline D3D12_PRIMITIVE_TOPOLOGY FLPrimitiveTop2D3DPrimitiveTop(Primitive_Topology top) {
@@ -462,6 +462,68 @@ inline D3D12_STENCIL_OP FLStencilOp2D3DStencilOp(STENCIL_OP op)
         return D3D12_STENCIL_OP_DECR;
     default:
         throw std::exception("unknown op in FLStencilOp2D3DStencilOp");
+    }
+}
+
+inline D3D12_BLEND_OP FLBlendOp2D3DBlendOp(BLEND_OP op)
+{
+    switch (op)
+    {
+    case FireFlame::BLEND_OP::ADD:
+        return D3D12_BLEND_OP_ADD;
+    case FireFlame::BLEND_OP::SUBTRACT:
+        return D3D12_BLEND_OP_SUBTRACT;
+    case FireFlame::BLEND_OP::REV_SUBTRACT:
+        return D3D12_BLEND_OP_REV_SUBTRACT;
+    case FireFlame::BLEND_OP::MIN:
+        return D3D12_BLEND_OP_MIN;
+    case FireFlame::BLEND_OP::MAX:
+        return D3D12_BLEND_OP_MAX;
+    default:
+        throw std::exception("unknown op in FLBlendOp2D3DBlendOp");
+    }
+}
+
+inline D3D12_BLEND FLBlend2D3DBlend(BLEND blend)
+{
+    switch (blend)
+    {
+    case FireFlame::BLEND::ZERO:
+        return D3D12_BLEND_ZERO;
+    case FireFlame::BLEND::ONE:
+        return D3D12_BLEND_ONE;
+    case FireFlame::BLEND::SRC_COLOR:
+        return D3D12_BLEND_SRC_COLOR;
+    case FireFlame::BLEND::INV_SRC_COLOR:
+        return D3D12_BLEND_INV_SRC_COLOR;
+    case FireFlame::BLEND::SRC_ALPHA:
+        return D3D12_BLEND_SRC_ALPHA;
+    case FireFlame::BLEND::INV_SRC_ALPHA:
+        return D3D12_BLEND_INV_SRC_ALPHA;
+    case FireFlame::BLEND::DEST_ALPHA:
+        return D3D12_BLEND_DEST_ALPHA;
+    case FireFlame::BLEND::INV_DEST_ALPHA:
+        return D3D12_BLEND_INV_DEST_ALPHA;
+    case FireFlame::BLEND::DEST_COLOR:
+        return D3D12_BLEND_DEST_COLOR;
+    case FireFlame::BLEND::INV_DEST_COLOR:
+        return D3D12_BLEND_INV_DEST_COLOR;
+    case FireFlame::BLEND::SRC_ALPHA_SAT:
+        return D3D12_BLEND_SRC_ALPHA_SAT;
+    case FireFlame::BLEND::BLEND_FACTOR:
+        return D3D12_BLEND_BLEND_FACTOR;
+    case FireFlame::BLEND::INV_BLEND_FACTOR:
+        return D3D12_BLEND_INV_BLEND_FACTOR;
+    case FireFlame::BLEND::SRC1_COLOR:
+        return D3D12_BLEND_SRC1_COLOR;
+    case FireFlame::BLEND::INV_SRC1_COLOR:
+        return D3D12_BLEND_INV_SRC1_COLOR;
+    case FireFlame::BLEND::SRC1_ALPHA:
+        return D3D12_BLEND_SRC1_ALPHA;
+    case FireFlame::BLEND::INV_SRC1_ALPHA:
+        return D3D12_BLEND_INV_SRC1_ALPHA;
+    default:
+        throw std::exception("unknown op in FLBlend2D3DBlend");
     }
 }
 

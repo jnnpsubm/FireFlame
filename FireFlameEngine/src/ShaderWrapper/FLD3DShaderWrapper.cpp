@@ -199,39 +199,24 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> D3DShaderWrapper::GetStaticSamp
 //}
 void D3DShaderWrapper::UpdateObjCBData(unsigned int index, size_t size, const void* data) 
 {
-    auto currObjectCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ObjectCB.get();
+    auto& shaderRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ShaderResources[mName];
+    auto currObjectCB = shaderRes.ObjectCB.get();
     currObjectCB->CopyData(index, size, data);
 }
 void D3DShaderWrapper::UpdateMultiObjCBData(unsigned int index, size_t size, const void* data)
 {
     index -= mMultiObjCbvOffset;
-    auto currMultiObjCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->MultiObjectCB.get();
+    auto& shaderRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ShaderResources[mName];
+    auto currMultiObjCB = shaderRes.MultiObjectCB.get();
     currMultiObjCB->CopyData(index, size, data);
 }
 void D3DShaderWrapper::UpdatePassCBData(unsigned int index, size_t size, const void* data)
 {
     index -= mPassCbvOffset;
-    auto currPassCB = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->PassCB.get();
+    auto& shaderRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ShaderResources[mName];
+    auto currPassCB = shaderRes.PassCB.get();
     currPassCB->CopyData(index, size, data);
 }
-
-#ifndef TEX_SRV_USE_CB_HEAP
-void D3DShaderWrapper::BuildTexSRVHeap(UINT maxDescriptor)
-{
-    auto device = Engine::GetEngine()->GetRenderer()->GetDevice();
-
-    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-    srvHeapDesc.NumDescriptors = maxDescriptor;
-    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    srvHeapDesc.NodeMask = 0;
-    ThrowIfFailed(device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mTexSrvDescriptorHeap)));
-    for (UINT i = 0; i < maxDescriptor; ++i)
-    {
-        mTexSrvHeapFreeList.push_front(i);
-    }
-}
-#endif
 
 UINT D3DShaderWrapper::CreateTexSRV(ID3D12Resource* res)
 {
@@ -306,10 +291,11 @@ void D3DShaderWrapper::BuildFrameCBResources
     auto device = renderer->GetDevice();
     auto frameResources = renderer->GetFrameResources();
     for (const auto& frameRes : frameResources){
-        if (objConstSize) frameRes->ObjectCB->Init(device, maxObjConstCount, objConstSize);
-        if (passConstSize) frameRes->PassCB->Init(device, maxPassConstCount, passConstSize);
-        if (matConstSize) frameRes->MaterialCB->Init(device, maxMatConstCount, matConstSize);
-        if (multiObjConstSize) frameRes->MultiObjectCB->Init(device, maxMultiObjConstCount, multiObjConstSize);
+        auto& shaderRes = frameRes->ShaderResources[mName];
+        if (objConstSize) shaderRes.ObjectCB->Init(device, maxObjConstCount, objConstSize);
+        if (passConstSize) shaderRes.PassCB->Init(device, maxPassConstCount, passConstSize);
+        if (matConstSize) shaderRes.MaterialCB->Init(device, maxMatConstCount, matConstSize);
+        if (multiObjConstSize) shaderRes.MultiObjectCB->Init(device, maxMultiObjConstCount, multiObjConstSize);
     }
 
     UINT numFrameResources = (UINT)frameResources.size();
@@ -344,7 +330,8 @@ void D3DShaderWrapper::BuildFrameCBResources
     UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(objConstSize);
     // Need a CBV descriptor for each object for each frame resource.
     for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex){
-        auto objectCB = frameResources[frameIndex]->ObjectCB->Resource();
+        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+        auto objectCB = shaderRes.ObjectCB->Resource();
         for (UINT i = 0; i < objCount; ++i){
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
 
@@ -370,7 +357,8 @@ void D3DShaderWrapper::BuildFrameCBResources
     UINT passCBByteSize = D3DUtils::CalcConstantBufferByteSize(passConstSize);
     // Last three descriptors are the pass CBVs for each frame resource.
     for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex){
-        auto passCB = frameResources[frameIndex]->PassCB->Resource();
+        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+        auto passCB = shaderRes.PassCB->Resource();
         for (UINT i = 0; i < maxPassConstCount; ++i) {
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
 
@@ -396,7 +384,8 @@ void D3DShaderWrapper::BuildFrameCBResources
     // material  CBV
     UINT matCBByteSize = D3DUtils::CalcConstantBufferByteSize(matConstSize);
     for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
-        auto matCB = frameResources[frameIndex]->MaterialCB->Resource();
+        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+        auto matCB = shaderRes.MaterialCB->Resource();
         for (UINT i = 0; i < maxMatConstCount; ++i) {
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = matCB->GetGPUVirtualAddress();
 
@@ -422,7 +411,8 @@ void D3DShaderWrapper::BuildFrameCBResources
     // multiObject  CBV
     UINT multiObjCBByteSize = D3DUtils::CalcConstantBufferByteSize(multiObjConstSize);
     for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
-        auto multiObjCB = frameResources[frameIndex]->MultiObjectCB->Resource();
+        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+        auto multiObjCB = shaderRes.MultiObjectCB->Resource();
         for (UINT i = 0; i < maxMultiObjConstCount; ++i) {
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = multiObjCB->GetGPUVirtualAddress();
 

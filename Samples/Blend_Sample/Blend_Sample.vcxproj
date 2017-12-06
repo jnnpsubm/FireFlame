@@ -167,9 +167,12 @@
     <None Include="Shaders\BlendApp.hlsl">
       <FileType>Document</FileType>
     </None>
+    <None Include="Shaders\DepthComplexity.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\DepthComplexity.hlsl">
+    <None Include="Shaders\DC2.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Domain</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Domain</ShaderType>

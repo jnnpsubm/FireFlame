@@ -47,7 +47,6 @@ public:
     void PrintScene() { mPrintScene = true; }
 
     void AddShader(const stShaderDescription& shaderDesc);
-    void AddShader2(const stShaderDescription& shaderDesc);
     void AddPSO(const std::string& name, const PSODesc& desc);
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);

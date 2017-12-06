@@ -2,6 +2,12 @@
 #include "..\Common\FLEngineApp.h"
 #include "..\Common\Waves.h"
 
+struct DepthComplexityObjConsts
+{
+    FireFlame::Vector3f color;
+    float reserve;
+};
+
 struct MaterialConstants2 : MaterialConstants
 {
     int UseTexture = 0;
@@ -29,6 +35,7 @@ public:
 private:
     void AddShadersNormal();
     void AddShadersDepthComplexity();
+    void AddShadersDepthComplexity2();
     void AddPSOs();
 
     void AddTextures();
@@ -37,14 +44,21 @@ private:
     void AddWavesMesh();
     void AddBoxMesh();
     void AddLandMesh();
+    void AddFullScreenRect();
+
     void AddRenderItems();
+    void AddRenderItemsNormal();
+    void AddRenderItemsDepthComplexity();
 
     void UpdateWaves();
 
     float GetHillsHeight(float x, float z) const;
     FireFlame::Vector3f GetHillsNormal(float x, float z) const;
 
+    bool                           mShowDepthComplexity = false;
+    bool                           mShowDepthComplexity2 = true;
     FireFlame::stShaderDescription mShaderDepthComplexity;
+    FireFlame::stShaderDescription mShaderDepthComplexity2;
 
     bool                                                    mWaveStart = true;
     std::unique_ptr<Waves>                                  mWaves;

@@ -80,15 +80,15 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
             psoDesc.BlendState.AlphaToCoverageEnable = desc.alpha2Coverage;
             psoDesc.BlendState.IndependentBlendEnable = FALSE;
             psoDesc.BlendState.RenderTarget[0].BlendEnable = !desc.opaque;
-            psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-            psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-            psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-            psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+            psoDesc.BlendState.RenderTarget[0].BlendOp = FLBlendOp2D3DBlendOp(desc.blendOp);
+            psoDesc.BlendState.RenderTarget[0].SrcBlend = FLBlend2D3DBlend(desc.srcBlend);
+            psoDesc.BlendState.RenderTarget[0].DestBlend = FLBlend2D3DBlend(desc.destBlend);
+            psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = FLBlendOp2D3DBlendOp(desc.blendOpAlpha);
+            psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = FLBlend2D3DBlend(desc.srcBlendAlpha);
+            psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = FLBlend2D3DBlend(desc.destBlendAlpha);
+            psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = FLColorWriteMask2D3DColorWriteMask(desc.colorWriteEnable[0]);
             psoDesc.BlendState.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
             psoDesc.BlendState.RenderTarget[0].LogicOpEnable = FALSE;
-            psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = FLColorWriteMask2D3DColorWriteMask(desc.colorWriteEnable[0]);
-            psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-            psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 
             psoDesc.DepthStencilState.DepthEnable = desc.depthEnable;
             psoDesc.DepthStencilState.DepthWriteMask = FLDepthWriteMask2D3DDepthWriteMask(desc.depthWriteMask);

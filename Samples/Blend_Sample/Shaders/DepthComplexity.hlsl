@@ -23,6 +23,6 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : SV_TARGET
 {
     float4 color;
-    color = float4(1.f, 0.f, 0.f, 0.5f);
+    color = float4(gColor, 0.5f);
     return color;
 }
