@@ -49,8 +49,8 @@ private:
     void MoveSkull();
     void MoveFireKeeper();
 
-    bool mAddFireKeeper = false;
-    bool mAddUndeadLegion = false;
+    bool mAddFireKeeper = true;
+    bool mAddUndeadLegion = true;
 
     FireFlame::FLVERLoader mFireKeeperLoader;
     std::map<size_t, std::string> mTexMapFK;
