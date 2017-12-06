@@ -123,8 +123,10 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : SV_Target
 {
     float roughness = gRoughness;
+    float4 AmbientLight = gAmbientLight;
+
 #ifdef TERRAIN
-float4 diffuseAlbedo;// = gDiffuseMap3.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
+    float4 diffuseAlbedo;// = gDiffuseMap3.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
     float4 diffuseAlbedo1 = gDiffuseMap1.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
     float4 diffuseAlbedo2 = gDiffuseMap2.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
     float4 diffuseAlbedo3 = gDiffuseMap3.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
@@ -153,6 +155,78 @@ float4 diffuseAlbedo;// = gDiffuseMap3.Sample(gsamAnisotropicWrap, pin.TexC) * g
     else if (gUseTexture == 2) {
         diffuseAlbedo = float4(0.5f, 0.5f, 0.5f, 1.0f);
     }
+    else if (gUseTexture == 3) {
+        roughness = gDiffuseMap1.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        roughness = 1.f - roughness;
+
+        diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+        float diffuse = gDiffuseMap2.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        diffuseAlbedo += float4(diffuse, diffuse, diffuse, diffuse);
+        //diffuseAlbedo *= diffuse*255.f;
+
+        diffuseAlbedo *= gDiffuseAlbedo;
+    }
+    else if (gUseTexture == 4) {
+        diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+
+        float add1 = gDiffuseMap1.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        diffuseAlbedo += float4(add1, add1, add1, 0.f);
+        //diffuseAlbedo *= diffuse*255.f;
+
+        roughness = 1 - add1;
+
+        diffuseAlbedo *= gDiffuseAlbedo;
+    }
+    else if (gUseTexture == 5) {
+        diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+
+        float add1 = gDiffuseMap1.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        diffuseAlbedo += float4(add1, add1, add1, 0.f);
+        //float add2 = gDiffuseMap2.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        //diffuseAlbedo += float4(add2, add2, add2, 0.f);
+
+        roughness = 1 - add1;
+
+        diffuseAlbedo *= gDiffuseAlbedo;
+    }
+    else if (gUseTexture == 6) {
+        diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+
+        float add1 = gDiffuseMap1.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        diffuseAlbedo += float4(add1, add1, add1, 0.f);
+        float add2 = gDiffuseMap2.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        diffuseAlbedo += float4(add2, add2, add2, 0.f);
+
+        //roughness = abs(1.f - add1);
+        //roughness = add1;
+        //roughness = 0.f;
+
+        //pin.NormalW = -pin.NormalW;
+        //AmbientLight = float4(0.f, 0.f, 0.f, 0.f);
+
+        diffuseAlbedo *= gDiffuseAlbedo;
+        //diffuseAlbedo = abs(diffuseAlbedo);
+        //diffuseAlbedo = float4(10.f, 10.f, 10.f, 10.f);
+    }
+    else if (gUseTexture == 7) {
+        diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+
+        float add1 = gDiffuseMap1.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        diffuseAlbedo += float4(add1, add1, add1, 0.f);
+        float add2 = gDiffuseMap2.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        diffuseAlbedo += float4(add2, add2, add2, 0.f);
+
+        //roughness = abs(1.f - add1);
+        //roughness = add1;
+        roughness = 0.f;
+
+        //pin.NormalW = -pin.NormalW;
+        //AmbientLight = float4(0.f, 0.f, 0.f, 0.f);
+
+        diffuseAlbedo *= gDiffuseAlbedo;
+        //diffuseAlbedo = abs(diffuseAlbedo);
+        //diffuseAlbedo = float4(10.f, 10.f, 10.f, 10.f);
+    }
 #endif
 
 #ifdef ALPHA_CLIP
@@ -168,7 +242,7 @@ float4 diffuseAlbedo;// = gDiffuseMap3.Sample(gsamAnisotropicWrap, pin.TexC) * g
     toEyeW /= toEyeDis;
 
     // Light terms.
-    float4 ambient = gAmbientLight*diffuseAlbedo;
+    float4 ambient = AmbientLight*diffuseAlbedo;
 
     const float shininess = 1.0f - roughness;
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };

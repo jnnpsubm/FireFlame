@@ -10,8 +10,17 @@ MPSApp::MPSApp(FireFlame::Engine& e) : FLEngineApp2(e)
 
 void MPSApp::Initialize()
 {
-    mFireKeeperLoader.load("D:\\DSIII_CHR\\c1400\\c1400.flver");
-    mUndeadLegionLoader.load("D:\\DSIII_CHR\\c3040\\c3040.flver");
+    if (mAddFireKeeper) mFireKeeperLoader.load("D:\\DSIII_CHR\\c1400\\c1400.flver");
+    if (mAddUndeadLegion) mUndeadLegionLoader.load("D:\\DSIII_CHR\\c3040\\c3040.flver");
+
+    if (mAddFireKeeper)
+    {
+        mSkullTranslation = { 12.0f, 1.0f, -5.0f };
+    }
+    else
+    {
+        mSkullTranslation = { 0.0f, 1.0f, -5.0f };
+    }
 
     BuildNoiseData();
 
@@ -196,8 +205,8 @@ void MPSApp::AddMeshs()
 {
     AddRoomMesh();
     AddSkullMesh();
-    AddFireKeeperMesh();
-    AddUndeadLegionMesh();
+    if (mAddFireKeeper) AddFireKeeperMesh();
+    if (mAddUndeadLegion) AddUndeadLegionMesh();
 }
 
 void MPSApp::AddRoomMesh()
@@ -561,9 +570,9 @@ void MPSApp::AddTextures()
     );
 
     // FireKeeper Textures
-    AddFireKeeperTextures();
+    if (mAddFireKeeper) AddFireKeeperTextures();
     // UndeadLegion Textures
-    AddUndeadLegionTextures();
+    if (mAddUndeadLegion) AddUndeadLegionTextures();
 }
 
 void MPSApp::AddFireKeeperTextures()
@@ -702,6 +711,11 @@ void MPSApp::AddUndeadLegionTextures()
     );
     mEngine.GetScene()->AddTexture
     (
+        "ul_chest_d",
+        L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_BD_Chest_d.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
         "ul_HD",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_HD_a.dds"
     );
@@ -709,6 +723,11 @@ void MPSApp::AddUndeadLegionTextures()
     (
         "ul_HD_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_HD_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "ul_HD_d",
+        L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_HD_d.dds"
     );
     mEngine.GetScene()->AddTexture
     (
@@ -732,6 +751,11 @@ void MPSApp::AddUndeadLegionTextures()
     );
     mEngine.GetScene()->AddTexture
     (
+        "ul_lgpart01_d",
+        L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_LG_part01_d.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
         "ul_lgpart02",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_LG_part02_a.dds"
     );
@@ -739,6 +763,11 @@ void MPSApp::AddUndeadLegionTextures()
     (
         "ul_lgpart02_r",
         L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_LG_part02_r.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "ul_lgpart02_d",
+        L"D:\\DSIII_CHR\\c3040\\c3040\\c3040_LG_part02_d.dds"
     );
     mEngine.GetScene()->AddTexture
     (
@@ -849,8 +878,8 @@ void MPSApp::AddMaterials()
         sizeof(MaterialConstants), &shadowMat
     );
 
-    AddFireKeeperMaterials();
-    AddUndeadLegionMaterials();
+    if (mAddFireKeeper) AddFireKeeperMaterials();
+    if (mAddUndeadLegion) AddUndeadLegionMaterials();
 }
 
 void MPSApp::AddFireKeeperMaterials()
@@ -955,29 +984,121 @@ void MPSApp::AddUndeadLegionMaterials()
         );
     }
 
-    for (auto& texname : mTexUL)
+    for (size_t i = 0; i < mTexUL.size(); i++)
     {
+        std::string texname = mTexUL[i];
         std::string matName = "test_ul_mat_" + texname;
         auto& material = mMaterials[matName];
         material.Name = matName;
-        material.DiffuseAlbedo = { 5.0f, 5.0f, 5.0f, 5.0f };
-        material.FresnelR0 = { 0.05f,0.05f,0.05f };
-        material.Roughness = 0.6f;
-        material.UseSpecularMap = 1;
-
-        std::string specularTex;
-        material.UseTexture = 1;
+        std::string specularTex, diffuseTex;
         specularTex = texname + "_r";
+        if (i == 8)
+        {
+            material.DiffuseAlbedo = { 2.f, 2.f, 2.f, 1.0f };
+            material.FresnelR0 = { 0.9f,0.9f,0.9f };
+            material.Roughness = 0.0f;
+
+            material.UseTexture = 7;
+        }
+        else if (i == 7)
+        {
+            material.DiffuseAlbedo = { 2.5f, 2.5f, 2.5f, 1.0f };
+            material.FresnelR0 = { 0.7f,0.7f,0.7f };
+            material.Roughness = 0.1f;
+
+            material.UseTexture = 5;
+        }
+        else if (i == 6) // boots
+        {
+            material.DiffuseAlbedo = { 2.5f, 2.5f, 2.5f, 1.0f };
+            material.FresnelR0 = { 0.7f,0.7f,0.7f };
+            material.Roughness = 0.1f;
+
+            material.UseTexture = 5;
+            diffuseTex = texname + "_d";
+        }
+        else if (i == 5) // leg part1
+        {
+            material.DiffuseAlbedo = { 10.0f, 10.0f, 10.0f, 1.0f };
+            material.FresnelR0 = { 0.7f,0.7f,0.7f };
+            material.Roughness = 0.1f;
+
+            material.UseTexture = 6;
+            diffuseTex = texname + "_d";
+        }
+        else if (i == 4) // hair
+        {
+            material.DiffuseAlbedo = { 4.f, 4.f, 4.f, 1.0f };
+            material.FresnelR0 = { 0.3f,0.3f,0.3f };
+            material.Roughness = 0.1f;
+            material.UseTexture = 5;
+        }
+        else if (i == 3) // hat
+        {
+            material.DiffuseAlbedo = { 0.5f, 0.5f, 0.5f, 1.0f };
+            material.FresnelR0 = { 0.3f,0.3f,0.3f };
+            material.Roughness = 0.1f;
+            material.UseTexture = 3;
+            diffuseTex = texname + "_d";
+        }
+        else if (i == 2) // chest
+        {
+            material.DiffuseAlbedo = { 2.f, 2.f, 2.f, 1.0f };
+            material.FresnelR0 = { 0.8f,0.8f,0.8f };
+            material.Roughness = 0.6f;
+
+            material.UseTexture = 5;
+            diffuseTex = texname + "_d";
+        }
+        else if (i == 1) // cape
+        {
+            material.DiffuseAlbedo = { 5.0f, 5.0f, 5.0f, 5.0f };
+            material.FresnelR0 = { 0.5f,0.5f,0.5f };
+            material.Roughness = 0.6f;
+
+            material.UseTexture = 1;
+            material.UseSpecularMap = 1;
+        }else if (i == 0) // gloves
+        {
+            material.DiffuseAlbedo = { 1.5f, 1.5f, 1.5f, 1.f };
+            material.FresnelR0 = { 0.7f,0.7f,0.7f };
+            material.Roughness = 0.0f;
+
+            material.UseTexture = 4;
+        }
+        else
+        {
+            material.DiffuseAlbedo = { 5.0f, 5.0f, 5.0f, 5.0f };
+            material.FresnelR0 = { 0.05f,0.05f,0.05f };
+            material.Roughness = 0.6f;
+
+            material.UseTexture = 1;
+            material.UseSpecularMap = 1;
+        }
+
         mTestMatUL.push_back(material.Name);
         mEngine.GetScene()->AddMaterial
         (
         {
             material.Name,
-            mShaderDesc.name,{ texname,specularTex },
+            mShaderDesc.name,{ texname,specularTex,diffuseTex },
             sizeof(MaterialConstants), &material
         }
         );
     }
+    mPartMatMap["ul_model_0"]   = 1;
+    mPartMatMap["ul_model_1"]   = 1;
+    mPartMatMap["ul_model_2"]   = 5;
+    mPartMatMap["ul_model_3"]   = 1;
+    mPartMatMap["ul_model_4"]   = 0;
+    mPartMatMap["ul_model_5"]   = 6;
+    mPartMatMap["ul_model_6"]   = 5;
+    mPartMatMap["ul_model_7"]   = 2;
+    mPartMatMap["ul_model_8"]   = 3;
+    mPartMatMap["ul_model_9"]   = 7;
+    mPartMatMap["ul_model_10"]  = 4;
+    mPartMatMap["ul_model_11"]  = 8;
+    mPartMatMap["ul_model_12"]  = 8;
 }
 
 void MPSApp::AddRenderItems()
@@ -985,8 +1106,8 @@ void MPSApp::AddRenderItems()
     AddRenderItemFloor();
     AddRenderItemWall();
     AddRenderItemSkull();
-    AddRenderItemFireKeeper();
-    AddRenderItemUndeadLegion();
+    if (mAddFireKeeper) AddRenderItemFireKeeper();
+    if (mAddUndeadLegion) AddRenderItemUndeadLegion();
     AddRenderItemMirror();
 }
 
@@ -1092,6 +1213,7 @@ void MPSApp::AddRenderItemSkull()
         mMeshDesc["skull"].name,
         mShaderDesc.name,
         "drawStencilReflections",
+        //"default", chap11 exercise 03
         "mirror",
         2,
         RItem
@@ -1106,6 +1228,7 @@ void MPSApp::AddRenderItemSkull()
         mMeshDesc["skull"].name,
         mShaderDesc.name,
         "shadow",
+        //"transparent", chap11 exercise04
         "default",
         4,
         RItem
@@ -1203,35 +1326,36 @@ void MPSApp::AddRenderItemFireKeeper()
 void MPSApp::AddRenderItemUndeadLegion()
 {
     unsigned seed = (unsigned)std::chrono::system_clock::now().time_since_epoch().count();
-    seed = 1;
+    seed = 2;
     std::default_random_engine e(seed);
-    std::uniform_real_distribution<float> d(-3.0f, 3.0f);
+    std::uniform_real_distribution<float> d(-1.0f, 1.0f);
+    std::uniform_real_distribution<float> d2(0, FireFlame::MathHelper::FL_2PI);
     for (int i = 0; i < 7; i++)
     {
         for (int j = 0; j < 7; j++)
         {
             float inst_x = -27.f + i*13.f + d(e);
             float inst_z = -60.f + j*12.f + d(e);
-            AddRenderItemUndeadLegionInst(j * 7 + i, inst_x, inst_z);
+            AddRenderItemUndeadLegionInst(j * 7 + i, inst_x, inst_z, d2(e));
         }
     }
 }
 
-void MPSApp::AddRenderItemUndeadLegionInst(int no, float inst_x, float inst_z)
+void MPSApp::AddRenderItemUndeadLegionInst(int no, float inst_x, float inst_z, float rotateY)
 {
     using namespace DirectX;
     auto parts = mUndeadLegionLoader.get_part_count();
     for (size_t part = 0; part < parts; part++)
     {
-        std::string matName = "ul_mat_" + std::to_string(part);
         std::string meshName = "ul_model_" + std::to_string(part);
+        std::string matName = mTestMatUL[mPartMatMap[meshName]];
         std::string renderItemName = meshName + "_inst" + std::to_string(no);
 
         // add render item
         FireFlame::stRenderItemDesc RItem(renderItemName, mMeshDesc[meshName].subMeshs[0]);
         RItem.mat = matName;
         XMFLOAT4X4 trans[2];
-        DirectX::XMMATRIX fkRotate = XMMatrixRotationY(FireFlame::MathHelper::FL_PI);
+        DirectX::XMMATRIX fkRotate = XMMatrixRotationY(rotateY);
         DirectX::XMMATRIX fkScale = XMMatrixScaling(0.02f, 0.02f, 0.02f);
         DirectX::XMMATRIX fkOffset = XMMatrixTranslation
         (
@@ -1358,6 +1482,27 @@ void MPSApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     {
         mCurUndeadLegionPart = "ul_model_12";
     }
+    else if (wParam == 'R')
+    {
+        ++mCurUndedaLegionMat;
+        if (mCurUndedaLegionMat >= mTestMatUL.size())
+        {
+            mCurUndedaLegionMat = 0;
+        }
+    }else if (wParam == 'T')
+    {
+        --mCurUndedaLegionMat;
+        if (mCurUndedaLegionMat < 0)
+        {
+            mCurUndedaLegionMat = 0;
+        }
+    }else if (wParam == 'S')
+    {
+        for (const auto& pairPM : mPartMatMap)
+        {
+            std::cout << "part:" << pairPM.first << " mat:" << pairPM.second << std::endl;
+        }
+    }
     if (!mCurUndeadLegionPart.empty())
     {
         for (size_t i = 0; i < 49; i++)
@@ -1369,14 +1514,28 @@ void MPSApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
                 mTestMatUL[mCurUndedaLegionMat]
             );
         }
+        std::cout << "part:" << mCurUndeadLegionPart << " material:" << mCurUndedaLegionMat << std::endl;
+        mPartMatMap[mCurUndeadLegionPart] = mCurUndedaLegionMat;
     }
 }
 
 void MPSApp::OnKeyboardInput(float time_elapsed)
 {
+    if (GetAsyncKeyState(VK_F5) & 0x8000)
+        mEngine.GetScene()->PrintScene();
+
     //
     // Allow user to move skull.
     //
+
+    if (mAddFireKeeper)
+    {
+        mTranslation = &mFKTranslation;
+    }
+    else
+    {
+        mTranslation = &mSkullTranslation;
+    }
 
     const float dt = mEngine.DeltaTime();
 

@@ -41,13 +41,16 @@ private:
     void AddRenderItemSkull();
     void AddRenderItemFireKeeper();
     void AddRenderItemUndeadLegion();
-    void AddRenderItemUndeadLegionInst(int no, float inst_x, float inst_z);
+    void AddRenderItemUndeadLegionInst(int no, float inst_x, float inst_z, float rotateY);
     void AddRenderItemMirror();
 
     void AddPasses();
 
     void MoveSkull();
     void MoveFireKeeper();
+
+    bool mAddFireKeeper = false;
+    bool mAddUndeadLegion = false;
 
     FireFlame::FLVERLoader mFireKeeperLoader;
     std::map<size_t, std::string> mTexMapFK;
@@ -56,6 +59,7 @@ private:
     std::map<size_t, std::string> mTexMapUL;
     std::vector<std::string> mTexUL;
     std::vector<std::string> mTestMatUL;
+    std::map<std::string, int> mPartMatMap;
 
     std::string mCurUndeadLegionPart;
     int         mCurUndedaLegionMat = 0;

@@ -163,6 +163,7 @@
     <ClInclude Include="MPSApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Common\LightingUtil.hlsli" />
     <None Include="Shaders\MPSShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Domain</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

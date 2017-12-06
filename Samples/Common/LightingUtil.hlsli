@@ -39,6 +39,7 @@ float3 SchlickFresnel(float3 R0, float3 normal, float3 lightVec)
     float3 reflectPercent = R0 + (1.0f - R0)*(f0*f0*f0*f0*f0);
 
     return reflectPercent;
+    //return 0.f;
 }
 
 float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 toEye, Material mat)

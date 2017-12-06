@@ -182,6 +182,7 @@ int Scene::GetReady() {
         primitive->GetMesh()->DisposeUploaders();
     }
 
+    PrintAllPasses();
     PrintAllRenderItems();
     return 0;
 }
@@ -939,4 +940,40 @@ void Scene::PrintAllRenderItems()
     }
     std::cout << "=============================End All RenderItems===============================" << std::endl;
 }
+
+void Scene::PrintAllPasses()
+{
+    std::cout << "Pass Count:" << mPasses.size() << std::endl;
+    for (const auto& pass : mPasses)
+    {
+        std::cout << "   " << pass.second->name;
+    }
+}
+
+void Scene::PrintAllPSOs()
+{
+
+}
+
+void Scene::PrintAllMultiObjCBs() 
+{
+
+}
+
+void Scene::PrintAllPrimitives() 
+{
+
+}
+
+void Scene::PrintAllMaterials() 
+{
+
+}
+
+void Scene::PrintAllTextures() 
+{
+
+}
+
+
 } // end namespace

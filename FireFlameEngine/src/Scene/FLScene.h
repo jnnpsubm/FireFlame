@@ -159,6 +159,12 @@ private:
         bool opaque
     );
     void PrintAllRenderItems();
+    void PrintAllPSOs();
+    void PrintAllPasses();
+    void PrintAllMultiObjCBs();
+    void PrintAllPrimitives();
+    void PrintAllMaterials();
+    void PrintAllTextures();
 
     bool mPrintScene = false;
 
