@@ -139,6 +139,7 @@ public:
     }
     void AddMaterial(const stMaterialDesc& matDesc);
     void AddMultiObjCB(const std::string& shaderName, const std::string& name);
+
     void AddPass(const std::string& shaderName, const std::string& passName);
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);

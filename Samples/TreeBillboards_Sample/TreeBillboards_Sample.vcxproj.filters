@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Common\Waves.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TreeBillboardsApp.cpp" />
+    <ClCompile Include="..\Common\FLEngineApp3.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\Waves.h" />
+    <ClInclude Include="TreeBillboardsApp.h" />
+    <ClInclude Include="..\Common\FLEngineApp3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{c9e3a83b-3c13-4b11-a10d-b07e70a8f57a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Common\LightingUtil.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\DC.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Main.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

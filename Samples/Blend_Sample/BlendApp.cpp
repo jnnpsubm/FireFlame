@@ -619,7 +619,7 @@ void BlendApp::AddRenderItemsDepthComplexity()
     RItem.data = &consts;
 
     consts.color = { 0.f,0.f,0.f };
-    static const int MAX_DEPTH = 12;
+    static const int MAX_DEPTH = 6;
     static const float COLOR_STEP = 1.0f / MAX_DEPTH;
     for (int depth = 0; depth < MAX_DEPTH; depth++)
     {

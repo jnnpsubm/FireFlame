@@ -71,6 +71,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{C663A43D
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HKXModelViewer", "..\Tools\HKXModelViewer\HKXModelViewer.vcxproj", "{27DFFCFB-E796-4004-89B7-71D9079EB504}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeBillboards_Sample", "..\Samples\TreeBillboards_Sample\TreeBillboards_Sample.vcxproj", "{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -319,6 +321,14 @@ Global
 		{27DFFCFB-E796-4004-89B7-71D9079EB504}.Release|x64.Build.0 = Release|x64
 		{27DFFCFB-E796-4004-89B7-71D9079EB504}.Release|x86.ActiveCfg = Release|Win32
 		{27DFFCFB-E796-4004-89B7-71D9079EB504}.Release|x86.Build.0 = Release|Win32
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Debug|x64.ActiveCfg = Debug|x64
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Debug|x64.Build.0 = Debug|x64
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Debug|x86.ActiveCfg = Debug|Win32
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Debug|x86.Build.0 = Debug|Win32
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Release|x64.ActiveCfg = Release|x64
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Release|x64.Build.0 = Release|x64
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Release|x86.ActiveCfg = Release|Win32
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -353,6 +363,7 @@ Global
 		{B1086B7A-0282-49E1-BE17-394C15CCEBCF} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{27DFFCFB-E796-4004-89B7-71D9079EB504} = {C663A43D-4ABC-4F5B-A5B4-7A26BD712433}
+		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}
