@@ -560,7 +560,7 @@ void Scene::AddMultiObjCB(const std::string& shaderName, const std::string& name
     mMultiObjCBs.emplace
     (
         name, 
-        std::make_shared<MultiObjectConsts>(name, shaderName, shader->GetFreeMultiObjCBV())
+        std::make_shared<MultiObjectConstBuffer>(name, shaderName, shader->GetFreeMultiObjCBV())
     );
 }
 

@@ -2,36 +2,29 @@
 #include "..\..\Matrix\FLMatrix4X4.h"
 
 namespace FireFlame {
-struct ObjectConstants
+
+struct ObjectConstBuffer
 {
-    DirectX::XMFLOAT4X4 World = Matrix4X4();
+
 };
 
-struct MultiObjectConsts
+struct MultiObjectConstBuffer
 {
-    MultiObjectConsts() = default;
-    explicit MultiObjectConsts(const std::string& name, const std::string& shaderName, unsigned int CBIndex = 0)
+    MultiObjectConstBuffer() = default;
+    explicit MultiObjectConstBuffer(const std::string& name, const std::string& shaderName, unsigned int CBIndex = 0)
         :name(name), shaderName(shaderName), CBIndex(CBIndex) {}
     std::string name;
     std::string shaderName;
     unsigned int CBIndex = -1;
 };
 
-struct PassConstants
+struct PassConstBuffer
 {
-    DirectX::XMFLOAT4X4 View = Matrix4X4();
-    DirectX::XMFLOAT4X4 InvView = Matrix4X4();
-    DirectX::XMFLOAT4X4 Proj = Matrix4X4();
-    DirectX::XMFLOAT4X4 InvProj = Matrix4X4();
-    DirectX::XMFLOAT4X4 ViewProj = Matrix4X4();
-    DirectX::XMFLOAT4X4 InvViewProj = Matrix4X4();
-    DirectX::XMFLOAT3 EyePosW = { 0.0f, 0.0f, 0.0f };
-    float cbPerObjectPad1 = 0.0f;
-    DirectX::XMFLOAT2 RenderTargetSize = { 0.0f, 0.0f };
-    DirectX::XMFLOAT2 InvRenderTargetSize = { 0.0f, 0.0f };
-    float NearZ = 0.0f;
-    float FarZ = 0.0f;
-    float TotalTime = 0.0f;
-    float DeltaTime = 0.0f;
+    PassConstBuffer() = default;
+    explicit PassConstBuffer(const std::string& name, const std::string& shaderName, unsigned int CBIndex = 0)
+        :name(name), shaderName(shaderName), CBIndex(CBIndex) {}
+    std::string name;
+    std::string shaderName;
+    unsigned int CBIndex = -1;
 };
 } // end namespace

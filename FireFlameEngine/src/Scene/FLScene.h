@@ -15,7 +15,7 @@ class StopWatch;
 struct Pass;
 struct Material;
 struct Texture;
-struct MultiObjectConsts;
+struct MultiObjectConstBuffer;
 class Scene {
 public:
     typedef std::vector<D3DRenderItem*>                               VecRItem;
@@ -206,7 +206,7 @@ private:
     // passes
     std::unordered_map<std::string, std::shared_ptr<Pass>>             mPasses;
 
-    std::unordered_map<std::string, std::shared_ptr<MultiObjectConsts>> mMultiObjCBs;
+    std::unordered_map<std::string, std::shared_ptr<MultiObjectConstBuffer>> mMultiObjCBs;
 
 	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>>     mPrimitives; 
     std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>> mShaders;
