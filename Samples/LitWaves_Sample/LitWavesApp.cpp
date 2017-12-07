@@ -19,7 +19,7 @@ void LitWavesApp::Initialize()
     BuildRenderItems();
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void LitWavesApp::Update(float time_elapsed)

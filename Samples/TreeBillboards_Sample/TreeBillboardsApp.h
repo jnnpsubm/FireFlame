@@ -29,8 +29,10 @@ public:
     void OnKeyUp(WPARAM wParam, LPARAM lParam) override;
 
 private:
+    void AddShaders();
     void AddShaderMain();
     void AddShaderDepthComplexity();
+
     void AddPSOs();
 
     void AddTextures();

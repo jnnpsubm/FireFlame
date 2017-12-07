@@ -59,7 +59,7 @@ void FLEngineApp2::Update(float time_elapsed) {
 
     UpdateMainPassCB(time_elapsed);
     if (mPasses.size())
-        mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderDesc.name, sizeof(PassConstants), &mMainPassCB);
 }
 
 void FLEngineApp2::UpdateCamera(float time_elapsed)

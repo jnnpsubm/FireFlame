@@ -62,7 +62,7 @@ void FLEngineApp3::UpdateMainPassCB(float time_elapsed)
     passCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
     passCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
 
-    mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &passCB);
+    mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstants), &passCB);
 }
 
 void FLEngineApp3::UpdateCamera(float time_elapsed)

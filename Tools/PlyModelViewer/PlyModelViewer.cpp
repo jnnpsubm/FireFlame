@@ -16,7 +16,7 @@ void PlyModelViewer::Initialize(const char* fileName)
     AddRenderItems();
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void PlyModelViewer::AddRenderItems()
@@ -305,7 +305,7 @@ void PlyModelViewer::Update(float time_elapsed) {
     }
 
     if (mPasses.size())
-        mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderDesc.name, sizeof(PassConstants), &mMainPassCB);
 }
 
 void PlyModelViewer::UpdateModel()

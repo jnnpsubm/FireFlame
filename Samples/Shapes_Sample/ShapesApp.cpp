@@ -10,7 +10,7 @@ void ShapesApp::Initialize()
     //AddDragonRItem();
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void ShapesApp::UpdateMainPassCB(float time_elapsed)

@@ -15,6 +15,7 @@ class StopWatch;
 struct Pass;
 struct Material;
 struct Texture;
+struct PassConstBuffer;
 struct MultiObjectConstBuffer;
 class Scene {
 public:
@@ -140,7 +141,10 @@ public:
     void AddMaterial(const stMaterialDesc& matDesc);
     void AddMultiObjCB(const std::string& shaderName, const std::string& name);
 
-    void AddPass(const std::string& shaderName, const std::string& passName);
+    void AddPassCB(const std::string& shaderName, const std::string& passName);
+    void SetShaderPassCB(const std::string& shaderName, const std::string& passName);
+
+    void AddPass(const std::string& name);
 
     void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
     void RenderItemChangeShader
@@ -162,7 +166,10 @@ public:
     
     void UpdateMaterialCBData(const std::string& name, size_t size, const void* data);
     void UpdateMultiObjCBData(const std::string& name, size_t size, const void* data);
-    void UpdatePassCBData(const std::string& name, size_t size, const void* data);
+
+    void UpdateShaderPassCBData(const std::string& shaderName, size_t size, const void* data);
+    void UpdateShaderPassCBData(const std::string& shaderName, const std::string& passName, size_t size, const void* data);
+    
     void UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t size, const void* data);
 
     // register callbacks
@@ -181,6 +188,9 @@ private:
         int priority,
         bool opaque
     );
+
+    void UpdateShaderPassCBData(D3DShaderWrapper* shader, UINT CBIndex, size_t size, const void* data);
+
     void PrintAllRenderItems();
     void PrintAllPSOs();
     void PrintAllPasses();
@@ -206,6 +216,7 @@ private:
     // passes
     std::unordered_map<std::string, std::shared_ptr<Pass>>             mPasses;
 
+    std::unordered_map<std::string, std::shared_ptr<PassConstBuffer>>        mPassCBs;
     std::unordered_map<std::string, std::shared_ptr<MultiObjectConstBuffer>> mMultiObjCBs;
 
 	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>>     mPrimitives; 

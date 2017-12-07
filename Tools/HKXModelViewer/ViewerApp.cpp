@@ -252,7 +252,7 @@ void ViewerApp::AddMaterials()
 void ViewerApp::AddPasses()
 {
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void ViewerApp::AddFloor()

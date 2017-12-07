@@ -137,9 +137,9 @@ void Scene::DrawRenderItems
 
         cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
 
-        if (Shader->GetPassParamIndex() != (UINT)-1)
+        if (Shader->GetPassParamIndex() != (UINT)-1 && Shader->GetPassCBVIndex() != (UINT)-1)
         {
-            int passCbvIndex = pass->CBIndex;
+            UINT passCbvIndex = Shader->GetPassCBVIndex();
             passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
             auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
             passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
@@ -170,7 +170,7 @@ int Scene::GetReady() {
     // if no pass, add a default pass
     if (mPasses.empty() && !mShaders.empty() && !mRenderItems.empty())
     {
-        AddPass(mShaders.begin()->first, "DefaultPass");
+        AddPass("DefaultPass");
     }
 
     mRenderer->ResetCommandList();
@@ -217,6 +217,12 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     );
     shader->BuildRootSignature(mRenderer->GetDevice());
     shader->BuildShadersAndInputLayout(shaderDesc);
+
+    // normally one pass const buffer for one shader,
+    // but if that is not the case,use multiObj const buffer or add pass const buffer manually maybe
+    std::string passName = shader->GetDefaultPassCBName();
+    AddPassCB(shaderDesc.name, passName);
+    SetShaderPassCB(shaderDesc.name, passName);
 }
 
 void Scene::AddPSO(const std::string& name, const PSODesc& desc)
@@ -564,13 +570,45 @@ void Scene::AddMultiObjCB(const std::string& shaderName, const std::string& name
     );
 }
 
-void Scene::AddPass(const std::string& shaderName, const std::string& passName)
+void Scene::AddPassCB(const std::string& shaderName, const std::string& passName)
 {
     auto itShader = mShaders.find(shaderName);
-    if (itShader == mShaders.end()) throw std::exception("cannot find shader in function call(AddPass)");
+    if (itShader == mShaders.end())
+    {
+        throw std::exception("cannot find shader in function call(AddPassCB)");
+    }
+    auto itPassCB = mPassCBs.find(passName);
+    if (itPassCB != mPassCBs.end())
+    {
+        spdlog::get("console")->warn("passCB name {0} already exist......", passName);
+    }
     auto shader = itShader->second;
-    mPasses.emplace(passName, std::make_shared<Pass>(passName, shaderName, shader->GetFreePassCBV()));
+    auto passCB = std::make_shared<PassConstBuffer>(passName, shaderName, shader->GetFreePassCBV());
+    mPassCBs.emplace(passName, passCB);
+    shader->SetPassCbvIndex(passCB->CBIndex);
 }
+
+void Scene::SetShaderPassCB(const std::string& shaderName, const std::string& passName)
+{
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end())
+    {
+        throw std::exception("cannot find shader in function call(SetShaderPassCB)");
+    }
+    auto itPassCB = mPassCBs.find(passName);
+    if (itPassCB == mPassCBs.end())
+    {
+        throw std::exception("cannot find passCB in function call(SetShaderPassCB)");
+    }
+    auto shader = itShader->second;
+    shader->SetPassCbvIndex(itPassCB->second->CBIndex);
+}
+
+void Scene::AddPass(const std::string& name)
+{
+    mPasses.emplace(name, std::make_shared<Pass>(name));
+}
+
 void Scene::UpdateRenderItemCBData(const std::string& name, size_t size, const void* data) {
     if (mRenderItems.find(name) == mRenderItems.end()) {
         //throw std::exception("UpdateRenderItemCBData cannot find render item");
@@ -617,19 +655,40 @@ void Scene::UpdateMultiObjCBData(const std::string& name, size_t size, const voi
     shader->UpdateMultiObjCBData(multiObjCbvIndex, size, data);
 }
 
-void Scene::UpdatePassCBData(const std::string& name, size_t size, const void* data) {
-    auto itPass = mPasses.find(name);
-    if (itPass == mPasses.end())
-        throw std::exception("cannot find pass in UpdatePassCBData function");
-    auto itShader = mShaders.find(itPass->second->shaderName);
+void Scene::UpdateShaderPassCBData(const std::string& shaderName, size_t size, const void* data) 
+{
+    auto itShader = mShaders.find(shaderName);
     if (itShader == mShaders.end())
+    {
         throw std::exception("cannot find shader in UpdatePassCBData function");
+    }
     auto shader = itShader->second;
-
-    auto passCbvIndex = itPass->second->CBIndex;
-    //passCbvIndex += Engine::GetEngine()->GetRenderer()->GetCurrFrameResIndex() * shader->GetPassCBVMaxCount();
-    shader->UpdatePassCBData(passCbvIndex, size, data);
+    std::string passName = shader->GetDefaultPassCBName();
+    return UpdateShaderPassCBData(shaderName, passName, size, data);
 }
+
+void Scene::UpdateShaderPassCBData(const std::string& shaderName, const std::string& passName, size_t size, const void* data)
+{
+    auto itPass = mPassCBs.find(passName);
+    if (itPass == mPassCBs.end())
+    {
+        throw std::exception("cannot find pass in UpdatePassCBData function");
+    }
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end())
+    {
+        throw std::exception("cannot find shader in UpdatePassCBData function");
+    }
+    auto shader = itShader->second.get();
+    auto passCbvIndex = itPass->second->CBIndex;
+    return UpdateShaderPassCBData(shader, passCbvIndex, size, data);
+}
+
+void Scene::UpdateShaderPassCBData(D3DShaderWrapper* shader, UINT CBIndex, size_t size, const void* data)
+{
+    return shader->UpdatePassCBData(CBIndex, size, data);
+}
+
 void Scene::UpdateMeshCurrVBFrameRes(const std::string& name, int index, size_t size, const void* data)
 {
     auto frameRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource();

@@ -19,7 +19,7 @@ void TexColumnsApp::Initialize()
 #endif
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void TexColumnsApp::UpdateMainPassCB(float time_elapsed)

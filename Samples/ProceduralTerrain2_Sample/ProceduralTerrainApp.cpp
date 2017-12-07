@@ -19,7 +19,7 @@ void ProceduralTerrainApp::Initialize()
     BuildRenderItems();
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void ProceduralTerrainApp::AddMaterials()
@@ -107,7 +107,7 @@ void ProceduralTerrainApp::Update(float time_elapsed)
 
     UpdateMainPassCB(time_elapsed);
     if (mPasses.size())
-        mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderDesc.name, sizeof(PassConstants), &mMainPassCB);
 }
 
 void ProceduralTerrainApp::UpdateMainPassCB(float time_elapsed)

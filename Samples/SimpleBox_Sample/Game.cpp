@@ -40,7 +40,7 @@ void Game::Update(float time_elapsed) {
 
     PassConstants passConstants;
     DirectX::XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
-    mEngine.GetScene()->UpdatePassCBData("DefaultPass", sizeof(PassConstants), &passConstants);
+    mEngine.GetScene()->UpdateShaderPassCBData("colorShader", sizeof(PassConstants), &passConstants);
 }
 void Game::OnMouseDown(WPARAM btnState, int x, int y) {
     mLastMousePos.x = x;

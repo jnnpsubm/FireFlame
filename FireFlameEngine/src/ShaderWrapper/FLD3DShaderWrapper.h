@@ -25,6 +25,7 @@ public:
         mMatParamIndex = matParamIndex;
         mPassParamIndex = passParamIndex;
     }
+    void SetPassCbvIndex(UINT index) { mPassCbvIndex = index; }
     void UpdateObjCBData(unsigned int index, size_t size, const void* data);
     void UpdateMultiObjCBData(unsigned int index, size_t size, const void* data);
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
@@ -46,7 +47,9 @@ public:
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
 
     // Get Methods
-    const std::string&    GetName()             const { return mName; }
+    std::string           GetDefaultPassCBName() const { return mName + "pass0"; }
+    UINT                  GetPassCBVIndex()      const { return mPassCbvIndex;   }
+    const std::string&    GetName()              const { return mName;           }
 
     std::pair<size_t, void*> GetInputLayout()   const 
     {
@@ -152,6 +155,8 @@ private:
     UINT                                           mMultiParamIndex = 4;
     UINT                                           mMatParamIndex = 2;
     UINT                                           mPassParamIndex = 3;
+
+    UINT                                           mPassCbvIndex = -1;
 
     UINT                                           mMaterialCbvOffset = 0;
     UINT                                           mPassCbvOffset = 0;

@@ -7,8 +7,7 @@ void TreeBillboardsApp::PreInitialize()
 
 void TreeBillboardsApp::Initialize()
 {
-    AddShaderMain();
-    AddShaderDepthComplexity();
+    AddShaders();
     AddPSOs();
 
     AddTextures();
@@ -19,7 +18,7 @@ void TreeBillboardsApp::Initialize()
     AddRenderItems();
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShaderDescs["main"].name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void TreeBillboardsApp::Update(float time_elapsed)
@@ -90,6 +89,12 @@ void TreeBillboardsApp::UpdateWaves()
     waterMat.MatTransform[0][3] = tu;
     waterMat.MatTransform[1][3] = tv;
     mEngine.GetScene()->UpdateMaterialCBData(waterMat.Name, sizeof(MaterialConstants2), &waterMat);
+}
+
+void TreeBillboardsApp::AddShaders()
+{
+    AddShaderMain();
+    AddShaderDepthComplexity();
 }
 
 void TreeBillboardsApp::AddShaderMain()

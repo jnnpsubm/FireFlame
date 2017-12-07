@@ -22,7 +22,7 @@ void BlendApp::Initialize()
     AddRenderItems();
 
     mPasses.push_back("DefaultPass");
-    mEngine.GetScene()->AddPass(mShowDepthComplexity2?mShaderDepthComplexity2.name:mShaderDesc.name, mPasses[0]);
+    mEngine.GetScene()->AddPass(mPasses[0]);
 }
 
 void BlendApp::UpdateMainPassCB(float time_elapsed)
@@ -37,6 +37,11 @@ void BlendApp::UpdateMainPassCB(float time_elapsed)
     mMainPassCB.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
     mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
     mMainPassCB.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
+
+    if (mShowDepthComplexity2)
+    {
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderDepthComplexity2.name, sizeof(PassConstants), &mMainPassCB);
+    }
 
     if (mWaveStart)
         UpdateWaves();

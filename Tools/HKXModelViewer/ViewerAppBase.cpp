@@ -66,7 +66,7 @@ void ViewerAppBase::Update(float time_elapsed) {
 
     UpdateMainPassCB(time_elapsed);
     if (mPasses.size())
-        mEngine.GetScene()->UpdatePassCBData(mPasses[0], sizeof(PassConstants), &mMainPassCB);
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderDesc.name, sizeof(PassConstants), &mMainPassCB);
 }
 
 void ViewerAppBase::UpdateCamera(float time_elapsed)
