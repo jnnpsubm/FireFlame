@@ -156,6 +156,7 @@ void Scene::DrawRenderItems
             cmdList->SetPipelineState(pso);
             for (auto& renderItem : itSamePSO.second)
             {
+                if (!renderItem->Primitive->Visible()) continue;
                 renderItem->Render(Shader);
             }
         }
@@ -246,6 +247,18 @@ void Scene::PrimitiveUseShader(const std::string& primitive, const std::string& 
     if (itShader == mShaders.end()) throw std::exception("cannot find shader");
     itPrimitive->second->SetShader(itShader->second);
 }
+
+void Scene::PrimitiveVisible(const std::string& name, bool visible)
+{
+    auto itPrimitive = mPrimitives.find(name);
+    if (itPrimitive == mPrimitives.end())
+    {
+        spdlog::get("console")->warn("Primitive {0} not found in function(PrimitiveVisible)......", name);
+        return;
+    }
+    itPrimitive->second->SetVisible(visible);
+}
+
 void Scene::RenderItemChangeShader
 (
     const std::string& renderItem,
@@ -376,7 +389,7 @@ void Scene::AddRenderItem
         spdlog::get("console")->error("cannot find PSO {0}", PSOName);
         throw std::exception("cannot find PSO in AddRenderItem");
     }
-    D3DMesh* mesh = itPrimitive->second->GetMesh();
+    D3DPrimitive* primitive = itPrimitive->second.get();
     D3DShaderWrapper* shader = itShader->second.get();
 
     auto renderItem = std::make_shared<D3DRenderItem>();
@@ -393,7 +406,7 @@ void Scene::AddRenderItem
             throw std::exception("cannot find MultiObjCB in AddRenderItem");
         renderItem->MultiObjCBIndex = itMultiObj->second->CBIndex;
     }
-    renderItem->Mesh = mesh;
+    renderItem->Primitive = primitive;
     renderItem->Shader = shaderName;
     renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
     renderItem->opaque = desc.opaque;

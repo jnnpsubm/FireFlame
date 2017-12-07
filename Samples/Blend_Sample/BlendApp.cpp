@@ -527,7 +527,7 @@ FireFlame::Vector3f BlendApp::GetHillsNormal(float x, float z) const
 void BlendApp::AddRenderItems()
 {
     AddRenderItemsNormal();
-    if (mShowDepthComplexity) AddRenderItemsDepthComplexity();
+    AddRenderItemsDepthComplexity();
 }
 
 void BlendApp::AddRenderItemsNormal()
@@ -613,94 +613,31 @@ void BlendApp::AddRenderItemsNormal()
 void BlendApp::AddRenderItemsDepthComplexity()
 {
     std::string itmename = "DepthComplexity";
-    FireFlame::stRenderItemDesc RItem4(itmename, mMeshDesc[3].subMeshs[0]);
+    FireFlame::stRenderItemDesc RItem(itmename, mMeshDesc[3].subMeshs[0]);
     DepthComplexityObjConsts consts;
-    RItem4.dataLen = sizeof(DepthComplexityObjConsts);
-    RItem4.data = &consts;
+    RItem.dataLen = sizeof(DepthComplexityObjConsts);
+    RItem.data = &consts;
 
-    // depth == 0
-    RItem4.name = itmename + "Depth:0";
-    consts.color = { 1.0f,1.0f,1.0f };
-    RItem4.stencilRef = 0;
-    mRenderItems.emplace_back(RItem4);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[3].name,
-        mShaderDepthComplexity.name,
-        "depth_complexity_default",
-        1,
-        RItem4
-    );
+    consts.color = { 0.f,0.f,0.f };
+    static const int MAX_DEPTH = 12;
+    static const float COLOR_STEP = 1.0f / MAX_DEPTH;
+    for (int depth = 0; depth < MAX_DEPTH; depth++)
+    {
+        RItem.name = itmename + "Depth:" + std::to_string(depth);
+        consts.color += { COLOR_STEP, COLOR_STEP, COLOR_STEP };
+        RItem.stencilRef = depth;
+        mRenderItems.emplace_back(RItem);
+        mEngine.GetScene()->AddRenderItem
+        (
+            mMeshDesc[3].name,
+            mShaderDepthComplexity.name,
+            "depth_complexity_default",
+            1,
+            RItem
+        );
+    }
 
-    // depth == 1
-    RItem4.name = itmename + "Depth:1";
-    consts.color += { -0.2f, -0.2f, -0.2f };
-    RItem4.stencilRef = 1;
-    mRenderItems.emplace_back(RItem4);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[3].name,
-        mShaderDepthComplexity.name,
-        "depth_complexity_default",
-        1,
-        RItem4
-    );
-
-    // depth == 2
-    RItem4.name = itmename + "Depth:2";
-    consts.color += { -0.2f, -0.2f, -0.2f };
-    RItem4.stencilRef = 2;
-    mRenderItems.emplace_back(RItem4);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[3].name,
-        mShaderDepthComplexity.name,
-        "depth_complexity_default",
-        1,
-        RItem4
-    );
-
-    // depth == 3
-    RItem4.name = itmename + "Depth:3";
-    consts.color += { -0.2f, -0.2f, -0.2f };
-    RItem4.stencilRef = 3;
-    mRenderItems.emplace_back(RItem4);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[3].name,
-        mShaderDepthComplexity.name,
-        "depth_complexity_default",
-        1,
-        RItem4
-    );
-
-    // depth == 4
-    RItem4.name = itmename + "Depth:4";
-    consts.color += { -0.2f, -0.2f, -0.2f };
-    RItem4.stencilRef = 4;
-    mRenderItems.emplace_back(RItem4);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[3].name,
-        mShaderDepthComplexity.name,
-        "depth_complexity_default",
-        1,
-        RItem4
-    );
-
-    // depth == 5
-    RItem4.name = itmename + "Depth:5";
-    consts.color += { -0.2f, -0.2f, -0.2f };
-    RItem4.stencilRef = 5;
-    mRenderItems.emplace_back(RItem4);
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDesc[3].name,
-        mShaderDepthComplexity.name,
-        "depth_complexity_default",
-        1,
-        RItem4
-    );
+    mEngine.GetScene()->PrimitiveVisible(mMeshDesc[3].name, mShowDepthComplexity);
 }
 
 void BlendApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
@@ -712,5 +649,9 @@ void BlendApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     }else if ((int)wParam == 'S')
     {
         mEngine.Stop();
+    }else if ((int)wParam == 'D')
+    {
+        mShowDepthComplexity = !mShowDepthComplexity;
+        mEngine.GetScene()->PrimitiveVisible(mMeshDesc[3].name, mShowDepthComplexity);
     }
 }

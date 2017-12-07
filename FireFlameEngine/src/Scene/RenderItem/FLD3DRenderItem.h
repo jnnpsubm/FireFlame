@@ -3,7 +3,7 @@
 #include <d3d12.h>
 
 namespace FireFlame {
-class D3DMesh;
+class D3DPrimitive;
 class D3DShaderWrapper;
 class D3DShaderWrapper;
 struct Material;
@@ -25,7 +25,7 @@ struct D3DRenderItem {
 
     UINT MultiObjCBIndex = -1;
 
-    D3DMesh* Mesh            = nullptr;
+    D3DPrimitive* Primitive = nullptr;
 
     Material* Mat = nullptr;
     void SetMaterial(Material* mat)
