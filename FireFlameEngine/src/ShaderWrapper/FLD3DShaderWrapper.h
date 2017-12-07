@@ -47,7 +47,7 @@ public:
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
 
     // Get Methods
-    std::string           GetDefaultPassCBName() const { return mName + "pass0"; }
+    std::string           GetDefaultPassCBName() const { return mName + "_pass0"; }
     UINT                  GetPassCBVIndex()      const { return mPassCbvIndex;   }
     const std::string&    GetName()              const { return mName;           }
 

@@ -137,4 +137,17 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
         mPSOs.size()
     );
 }
+
+void D3DPSOManager2::PrintAllPSOs()
+{
+    std::cout << "PSO Count:" << mPSOs.size() << std::endl;
+    for (const auto& itPSO : mPSOs)
+    {
+        std::cout << "   " 
+            << std::get<0>(itPSO.first) 
+            << "_MSAA" << std::get<1>(itPSO.first) 
+            << "_FILL" << std::get<2>(itPSO.first)
+            << ":0x" << std::hex << itPSO.second.Get() << std::endl;
+    }
+}
 }

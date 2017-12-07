@@ -6,12 +6,13 @@
 #include "Primitive\FLD3DPrimitive.h"
 #include "Vertex\FLVertex.h"
 #include "..\FLTypeDefs.h"
-#include "RenderItem\FLD3DRenderItem.h"
 
 namespace FireFlame {
 class D3DRenderer;
 class D3DShaderWrapper;
+class D3DPrimitive;
 class StopWatch;
+struct D3DRenderItem;
 struct Pass;
 struct Material;
 struct Texture;
@@ -192,8 +193,10 @@ private:
     void UpdateShaderPassCBData(D3DShaderWrapper* shader, UINT CBIndex, size_t size, const void* data);
 
     void PrintAllRenderItems();
+    void PrintAllShaders();
     void PrintAllPSOs();
     void PrintAllPasses();
+    void PrintAllPassCBs();
     void PrintAllMultiObjCBs();
     void PrintAllPrimitives();
     void PrintAllMaterials();
@@ -219,7 +222,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<PassConstBuffer>>        mPassCBs;
     std::unordered_map<std::string, std::shared_ptr<MultiObjectConstBuffer>> mMultiObjCBs;
 
-	std::unordered_map<std::string, std::unique_ptr<D3DPrimitive>>     mPrimitives; 
+	std::unordered_map<std::string, std::shared_ptr<D3DPrimitive>>     mPrimitives;
     std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>> mShaders;
 
     // todo : move to primitive

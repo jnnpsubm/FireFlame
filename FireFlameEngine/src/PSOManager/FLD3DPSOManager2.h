@@ -39,6 +39,8 @@ public:
     
     bool NameExist(const std::string& name) const { return mNames.find(name) != mNames.end(); }
 
+    void PrintAllPSOs();
+
 private:
     std::set<std::string>           mNames;
     std::map<PSO_TRAIT, PSO_ComPtr> mPSOs;

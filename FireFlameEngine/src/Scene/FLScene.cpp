@@ -1,5 +1,6 @@
 #include "PCH.h"
 #include "FLScene.h"
+#include "RenderItem\FLD3DRenderItem.h"
 #include "..\Renderer\FLD3DRenderer.h"
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 #include "..\Timer\FLStopWatch.h"
@@ -188,6 +189,13 @@ int Scene::GetReady() {
     }
 
     PrintAllPasses();
+    PrintAllShaders();
+    PrintAllPSOs();
+    PrintAllPassCBs();
+    PrintAllMultiObjCBs();
+    PrintAllPrimitives();
+    PrintAllTextures();
+    PrintAllMaterials();
     PrintAllRenderItems();
     return 0;
 }
@@ -735,29 +743,71 @@ void Scene::PrintAllPasses()
     }
 }
 
+void Scene::PrintAllShaders() 
+{
+    std::cout << "Shader Count:" << mShaders.size() << std::endl;
+    for (const auto& itShader : mShaders)
+    {
+        std::cout << "   " << itShader.first << std::endl;
+    }
+}
+
+void Scene::PrintAllPassCBs()
+{
+    std::cout << "PassCB Count:" << mPassCBs.size() << std::endl;
+    for (auto itPassCB : mPassCBs)
+    {
+        std::cout << "   " << itPassCB.first << " shader:" << itPassCB.second->shaderName
+            << " CBIndex:" << std::dec << itPassCB.second->CBIndex << std::endl;
+    }
+}
+
 void Scene::PrintAllPSOs()
 {
-
+    Engine::GetEngine()->GetPSOManager2()->PrintAllPSOs();
 }
 
 void Scene::PrintAllMultiObjCBs() 
 {
-
+    std::cout << "MultiObjCB Count:" << mMultiObjCBs.size() << std::endl;
+    for (auto itMultiObjCB : mMultiObjCBs)
+    {
+        std::cout << "   " << itMultiObjCB.first << " shader:" << itMultiObjCB.second->shaderName
+            << " CBIndex:" << itMultiObjCB.second->CBIndex << std::endl;
+    }
 }
 
 void Scene::PrintAllPrimitives() 
 {
-
+    std::cout << "Primitive Count:" << mPrimitives.size() << std::endl;
+    for (auto itPrimitive : mPrimitives)
+    {
+        std::cout << "   " << itPrimitive.first << " Visible:" << itPrimitive.second->Visible() << std::endl;
+        for (const auto& itSubMesh : itPrimitive.second->GetMesh()->GetSubMeshs())
+        {
+            std::cout << "      " << itSubMesh.first << " Index Count:" 
+                << itSubMesh.second.indexCount << std::endl;
+        }
+    }
 }
 
 void Scene::PrintAllMaterials() 
 {
-
+    std::cout << "Material Count:" << mMaterials.size() << std::endl;
+    for (auto itMat : mMaterials)
+    {
+        std::cout << "   " << itMat.first << " matCBIndex:" << itMat.second->MatCBIndex
+            << " srvIndex:" << itMat.second->DiffuseSrvHeapIndex << std::endl;
+    }
 }
 
 void Scene::PrintAllTextures() 
 {
-
+    std::cout << "Texture Count:" << mTextures.size() << std::endl;
+    for (auto itTex : mTextures)
+    {
+        std::cout << "   " << itTex.first << std::endl;
+    }
 }
 
 
