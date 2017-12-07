@@ -65,6 +65,16 @@ public:
             it->second->GetBufferSize()
         );
     }
+    std::pair<void*, size_t> GetGS(const std::string& macro) const
+    {
+        auto it = mGSByteCodes.find(macro);
+        if (it == mGSByteCodes.end()) return std::make_pair(nullptr, 0);
+        return std::make_pair
+        (
+            reinterpret_cast<void*>(it->second->GetBufferPointer()),
+            it->second->GetBufferSize()
+        );
+    }
     std::pair<void*, size_t> GetPS(const std::string& macro) const
     {
         auto it = mPSByteCodes.find(macro);
@@ -137,9 +147,9 @@ private:
     std::vector<std::string>              mSemanticNames;
 
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mVSByteCodes;
-    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mTSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mGSByteCodes;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
 
     std::unique_ptr<UploadBuffer>                  mShaderCB             = nullptr;
     Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;

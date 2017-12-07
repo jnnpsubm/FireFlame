@@ -240,6 +240,7 @@ struct PSODesc
     }
     std::string shaderName;
     std::string shaderMacroVS;
+    std::string shaderMacroGS;
     std::string shaderMacroPS;
     
     Primitive_Topology topology = Primitive_Topology::TriangleList;

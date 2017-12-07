@@ -31,6 +31,7 @@ public:
 private:
     void AddShaders();
     void AddShaderMain();
+    void AddShaderTree();
     void AddShaderDepthComplexity();
 
     void AddPSOs();
@@ -39,10 +40,11 @@ private:
     void AddMaterials();
 
     void AddMeshs();
-    void AddWavesMesh();
-    void AddBoxMesh();
-    void AddLandMesh();
-    void AddFullScreenRectMesh();
+    void AddMeshWaves();
+    void AddMeshBox();
+    void AddMeshLand();
+    void AddMeshTrees();
+    void AddMeshFullScreenRect();
 
     void AddRenderItems();
     void AddRenderItemsNormal();
@@ -52,6 +54,8 @@ private:
 
     float GetHillsHeight(float x, float z) const;
     FireFlame::Vector3f GetHillsNormal(float x, float z) const;
+
+    std::unordered_map<std::string, std::string> mTreeShaderMacrosPS;
 
     bool                           mShowDepthComplexity = false;
 

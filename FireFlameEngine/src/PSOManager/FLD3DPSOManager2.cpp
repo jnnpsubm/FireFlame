@@ -25,29 +25,51 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
     auto vs = shader->GetVS(desc.shaderMacroVS);
     if (!vs.first)
     {
-        spdlog::get("console")->critical
+        spdlog::get("console")->warn
         (
             "cannot find vs with macro {0} in shader {1} in AddPSO",
             desc.shaderMacroVS.c_str(),
             desc.shaderName.c_str()
         );
-        return;
     }
     psoDesc.VS = {
         reinterpret_cast<BYTE*>(vs.first),
         vs.second
     };
 
+    auto gs = shader->GetGS(desc.shaderMacroGS);
+    if (!gs.first)
+    {
+        spdlog::get("console")->info
+        (
+            "no gs with macro [{0}] in shader {1} in AddPSO",
+            desc.shaderMacroGS.c_str(),
+            desc.shaderName.c_str()
+        );
+    }
+    else
+    {
+        spdlog::get("console")->info
+        (
+            "found gs with macro [{0}] in shader {1}",
+            desc.shaderMacroGS.c_str(),
+            desc.shaderName.c_str()
+        );
+    }
+    psoDesc.GS = {
+        reinterpret_cast<BYTE*>(gs.first),
+        gs.second
+    };
+
     auto ps = shader->GetPS(desc.shaderMacroPS);
     if (!ps.first)
     {
-        spdlog::get("console")->critical
+        spdlog::get("console")->warn
         (
             "cannot find ps with macro {0} in shader {1} in AddPSO",
             desc.shaderMacroPS.c_str(),
             desc.shaderName.c_str()
         );
-        return;
     }
     psoDesc.PS = {
         reinterpret_cast<BYTE*>(ps.first),

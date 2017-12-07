@@ -46,7 +46,7 @@ void LandAndWavesApp::Update(float time_elapsed)
 
     // Update the wave vertex buffer with the new solution.
     //auto currWavesVB = mCurrFrameResource->WavesVB.get();
-    std::vector<FLVertex> vertices(mWaves->VertexCount(), { 0.f,0.f,0.f, 0.000000000f, 0.000000000f, 1.000000000f, 1.000000000f });
+    std::vector<FLVertexColor> vertices(mWaves->VertexCount(), { 0.f,0.f,0.f, 0.000000000f, 0.000000000f, 1.000000000f, 1.000000000f });
     for (int i = 0; i < mWaves->VertexCount(); ++i)
     {
         vertices[i].Pos = { mWaves->Position(i).x,mWaves->Position(i).y,mWaves->Position(i).z };
@@ -59,11 +59,11 @@ void LandAndWavesApp::Update(float time_elapsed)
     mEngine.GetScene()->UpdateMeshCurrVBFrameRes
     (
         mMeshDesc[1].name, 0, 
-        sizeof(FLVertex)*vertices.size(), 
+        sizeof(FLVertexColor)*vertices.size(),
         vertices.data()
     );
 
-    // Set the dynamic VB of the wave renderitem to the current frame VB.
+    // Set the dynamic VB of the wave render item to the current frame VB.
     //mWavesRitem->Geo->VertexBufferGPU = currWavesVB->Resource();
 }
 
@@ -95,7 +95,7 @@ void LandAndWavesApp::BuildWavesGeometry()
         }
     }
 
-    UINT vbByteSize = mWaves->VertexCount() * sizeof(FireFlame::FLVertex);
+    UINT vbByteSize = mWaves->VertexCount() * sizeof(FireFlame::FLVertexColor);
     UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
     mMeshDesc.emplace_back();
@@ -106,7 +106,7 @@ void LandAndWavesApp::BuildWavesGeometry()
 
     mMeshDesc[1].vertexInFrameRes = true;
     mMeshDesc[1].vertexDataCount.push_back((unsigned int)mWaves->VertexCount());
-    mMeshDesc[1].vertexDataSize.push_back(sizeof(FLVertex));
+    mMeshDesc[1].vertexDataSize.push_back(sizeof(FLVertexColor));
     //mMeshDesc[1].vertexData.push_back(vertices.data());
 
     // sub meshes
@@ -160,7 +160,7 @@ void LandAndWavesApp::BuildLandGeometry()
     // sandy looking beaches, grassy low hills, and snow mountain peaks.
     //
 
-    std::vector<FLVertex> vertices(grid.Vertices.size());
+    std::vector<FLVertexColor> vertices(grid.Vertices.size());
     for (size_t i = 0; i < grid.Vertices.size(); ++i)
     {
         auto& p = grid.Vertices[i].Position;
@@ -204,7 +204,7 @@ void LandAndWavesApp::BuildLandGeometry()
     mMeshDesc[0].indices = indices.data();
 
     mMeshDesc[0].vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc[0].vertexDataSize.push_back(sizeof(FLVertex));
+    mMeshDesc[0].vertexDataSize.push_back(sizeof(FLVertexColor));
     mMeshDesc[0].vertexData.push_back(vertices.data());
 
     // sub meshes

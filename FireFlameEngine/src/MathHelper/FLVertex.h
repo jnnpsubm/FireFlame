@@ -3,23 +3,35 @@
 
 namespace FireFlame 
 {
-struct FLVertexPos
-{
-    Vector3f Pos;
-    FLVertexPos() = default;
-    FLVertexPos(float x, float y, float z) :
-        Pos(x, y, z)
-    {}
-};
 struct FLVertex
 {
     Vector3f Pos;
-    Vector4f Color;
     FLVertex() = default;
     FLVertex(float x, float y, float z) :
         Pos(x, y, z)
     {}
-    FLVertex(float x, float y, float z, float r, float g, float b, float a) : 
+};
+struct FLVertexSize
+{
+    Vector3f Pos;
+    Vector2f Size;
+    FLVertexSize() = default;
+    FLVertexSize(float x, float y, float z) :
+        Pos(x, y, z)
+    {}
+    FLVertexSize(float x, float y, float z, float w, float h) :
+        Pos(x, y, z), Size(w, h)
+    {}
+};
+struct FLVertexColor
+{
+    Vector3f Pos;
+    Vector4f Color;
+    FLVertexColor() = default;
+    FLVertexColor(float x, float y, float z) :
+        Pos(x, y, z)
+    {}
+    FLVertexColor(float x, float y, float z, float r, float g, float b, float a) :
         Pos(x, y, z),
         Color(r, g, b, a) 
     {}

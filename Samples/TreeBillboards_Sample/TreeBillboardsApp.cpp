@@ -24,6 +24,10 @@ void TreeBillboardsApp::Initialize()
 void TreeBillboardsApp::Update(float time_elapsed)
 {
     FLEngineApp3::Update(time_elapsed);
+
+    auto& passCB = mPassCBs["main"];
+    mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["tree"].name, sizeof(PassConstants), &passCB);
+
     if (mWaveStart) UpdateWaves();
 }
 
@@ -94,6 +98,7 @@ void TreeBillboardsApp::UpdateWaves()
 void TreeBillboardsApp::AddShaders()
 {
     AddShaderMain();
+    AddShaderTree();
     AddShaderDepthComplexity();
 }
 
@@ -102,7 +107,7 @@ void TreeBillboardsApp::AddShaderMain()
     using namespace FireFlame;
 
     auto& shaderDesc = mShaderDescs["main"];
-    shaderDesc.name = "TreeBillboardsApp";
+    shaderDesc.name = "main";
     shaderDesc.objCBSize = sizeof(ObjectConsts);
     shaderDesc.passCBSize = sizeof(PassConstants);
     shaderDesc.materialCBSize = sizeof(MaterialConstants2);
@@ -138,6 +143,48 @@ void TreeBillboardsApp::AddShaderMain()
     mEngine.GetScene()->AddShader(shaderDesc);
 }
 
+void TreeBillboardsApp::AddShaderTree()
+{
+    using namespace FireFlame;
+
+    auto& shaderDesc = mShaderDescs["tree"];
+    shaderDesc.name = "tree";
+    shaderDesc.objCBSize = sizeof(ObjectConsts);
+    shaderDesc.passCBSize = sizeof(PassConstants);
+    shaderDesc.materialCBSize = sizeof(MaterialConstants2);
+    shaderDesc.ParamDefault();
+    shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("SIZE", FireFlame::VERTEX_FORMAT_FLOAT2);
+    
+    shaderDesc.AddShaderStage(L"Shaders\\TreeSprite.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    shaderDesc.AddShaderStage(L"Shaders\\TreeSprite.hlsl", Shader_Type::GS, "GS", "gs_5_0");
+
+    // ps with macros
+    auto& ps = shaderDesc.AddShaderStage(L"Shaders\\TreeSprite.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    mTreeShaderMacrosPS[""] = ps.Macros2String();
+
+    std::vector<std::pair<std::string, std::string>> macros = { { "FOG", "1" } };
+    auto& psFogged = shaderDesc.AddShaderStage
+    (
+        L"Shaders\\TreeSprite.hlsl",
+        Shader_Type::PS, "PS", "ps_5_0",
+        macros
+    );
+    mTreeShaderMacrosPS["fogged"] = psFogged.Macros2String();
+
+    macros.emplace_back("ALPHA_CLIP", "1");
+    auto& psAlphaClip = shaderDesc.AddShaderStage
+    (
+        L"Shaders\\TreeSprite.hlsl",
+        Shader_Type::PS, "PS", "ps_5_0",
+        macros
+    );
+    mTreeShaderMacrosPS["fogged_and_alpha_clip"] = psAlphaClip.Macros2String();
+    // end
+
+    mEngine.GetScene()->AddShader(shaderDesc);
+}
+
 void TreeBillboardsApp::AddShaderDepthComplexity()
 {
     using namespace FireFlame;
@@ -155,6 +202,12 @@ void TreeBillboardsApp::AddShaderDepthComplexity()
 void TreeBillboardsApp::AddPSOs()
 {
     using namespace FireFlame;
+
+    PSODesc descTree(mShaderDescs["tree"].name,"",mTreeShaderMacrosPS["fogged_and_alpha_clip"]);
+    descTree.topology = Primitive_Topology::PointList;
+    descTree.alpha2Coverage = true;
+    descTree.cullMode = Cull_Mode::None;
+    mEngine.GetScene()->AddPSO("tree", descTree);
 
     PSODesc descDepthComplexity(mShaderDescs["DepthComplexity"].name);
     descDepthComplexity.stencilEnable = true;
@@ -204,6 +257,12 @@ void TreeBillboardsApp::AddTextures()
         "grassTex",
         L"..\\..\\Resources\\Textures\\grass.dds"
     );
+
+    mEngine.GetScene()->AddTexture
+    (
+        "treeArrayTex",
+        L"..\\..\\Resources\\Textures\\treeArray2.dds"
+    );
 }
 
 void TreeBillboardsApp::AddMaterials()
@@ -243,17 +302,30 @@ void TreeBillboardsApp::AddMaterials()
         mShaderDescs["main"].name, "waterTex",
         sizeof(MaterialConstants2), &water
     );
+
+    auto& treeSprites = mMaterials["treeSprites"];
+    treeSprites.Name = "treeSprites";
+    treeSprites.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    treeSprites.FresnelR0 = FireFlame::Vector3f(0.01f, 0.01f, 0.01f);
+    treeSprites.Roughness = 0.125f;
+    mEngine.GetScene()->AddMaterial
+    (
+        treeSprites.Name,
+        mShaderDescs["tree"].name, "treeArrayTex",
+        sizeof(MaterialConstants), &treeSprites
+    );
 }
 
 void TreeBillboardsApp::AddMeshs()
 {
-    AddBoxMesh();
-    AddWavesMesh();
-    AddLandMesh();
-    AddFullScreenRectMesh();
+    AddMeshBox();
+    AddMeshWaves();
+    AddMeshLand();
+    AddMeshTrees();
+    AddMeshFullScreenRect();
 }
 
-void TreeBillboardsApp::AddWavesMesh()
+void TreeBillboardsApp::AddMeshWaves()
 {
     using namespace FireFlame;
 
@@ -296,7 +368,7 @@ void TreeBillboardsApp::AddWavesMesh()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
-void TreeBillboardsApp::AddBoxMesh()
+void TreeBillboardsApp::AddMeshBox()
 {
     using namespace FireFlame;
 
@@ -329,7 +401,7 @@ void TreeBillboardsApp::AddBoxMesh()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
-void TreeBillboardsApp::AddLandMesh()
+void TreeBillboardsApp::AddMeshLand()
 {
     using namespace FireFlame;
 
@@ -363,16 +435,56 @@ void TreeBillboardsApp::AddLandMesh()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
-void TreeBillboardsApp::AddFullScreenRectMesh()
+void TreeBillboardsApp::AddMeshTrees()
 {
     using namespace FireFlame;
 
-    std::array<FLVertexPos, 4> vertices = {
+    static const int treeCount = 16;
+    std::array<FLVertexSize, 16> vertices;
+    for (UINT i = 0; i < treeCount; ++i)
+    {
+        float x = MathHelper::RandF(-45.0f, 45.0f);
+        float z = MathHelper::RandF(-45.0f, 45.0f);
+        float y = GetHillsHeight(x, z);
+
+        // Move tree slightly above land height.
+        y += 8.0f;
+
+        vertices[i].Pos = { x, y, z };
+        vertices[i].Size = { 20.0f, 20.0f };
+    }
+
+    std::array<std::uint16_t, 16> indices =
+    {
+        0, 1, 2, 3, 4, 5, 6, 7,
+        8, 9, 10, 11, 12, 13, 14, 15
+    };
+
+    auto& meshDesc = mMeshDescs["trees"];
+    meshDesc.name = "trees";
+    meshDesc.indexCount = (unsigned int)indices.size();
+    meshDesc.indexFormat = Index_Format::UINT16;
+    meshDesc.indices = indices.data();
+
+    meshDesc.vertexDataCount.push_back((unsigned int)vertices.size());
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertexSize));
+    meshDesc.vertexData.push_back(vertices.data());
+
+    // sub meshes
+    meshDesc.subMeshs.emplace_back("all", (UINT)indices.size());
+    mEngine.GetScene()->AddPrimitive(meshDesc);
+}
+
+void TreeBillboardsApp::AddMeshFullScreenRect()
+{
+    using namespace FireFlame;
+
+    std::array<FLVertex, 4> vertices = {
         // front face 
-        FLVertexPos(-1.0f, -1.0f,  0.0f),
-        FLVertexPos(-1.0f, +1.0f,  0.0f),
-        FLVertexPos(+1.0f, +1.0f,  0.0f),
-        FLVertexPos(+1.0f, -1.0f,  0.0f)
+        FLVertex(-1.0f, -1.0f,  0.0f),
+        FLVertex(-1.0f, +1.0f,  0.0f),
+        FLVertex(+1.0f, +1.0f,  0.0f),
+        FLVertex(+1.0f, -1.0f,  0.0f)
     };
     std::array<std::uint16_t, 6> indices = {
         // front face
@@ -387,7 +499,7 @@ void TreeBillboardsApp::AddFullScreenRectMesh()
     meshDesc.indices = indices.data();
 
     meshDesc.vertexDataCount.push_back((unsigned int)vertices.size());
-    meshDesc.vertexDataSize.push_back(sizeof(FLVertexPos));
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertex));
     meshDesc.vertexData.push_back(vertices.data());
 
     // sub meshes

@@ -482,12 +482,12 @@ void BlendApp::AddFullScreenRect()
 {
     using namespace FireFlame;
 
-    std::array<FLVertexPos, 4> vertices = {
+    std::array<FLVertex, 4> vertices = {
         // front face 
-        FLVertexPos(-1.0f, -1.0f,  0.0f),
-        FLVertexPos(-1.0f, +1.0f,  0.0f),
-        FLVertexPos(+1.0f, +1.0f,  0.0f),
-        FLVertexPos(+1.0f, -1.0f,  0.0f)
+        FLVertex(-1.0f, -1.0f,  0.0f),
+        FLVertex(-1.0f, +1.0f,  0.0f),
+        FLVertex(+1.0f, +1.0f,  0.0f),
+        FLVertex(+1.0f, -1.0f,  0.0f)
     };
     std::array<std::uint16_t, 6> indices = {
         // front face
@@ -502,7 +502,7 @@ void BlendApp::AddFullScreenRect()
     mMeshDesc[3].indices = indices.data();
 
     mMeshDesc[3].vertexDataCount.push_back((unsigned int)vertices.size());
-    mMeshDesc[3].vertexDataSize.push_back(sizeof(FLVertexPos));
+    mMeshDesc[3].vertexDataSize.push_back(sizeof(FLVertex));
     mMeshDesc[3].vertexData.push_back(vertices.data());
 
     // sub meshes
