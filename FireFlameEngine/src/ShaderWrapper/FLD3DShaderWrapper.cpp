@@ -69,6 +69,7 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     CD3DX12_DESCRIPTOR_RANGE cbvTable3;
     cbvTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 3);
 
+    // Performance TIP: Order from most frequent to least frequent.
     slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
     slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable0);
     slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable1);

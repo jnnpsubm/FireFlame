@@ -204,8 +204,9 @@ void TreeBillboardsApp::AddPSOs()
     using namespace FireFlame;
 
     PSODesc descTree(mShaderDescs["tree"].name,"",mTreeShaderMacrosPS["fogged_and_alpha_clip"]);
+    descTree.opaque = false;
     descTree.topology = Primitive_Topology::PointList;
-    descTree.alpha2Coverage = true;
+    //descTree.alpha2Coverage = true;
     descTree.cullMode = Cull_Mode::None;
     mEngine.GetScene()->AddPSO("tree", descTree);
 
@@ -261,7 +262,7 @@ void TreeBillboardsApp::AddTextures()
     mEngine.GetScene()->AddTexture
     (
         "treeArrayTex",
-        L"..\\..\\Resources\\Textures\\treeArray2.dds"
+        L"..\\..\\Resources\\Textures\\treearray.dds"
     );
 }
 
@@ -528,11 +529,12 @@ FireFlame::Vector3f TreeBillboardsApp::GetHillsNormal(float x, float z) const
 
 void TreeBillboardsApp::AddRenderItems()
 {
-    AddRenderItemsNormal();
+    AddRenderItemsMain();
+    AddRenderItemsTree();
     AddRenderItemsDepthComplexity();
 }
 
-void TreeBillboardsApp::AddRenderItemsNormal()
+void TreeBillboardsApp::AddRenderItemsMain()
 {
     using namespace DirectX;
 
@@ -609,6 +611,38 @@ void TreeBillboardsApp::AddRenderItemsNormal()
         "ps_fogged",
         0,
         RItem3
+    );
+}
+
+void TreeBillboardsApp::AddRenderItemsTree()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("trees", mMeshDescs["trees"].subMeshs[0]);
+    RItem.mat = "treeSprites";
+    XMFLOAT4X4 trans[2];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixIdentity()
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixIdentity()
+    );
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    RItem.opaque = false;
+    RItem.topology = FireFlame::Primitive_Topology::PointList;
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["trees"].name,
+        mShaderDescs["tree"].name,
+        "tree",
+        0,
+        RItem
     );
 }
 

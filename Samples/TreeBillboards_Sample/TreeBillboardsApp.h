@@ -47,7 +47,8 @@ private:
     void AddMeshFullScreenRect();
 
     void AddRenderItems();
-    void AddRenderItemsNormal();
+    void AddRenderItemsMain();
+    void AddRenderItemsTree();
     void AddRenderItemsDepthComplexity();
 
     void UpdateWaves();

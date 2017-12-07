@@ -17,21 +17,28 @@ public:
         return dist(e);
     }
 
+    // Returns random float in [0, max unsigned int).
+    static unsigned int Rand()
+    {
+        // uncomment to use a non-deterministic seed  
+        //std::random_device rd;  
+        static std::default_random_engine e/*(rd())*/;
+        static std::uniform_int_distribution<unsigned int> dist(0, (std::numeric_limits<unsigned int>::max)());
+        return dist(e);
+    }
+
     // Returns random float in [a, b).
     static float RandF(float a, float b)
     {
-        static std::default_random_engine e;
-        static std::uniform_real_distribution<float> dist(a, b);
-        return dist(e);
+        return a + RandF()*(b - a);
     }
 
+    // Returns int in [a,b]
     static int Rand(int a, int b)
     {
-        static std::default_random_engine e;
-        static std::uniform_int_distribution<int> dist(a, b);
-        return dist(e);
+        return a + Rand() % ((b - a) + 1);
     }
-
+    
     template<typename T, typename U, typename V>
     static T Clamp(T x, U low, V high)
     {
