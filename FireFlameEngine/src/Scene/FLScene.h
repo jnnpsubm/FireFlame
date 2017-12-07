@@ -57,7 +57,10 @@ public:
         const std::string&      primitiveName,
         const std::string&      shaderName,
         const stRenderItemDesc& desc
-    );
+    )
+    {
+        return AddRenderItem(primitiveName, shaderName, "", "", desc);
+    }
     void AddRenderItem
     (
         const std::string&      primitiveName,
@@ -72,7 +75,10 @@ public:
         const std::string&      shaderName,
         const std::string&      PSOName,
         const stRenderItemDesc& desc
-    );
+    ) 
+    {
+        return AddRenderItem(primitiveName, shaderName, PSOName, 0, desc);
+    }
     // priority:0 > 1 > 2......
     void AddRenderItem
     (
@@ -81,7 +87,10 @@ public:
         const std::string&      PSOName,
         int                     priority,
         const stRenderItemDesc& desc
-    );
+    )
+    {
+        return AddRenderItem(primitiveName, shaderName, PSOName, "", priority, desc);
+    }
     void AddRenderItem
     (
         const std::string&      primitiveName,
@@ -104,17 +113,29 @@ public:
     );
     void AddMaterial
     (
-        const std::string& name, 
-        const std::string& shaderName, 
+        const std::string& name,
+        const std::string& shaderName,
         size_t dataLen, const void* data
-    );
+    )
+    {
+        return AddMaterial(name, shaderName, "", dataLen, data);
+    }
     void AddMaterial
     (
         const std::string& name,
         const std::string& shaderName,
         const std::string& texName,
         size_t dataLen, const void* data
-    );
+    )
+    {
+        stMaterialDesc desc;
+        desc.data = data;
+        desc.dataLen = dataLen;
+        desc.name = name;
+        desc.shaderName = shaderName;
+        if(!texName.empty()) desc.texNames.push_back(texName);
+        return AddMaterial(desc);
+    }
     void AddMaterial(const stMaterialDesc& matDesc);
     void AddMultiObjCB(const std::string& shaderName, const std::string& name);
     void AddPass(const std::string& shaderName, const std::string& passName);

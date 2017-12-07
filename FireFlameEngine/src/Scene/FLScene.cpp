@@ -328,60 +328,6 @@ void Scene::PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubM
     D3DMesh* mesh = mPrimitives[name]->GetMesh();
     mesh->AddSubMesh(subMesh);
 }
-void Scene::AddRenderItem
-(
-    const std::string&      primitiveName,
-    const std::string&      shaderName,
-    const stRenderItemDesc& desc
-)
-{
-    auto itPrimitive = mPrimitives.find(primitiveName);
-    if (itPrimitive == mPrimitives.end()) throw std::exception("cannot find primitive");
-    auto itShader = mShaders.find(shaderName);
-    if (itShader == mShaders.end()) throw std::exception("cannot find shader");
-   
-    D3DMesh* mesh = itPrimitive->second->GetMesh();
-    D3DShaderWrapper* shader = itShader->second.get();
-
-    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
-    auto PSOName = shaderName + desc.AsPSOName();
-    if (!PSOManager->NameExist(PSOName))
-    {
-        AddPSO(PSOName, { shaderName,"","",desc.opaque,desc.topology,desc.cullMode });
-    }
-
-    auto renderItem = std::make_shared<D3DRenderItem>();
-    renderItem->Name = desc.name;
-    renderItem->NumFramesDirty = Engine::NumFrameResources();
-    renderItem->IndexCount = desc.subMesh.indexCount;
-    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
-    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
-    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
-    renderItem->Mesh = mesh;
-    renderItem->Shader = shaderName;
-    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
-    renderItem->opaque = desc.opaque;
-    renderItem->stencilRef = desc.stencilRef;
-    if (desc.data && desc.dataLen)
-    {
-        renderItem->Data = new char[desc.dataLen];
-        renderItem->DataLen = desc.dataLen;
-        memcpy(renderItem->Data, desc.data, desc.dataLen);
-    }
-    if (!desc.mat.empty())
-    {
-        auto itMat = mMaterials.find(desc.mat);
-        if (itMat == mMaterials.end())
-            throw std::exception("cannot find material in AddRenderItem");
-        renderItem->Mat = itMat->second.get();
-    }
-
-    auto& shaderMapped = GetShaderMappedRItem(0, desc.opaque);
-    auto& PSOMapped = shaderMapped[shaderName];
-    auto& vecItems = PSOMapped[PSOName];
-    vecItems.push_back(renderItem.get());
-    mRenderItems.emplace(desc.name, renderItem);
-}
 
 void Scene::AddRenderItem
 (
@@ -392,180 +338,13 @@ void Scene::AddRenderItem
     const stRenderItemDesc& desc
 )
 {
-    auto itPrimitive = mPrimitives.find(primitiveName);
-    if (itPrimitive == mPrimitives.end()) throw std::exception("cannot find primitive");
-    auto itShader = mShaders.find(shaderName);
-    if (itShader == mShaders.end()) throw std::exception("cannot find shader");
-
-    D3DMesh* mesh = itPrimitive->second->GetMesh();
-    D3DShaderWrapper* shader = itShader->second.get();
-
     auto PSOManager = Engine::GetEngine()->GetPSOManager2();
     auto PSOName = shaderName + shaderMacroVS + shaderMacroPS + desc.AsPSOName();
     if (!PSOManager->NameExist(PSOName))
     {
-        AddPSO(PSOName,{ shaderName,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode });
+        AddPSO(PSOName,PSODesc(shaderName,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode));
     }
-
-    auto renderItem = std::make_shared<D3DRenderItem>();
-    renderItem->Name = desc.name;
-    renderItem->NumFramesDirty = Engine::NumFrameResources();
-    renderItem->IndexCount = desc.subMesh.indexCount;
-    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
-    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
-    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
-    renderItem->Mesh = mesh;
-    renderItem->Shader = shaderName;
-    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
-    renderItem->opaque = desc.opaque;
-    renderItem->stencilRef = desc.stencilRef;
-    if (desc.data && desc.dataLen)
-    {
-        renderItem->Data = new char[desc.dataLen];
-        renderItem->DataLen = desc.dataLen;
-        memcpy(renderItem->Data, desc.data, desc.dataLen);
-    }
-    if (!desc.mat.empty())
-    {
-        auto itMat = mMaterials.find(desc.mat);
-        if (itMat == mMaterials.end())
-            throw std::exception("cannot find material in AddRenderItem");
-        renderItem->Mat = itMat->second.get();
-    }
-
-    auto& shaderMapped = GetShaderMappedRItem(0, desc.opaque);
-    auto& PSOMapped = shaderMapped[shaderName];
-    auto& vecItems = PSOMapped[PSOName];
-    vecItems.push_back(renderItem.get());
-    mRenderItems.emplace(desc.name, renderItem);
-}
-
-void Scene::AddRenderItem
-(
-    const std::string&      primitiveName,
-    const std::string&      shaderName,
-    const std::string&      PSOName,
-    const stRenderItemDesc& desc
-)
-{
-    auto itPrimitive = mPrimitives.find(primitiveName);
-    if (itPrimitive == mPrimitives.end()) 
-    { 
-        spdlog::get("console")->error("cannot find primitive {0}", primitiveName);
-        throw std::exception("cannot find primitive"); 
-    }
-    auto itShader = mShaders.find(shaderName);
-    if (itShader == mShaders.end()) 
-    { 
-        spdlog::get("console")->error("cannot find shader {0}", shaderName);
-        throw std::exception("cannot find shader"); 
-    }
-    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
-    if (!PSOManager->NameExist(PSOName))
-    {
-        spdlog::get("console")->error("cannot find PSO {0}", PSOName);
-        throw std::exception("cannot find PSO in AddRenderItem");
-    }
-
-    D3DMesh* mesh = itPrimitive->second->GetMesh();
-    D3DShaderWrapper* shader = itShader->second.get();
-
-    auto renderItem = std::make_shared<D3DRenderItem>();
-    renderItem->Name = desc.name;
-    renderItem->NumFramesDirty = Engine::NumFrameResources();
-    renderItem->IndexCount = desc.subMesh.indexCount;
-    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
-    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
-    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
-    renderItem->Mesh = mesh;
-    renderItem->Shader = shaderName;
-    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
-    renderItem->opaque = desc.opaque;
-    renderItem->stencilRef = desc.stencilRef;
-    if (desc.data && desc.dataLen)
-    {
-        renderItem->Data = new char[desc.dataLen];
-        renderItem->DataLen = desc.dataLen;
-        memcpy(renderItem->Data, desc.data, desc.dataLen);
-    }
-    if (!desc.mat.empty())
-    {
-        auto itMat = mMaterials.find(desc.mat);
-        if (itMat == mMaterials.end())
-            throw std::exception("cannot find material in AddRenderItem");
-        renderItem->Mat = itMat->second.get();
-    }
-
-    auto& shaderMapped = GetShaderMappedRItem(0, desc.opaque);
-    auto& PSOMapped = shaderMapped[shaderName];
-    auto& vecItems = PSOMapped[PSOName];
-    vecItems.push_back(renderItem.get());
-    mRenderItems.emplace(desc.name, renderItem);
-}
-
-void Scene::AddRenderItem
-(
-    const std::string&      primitiveName,
-    const std::string&      shaderName,
-    const std::string&      PSOName,
-    int                     priority,
-    const stRenderItemDesc& desc
-)
-{
-    auto itPrimitive = mPrimitives.find(primitiveName);
-    if (itPrimitive == mPrimitives.end())
-    {
-        spdlog::get("console")->error("cannot find primitive {0}", primitiveName);
-        throw std::exception("cannot find primitive");
-    }
-    auto itShader = mShaders.find(shaderName);
-    if (itShader == mShaders.end())
-    {
-        spdlog::get("console")->error("cannot find shader {0}", shaderName);
-        throw std::exception("cannot find shader");
-    }
-    
-    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
-    if (!PSOManager->NameExist(PSOName))
-    {
-        spdlog::get("console")->error("cannot find PSO {0}", PSOName);
-        throw std::exception("cannot find PSO in AddRenderItem");
-    }
-    D3DMesh* mesh = itPrimitive->second->GetMesh();
-    D3DShaderWrapper* shader = itShader->second.get();
-
-    auto renderItem = std::make_shared<D3DRenderItem>();
-    renderItem->Name = desc.name;
-    renderItem->NumFramesDirty = Engine::NumFrameResources();
-    renderItem->IndexCount = desc.subMesh.indexCount;
-    renderItem->StartIndexLocation = desc.subMesh.startIndexLocation;
-    renderItem->BaseVertexLocation = desc.subMesh.baseVertexLocation;
-    renderItem->ObjCBIndex = shader->GetFreeObjCBV();
-    renderItem->Mesh = mesh;
-    renderItem->Shader = shaderName;
-    renderItem->PrimitiveType = FLPrimitiveTop2D3DPrimitiveTop(desc.topology);
-    renderItem->opaque = desc.opaque;
-    renderItem->stencilRef = desc.stencilRef;
-    if (desc.data && desc.dataLen)
-    {
-        renderItem->Data = new char[desc.dataLen];
-        renderItem->DataLen = desc.dataLen;
-        memcpy(renderItem->Data, desc.data, desc.dataLen);
-    }
-    if (!desc.mat.empty())
-    {
-        auto itMat = mMaterials.find(desc.mat);
-        if (itMat == mMaterials.end())
-            throw std::exception("cannot find material in AddRenderItem");
-        renderItem->Mat = itMat->second.get();
-    }
-    
-    auto& shaderMapped = GetShaderMappedRItem(priority, desc.opaque);
-    auto& PSOMapped = shaderMapped[shaderName];
-    auto& vecItems = PSOMapped[PSOName];
-    vecItems.push_back(renderItem.get());
-
-    mRenderItems.emplace(desc.name, renderItem);
+    AddRenderItem(primitiveName, shaderName, PSOName, desc);
 }
 
 void Scene::AddRenderItem
@@ -729,64 +508,6 @@ void Scene::AddTexture2D
     mTextures[tex->name] = std::move(tex);
 }
 
-void Scene::AddMaterial
-(
-    const std::string& name,
-    const std::string& shaderName,     // different shader may have different material definition
-    size_t dataLen, const void* data
-)
-{
-    auto itShader = mShaders.find(shaderName);
-    if (itShader == mShaders.end()) 
-        throw std::exception("cannot find shader in AddMaterial");
-    auto shader = itShader->second;
-
-    auto mat = std::make_shared<Material>(name, Engine::NumFrameResources());
-    mat->MatCBIndex = shader->GetFreeMatCBV();
-    mat->ShaderName = shaderName;
-    //mat->DiffuseSrvHeapIndex = shader->GetFreeSRV();
-    if (dataLen && data)
-    {
-        mat->data = new char[dataLen];
-        mat->dataLen = dataLen;
-        memcpy(mat->data, data, dataLen);
-    }
-    mMaterials.emplace(name, mat);
-}
-
-void Scene::AddMaterial
-(
-    const std::string& name,
-    const std::string& shaderName,     // different shader may have different material definition
-    const std::string& texName,
-    size_t dataLen, const void* data
-)
-{
-    auto itShader = mShaders.find(shaderName);
-    if (itShader == mShaders.end())
-        throw std::exception("cannot find shader in AddMaterial");
-    auto shader = itShader->second;
-
-    auto mat = std::make_shared<Material>(name, Engine::NumFrameResources());
-    mat->ShaderName = shaderName;
-    mat->MatCBIndex = shader->GetFreeMatCBV();
-    if (!texName.empty())
-    {
-        auto itTex = mTextures.find(texName);
-        if (itTex != mTextures.end())
-        {
-            mat->DiffuseSrvHeapIndex = shader->CreateTexSRV(itTex->second->resource.Get());
-        }
-    }
-    if (dataLen && data)
-    {
-        mat->data = new char[dataLen];
-        mat->dataLen = dataLen;
-        memcpy(mat->data, data, dataLen);
-    }
-    mMaterials.emplace(name, mat);
-}
-
 void Scene::AddMaterial(const stMaterialDesc& matDesc)
 {
     auto itShader = mShaders.find(matDesc.shaderName);
@@ -807,7 +528,7 @@ void Scene::AddMaterial(const stMaterialDesc& matDesc)
             vecRes.push_back(itTex->second->resource.Get());
         }
     }
-    mat->DiffuseSrvHeapIndex = shader->CreateTexSRV(vecRes);
+    if (!vecRes.empty()) mat->DiffuseSrvHeapIndex = shader->CreateTexSRV(vecRes);
     
     if (matDesc.dataLen && matDesc.data)
     {

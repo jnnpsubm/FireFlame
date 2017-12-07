@@ -56,7 +56,7 @@ private:
     FireFlame::Vector3f GetHillsNormal(float x, float z) const;
 
     bool                           mShowDepthComplexity = false;
-    bool                           mShowDepthComplexity2 = true;
+    bool                           mShowDepthComplexity2 = false;
     FireFlame::stShaderDescription mShaderDepthComplexity;
     FireFlame::stShaderDescription mShaderDepthComplexity2;
 
