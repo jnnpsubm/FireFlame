@@ -206,8 +206,15 @@ void TreeBillboardsApp::AddPSOs()
     PSODesc descTree(mShaderDescs["tree"].name,"",mTreeShaderMacrosPS["fogged_and_alpha_clip"]);
     descTree.opaque = true;
     descTree.topology = Primitive_Topology::PointList;
-    descTree.alpha2Coverage = false;
+    descTree.alpha2Coverage = true;
     descTree.cullMode = Cull_Mode::None;
+    // for depth complexity
+    descTree.stencilEnable = true;
+    descTree.stencilFailOp = STENCIL_OP::INCR;
+    descTree.stencilDepthFailOp = STENCIL_OP::INCR;
+    descTree.stencilPassOp = STENCIL_OP::INCR;
+    descTree.stencilFunc = COMPARISON_FUNC::ALWAYS;
+    // end
     mEngine.GetScene()->AddPSO("tree", descTree);
 
     PSODesc descDepthComplexity(mShaderDescs["DepthComplexity"].name);
@@ -457,6 +464,12 @@ void TreeBillboardsApp::AddMeshTrees()
         float x = MathHelper::RandF(-45.0f, 45.0f);
         float z = MathHelper::RandF(-45.0f, 45.0f);
         float y = GetHillsHeight(x, z);
+        while (y < 2.0f)
+        {
+            x = MathHelper::RandF(-45.0f, 45.0f);
+            z = MathHelper::RandF(-45.0f, 45.0f);
+            y = GetHillsHeight(x, z);
+        }
 
         // Move tree slightly above land height.
         y += 8.0f;
@@ -664,9 +677,9 @@ void TreeBillboardsApp::AddRenderItemsDepthComplexity()
     RItem.dataLen = sizeof(DepthComplexityObjConsts);
     RItem.data = &consts;
 
-    consts.color = { 0.f,0.f,0.f };
-    static const int MAX_DEPTH = 6;
-    static const float COLOR_STEP = 1.0f / MAX_DEPTH;
+    consts.color = { 1.f,1.f,1.f };
+    static const int MAX_DEPTH = 12;
+    static const float COLOR_STEP = -1.0f / MAX_DEPTH;
     for (int depth = 0; depth < MAX_DEPTH; depth++)
     {
         RItem.name = itmename + "Depth:" + std::to_string(depth);

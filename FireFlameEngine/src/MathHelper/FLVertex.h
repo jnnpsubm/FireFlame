@@ -36,6 +36,19 @@ struct FLVertexColor
         Color(r, g, b, a) 
     {}
 };
+struct FLVertexColorV3
+{
+    Vector3f Pos;
+    Vector3f Color;
+    FLVertexColorV3() = default;
+    FLVertexColorV3(float x, float y, float z) :
+        Pos(x, y, z)
+    {}
+    FLVertexColorV3(float x, float y, float z, float r, float g, float b) :
+        Pos(x, y, z),
+        Color(r, g, b)
+    {}
+};
 struct FLVertexTex
 {
     Vector3f Pos;

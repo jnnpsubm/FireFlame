@@ -73,6 +73,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HKXModelViewer", "..\Tools\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeBillboards_Sample", "..\Samples\TreeBillboards_Sample\TreeBillboards_Sample.vcxproj", "{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GSCylinder_Sample", "..\Samples\GSCylinder_Sample\GSCylinder_Sample.vcxproj", "{B0D031EE-541A-417B-A8E9-99B3D32D8183}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -329,6 +331,14 @@ Global
 		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Release|x64.Build.0 = Release|x64
 		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Release|x86.ActiveCfg = Release|Win32
 		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC}.Release|x86.Build.0 = Release|Win32
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Debug|x64.ActiveCfg = Debug|x64
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Debug|x64.Build.0 = Debug|x64
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Debug|x86.ActiveCfg = Debug|Win32
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Debug|x86.Build.0 = Debug|Win32
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Release|x64.ActiveCfg = Release|x64
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Release|x64.Build.0 = Release|x64
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Release|x86.ActiveCfg = Release|Win32
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -364,6 +374,7 @@ Global
 		{C2C390B3-78D9-44D7-9FDA-EBE1D6462F6B} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{27DFFCFB-E796-4004-89B7-71D9079EB504} = {C663A43D-4ABC-4F5B-A5B4-7A26BD712433}
 		{9AEAEFC0-AC6E-404D-81BF-6F59A2D187BC} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
+		{B0D031EE-541A-417B-A8E9-99B3D32D8183} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}
