@@ -552,6 +552,37 @@ inline D3D12_COMPARISON_FUNC FLCompareFunc2D3DCompareFunc(COMPARISON_FUNC func)
     }
 }
 
+inline D3D12_SRV_DIMENSION FLSRVDim2D3DSRVDim(SRV_DIMENSION dim)
+{
+    switch (dim)
+    {
+    case FireFlame::SRV_DIMENSION::UNKNOWN:
+        return D3D12_SRV_DIMENSION_UNKNOWN;
+    case FireFlame::SRV_DIMENSION::BUFFER:
+        return D3D12_SRV_DIMENSION_BUFFER;
+    case FireFlame::SRV_DIMENSION::TEXTURE1D:
+        return D3D12_SRV_DIMENSION_TEXTURE1D;
+    case FireFlame::SRV_DIMENSION::TEXTURE1DARRAY:
+        return D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+    case FireFlame::SRV_DIMENSION::TEXTURE2D:
+        return D3D12_SRV_DIMENSION_TEXTURE2D;
+    case FireFlame::SRV_DIMENSION::TEXTURE2DARRAY:
+        return D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+    case FireFlame::SRV_DIMENSION::TEXTURE2DMS:
+        return D3D12_SRV_DIMENSION_TEXTURE2DMS;
+    case FireFlame::SRV_DIMENSION::TEXTURE2DMSARRAY:
+        return D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+    case FireFlame::SRV_DIMENSION::TEXTURE3D:
+        return D3D12_SRV_DIMENSION_TEXTURE3D;
+    case FireFlame::SRV_DIMENSION::TEXTURECUBE:
+        return D3D12_SRV_DIMENSION_TEXTURECUBE;
+    case FireFlame::SRV_DIMENSION::TEXTURECUBEARRAY:
+        return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+    default:
+        throw std::exception("unknown SRV dimension in FLSRVDim2D3DSRVDim");
+    }
+}
+
 inline std::wstring AnsiToWString(const std::string& str)
 {
 	WCHAR buffer[512];

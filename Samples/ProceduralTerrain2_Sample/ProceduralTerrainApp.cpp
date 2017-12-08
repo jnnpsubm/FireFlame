@@ -33,7 +33,12 @@ void ProceduralTerrainApp::AddMaterials()
     (
     {
         "terrain",
-        mShaderDesc.name, { "darkdirtTex", "lightdirtTex", "snowTex", },
+        mShaderDesc.name, 
+        { 
+            {"darkdirtTex", FireFlame::SRV_DIMENSION::TEXTURE2D },
+            {"lightdirtTex", FireFlame::SRV_DIMENSION::TEXTURE2D },
+            {"snowTex", FireFlame::SRV_DIMENSION::TEXTURE2D },
+        },
         sizeof(MaterialConstants), &terrain
     }
     );

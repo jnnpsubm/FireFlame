@@ -545,17 +545,8 @@ void Scene::AddMaterial(const stMaterialDesc& matDesc)
     auto mat = std::make_shared<Material>(matDesc.name, Engine::NumFrameResources());
     mat->ShaderName = matDesc.shaderName;
     mat->MatCBIndex = shader->GetFreeMatCBV();
-    assert(matDesc.texNames.size() <= shader->GetTexSRVDescriptorTableSize());
-    std::vector<ID3D12Resource*> vecRes;
-    for (const auto& texName : matDesc.texNames)
-    {
-        auto itTex = mTextures.find(texName);
-        if (itTex != mTextures.end())
-        {
-            vecRes.push_back(itTex->second->resource.Get());
-        }
-    }
-    if (!vecRes.empty()) mat->DiffuseSrvHeapIndex = shader->CreateTexSRV(vecRes);
+    assert(matDesc.textures.size() <= shader->GetTexSRVDescriptorTableSize());
+    if (!matDesc.textures.empty()) mat->DiffuseSrvHeapIndex = shader->CreateTexSRV(matDesc.textures);
     
     if (matDesc.dataLen && matDesc.data)
     {

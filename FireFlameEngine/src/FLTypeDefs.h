@@ -429,6 +429,11 @@ struct stShaderDescription {
     unsigned int                maxTexSRVDescriptor = 64;
     unsigned int                texSRVDescriptorTableSize = 1;
 
+    // param0:register t0~tn
+    // param1:register b0
+    // param2:register b1
+    // param3:register b2
+    // param4:register b3
     unsigned int                texParamIndex = -1;
     unsigned int                objParamIndex = 1;
     unsigned int                multiObjParamIndex = -1;
@@ -485,11 +490,33 @@ struct stViewport {
     float z1;
 };
 
+enum class SRV_DIMENSION :std::uint8_t
+{
+    UNKNOWN = 0,
+    BUFFER = 1,
+    TEXTURE1D = 2,
+    TEXTURE1DARRAY = 3,
+    TEXTURE2D = 4,
+    TEXTURE2DARRAY = 5,
+    TEXTURE2DMS = 6,
+    TEXTURE2DMSARRAY = 7,
+    TEXTURE3D = 8,
+    TEXTURECUBE = 9,
+    TEXTURECUBEARRAY = 10
+};
+
 struct stMaterialDesc
 {
+    struct TEX
+    {
+        explicit TEX(const std::string& name) :name(name) {}
+        TEX(const std::string& name, SRV_DIMENSION dim) :name(name), viewDimension(dim) {}
+        std::string name;
+        SRV_DIMENSION viewDimension = SRV_DIMENSION::TEXTURE2D;
+    };
     std::string name;
     std::string shaderName;
-    std::vector<std::string> texNames;
+    std::vector<TEX> textures;
     size_t dataLen;
     const void* data;
 };

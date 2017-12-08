@@ -81,11 +81,15 @@ void CrateApp::AddMaterials()
     woodCrate.Roughness = 0.25f;
     mEngine.GetScene()->AddMaterial
     (
+    {
+        "woodCrate",
+        mShaderDesc.name, 
         { 
-            "woodCrate",
-            mShaderDesc.name, { "woodCrateTex", "iceTex" },
-            sizeof(MaterialConstants), &woodCrate 
-        }
+            {"woodCrateTex", FireFlame::SRV_DIMENSION::TEXTURE2D },
+            {"iceTex", FireFlame::SRV_DIMENSION::TEXTURE2D }
+        },
+        sizeof(MaterialConstants), &woodCrate
+    }
     );
 }
 

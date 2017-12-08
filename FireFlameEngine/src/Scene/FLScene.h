@@ -37,6 +37,13 @@ public:
         return nullptr;
     }
 
+    Texture* GetTexture(const std::string& name) const
+    {
+        auto it = mTextures.find(name);
+        if (it != mTextures.end()) return it->second.get();
+        return nullptr;
+    }
+
     // some scene management
     int  GetReady();
 
@@ -136,7 +143,7 @@ public:
         desc.dataLen = dataLen;
         desc.name = name;
         desc.shaderName = shaderName;
-        if(!texName.empty()) desc.texNames.push_back(texName);
+        if(!texName.empty()) desc.textures.emplace_back(texName);
         return AddMaterial(desc);
     }
     void AddMaterial(const stMaterialDesc& matDesc);

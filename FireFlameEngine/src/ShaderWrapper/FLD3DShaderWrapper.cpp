@@ -5,6 +5,8 @@
 #include "..\Engine\FLEngine.h"
 #include "..\PSOManager\FLD3DPSOManager.h"
 #include "..\Renderer\FLD3DRenderer.h"
+#include "..\Material\FLTexture.h"
+#include "..\3rd_utils\spdlog\spdlog.h"
 
 namespace FireFlame {
 void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, DXGI_FORMAT DSFormat)
@@ -70,6 +72,7 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     cbvTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 3);
 
     // Performance TIP: Order from most frequent to least frequent.
+    // todo : visibility
     slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
     slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable0);
     slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable1);
@@ -269,12 +272,67 @@ UINT D3DShaderWrapper::CreateTexSRV(const std::vector<ID3D12Resource *>& vecRes)
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
         srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDesc.Format = vecRes[i]->GetDesc().Format;
+
+        // same resource can have different views,decide by app
         srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = vecRes[i]->GetDesc().MipLevels;
         srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
         device->CreateShaderResourceView(vecRes[i], &srvDesc, hDescriptor);
+    }
+    return index;
+}
+
+UINT D3DShaderWrapper::CreateTexSRV(const std::vector<stMaterialDesc::TEX>& vecTex)
+{
+    auto scene = Engine::GetEngine()->GetScene();
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    auto device = renderer->GetDevice();
+    
+    if (mTexSrvHeapFreeList.empty())
+    {
+        throw std::exception("todo : dynamically grow size of texture shader resource view");
+    }
+    UINT index = mTexSrvHeapFreeList.front();
+    // todo : material cbv management
+    mTexSrvHeapFreeList.pop_front();
+
+    for (size_t i = 0; i < vecTex.size(); i++)
+    {
+        auto texture = scene->GetTexture(vecTex[i].name);
+        if (!texture)
+        {
+            spdlog::get("console")->warn("cannot find texture [{0}] in (CreateTexSRV)", vecTex[i].name);
+            continue;
+        }
+        auto res = texture->resource.Get();
+
+        CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+        hDescriptor.Offset(index + mTexSrvOffset + (UINT)i, renderer->GetCbvSrvUavDescriptorSize());
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.Format = res->GetDesc().Format;
+
+        // same resource can have different views,decide by app
+        srvDesc.ViewDimension = FLSRVDim2D3DSRVDim(vecTex[i].viewDimension);
+
+        if (vecTex[i].viewDimension == SRV_DIMENSION::TEXTURE2D)
+        {
+            srvDesc.Texture2D.MostDetailedMip = 0;
+            srvDesc.Texture2D.MipLevels = -1;
+            srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+        }
+        else
+        {
+            srvDesc.Texture2DArray.MostDetailedMip = 0;
+            srvDesc.Texture2DArray.MipLevels = -1;
+            srvDesc.Texture2DArray.FirstArraySlice = 0;
+            srvDesc.Texture2DArray.ArraySize = res->GetDesc().DepthOrArraySize;
+        }
+        device->CreateShaderResourceView(res, &srvDesc, hDescriptor);
     }
     return index;
 }

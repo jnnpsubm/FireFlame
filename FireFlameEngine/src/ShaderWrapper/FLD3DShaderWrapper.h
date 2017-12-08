@@ -45,6 +45,7 @@ public:
     );
     UINT CreateTexSRV(ID3D12Resource* res);
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
+    UINT CreateTexSRV(const std::vector<stMaterialDesc::TEX>& vecTex);
 
     // Get Methods
     std::string           GetDefaultPassCBName() const { return mName + "_pass0"; }

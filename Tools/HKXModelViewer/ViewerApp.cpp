@@ -242,7 +242,11 @@ void ViewerApp::AddMaterials()
         (
         {
             material.Name,
-            mShaderDesc.name,{ mTexMap[part],specularTex },
+            mShaderDesc.name,
+            { 
+                {mTexMap[part], FireFlame::SRV_DIMENSION::TEXTURE2D },
+                {specularTex, FireFlame::SRV_DIMENSION::TEXTURE2D }
+            },
             sizeof(MaterialConstants), &material
         }
         );

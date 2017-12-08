@@ -846,7 +846,13 @@ void MPSApp::AddMaterials()
     (
     {
         checkertile.Name,
-        mShaderDesc.name, { "heightMap", "darkdirtTex", "lightdirtTex", "grassTex" },
+        mShaderDesc.name, 
+        { 
+            { "heightMap", FireFlame::SRV_DIMENSION::TEXTURE2D },
+            { "darkdirtTex", FireFlame::SRV_DIMENSION::TEXTURE2D },
+            { "lightdirtTex", FireFlame::SRV_DIMENSION::TEXTURE2D },
+            { "grassTex", FireFlame::SRV_DIMENSION::TEXTURE2D }
+        },
         sizeof(MaterialConstants), &checkertile
     }
     );
@@ -936,7 +942,11 @@ void MPSApp::AddFireKeeperMaterials()
         (
         {
             material.Name,
-            mShaderDesc.name,{ mTexMapFK[part],specularTex },
+            mShaderDesc.name,
+            { 
+                { mTexMapFK[part], FireFlame::SRV_DIMENSION::TEXTURE2D },
+                { specularTex, FireFlame::SRV_DIMENSION::TEXTURE2D }
+            },
             sizeof(MaterialConstants), &material
         }
         );
@@ -987,7 +997,11 @@ void MPSApp::AddUndeadLegionMaterials()
         (
         {
             material.Name,
-            mShaderDesc.name,{ mTexMapUL[part],specularTex },
+            mShaderDesc.name,
+            { 
+                { mTexMapUL[part], FireFlame::SRV_DIMENSION::TEXTURE2D },
+                { specularTex, FireFlame::SRV_DIMENSION::TEXTURE2D }
+            },
             sizeof(MaterialConstants), &material
         }
         );
@@ -1090,7 +1104,12 @@ void MPSApp::AddUndeadLegionMaterials()
         (
         {
             material.Name,
-            mShaderDesc.name,{ texname,specularTex,diffuseTex },
+            mShaderDesc.name,
+            { 
+                {texname, FireFlame::SRV_DIMENSION::TEXTURE2D },
+                {specularTex, FireFlame::SRV_DIMENSION::TEXTURE2D },
+                {diffuseTex, FireFlame::SRV_DIMENSION::TEXTURE2D }
+            },
             sizeof(MaterialConstants), &material
         }
         );

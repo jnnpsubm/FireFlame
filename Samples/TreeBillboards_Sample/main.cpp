@@ -30,7 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
         // engine initialization
         engine.InitMainWindow(150, 80, 1280, 600);
-        engine.InitRenderer(FireFlame::API_Feature::API_DX12_1);
+        engine.InitRenderer(FireFlame::API_Feature::API_DX11_0_ON12);
 
         // add shader, mesh, render item to scene
         app.Initialize();

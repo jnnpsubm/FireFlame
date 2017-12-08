@@ -204,9 +204,9 @@ void TreeBillboardsApp::AddPSOs()
     using namespace FireFlame;
 
     PSODesc descTree(mShaderDescs["tree"].name,"",mTreeShaderMacrosPS["fogged_and_alpha_clip"]);
-    descTree.opaque = false;
+    descTree.opaque = true;
     descTree.topology = Primitive_Topology::PointList;
-    //descTree.alpha2Coverage = true;
+    descTree.alpha2Coverage = false;
     descTree.cullMode = Cull_Mode::None;
     mEngine.GetScene()->AddPSO("tree", descTree);
 
@@ -264,6 +264,11 @@ void TreeBillboardsApp::AddTextures()
         "treeArrayTex",
         L"..\\..\\Resources\\Textures\\treearray.dds"
     );
+    mEngine.GetScene()->AddTexture
+    (
+        "treeArrayTex2",
+        L"..\\..\\Resources\\Textures\\treearray2.dds"
+    );
 }
 
 void TreeBillboardsApp::AddMaterials()
@@ -311,9 +316,14 @@ void TreeBillboardsApp::AddMaterials()
     treeSprites.Roughness = 0.125f;
     mEngine.GetScene()->AddMaterial
     (
+    {
         treeSprites.Name,
-        mShaderDescs["tree"].name, "treeArrayTex",
+        mShaderDescs["tree"].name, 
+        {
+            {"treeArrayTex2", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY}
+        },
         sizeof(MaterialConstants), &treeSprites
+    }  
     );
 }
 
@@ -633,7 +643,7 @@ void TreeBillboardsApp::AddRenderItemsTree()
     );
     RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
     RItem.data = &trans[0];
-    RItem.opaque = false;
+    RItem.opaque = true;
     RItem.topology = FireFlame::Primitive_Topology::PointList;
     mRenderItems[RItem.name] = RItem;
     mEngine.GetScene()->AddRenderItem

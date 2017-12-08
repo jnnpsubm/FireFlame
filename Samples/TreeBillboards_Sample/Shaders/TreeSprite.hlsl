@@ -164,8 +164,8 @@ void GS(point VertexOut gin[1],
 
 float4 PS(GeoOut pin) : SV_Target
 {
-    //float3 uvw = float3(pin.TexC, pin.PrimID % 3);
-    float3 uvw = float3(pin.TexC, 2);
+    float3 uvw = float3(pin.TexC, pin.PrimID % 3);
+    //float3 uvw = float3(pin.TexC, 2);
     float4 diffuseAlbedo = gTreeMapArray.Sample(gsamAnisotropicWrap, uvw) * gDiffuseAlbedo;
 
 #ifdef ALPHA_CLIP
