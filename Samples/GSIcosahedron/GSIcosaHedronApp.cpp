@@ -100,7 +100,7 @@ void GSIcosahedronApp::AddMaterials()
 {
     auto& matCylinder = mMaterials["icosahedron"];
     matCylinder.Name = "icosahedron";
-    matCylinder.DiffuseAlbedo = FireFlame::Vector4f(0.5f, 0.4f, 0.3f, 1.0f);
+    matCylinder.DiffuseAlbedo = FireFlame::Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
     matCylinder.FresnelR0 = FireFlame::Vector3f(0.8f, 0.8f, 0.8f);
     matCylinder.Roughness = 0.125f;
     mEngine.GetScene()->AddMaterial
@@ -164,19 +164,20 @@ void GSIcosahedronApp::AddRenderItemsIcosahedron()
 
     FireFlame::stRenderItemDesc RItem("icosahedron01", mMeshDescs["icosahedron"].subMeshs[0]);
     RItem.mat = "icosahedron";
-    XMFLOAT4X4 trans[2];
+    ObjConst2 objCB;
     XMStoreFloat4x4
     (
-        &trans[0],
+        &objCB.World,
         XMMatrixIdentity()
     );
     XMStoreFloat4x4
     (
-        &trans[1],
+        &objCB.TexTransform,
         XMMatrixIdentity()
     );
-    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
-    RItem.data = &trans[0];
+    RItem.dataLen = sizeof(ObjConst2);
+    RItem.data = &objCB;
+    objCB.SubdivideLevel = 1;
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDescs["icosahedron"].name,
@@ -184,4 +185,56 @@ void GSIcosahedronApp::AddRenderItemsIcosahedron()
         "icosahedron_default",
         RItem
     );
+}
+
+void GSIcosahedronApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
+{
+    FLEngineApp3::OnKeyUp(wParam, lParam);
+    if (wParam == '0')
+    {
+        ObjConst2 objCB;
+        DirectX::XMStoreFloat4x4
+        (
+            &objCB.World,
+            DirectX::XMMatrixIdentity()
+        );
+        DirectX::XMStoreFloat4x4
+        (
+            &objCB.TexTransform,
+            DirectX::XMMatrixIdentity()
+        );
+        objCB.SubdivideLevel = 0;
+        mEngine.GetScene()->UpdateRenderItemCBData("icosahedron01", sizeof(ObjConst2), &objCB);
+    }else if (wParam == '1')
+    {
+        ObjConst2 objCB;
+        DirectX::XMStoreFloat4x4
+        (
+            &objCB.World,
+            DirectX::XMMatrixIdentity()
+        );
+        DirectX::XMStoreFloat4x4
+        (
+            &objCB.TexTransform,
+            DirectX::XMMatrixIdentity()
+        );
+        objCB.SubdivideLevel = 1;
+        mEngine.GetScene()->UpdateRenderItemCBData("icosahedron01", sizeof(ObjConst2), &objCB);
+    }
+    else if (wParam == '2')
+    {
+        ObjConst2 objCB;
+        DirectX::XMStoreFloat4x4
+        (
+            &objCB.World,
+            DirectX::XMMatrixIdentity()
+        );
+        DirectX::XMStoreFloat4x4
+        (
+            &objCB.TexTransform,
+            DirectX::XMMatrixIdentity()
+        );
+        objCB.SubdivideLevel = 2;
+        mEngine.GetScene()->UpdateRenderItemCBData("icosahedron01", sizeof(ObjConst2), &objCB);
+    }
 }

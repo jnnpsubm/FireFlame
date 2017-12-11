@@ -1,6 +1,11 @@
 #pragma once
 #include "..\Common\FLEngineApp3.h"
 
+struct ObjConst2 : ObjectConsts
+{
+    int SubdivideLevel = 0;
+};
+
 class GSIcosahedronApp : public FLEngineApp3 {
 public:
     GSIcosahedronApp(FireFlame::Engine& e) : FLEngineApp3(e)
@@ -11,6 +16,8 @@ public:
     }
     void PreInitialize() override;
     void Initialize() override;
+
+    void OnKeyUp(WPARAM wParam, LPARAM lParam) override final;
 
     void Update(float time_elapsed) override;
     void UpdateMainPassCB(float time_elapsed) override;
