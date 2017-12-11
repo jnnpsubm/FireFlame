@@ -94,13 +94,14 @@ struct GeoOut
     uint   PrimID  : SV_PrimitiveID;
 };
 
-VertexOut VS(VertexIn vin)
+VertexOut VS(VertexIn vin, uint vertexID : SV_VertexID)
 {
     VertexOut vout;
 
     // Just pass data over to geometry shader.
     vout.CenterW = vin.PosW;
     vout.SizeW = vin.SizeW;
+    //vout.SizeW = float2(2 + vertexID, 2 + vertexID); // exercise Chap12_06
 
     return vout;
 }
