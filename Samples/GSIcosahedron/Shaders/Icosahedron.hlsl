@@ -70,7 +70,7 @@ VertexOut VS(VertexIn vin)
     return vout;
 }
 
-[maxvertexcount(100)]
+[maxvertexcount(3)]
 void GS(triangle VertexOut gin[3], inout TriangleStream<GeoOut> triStream)
 {
     [unroll]
@@ -78,7 +78,7 @@ void GS(triangle VertexOut gin[3], inout TriangleStream<GeoOut> triStream)
     {
         GeoOut gout;
         gout.PosW = mul(gin[i].PosL, gWorldTrans);
-        gout.PosH = mul(gout.PosW, gViewProjTrans);
+        gout.PosH = mul(float4(gout.PosW,1.f), gViewProjTrans);
         gout.NormalW = mul(normalize(gin[i].PosL), (float3x3)gWorldTrans);
         triStream.Append(gout);
     }

@@ -92,6 +92,7 @@ void GSIcosahedronApp::AddPSOs()
     using namespace FireFlame;
 
     PSODesc descIcosahedron(mShaderDescs["icosahedron"].name);
+    descIcosahedron.cullMode = Cull_Mode::None;
     mEngine.GetScene()->AddPSO("icosahedron_default", descIcosahedron);
 }
 
@@ -101,7 +102,7 @@ void GSIcosahedronApp::AddMaterials()
     matCylinder.Name = "icosahedron";
     matCylinder.DiffuseAlbedo = FireFlame::Vector4f(0.5f, 0.4f, 0.3f, 1.0f);
     matCylinder.FresnelR0 = FireFlame::Vector3f(0.8f, 0.8f, 0.8f);
-    matCylinder.Roughness = 0.5f;
+    matCylinder.Roughness = 0.125f;
     mEngine.GetScene()->AddMaterial
     (
         matCylinder.Name,
@@ -162,6 +163,7 @@ void GSIcosahedronApp::AddRenderItemsIcosahedron()
     using namespace DirectX;
 
     FireFlame::stRenderItemDesc RItem("icosahedron01", mMeshDescs["icosahedron"].subMeshs[0]);
+    RItem.mat = "icosahedron";
     XMFLOAT4X4 trans[2];
     XMStoreFloat4x4
     (
