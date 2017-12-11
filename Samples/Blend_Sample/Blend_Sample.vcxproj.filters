@@ -28,5 +28,8 @@
     <FxCompile Include="Shaders\ShowNormal.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\ShowFaceNormal.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

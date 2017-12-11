@@ -41,9 +41,14 @@ void BlendApp::UpdateMainPassCB(float time_elapsed)
         mEngine.GetScene()->UpdateShaderPassCBData(mShaderDepthComplexity2.name, sizeof(PassConstants), &mMainPassCB);
     }
 
-    if (mShowNormal)
+    if (mShowVNormal)
     {
-        mEngine.GetScene()->UpdateShaderPassCBData(mShaderShowNormal.name, sizeof(PassConstants), &mMainPassCB);
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderShowVNormal.name, sizeof(PassConstants), &mMainPassCB);
+    }
+
+    if (mShowFNormal)
+    {
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderShowFNormal.name, sizeof(PassConstants), &mMainPassCB);
     }
 
     if (mWaveStart)
@@ -112,7 +117,8 @@ void BlendApp::UpdateWaves()
 void BlendApp::AddShaders()
 {
     AddShadersDefault();
-    AddShadersShowNormal();
+    AddShadersShowVertexNormal();
+    AddShadersShowFaceNormal();
     AddShadersDepthComplexity();
     AddShadersDepthComplexity2();
 }
@@ -156,21 +162,38 @@ void BlendApp::AddShadersDefault()
     mEngine.GetScene()->AddShader(mShaderDesc);
 }
 
-void BlendApp::AddShadersShowNormal()
+void BlendApp::AddShadersShowVertexNormal()
 {
     using namespace FireFlame;
-    mShaderShowNormal.name = "ShowNormal";
-    mShaderShowNormal.objCBSize = sizeof(ObjectConsts);
-    mShaderShowNormal.passCBSize = sizeof(PassConstants);
-    mShaderShowNormal.materialCBSize = sizeof(MaterialConstants2);
-    mShaderShowNormal.ParamDefault();
-    mShaderShowNormal.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
-    mShaderShowNormal.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
-    mShaderShowNormal.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
-    mShaderShowNormal.AddShaderStage(L"Shaders\\ShowNormal.hlsl", Shader_Type::VS, "VS", "vs_5_0");
-    mShaderShowNormal.AddShaderStage(L"Shaders\\ShowNormal.hlsl", Shader_Type::GS, "GS", "gs_5_0");
-    mShaderShowNormal.AddShaderStage(L"Shaders\\ShowNormal.hlsl", Shader_Type::PS, "PS", "ps_5_0");
-    mEngine.GetScene()->AddShader(mShaderShowNormal);
+    mShaderShowVNormal.name = "ShowVertexNormal";
+    mShaderShowVNormal.objCBSize = sizeof(ObjectConsts);
+    mShaderShowVNormal.passCBSize = sizeof(PassConstants);
+    mShaderShowVNormal.materialCBSize = sizeof(MaterialConstants2);
+    mShaderShowVNormal.ParamDefault();
+    mShaderShowVNormal.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderShowVNormal.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderShowVNormal.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    mShaderShowVNormal.AddShaderStage(L"Shaders\\ShowVertexNormal.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    mShaderShowVNormal.AddShaderStage(L"Shaders\\ShowVertexNormal.hlsl", Shader_Type::GS, "GS", "gs_5_0");
+    mShaderShowVNormal.AddShaderStage(L"Shaders\\ShowVertexNormal.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    mEngine.GetScene()->AddShader(mShaderShowVNormal);
+}
+
+void BlendApp::AddShadersShowFaceNormal()
+{
+    using namespace FireFlame;
+    mShaderShowFNormal.name = "ShowFaceNormal";
+    mShaderShowFNormal.objCBSize = sizeof(ObjectConsts);
+    mShaderShowFNormal.passCBSize = sizeof(PassConstants);
+    mShaderShowFNormal.materialCBSize = sizeof(MaterialConstants2);
+    mShaderShowFNormal.ParamDefault();
+    mShaderShowFNormal.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderShowFNormal.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderShowFNormal.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    mShaderShowFNormal.AddShaderStage(L"Shaders\\ShowFaceNormal.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    mShaderShowFNormal.AddShaderStage(L"Shaders\\ShowFaceNormal.hlsl", Shader_Type::GS, "GS", "gs_5_0");
+    mShaderShowFNormal.AddShaderStage(L"Shaders\\ShowFaceNormal.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    mEngine.GetScene()->AddShader(mShaderShowFNormal);
 }
 
 void BlendApp::AddShadersDepthComplexity()
@@ -206,9 +229,12 @@ void BlendApp::AddPSOs()
 {
     using namespace FireFlame;
 
-    PSODesc descShowNormal(mShaderShowNormal.name);
-    descShowNormal.topology = Primitive_Topology::PointList;
-    mEngine.GetScene()->AddPSO("show_normal_default", descShowNormal);
+    PSODesc descShowFNormal(mShaderShowFNormal.name);
+    mEngine.GetScene()->AddPSO("show_fnormal_default", descShowFNormal);
+
+    PSODesc descShowVNormal(mShaderShowVNormal.name);
+    descShowVNormal.topology = Primitive_Topology::PointList;
+    mEngine.GetScene()->AddPSO("show_vnormal_default", descShowVNormal);
 
     PSODesc descDepthComplexity2(mShaderDepthComplexity2.name);
     descDepthComplexity2.depthEnable = false;
@@ -563,11 +589,11 @@ FireFlame::Vector3f BlendApp::GetHillsNormal(float x, float z) const
 
 void BlendApp::AddRenderItems()
 {
-    AddRenderItemsNormal();
+    AddRenderItemsDefault();
     AddRenderItemsDepthComplexity();
 }
 
-void BlendApp::AddRenderItemsNormal()
+void BlendApp::AddRenderItemsDefault()
 {
     using namespace DirectX;
 
@@ -596,14 +622,26 @@ void BlendApp::AddRenderItemsNormal()
         0,
         RItem
     );
-    RItem.name += "_normal";
+    std::string name = RItem.name;
+    RItem.name = name+"_vnormal";
     RItem.topology = FireFlame::Primitive_Topology::PointList;
-    mRenderItemsNormal.emplace_back(RItem);
+    mRenderItemsVNormal.emplace_back(RItem);
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[0].name,
-        mShaderShowNormal.name,
-        "show_normal_default",
+        mShaderShowVNormal.name,
+        "show_vnormal_default",
+        0,
+        RItem
+    );
+    RItem.name = name + "_fnormal";
+    RItem.topology = FireFlame::Primitive_Topology::TriangleList;
+    mRenderItemsFNormal.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[0].name,
+        mShaderShowFNormal.name,
+        "show_fnormal_default",
         0,
         RItem
     );
@@ -632,14 +670,26 @@ void BlendApp::AddRenderItemsNormal()
         0,
         RItem2
     );
-    RItem2.name += "_normal";
+    name = RItem2.name;
+    RItem2.name = name + "_vnormal";
     RItem2.topology = FireFlame::Primitive_Topology::PointList;
-    mRenderItemsNormal.emplace_back(RItem2);
+    mRenderItemsVNormal.emplace_back(RItem2);
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[1].name,
-        mShaderShowNormal.name,
-        "show_normal_default",
+        mShaderShowVNormal.name,
+        "show_vnormal_default",
+        0,
+        RItem2
+    );
+    RItem2.name = name + "_fnormal";
+    RItem2.topology = FireFlame::Primitive_Topology::TriangleList;
+    mRenderItemsFNormal.emplace_back(RItem2);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[1].name,
+        mShaderShowFNormal.name,
+        "show_fnormal_default",
         0,
         RItem2
     );
@@ -667,14 +717,26 @@ void BlendApp::AddRenderItemsNormal()
         0,
         RItem3
     );
-    RItem3.name += "_normal";
+    name = RItem3.name;
+    RItem3.name = name + "_vnormal";
     RItem3.topology = FireFlame::Primitive_Topology::PointList;
-    mRenderItemsNormal.emplace_back(RItem3);
+    mRenderItemsVNormal.emplace_back(RItem3);
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDesc[2].name,
-        mShaderShowNormal.name,
-        "show_normal_default",
+        mShaderShowVNormal.name,
+        "show_vnormal_default",
+        0,
+        RItem3
+    );
+    RItem3.name = name + "_fnormal";
+    RItem3.topology = FireFlame::Primitive_Topology::TriangleList;
+    mRenderItemsFNormal.emplace_back(RItem3);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[2].name,
+        mShaderShowFNormal.name,
+        "show_fnormal_default",
         0,
         RItem3
     );
@@ -723,12 +785,20 @@ void BlendApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     {
         mShowDepthComplexity = !mShowDepthComplexity;
         mEngine.GetScene()->PrimitiveVisible(mMeshDesc[3].name, mShowDepthComplexity);
-    }else if ((int)wParam == 'N')
+    }else if ((int)wParam == 'V')
     {
-        mShowNormal = !mShowNormal;
-        for (const auto& ritem : mRenderItemsNormal)
+        mShowVNormal = !mShowVNormal;
+        for (const auto& ritem : mRenderItemsVNormal)
         {
-            mEngine.GetScene()->RenderItemVisible(ritem.name, mShowNormal);
+            mEngine.GetScene()->RenderItemVisible(ritem.name, mShowVNormal);
+        }
+    }
+    else if ((int)wParam == 'F')
+    {
+        mShowFNormal = !mShowFNormal;
+        for (const auto& ritem : mRenderItemsFNormal)
+        {
+            mEngine.GetScene()->RenderItemVisible(ritem.name, mShowFNormal);
         }
     }
 }

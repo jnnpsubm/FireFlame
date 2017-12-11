@@ -35,7 +35,8 @@ public:
 private:
     void AddShaders();
     void AddShadersDefault();
-    void AddShadersShowNormal();
+    void AddShadersShowVertexNormal();
+    void AddShadersShowFaceNormal();
     void AddShadersDepthComplexity();
     void AddShadersDepthComplexity2();
     void AddPSOs();
@@ -49,7 +50,7 @@ private:
     void AddFullScreenRect();
 
     void AddRenderItems();
-    void AddRenderItemsNormal();
+    void AddRenderItemsDefault();
     void AddRenderItemsDepthComplexity();
 
     void UpdateWaves();
@@ -62,9 +63,13 @@ private:
     FireFlame::stShaderDescription mShaderDepthComplexity;
     FireFlame::stShaderDescription mShaderDepthComplexity2;
 
-    bool                           mShowNormal = true;
-    FireFlame::stShaderDescription mShaderShowNormal;
-    VecRItem                       mRenderItemsNormal;
+    bool                           mShowVNormal = false;
+    FireFlame::stShaderDescription mShaderShowVNormal;
+    VecRItem                       mRenderItemsVNormal;
+
+    bool                           mShowFNormal = false;
+    FireFlame::stShaderDescription mShaderShowFNormal;
+    VecRItem                       mRenderItemsFNormal;
 
     bool                                                    mWaveStart = true;
     std::unique_ptr<Waves>                                  mWaves;
