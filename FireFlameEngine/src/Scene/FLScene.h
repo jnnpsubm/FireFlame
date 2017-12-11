@@ -54,6 +54,7 @@ public:
     void UpdateMaterialCBs(const StopWatch& gt);
 
     void PrimitiveVisible(const std::string& name, bool visible);
+    void RenderItemVisible(const std::string& name, bool visible);
     void PrintScene() { mPrintScene = true; }
 
     void AddShader(const stShaderDescription& shaderDesc);

@@ -158,6 +158,7 @@ void Scene::DrawRenderItems
             for (auto& renderItem : itSamePSO.second)
             {
                 if (!renderItem->Primitive->Visible()) continue;
+                if (!renderItem->Visible) continue;
                 renderItem->Render(Shader);
             }
         }
@@ -271,6 +272,17 @@ void Scene::PrimitiveVisible(const std::string& name, bool visible)
         return;
     }
     itPrimitive->second->SetVisible(visible);
+}
+
+void Scene::RenderItemVisible(const std::string& name, bool visible)
+{
+    auto itRItem = mRenderItems.find(name);
+    if (itRItem == mRenderItems.end())
+    {
+        spdlog::get("console")->warn("Render item {0} not found in function(RenderItemVisible)......", name);
+        return;
+    }
+    itRItem->second->SetVisible(visible);
 }
 
 void Scene::RenderItemChangeShader

@@ -20,15 +20,12 @@
     <None Include="..\Common\LightingUtil.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\BlendApp.hlsl" />
+    <None Include="Shaders\DepthComplexity.hlsl" />
+    <None Include="Shaders\DC2.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\BlendApp.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\DepthComplexity.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\DC2.hlsl">
+    <FxCompile Include="Shaders\ShowNormal.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

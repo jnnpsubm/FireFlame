@@ -33,7 +33,9 @@ public:
     void OnKeyUp(WPARAM wParam, LPARAM lParam) override;
 
 private:
-    void AddShadersNormal();
+    void AddShaders();
+    void AddShadersDefault();
+    void AddShadersShowNormal();
     void AddShadersDepthComplexity();
     void AddShadersDepthComplexity2();
     void AddPSOs();
@@ -59,6 +61,10 @@ private:
     bool                           mShowDepthComplexity2 = false;
     FireFlame::stShaderDescription mShaderDepthComplexity;
     FireFlame::stShaderDescription mShaderDepthComplexity2;
+
+    bool                           mShowNormal = true;
+    FireFlame::stShaderDescription mShaderShowNormal;
+    VecRItem                       mRenderItemsNormal;
 
     bool                                                    mWaveStart = true;
     std::unique_ptr<Waves>                                  mWaves;

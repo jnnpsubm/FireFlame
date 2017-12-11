@@ -38,6 +38,9 @@ struct D3DRenderItem {
         Shader = _Shader;
     }
 
+    mutable bool Visible = true;
+    void SetVisible(bool v) const { Visible = v; }
+
     // Primitive topology.
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 

@@ -7,9 +7,7 @@ void BlendApp::PreInitialize()
 
 void BlendApp::Initialize()
 {
-    AddShadersNormal();
-    AddShadersDepthComplexity();
-    AddShadersDepthComplexity2();
+    AddShaders();
     AddPSOs();
 
     AddTextures();
@@ -41,6 +39,11 @@ void BlendApp::UpdateMainPassCB(float time_elapsed)
     if (mShowDepthComplexity2)
     {
         mEngine.GetScene()->UpdateShaderPassCBData(mShaderDepthComplexity2.name, sizeof(PassConstants), &mMainPassCB);
+    }
+
+    if (mShowNormal)
+    {
+        mEngine.GetScene()->UpdateShaderPassCBData(mShaderShowNormal.name, sizeof(PassConstants), &mMainPassCB);
     }
 
     if (mWaveStart)
@@ -106,7 +109,15 @@ void BlendApp::UpdateWaves()
     mEngine.GetScene()->UpdateMaterialCBData(waterMat.name, sizeof(MaterialConstants2), &waterMat);
 }
 
-void BlendApp::AddShadersNormal()
+void BlendApp::AddShaders()
+{
+    AddShadersDefault();
+    AddShadersShowNormal();
+    AddShadersDepthComplexity();
+    AddShadersDepthComplexity2();
+}
+
+void BlendApp::AddShadersDefault()
 {
     using namespace FireFlame;
     mShaderDesc.name = "BlendApp";
@@ -145,6 +156,23 @@ void BlendApp::AddShadersNormal()
     mEngine.GetScene()->AddShader(mShaderDesc);
 }
 
+void BlendApp::AddShadersShowNormal()
+{
+    using namespace FireFlame;
+    mShaderShowNormal.name = "ShowNormal";
+    mShaderShowNormal.objCBSize = sizeof(ObjectConsts);
+    mShaderShowNormal.passCBSize = sizeof(PassConstants);
+    mShaderShowNormal.materialCBSize = sizeof(MaterialConstants2);
+    mShaderShowNormal.ParamDefault();
+    mShaderShowNormal.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderShowNormal.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    mShaderShowNormal.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    mShaderShowNormal.AddShaderStage(L"Shaders\\ShowNormal.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    mShaderShowNormal.AddShaderStage(L"Shaders\\ShowNormal.hlsl", Shader_Type::GS, "GS", "gs_5_0");
+    mShaderShowNormal.AddShaderStage(L"Shaders\\ShowNormal.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    mEngine.GetScene()->AddShader(mShaderShowNormal);
+}
+
 void BlendApp::AddShadersDepthComplexity()
 {
     using namespace FireFlame;
@@ -177,6 +205,10 @@ void BlendApp::AddShadersDepthComplexity2()
 void BlendApp::AddPSOs()
 {
     using namespace FireFlame;
+
+    PSODesc descShowNormal(mShaderShowNormal.name);
+    descShowNormal.topology = Primitive_Topology::PointList;
+    mEngine.GetScene()->AddPSO("show_normal_default", descShowNormal);
 
     PSODesc descDepthComplexity2(mShaderDepthComplexity2.name);
     descDepthComplexity2.depthEnable = false;
@@ -416,7 +448,7 @@ void BlendApp::AddBoxMesh()
     using namespace FireFlame;
 
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
+    GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 0);
 
     std::vector<FireFlame::FLVertexNormalTex> vertices(box.Vertices.size());
     for (size_t i = 0; i < box.Vertices.size(); ++i)
@@ -564,6 +596,17 @@ void BlendApp::AddRenderItemsNormal()
         0,
         RItem
     );
+    RItem.name += "_normal";
+    RItem.topology = FireFlame::Primitive_Topology::PointList;
+    mRenderItemsNormal.emplace_back(RItem);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[0].name,
+        mShaderShowNormal.name,
+        "show_normal_default",
+        0,
+        RItem
+    );
 
     FireFlame::stRenderItemDesc RItem2("Waves", mMeshDesc[1].subMeshs[0]);
     XMStoreFloat4x4
@@ -589,6 +632,17 @@ void BlendApp::AddRenderItemsNormal()
         0,
         RItem2
     );
+    RItem2.name += "_normal";
+    RItem2.topology = FireFlame::Primitive_Topology::PointList;
+    mRenderItemsNormal.emplace_back(RItem2);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[1].name,
+        mShaderShowNormal.name,
+        "show_normal_default",
+        0,
+        RItem2
+    );
 
     FireFlame::stRenderItemDesc RItem3("grid", mMeshDesc[2].subMeshs[0]);
     XMStoreFloat4x4
@@ -610,6 +664,17 @@ void BlendApp::AddRenderItemsNormal()
         mMeshDesc[2].name,
         mShowDepthComplexity2 ? mShaderDepthComplexity2.name : mShaderDesc.name,
         mShowDepthComplexity2 ? "depth_complexity2_default" : "ps_fogged",
+        0,
+        RItem3
+    );
+    RItem3.name += "_normal";
+    RItem3.topology = FireFlame::Primitive_Topology::PointList;
+    mRenderItemsNormal.emplace_back(RItem3);
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDesc[2].name,
+        mShaderShowNormal.name,
+        "show_normal_default",
         0,
         RItem3
     );
@@ -658,5 +723,12 @@ void BlendApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     {
         mShowDepthComplexity = !mShowDepthComplexity;
         mEngine.GetScene()->PrimitiveVisible(mMeshDesc[3].name, mShowDepthComplexity);
+    }else if ((int)wParam == 'N')
+    {
+        mShowNormal = !mShowNormal;
+        for (const auto& ritem : mRenderItemsNormal)
+        {
+            mEngine.GetScene()->RenderItemVisible(ritem.name, mShowNormal);
+        }
     }
 }
