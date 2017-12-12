@@ -418,16 +418,16 @@ struct stShaderDescription {
 
     std::vector<unsigned long>  vertexFormats;
     std::vector<unsigned int>   inputSlots;
-    std::vector<stSemanticName> semanticNames;   // order mush match vertexFormats
+    std::vector<stSemanticName> semanticNames;   // order must match vertexFormats
 
-    unsigned int                objCBSize = 1;
-    unsigned int                maxObjCBDescriptor = 100;
-    unsigned int                multiObjCBSize = 0;
-    unsigned int                passCBSize = 1;
-    unsigned int                materialCBSize = 0;
-
-    unsigned int                maxTexSRVDescriptor = 64;
     unsigned int                texSRVDescriptorTableSize = 1;
+    unsigned int                objCBSize = 1;
+    unsigned int                multiObjCBSize = 0;
+    unsigned int                materialCBSize = 0;
+    unsigned int                passCBSize = 1;
+    
+    unsigned int                maxObjCBDescriptor = 100;
+    unsigned int                maxTexSRVDescriptor = 64;
 
     // param0:register t0~tn
     // param1:register b0
@@ -456,24 +456,39 @@ struct stShaderDescription {
         multiObjParamIndex = 4;
     }
 
-    const stShaderStage& AddShaderStage(const std::wstring& file, Shader_Type type, 
-                        const std::string& entry, const std::string& target) {
+    const stShaderStage& AddShaderStage
+    (
+        const std::wstring& file, Shader_Type type, 
+        const std::string& entry, const std::string& target
+    ) 
+    {
         shaderStage.emplace_back(file, type, entry, target);
         return shaderStage.back();
     }
-    const stShaderStage& AddShaderStage(const std::wstring& file, Shader_Type type,
-                        const std::string& entry, const std::string& target,
-                        std::vector<std::pair<std::string, std::string>>& macros) {
+    const stShaderStage& AddShaderStage
+    (
+        const std::wstring& file, Shader_Type type,
+        const std::string& entry, const std::string& target,
+        std::vector<std::pair<std::string, std::string>>& macros
+    ) 
+    {
         shaderStage.emplace_back(file, type, entry, target, macros);
         return shaderStage.back();
     }
-    const stShaderStage& AddShaderStage(const std::string& data, Shader_Type type,
-        const std::string& entry, const std::string& target) {
+    const stShaderStage& AddShaderStage
+    (
+        const std::string& data, Shader_Type type,
+        const std::string& entry, const std::string& target
+    ) 
+    {
         shaderStage.emplace_back(data, type, entry, target);
         return shaderStage.back();
     }
-    void AddVertexInput(const std::string& semanticName, unsigned long format, 
-                        unsigned int slot = 0, unsigned int semanticIndex = 0) 
+    void AddVertexInput
+    (
+        const std::string& semanticName, unsigned long format, 
+        unsigned int slot = 0, unsigned int semanticIndex = 0
+    ) 
     {
         semanticNames.emplace_back(semanticName, semanticIndex);
         inputSlots.emplace_back(slot);
