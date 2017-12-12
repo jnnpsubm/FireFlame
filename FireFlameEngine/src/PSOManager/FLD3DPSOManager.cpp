@@ -1,4 +1,4 @@
-#include "FLD3DPSOManager2.h"
+#include "FLD3DPSOManager.h"
 #include "..\src\3rd_utils\spdlog\spdlog.h"
 #include "..\FLD3DUtils.h"
 #include "..\Engine\FLEngine.h"
@@ -6,7 +6,7 @@
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 
 namespace FireFlame {
-void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
+void D3DPSOManager::AddPSO(const std::string& name, const PSODesc& desc)
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -160,7 +160,7 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
     );
 }
 
-void D3DPSOManager2::PrintAllPSOs()
+void D3DPSOManager::PrintAllPSOs()
 {
     std::cout << "PSO Count:" << mPSOs.size() << std::endl;
     for (const auto& itPSO : mPSOs)

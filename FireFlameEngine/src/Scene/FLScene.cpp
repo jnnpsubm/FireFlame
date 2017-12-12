@@ -5,7 +5,7 @@
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 #include "..\Timer\FLStopWatch.h"
 #include "..\Engine\FLEngine.h"
-#include "..\PSOManager\FLD3DPSOManager2.h"
+#include "..\PSOManager\FLD3DPSOManager.h"
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
 #include "..\Material\FLTexture.h"
@@ -143,7 +143,7 @@ void Scene::DrawRenderItems
         }
         for (auto& itSamePSO : itSameShader.second)
         {
-            auto pso = Engine::GetEngine()->GetPSOManager2()->GetPSO
+            auto pso = Engine::GetEngine()->GetPSOManager()->GetPSO
             (
                 itSamePSO.first,
                 renderer->GetMSAAMode(),
@@ -231,7 +231,7 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
 
 void Scene::AddPSO(const std::string& name, const PSODesc& desc)
 {
-    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    auto PSOManager = Engine::GetEngine()->GetPSOManager();
     if (PSOManager->NameExist(name))
     {
         spdlog::get("console")->error("PSO {0} already exist......", name);
@@ -302,7 +302,7 @@ void Scene::AddRenderItem
     const stRenderItemDesc& desc
 )
 {
-    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    auto PSOManager = Engine::GetEngine()->GetPSOManager();
     auto PSOName = shaderName + shaderMacroVS + shaderMacroPS + desc.AsPSOName();
     if (!PSOManager->NameExist(PSOName))
     {
@@ -334,7 +334,7 @@ void Scene::AddRenderItem
         throw std::exception("cannot find shader");
     }
 
-    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    auto PSOManager = Engine::GetEngine()->GetPSOManager();
     if (!PSOManager->NameExist(PSOName))
     {
         spdlog::get("console")->error("cannot find PSO {0}", PSOName);
@@ -678,7 +678,7 @@ void Scene::PrintAllPassCBs()
 
 void Scene::PrintAllPSOs()
 {
-    Engine::GetEngine()->GetPSOManager2()->PrintAllPSOs();
+    Engine::GetEngine()->GetPSOManager()->PrintAllPSOs();
 }
 
 void Scene::PrintAllMultiObjCBs() 

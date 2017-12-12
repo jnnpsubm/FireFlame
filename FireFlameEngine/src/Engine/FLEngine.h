@@ -18,17 +18,16 @@
 namespace FireFlame{
 class D3DRenderer;
 class D3DPSOManager;
-class D3DPSOManager2;
 class Engine {
 public:
 	Engine(HINSTANCE hinst);
 	static Engine* GetEngine() { return theEngine; }
 	~Engine();
 
-	std::shared_ptr<Scene>          GetScene()       const { return mScene; }
-    std::shared_ptr<Window>         GetWindow()      const { return mMainWnd; }
-    std::shared_ptr<D3DPSOManager2> GetPSOManager2() const { return mPSOManager2; }
-    std::shared_ptr<D3DRenderer>    GetRenderer()    const { return mRenderer; }
+	std::shared_ptr<Scene>          GetScene()       const { return mScene;      }
+    std::shared_ptr<Window>         GetWindow()      const { return mMainWnd;    }
+    std::shared_ptr<D3DPSOManager>  GetPSOManager()  const { return mPSOManager; }
+    std::shared_ptr<D3DRenderer>    GetRenderer()    const { return mRenderer;   }
 
     float TotalTime() const { return mTimer.TotalTime(); }
     float DeltaTime() const { return mTimer.DeltaTime(); }
@@ -81,7 +80,7 @@ private:
 	std::shared_ptr<Window>        mMainWnd      = nullptr;
 	std::shared_ptr<D3DRenderer>   mRenderer     = nullptr;
 	std::shared_ptr<Scene>         mScene        = nullptr;
-    std::shared_ptr<D3DPSOManager2> mPSOManager2 = nullptr;
+    std::shared_ptr<D3DPSOManager> mPSOManager   = nullptr;
 
     // callbacks
     std::function<void(int w, int h)> mFuncWindowResizedHandler = [](int w, int h) {};

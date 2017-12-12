@@ -13,7 +13,7 @@
 
 namespace FireFlame {
 class D3DRenderer;
-class D3DPSOManager2 : public PSOManager {
+class D3DPSOManager : public PSOManager {
 private:
     typedef std::tuple
     <
