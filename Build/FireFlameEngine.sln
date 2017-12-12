@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireFlameEngine", "..\FireFlameEngine\FireFlameEngine.vcxproj", "{CBF7B274-B25E-474C-9951-B616FDE59A73}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CSBlur_Sample", "..\Samples\CSBlur_Sample\CSBlur_Sample.vcxproj", "{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{CBF7B274-B25E-474C-9951-B616FDE59A73}.Release|x64.Build.0 = Release|x64
 		{CBF7B274-B25E-474C-9951-B616FDE59A73}.Release|x86.ActiveCfg = Release|Win32
 		{CBF7B274-B25E-474C-9951-B616FDE59A73}.Release|x86.Build.0 = Release|Win32
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Debug|x64.ActiveCfg = Debug|x64
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Debug|x64.Build.0 = Debug|x64
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Debug|x86.ActiveCfg = Debug|Win32
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Debug|x86.Build.0 = Debug|Win32
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Release|x64.ActiveCfg = Release|x64
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Release|x64.Build.0 = Release|x64
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Release|x86.ActiveCfg = Release|Win32
+		{6E579A06-F8B3-4C3E-9C31-FBA5908E29DE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
