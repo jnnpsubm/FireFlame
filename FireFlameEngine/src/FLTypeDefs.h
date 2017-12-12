@@ -23,6 +23,24 @@ enum class API_Feature {
 	API_MAX
 };
 
+enum class FilterType
+{
+    Blur = 0,
+    Sobel,
+
+    Max
+};
+
+struct FilterParam
+{
+    FilterParam(FilterType type) :type(type) {}
+    FilterType type;
+    union 
+    {
+        int blurRadius;
+    };
+};
+
 enum class Index_Format {
 	UINT16 = 0,
 	UINT32

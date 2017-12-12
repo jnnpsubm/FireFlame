@@ -17,6 +17,8 @@ void CSBlurApp::Initialize()
 
     AddRenderItems();
 
+    mEngine.AddFilter({ FireFlame::FilterType::Blur });
+
     mPasses.push_back("DefaultPass");
     mEngine.GetScene()->AddPass(mPasses[0]);
 }

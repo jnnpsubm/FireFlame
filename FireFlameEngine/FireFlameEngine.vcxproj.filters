@@ -100,6 +100,9 @@
     <ClCompile Include="src\Utility\loader\FLVERLoader.cpp">
       <Filter>src\Utility\Loader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Filters\FLD3DBlurFilter.cpp">
+      <Filter>src\Filters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -384,6 +387,12 @@
     <ClInclude Include="src\Utility\io\io.h">
       <Filter>src\Utility\IO</Filter>
     </ClInclude>
+    <ClInclude Include="src\Filters\FLD3DBlurFilter.h">
+      <Filter>src\Filters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Filters\FLD3DFilter.h">
+      <Filter>src\Filters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -496,6 +505,9 @@
     </Filter>
     <Filter Include="src\Utility\IO">
       <UniqueIdentifier>{e82da30f-8cf5-474c-9f36-a6db0771e3a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Filters">
+      <UniqueIdentifier>{030c202f-a8c6-4eed-8c71-3e312f3f5430}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

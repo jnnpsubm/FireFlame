@@ -66,6 +66,8 @@
     <ClInclude Include="src\3rd_utils\spdlog\tweakme.h" />
     <ClInclude Include="src\3rd_utils\tinyply.h" />
     <ClInclude Include="src\Engine\FLEngine.h" />
+    <ClInclude Include="src\Filters\FLD3DBlurFilter.h" />
+    <ClInclude Include="src\Filters\FLD3DFilter.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
     <ClInclude Include="src\FLStringUtils.h" />
@@ -127,6 +129,7 @@
     <ClCompile Include="src\3rd_utils\tinyply.cpp" />
     <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />
+    <ClCompile Include="src\Filters\FLD3DBlurFilter.cpp" />
     <ClCompile Include="src\FLD3DUtils.cpp" />
     <ClCompile Include="src\FrameResource\FLD3DFrameResource.cpp" />
     <ClCompile Include="src\FrameResource\FLFrameResource.cpp" />

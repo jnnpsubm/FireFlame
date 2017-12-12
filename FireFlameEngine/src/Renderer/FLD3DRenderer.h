@@ -7,6 +7,7 @@
 #include "FLRenderer.h"
 #include "..\FLTypeDefs.h"
 #include "..\FrameResource\FLD3DFrameResource.h"
+#include "..\Filters\FLD3DFilter.h"
 
 namespace FireFlame {
 class StopWatch;
@@ -28,6 +29,8 @@ public:
 	void WaitForGPU();
     void WaitForGPUFrame();
     void WaitForGPUCurrentFrame();
+
+    void AddFilter(const FilterParam& filter);
 
     void GrabScreen(const std::wstring& filename);
 
@@ -100,6 +103,9 @@ private:
     void SelectMSAARenderer();
 	void RenderWithMSAA(const StopWatch& gt);
 	void RenderWithoutMSAA(const StopWatch& gt);
+
+    // post process
+    std::vector<std::unique_ptr<D3DFilter>>         mFilters;
 
 	// callbacks
 	std::function<void(float)>                      mDrawFunc   = [](float) {};

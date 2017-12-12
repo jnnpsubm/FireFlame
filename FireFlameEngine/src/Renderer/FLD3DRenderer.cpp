@@ -10,6 +10,7 @@
 #include "..\3rd_utils\spdlog\spdlog.h"
 #include "..\3rd_utils\d3dx12.h"
 #include "..\3rd_utils\ScreenGrab\ScreenGrab12.h"
+#include "..\Filters\FLD3DBlurFilter.h"
 
 namespace FireFlame {
 //D3DRenderer::~D3DRenderer() {
@@ -74,6 +75,9 @@ void D3DRenderer::RenderWithMSAA(const StopWatch& gt) {
 	// todo : render something here
 	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
     mDrawFuncWithCmdList(mCommandList.Get());
+
+    // post process
+
 
 	D3D12_RESOURCE_BARRIER barriers[2] =
 	{
@@ -207,6 +211,12 @@ void D3DRenderer::WaitForGPUCurrentFrame()
         WaitForSingleObject(eventHandle, INFINITE);
         CloseHandle(eventHandle);
     }
+}
+
+void D3DRenderer::AddFilter(const FilterParam& filter)
+{
+    
+    std::unique_ptr<D3DFilter> d3dfilter = std::make_unique<D3DBlurFilter>(md3dDevice.Get(), d1, 1, mBackBufferFormat);
 }
 
 #include <wincodec.h>
