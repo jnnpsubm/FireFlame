@@ -112,6 +112,27 @@ void CSBlurApp::AddShaderMain()
     shaderDesc.passCBSize = sizeof(PassConstants);
     shaderDesc.materialCBSize = sizeof(MaterialConstants2);
     shaderDesc.ParamDefault();
+
+    /*shaderDesc.addDefaultSamplers = true;
+    shaderDesc.AddRootParameter
+    (
+        "textures", 1, 20, DESCRIPTOR_RANGE_TYPE::SRV, 0, 0, 
+        ROOT_PARAMETER_TYPE::DESCRIPTOR_TABLE, 1, SHADER_VISIBILITY::VISIBILITY_PIXEL
+    );
+    shaderDesc.AddRootParameter
+    (
+        "ObjectConsts", sizeof(ObjectConsts), 10, DESCRIPTOR_RANGE_TYPE::CBV, 0
+    );
+    shaderDesc.AddRootParameter
+    (
+        "MaterialConsts", sizeof(MaterialConstants2), 10, DESCRIPTOR_RANGE_TYPE::CBV, 1
+    );
+    shaderDesc.AddRootParameter
+    (
+        "PassConsts", sizeof(PassConstants), 5, DESCRIPTOR_RANGE_TYPE::CBV, 2
+    );
+    shaderDesc.useRootParamDescription = true;*/
+
     shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     shaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);

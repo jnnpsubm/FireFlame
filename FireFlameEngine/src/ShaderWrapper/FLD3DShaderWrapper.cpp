@@ -9,39 +9,6 @@
 #include "..\3rd_utils\spdlog\spdlog.h"
 
 namespace FireFlame {
-void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, DXGI_FORMAT DSFormat)
-{
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-    ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
-    psoDesc.pRootSignature = mRootSignature.Get();
-    /*psoDesc.VS = {
-        reinterpret_cast<BYTE*>(mVSByteCode->GetBufferPointer()),
-        mVSByteCode->GetBufferSize()
-    };
-    psoDesc.PS = {
-        reinterpret_cast<BYTE*>(mPSByteCode->GetBufferPointer()),
-        mPSByteCode->GetBufferSize()
-    };*/
-    psoDesc.RTVFormats[0] = backBufferFormat;
-    psoDesc.DSVFormat = DSFormat;
-    for (const auto& vs : mVSByteCodes)
-    {
-        psoDesc.VS = {
-            reinterpret_cast<BYTE*>(vs.second->GetBufferPointer()),
-            vs.second->GetBufferSize()
-        };
-        for (const auto& ps : mPSByteCodes)
-        {
-            psoDesc.PS = {
-                reinterpret_cast<BYTE*>(ps.second->GetBufferPointer()),
-                ps.second->GetBufferSize()
-            };
-            auto shaderMacros = ShaderMacros2String(vs.first, ps.first, "", "");
-            Engine::GetEngine()->GetPSOManager()->AddPSO(mName, shaderMacros, psoDesc);
-        }
-    }
-}
 void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // Shader programs typically require resources as input (constant buffers,
     // textures, samplers).  The root signature defines the resources the shader
@@ -115,6 +82,61 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     );
 }
 
+void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, const stShaderDescription& shaderDesc)
+{
+    std::vector<CD3DX12_DESCRIPTOR_RANGE> tables(shaderDesc.rootParameters.size());
+    std::vector<CD3DX12_ROOT_PARAMETER> slotRootParameters(shaderDesc.rootParameters.size());
+    for (size_t i = 0; i < shaderDesc.rootParameters.size(); i++)
+    {
+        if (shaderDesc.rootParameters[i].ptype != ROOT_PARAMETER_TYPE::DESCRIPTOR_TABLE)
+        {
+            spdlog::get("console")->critical("Do not support root parameter type other than DESCRIPTOR_TABLE");
+            throw std::runtime_error("Do not support root parameter type other than DESCRIPTOR_TABLE");
+        }
+        const auto& rootParam = shaderDesc.rootParameters[i];
+        auto tabletype = FLDesRangeType2D3DDesRangeType(rootParam.vtype);
+        auto visibility = FLShaderVisiblity2D3DShaderVisiblity(rootParam.visibility);
+
+        tables[i].Init(tabletype, rootParam.tablesize, rootParam.baseRegister, rootParam.registerSpace);
+        slotRootParameters[i].InitAsDescriptorTable(1, &tables[i], visibility);
+    }
+
+    auto staticSamplers = GetStaticSamplers();
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc
+    (
+        (UINT)slotRootParameters.size(), &slotRootParameters[0],
+        shaderDesc.addDefaultSamplers ? (UINT)staticSamplers.size() : 0,
+        shaderDesc.addDefaultSamplers ? staticSamplers.data() : nullptr,
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+    );
+
+    Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature
+    (
+        &rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()
+    );
+
+    if (errorBlob != nullptr) {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+    ThrowIfFailed(hr);
+
+    ThrowIfFailed
+    (
+        device->CreateRootSignature
+        (
+            0,
+            serializedRootSig->GetBufferPointer(),
+            serializedRootSig->GetBufferSize(),
+            IID_PPV_ARGS(mRootSignature.ReleaseAndGetAddressOf())
+        )
+    );
+}
+
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> D3DShaderWrapper::GetStaticSamplers()
 {
     // Applications usually only need a handful of samplers.  So just define them all up front
@@ -172,35 +194,6 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> D3DShaderWrapper::GetStaticSamp
         anisotropicWrap, anisotropicClamp };
 }
 
-//void D3DShaderWrapper::BuildConstantBuffers(ID3D12Device* device, UINT CBSize){
-//    mShaderCB = std::make_unique<UploadBuffer>(true);
-//    mShaderCB->Init(device, 1, CBSize);
-//
-//    UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(CBSize);
-//
-//    D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mShaderCB->Resource()->GetGPUVirtualAddress();
-//    // Offset to the ith object constant buffer in the buffer.
-//    int CBIndex = 0;
-//    cbAddress += CBIndex*objCBByteSize;
-//
-//    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-//    cbvDesc.BufferLocation = cbAddress;
-//    cbvDesc.SizeInBytes = D3DUtils::CalcConstantBufferByteSize(sizeof(CBSize));
-//
-//    device->CreateConstantBufferView
-//    (
-//        &cbvDesc,
-//        mCbvHeap->GetCPUDescriptorHandleForHeapStart()
-//    );
-//}
-//void D3DShaderWrapper::BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors){
-//    D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
-//    cbvHeapDesc.NumDescriptors = numDescriptors;
-//    cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-//    cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-//    cbvHeapDesc.NodeMask = 0;
-//    ThrowIfFailed(device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(mCbvHeap.ReleaseAndGetAddressOf())));
-//}
 void D3DShaderWrapper::UpdateObjCBData(unsigned int index, size_t size, const void* data) 
 {
     auto& shaderRes = Engine::GetEngine()->GetRenderer()->GetCurrFrameResource()->ShaderResources[mName];
@@ -337,7 +330,7 @@ UINT D3DShaderWrapper::CreateTexSRV(const std::vector<stMaterialDesc::TEX>& vecT
     return index;
 }
 
-void D3DShaderWrapper::BuildFrameCBResources
+void D3DShaderWrapper::BuildRootInputResources
 (
     UINT objConstSize, UINT maxObjConstCount,
     UINT passConstSize, UINT maxPassConstCount,
@@ -507,6 +500,185 @@ void D3DShaderWrapper::BuildFrameCBResources
     mMultiObjCbvMaxCount = maxMultiObjConstCount;
     mMatCbvMaxCount = maxMatConstCount;
 }
+
+// todo:
+void D3DShaderWrapper::BuildRootInputResources(const stShaderDescription& shaderDesc)
+{
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    auto device = renderer->GetDevice();
+    auto frameResources = renderer->GetFrameResources();
+    for (const auto& frameRes : frameResources) 
+    {
+        for (const auto& rootParam : shaderDesc.rootParameters)
+        {
+            // only shader const buffer need to be updated in frame resources
+            if (rootParam.vtype != DESCRIPTOR_RANGE_TYPE::CBV) continue;
+            auto& res = frameRes->ShaderRootResources[mName + "_" + rootParam.name];
+            res = std::make_unique<UploadBuffer>(true);
+            res->Init(device, rootParam.maxDescriptor, rootParam.datasize);
+        }
+    }
+
+    UINT numFrameResources = (UINT)frameResources.size();
+    UINT numDescriptors = 0;
+    for (const auto& rootParam : shaderDesc.rootParameters)
+    {
+        // only shader const buffer need to be updated in frame resources
+        if (rootParam.vtype == DESCRIPTOR_RANGE_TYPE::CBV)
+        {
+            numDescriptors += numFrameResources * rootParam.maxDescriptor;
+        }else if (rootParam.vtype == DESCRIPTOR_RANGE_TYPE::SRV)
+        {
+            numDescriptors += rootParam.maxDescriptor;
+        }
+        else // todo : if in frame resources
+        {
+            numDescriptors += rootParam.maxDescriptor;
+        }
+    }
+
+    //// Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
+    //mPassCbvOffset = objCount * numFrameResources;
+    //mMaterialCbvOffset = mPassCbvOffset + maxPassConstCount*numFrameResources;
+    //mMultiObjCbvOffset = mMaterialCbvOffset + maxMatConstCount*numFrameResources;
+    //mTexSrvOffset = mMultiObjCbvOffset + maxMultiObjConstCount * numFrameResources;
+
+    //D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
+    //cbvHeapDesc.NumDescriptors = numDescriptors;
+    //cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    //cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    //cbvHeapDesc.NodeMask = 0;
+    //ThrowIfFailed
+    //(
+    //    device->CreateDescriptorHeap
+    //    (
+    //        &cbvHeapDesc,
+    //        IID_PPV_ARGS(&mCbvHeap)
+    //    )
+    //);
+
+//    UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(objConstSize);
+//    // Need a CBV descriptor for each object for each frame resource.
+//    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+//        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+//        auto objectCB = shaderRes.ObjectCB->Resource();
+//        for (UINT i = 0; i < objCount; ++i) {
+//            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
+//
+//            // Offset to the ith object constant buffer in the buffer.
+//            cbAddress += i*objCBByteSize;
+//
+//            // Offset to the object cbv in the descriptor heap.
+//            int heapIndex = frameIndex*objCount + i;
+//            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+//            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+//
+//            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+//            cbvDesc.BufferLocation = cbAddress;
+//            cbvDesc.SizeInBytes = objCBByteSize;
+//
+//            device->CreateConstantBufferView(&cbvDesc, handle);
+//        }
+//    }
+//    for (UINT i = 0; i < objCount; ++i) {
+//        mObjCbvHeapFreeList.push_front(i);
+//    }
+//
+//    UINT passCBByteSize = D3DUtils::CalcConstantBufferByteSize(passConstSize);
+//    // Last three descriptors are the pass CBVs for each frame resource.
+//    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+//        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+//        auto passCB = shaderRes.PassCB->Resource();
+//        for (UINT i = 0; i < maxPassConstCount; ++i) {
+//            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
+//
+//            // Offset to the ith object constant buffer in the buffer.
+//            cbAddress += i*passCBByteSize;
+//
+//            // Offset to the pass cbv in the descriptor heap.
+//            int heapIndex = mPassCbvOffset + frameIndex*maxPassConstCount + i;
+//            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+//            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+//
+//            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+//            cbvDesc.BufferLocation = cbAddress;
+//            cbvDesc.SizeInBytes = passCBByteSize;
+//
+//            device->CreateConstantBufferView(&cbvDesc, handle);
+//        }
+//    }
+//    for (UINT i = 0; i < maxPassConstCount; ++i) {
+//        mPassCbvHeapFreeList.push_front(i);
+//    }
+//
+//    // material  CBV
+//    UINT matCBByteSize = D3DUtils::CalcConstantBufferByteSize(matConstSize);
+//    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+//        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+//        auto matCB = shaderRes.MaterialCB->Resource();
+//        for (UINT i = 0; i < maxMatConstCount; ++i) {
+//            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = matCB->GetGPUVirtualAddress();
+//
+//            // Offset to the ith object constant buffer in the buffer.
+//            cbAddress += i*matCBByteSize;
+//
+//            // Offset to the mat cbv in the descriptor heap.
+//            int heapIndex = mMaterialCbvOffset + frameIndex*maxMatConstCount + i;
+//            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+//            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+//
+//            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+//            cbvDesc.BufferLocation = cbAddress;
+//            cbvDesc.SizeInBytes = matCBByteSize;
+//
+//            device->CreateConstantBufferView(&cbvDesc, handle);
+//        }
+//    }
+//    for (UINT i = 0; i < maxMatConstCount; ++i) {
+//        mMatCbvHeapFreeList.push_front(i);
+//    }
+//
+//    // multiObject  CBV
+//    UINT multiObjCBByteSize = D3DUtils::CalcConstantBufferByteSize(multiObjConstSize);
+//    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+//        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+//        auto multiObjCB = shaderRes.MultiObjectCB->Resource();
+//        for (UINT i = 0; i < maxMultiObjConstCount; ++i) {
+//            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = multiObjCB->GetGPUVirtualAddress();
+//
+//            // Offset to the ith object constant buffer in the buffer.
+//            cbAddress += i*multiObjCBByteSize;
+//
+//            // Offset to the mat cbv in the descriptor heap.
+//            int heapIndex = mMultiObjCbvOffset + frameIndex*maxMultiObjConstCount + i;
+//            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+//            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+//
+//            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+//            cbvDesc.BufferLocation = cbAddress;
+//            cbvDesc.SizeInBytes = multiObjCBByteSize;
+//
+//            device->CreateConstantBufferView(&cbvDesc, handle);
+//        }
+//    }
+//    for (UINT i = 0; i < maxMultiObjConstCount; ++i) {
+//        mMultiObjCbvHeapFreeList.push_front(i);
+//    }
+//
+//#ifdef TEX_SRV_USE_CB_HEAP
+//    mTexSrvDescriptorTableSize = texSRVTableSize;
+//    assert(0 == texSRVCount%mTexSrvDescriptorTableSize);
+//    for (int i = texSRVCount - mTexSrvDescriptorTableSize; i >= 0; i -= mTexSrvDescriptorTableSize) {
+//        mTexSrvHeapFreeList.push_front(i);
+//    }
+//#endif
+//
+//    mPassCbvMaxCount = maxPassConstCount;
+//    mObjCbvMaxCount = maxObjConstCount;
+//    mMultiObjCbvMaxCount = maxMultiObjConstCount;
+//    mMatCbvMaxCount = maxMatConstCount;
+}
+
 void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc) {
     for (const auto& shaderStage : shaderDesc.shaderStage) {
         Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;

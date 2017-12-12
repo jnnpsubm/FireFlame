@@ -15,6 +15,15 @@
 namespace FireFlame {
 struct stShaderDescription;
 class D3DShaderWrapper {
+private:
+    struct RootParamData
+    {
+        UINT descriptorOffset;
+        UINT maxDescriptorSize;
+        std::forward_list<UINT> freeList;
+        bool inFrameResource;
+    };
+
 public:
     D3DShaderWrapper(const std::string& name) : mName(name) {}
 
@@ -31,11 +40,10 @@ public:
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
     void BuildRootSignature(ID3D12Device* device);
-    void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT);
-    //void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
-    //void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
+    void BuildRootSignature(ID3D12Device* device, const stShaderDescription& shaderDesc);
+
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
-    void BuildFrameCBResources
+    void BuildRootInputResources
     (
         UINT objConstSize, UINT maxObjConstCount,
         UINT passConstSize, UINT maxPassConstCount,
@@ -43,6 +51,8 @@ public:
         UINT texSRVTableSize, UINT texSRVCount,
         UINT multiObjConstSize, UINT maxMultiObjConstCount
     );
+    void BuildRootInputResources(const stShaderDescription& shaderDesc);
+
     UINT CreateTexSRV(ID3D12Resource* res);
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
     UINT CreateTexSRV(const std::vector<stMaterialDesc::TEX>& vecTex);
@@ -89,14 +99,9 @@ public:
     
     // todo : variant heaps with variant shaders
     ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();              }
-#ifndef TEX_SRV_USE_CB_HEAP
-    ID3D12DescriptorHeap* GetTexSRVHeap()       const { return mTexSrvDescriptorHeap.Get(); }
-#endif
     ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get();        }
     UINT GetTexSRVDescriptorTableSize()         const { return mTexSrvDescriptorTableSize;  }
-#ifdef TEX_SRV_USE_CB_HEAP
     UINT GetTexSrvOffset()                      const { return mTexSrvOffset;               }
-#endif
     UINT GetMatCBVOffset()                      const { return mMaterialCbvOffset;          }
     UINT GetMaterialCBVMaxCount()               const { return mMatCbvMaxCount;             }
     UINT GetPassCBVMaxCount()                   const { return mPassCbvMaxCount;            }
@@ -152,12 +157,10 @@ private:
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mGSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
 
-    std::unique_ptr<UploadBuffer>                  mShaderCB             = nullptr;
     Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap              = nullptr;
-#ifndef TEX_SRV_USE_CB_HEAP
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mTexSrvDescriptorHeap = nullptr;
-#endif
+
+    std::unordered_map<std::string, RootParamData> mRootParamData;
 
     UINT                                           mTexSrvDescriptorTableSize = 4;
 

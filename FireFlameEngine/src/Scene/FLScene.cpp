@@ -211,20 +211,30 @@ void Scene::AddShader(const stShaderDescription& shaderDesc) {
     else {
         shader = mShaders[shaderDesc.name];
     }
-    shader->SetParamIndex
-    (
-        shaderDesc.texParamIndex, shaderDesc.objParamIndex, shaderDesc.multiObjParamIndex,
-        shaderDesc.matParamIndex, shaderDesc.passParamIndex
-    );
-    shader->BuildFrameCBResources
-    (
-        shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
-        shaderDesc.passCBSize, 3,
-        shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
-        shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
-        shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
-    );
-    shader->BuildRootSignature(mRenderer->GetDevice());
+
+    if (shaderDesc.useRootParamDescription)
+    {
+        shader->BuildRootInputResources(shaderDesc);
+        shader->BuildRootSignature(mRenderer->GetDevice(), shaderDesc);
+    }
+    else
+    {
+        shader->SetParamIndex
+        (
+            shaderDesc.texParamIndex, shaderDesc.objParamIndex, shaderDesc.multiObjParamIndex,
+            shaderDesc.matParamIndex, shaderDesc.passParamIndex
+        );
+        shader->BuildRootInputResources
+        (
+            shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
+            shaderDesc.passCBSize, 3,
+            shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
+            shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
+            shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
+        );
+        shader->BuildRootSignature(mRenderer->GetDevice());
+    }
+    
     shader->BuildShadersAndInputLayout(shaderDesc);
 
     // normally one pass const buffer for one shader,

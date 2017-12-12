@@ -399,6 +399,69 @@ struct stShaderStage {
     }
 };
 
+enum class ROOT_PARAMETER_TYPE :std::uint8_t
+{
+    DESCRIPTOR_TABLE = 0,
+    _32BIT_CONSTANTS = (DESCRIPTOR_TABLE + 1),
+    CBV = (_32BIT_CONSTANTS + 1),
+    SRV = (CBV + 1),
+    UAV = (SRV + 1)
+};
+
+enum class DESCRIPTOR_RANGE_TYPE
+{
+    SRV = 0,
+    UAV = (SRV + 1),
+    CBV = (UAV + 1),
+    SAMPLER = (CBV + 1)
+};
+
+enum class SHADER_VISIBILITY:std::uint8_t
+{
+    VISIBILITY_ALL = 0,
+    VISIBILITY_VERTEX = 1,
+    VISIBILITY_HULL = 2,
+    VISIBILITY_DOMAIN = 3,
+    VISIBILITY_GEOMETRY = 4,
+    VISIBILITY_PIXEL = 5
+};
+
+struct ROOT_PARAMETER
+{
+    ROOT_PARAMETER
+    (
+        const std::string& name, 
+        unsigned datasize, 
+        unsigned maxDescriptor, 
+        DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV,
+        unsigned baseRegister = 0,
+        unsigned registerSpace = 0,
+        ROOT_PARAMETER_TYPE ptype = ROOT_PARAMETER_TYPE::DESCRIPTOR_TABLE,
+        unsigned tablesize = 1,
+        SHADER_VISIBILITY visibility = SHADER_VISIBILITY::VISIBILITY_ALL
+    ):
+        name(name),
+        ptype(ptype),
+        tablesize(tablesize),
+        vtype(vtype),
+        visibility(visibility),
+        baseRegister(baseRegister),
+        registerSpace(registerSpace),
+        datasize(datasize),
+        maxDescriptor(maxDescriptor)
+    {}
+    std::string name;
+    ROOT_PARAMETER_TYPE ptype = ROOT_PARAMETER_TYPE::DESCRIPTOR_TABLE;
+    unsigned tablesize = 1;
+    DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV;
+    SHADER_VISIBILITY visibility = SHADER_VISIBILITY::VISIBILITY_ALL;
+    unsigned baseRegister = 0;
+    unsigned registerSpace = 0;
+
+    unsigned datasize;
+    unsigned maxDescriptor;
+};
+
 struct stShaderDescription {
     stShaderDescription() = default;
     stShaderDescription(const std::string& name) :name(name) {}
@@ -420,12 +483,16 @@ struct stShaderDescription {
     std::vector<unsigned int>   inputSlots;
     std::vector<stSemanticName> semanticNames;   // order must match vertexFormats
 
+    bool                        useRootParamDescription = false;
+
+    bool                        addDefaultSamplers = true;
+    std::vector<ROOT_PARAMETER> rootParameters;
+
     unsigned int                texSRVDescriptorTableSize = 1;
     unsigned int                objCBSize = 1;
     unsigned int                multiObjCBSize = 0;
     unsigned int                materialCBSize = 0;
     unsigned int                passCBSize = 1;
-    
     unsigned int                maxObjCBDescriptor = 100;
     unsigned int                maxTexSRVDescriptor = 64;
 
@@ -439,7 +506,6 @@ struct stShaderDescription {
     unsigned int                multiObjParamIndex = -1;
     unsigned int                matParamIndex = -1;
     unsigned int                passParamIndex = 2;
-
     void ParamDefault()
     {
         texParamIndex = 0;
@@ -493,6 +559,25 @@ struct stShaderDescription {
         semanticNames.emplace_back(semanticName, semanticIndex);
         inputSlots.emplace_back(slot);
         vertexFormats.emplace_back(format);
+    }
+    void AddRootParameter
+    (
+        const std::string& name,
+        unsigned datasize,
+        unsigned maxDescriptor,
+        DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV,
+        unsigned baseRegister = 0,
+        unsigned registerSpace = 0,
+        ROOT_PARAMETER_TYPE ptype = ROOT_PARAMETER_TYPE::DESCRIPTOR_TABLE,
+        unsigned tablesize = 1,
+        SHADER_VISIBILITY visibility = SHADER_VISIBILITY::VISIBILITY_ALL
+    )
+    {
+        rootParameters.emplace_back
+        (
+            name, datasize, maxDescriptor,
+            vtype, baseRegister, registerSpace, ptype, tablesize, visibility
+        );
     }
 };
 

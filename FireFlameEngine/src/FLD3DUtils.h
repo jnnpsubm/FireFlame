@@ -583,6 +583,44 @@ inline D3D12_SRV_DIMENSION FLSRVDim2D3DSRVDim(SRV_DIMENSION dim)
     }
 }
 
+inline D3D12_DESCRIPTOR_RANGE_TYPE FLDesRangeType2D3DDesRangeType(DESCRIPTOR_RANGE_TYPE type)
+{
+    switch (type)
+    {
+    case FireFlame::DESCRIPTOR_RANGE_TYPE::SRV:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case FireFlame::DESCRIPTOR_RANGE_TYPE::UAV:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case FireFlame::DESCRIPTOR_RANGE_TYPE::CBV:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+    case FireFlame::DESCRIPTOR_RANGE_TYPE::SAMPLER:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+    default:
+        throw std::exception("unknown DESCRIPTOR_RANGE_TYPE in FLDesRangeType2D3DDesRangeType");
+    }
+}
+
+inline D3D12_SHADER_VISIBILITY FLShaderVisiblity2D3DShaderVisiblity(SHADER_VISIBILITY visibility)
+{
+    switch (visibility)
+    {
+    case FireFlame::SHADER_VISIBILITY::VISIBILITY_ALL:
+        return D3D12_SHADER_VISIBILITY_ALL;
+    case FireFlame::SHADER_VISIBILITY::VISIBILITY_VERTEX:
+        return D3D12_SHADER_VISIBILITY_VERTEX;
+    case FireFlame::SHADER_VISIBILITY::VISIBILITY_HULL:
+        return D3D12_SHADER_VISIBILITY_HULL;
+    case FireFlame::SHADER_VISIBILITY::VISIBILITY_DOMAIN:
+        return D3D12_SHADER_VISIBILITY_DOMAIN;
+    case FireFlame::SHADER_VISIBILITY::VISIBILITY_GEOMETRY:
+        return D3D12_SHADER_VISIBILITY_GEOMETRY;
+    case FireFlame::SHADER_VISIBILITY::VISIBILITY_PIXEL:
+        return D3D12_SHADER_VISIBILITY_PIXEL;
+    default:
+        throw std::exception("unknown SHADER_VISIBILITY in FLShaderVisiblity2D3DShaderVisiblity");
+    }
+}
+
 inline std::wstring AnsiToWString(const std::string& str)
 {
 	WCHAR buffer[512];

@@ -30,6 +30,8 @@ public:
     // that reference it.  So each frame needs their own cbuffers.
     std::map<std::string, Shader_Res> ShaderResources;
 
+    std::unordered_map<std::string, std::unique_ptr<UploadBuffer>> ShaderRootResources;
+
     // some mesh have dynamic VB updated with frame...
     std::unordered_map<std::string, std::unique_ptr<UploadBuffer>> VBResources;
 
