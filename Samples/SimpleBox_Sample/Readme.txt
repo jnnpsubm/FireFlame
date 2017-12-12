@@ -1,1 +1,0 @@
-A simple demo showing a cube.
