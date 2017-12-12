@@ -89,10 +89,8 @@
     <ClInclude Include="src\Matrix\FLMatrixNXN.h" />
     <ClInclude Include="src\Noise\FLNoise.h" />
     <ClInclude Include="src\PCH.h" />
-    <ClInclude Include="src\PSOManager\FLD3DPSOManager.h" />
     <ClInclude Include="src\PSOManager\FLD3DPSOManager2.h" />
     <ClInclude Include="src\PSOManager\FLPSOManager.h" />
-    <ClInclude Include="src\PSOManager\FLPSOTrait.h" />
     <ClInclude Include="src\Renderer\FLD3DRenderer.h" />
     <ClInclude Include="src\Renderer\FLRenderer.h" />
     <ClInclude Include="src\Scene\FLScene.h" />
@@ -134,7 +132,6 @@
     <ClCompile Include="src\GeometryHelper\PLYLoader.cpp" />
     <ClCompile Include="src\MathHelper\FLMathHelper.cpp" />
     <ClCompile Include="src\Noise\FLNoise.cpp" />
-    <ClCompile Include="src\PSOManager\FLD3DPSOManager.cpp" />
     <ClCompile Include="src\PSOManager\FLD3DPSOManager2.cpp" />
     <ClCompile Include="src\PSOManager\FLPSOManager.cpp" />
     <ClCompile Include="src\Renderer\FLD3DRenderer.cpp" />

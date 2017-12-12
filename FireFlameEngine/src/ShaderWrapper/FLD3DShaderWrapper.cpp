@@ -3,45 +3,11 @@
 #include "..\FLD3DUtils.h"
 #include "ShaderConstBuffer\FLShaderConstBuffer.h"
 #include "..\Engine\FLEngine.h"
-#include "..\PSOManager\FLD3DPSOManager.h"
 #include "..\Renderer\FLD3DRenderer.h"
 #include "..\Material\FLTexture.h"
 #include "..\3rd_utils\spdlog\spdlog.h"
 
 namespace FireFlame {
-void D3DShaderWrapper::BuildPSO(ID3D12Device* device, DXGI_FORMAT backBufferFormat, DXGI_FORMAT DSFormat)
-{
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-    ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
-    psoDesc.pRootSignature = mRootSignature.Get();
-    /*psoDesc.VS = {
-        reinterpret_cast<BYTE*>(mVSByteCode->GetBufferPointer()),
-        mVSByteCode->GetBufferSize()
-    };
-    psoDesc.PS = {
-        reinterpret_cast<BYTE*>(mPSByteCode->GetBufferPointer()),
-        mPSByteCode->GetBufferSize()
-    };*/
-    psoDesc.RTVFormats[0] = backBufferFormat;
-    psoDesc.DSVFormat = DSFormat;
-    for (const auto& vs : mVSByteCodes)
-    {
-        psoDesc.VS = {
-            reinterpret_cast<BYTE*>(vs.second->GetBufferPointer()),
-            vs.second->GetBufferSize()
-        };
-        for (const auto& ps : mPSByteCodes)
-        {
-            psoDesc.PS = {
-                reinterpret_cast<BYTE*>(ps.second->GetBufferPointer()),
-                ps.second->GetBufferSize()
-            };
-            auto shaderMacros = ShaderMacros2String(vs.first, ps.first, "", "");
-            Engine::GetEngine()->GetPSOManager()->AddPSO(mName, shaderMacros, psoDesc);
-        }
-    }
-}
 void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     // Shader programs typically require resources as input (constant buffers,
     // textures, samplers).  The root signature defines the resources the shader
@@ -233,13 +199,8 @@ UINT D3DShaderWrapper::CreateTexSRV(ID3D12Resource* res)
     // todo : material cbv management
     mTexSrvHeapFreeList.pop_front();
 
-#ifdef TEX_SRV_USE_CB_HEAP
     CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
     hDescriptor.Offset(index+mTexSrvOffset, renderer->GetCbvSrvUavDescriptorSize());
-#else
-    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mTexSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-    hDescriptor.Offset(index, renderer->GetCbvSrvUavDescriptorSize());
-#endif
     
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -494,13 +455,11 @@ void D3DShaderWrapper::BuildFrameCBResources
         mMultiObjCbvHeapFreeList.push_front(i);
     }
 
-#ifdef TEX_SRV_USE_CB_HEAP
     mTexSrvDescriptorTableSize = texSRVTableSize;
     assert(0 == texSRVCount%mTexSrvDescriptorTableSize);
     for (int i = texSRVCount-mTexSrvDescriptorTableSize; i >= 0; i -= mTexSrvDescriptorTableSize) {
         mTexSrvHeapFreeList.push_front(i);
     }
-#endif
 
     mPassCbvMaxCount = maxPassConstCount;
     mObjCbvMaxCount  = maxObjConstCount;

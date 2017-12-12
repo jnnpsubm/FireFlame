@@ -27,7 +27,6 @@ public:
 
 	std::shared_ptr<Scene>          GetScene()       const { return mScene; }
     std::shared_ptr<Window>         GetWindow()      const { return mMainWnd; }
-    std::shared_ptr<D3DPSOManager>  GetPSOManager()  const { return mPSOManager; }
     std::shared_ptr<D3DPSOManager2> GetPSOManager2() const { return mPSOManager2; }
     std::shared_ptr<D3DRenderer>    GetRenderer()    const { return mRenderer; }
 
@@ -82,7 +81,6 @@ private:
 	std::shared_ptr<Window>        mMainWnd      = nullptr;
 	std::shared_ptr<D3DRenderer>   mRenderer     = nullptr;
 	std::shared_ptr<Scene>         mScene        = nullptr;
-    std::shared_ptr<D3DPSOManager> mPSOManager   = nullptr;
     std::shared_ptr<D3DPSOManager2> mPSOManager2 = nullptr;
 
     // callbacks

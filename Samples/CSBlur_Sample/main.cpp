@@ -18,15 +18,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         app.PreInitialize();
 
         // application handles
-        engine.RegisterUpdateFunc(std::bind(&FLEngineApp3::Update, &app, std::placeholders::_1));
-        engine.RegisterWindowResizedHandler(std::bind(&FLEngineApp3::OnGameWindowResized, &app, _1, _2));
+        engine.RegisterUpdateFunc(std::bind(&FLEngineApp::Update, &app, std::placeholders::_1));
+        engine.RegisterWindowResizedHandler(std::bind(&FLEngineApp::OnGameWindowResized, &app, _1, _2));
         engine.GetWindow()->RegisterMouseHandlers
         (
-            std::bind(&FLEngineApp3::OnMouseDown, &app, _1, _2, _3),
-            std::bind(&FLEngineApp3::OnMouseUp,   &app, _1, _2, _3),
-            std::bind(&FLEngineApp3::OnMouseMove, &app, _1, _2, _3)
+            std::bind(&FLEngineApp::OnMouseDown, &app, _1, _2, _3),
+            std::bind(&FLEngineApp::OnMouseUp,   &app, _1, _2, _3),
+            std::bind(&FLEngineApp::OnMouseMove, &app, _1, _2, _3)
         );
-        engine.GetWindow()->RegisterKeyUpHandler(std::bind(&FLEngineApp3::OnKeyUp, &app, _1, _2));
+        engine.GetWindow()->RegisterKeyUpHandler(std::bind(&FLEngineApp::OnKeyUp, &app, _1, _2));
 
         // engine initialization
         engine.InitMainWindow(150, 80, 1280, 600);

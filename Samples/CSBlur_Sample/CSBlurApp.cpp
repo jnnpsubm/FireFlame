@@ -23,7 +23,7 @@ void CSBlurApp::Initialize()
 
 void CSBlurApp::Update(float time_elapsed)
 {
-    FLEngineApp3::Update(time_elapsed);
+    FLEngineApp::Update(time_elapsed);
 
     auto& passCB = mPassCBs["main"];
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["tree"].name, sizeof(PassConstants), &passCB);
@@ -33,7 +33,7 @@ void CSBlurApp::Update(float time_elapsed)
 
 void CSBlurApp::UpdateMainPassCB(float time_elapsed)
 {
-    FLEngineApp3::UpdateMainPassCB(time_elapsed);
+    FLEngineApp::UpdateMainPassCB(time_elapsed);
 }
 
 void CSBlurApp::UpdateWaves()
@@ -701,7 +701,7 @@ void CSBlurApp::AddRenderItemsDepthComplexity()
 
 void CSBlurApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 {
-    FLEngineApp3::OnKeyUp(wParam, lParam);
+    FLEngineApp::OnKeyUp(wParam, lParam);
     if ((int)wParam == 'R')
     {
         mEngine.Resume();

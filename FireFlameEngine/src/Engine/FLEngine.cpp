@@ -2,7 +2,6 @@
 #include "..\src\3rd_utils\spdlog\spdlog.h"
 #include "..\src\3rd_utils\FLConsole.h"
 #include "..\Renderer\FLD3DRenderer.h"
-#include "..\PSOManager\FLD3DPSOManager.h"
 #include "..\PSOManager\FLD3DPSOManager2.h"
 #include "..\FLD3DUtils.h"
 
@@ -19,7 +18,6 @@ Engine::Engine(HINSTANCE hinst) {
 	mMainWnd  = std::make_shared<Window>(hinst, *this);
 	mRenderer->SetRenderWindow(mMainWnd);
     mScene = std::make_shared<Scene>(mRenderer);
-    mPSOManager = std::make_shared<D3DPSOManager>();
     mPSOManager2 = std::make_shared<D3DPSOManager2>();
 }
 Engine::~Engine() {

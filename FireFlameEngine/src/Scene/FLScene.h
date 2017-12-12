@@ -60,7 +60,6 @@ public:
     void AddShader(const stShaderDescription& shaderDesc);
     void AddPSO(const std::string& name, const PSODesc& desc);
     void AddPrimitive(const stRawMesh& mesh);
-	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);
 
     void AddRenderItem
@@ -155,16 +154,6 @@ public:
 
     void AddPass(const std::string& name);
 
-    void PrimitiveUseShader(const std::string& primitive, const std::string& shader);
-    void RenderItemChangeShader
-    (
-        const std::string& renderItem, 
-        int                priority,
-        const stRenderItemDesc& desc,
-        const std::string&      shader,
-        const std::string&      shaderMacroVS = "",
-        const std::string&      shaderMacroPS = ""
-    );
     void RenderItemChangeMaterial
     (
         const std::string& renderItem,

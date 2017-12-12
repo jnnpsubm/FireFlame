@@ -5,18 +5,13 @@
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 #include "..\Timer\FLStopWatch.h"
 #include "..\Engine\FLEngine.h"
-#include "..\PSOManager\FLD3DPSOManager.h"
 #include "..\PSOManager\FLD3DPSOManager2.h"
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
 #include "..\Material\FLTexture.h"
 #include "..\Utility\chrono\FLchrono.h"
 #include "..\3rd_utils\spdlog\spdlog.h"
-#ifdef USE_MS_DDS_LOADER
-#include "..\3rd_utils\DDSTextureLoader12.h"
-#else
 #include "..\3rd_utils\DDSTextureLoaderLuna.h"
-#endif
 #include "..\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h"
 
 namespace FireFlame {
@@ -248,20 +243,6 @@ void Scene::AddPSO(const std::string& name, const PSODesc& desc)
 void Scene::AddPrimitive(const stRawMesh& mesh) {
     mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
 }
-void Scene::AddPrimitive(const stRawMesh& mesh, const std::string& shaderName) {
-	mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
-    auto it = mShaders.find(shaderName);
-    if (it == mShaders.end()) throw std::exception("cannot find the shader");
-    auto shader = it->second;
-    mPrimitives[mesh.name]->SetShader(shader);
-}
-void Scene::PrimitiveUseShader(const std::string& primitive, const std::string& shader) {
-    auto itPrimitive = mPrimitives.find(primitive);
-    if (itPrimitive == mPrimitives.end()) throw std::exception("cannot find primitive");
-    auto itShader = mShaders.find(shader);
-    if (itShader == mShaders.end()) throw std::exception("cannot find shader");
-    itPrimitive->second->SetShader(itShader->second);
-}
 
 void Scene::PrimitiveVisible(const std::string& name, bool visible)
 {
@@ -283,62 +264,6 @@ void Scene::RenderItemVisible(const std::string& name, bool visible)
         return;
     }
     itRItem->second->SetVisible(visible);
-}
-
-void Scene::RenderItemChangeShader
-(
-    const std::string& renderItem,
-    int                priority,
-    const stRenderItemDesc& desc,
-    const std::string&      shader,
-    const std::string&      shaderMacroVS,
-    const std::string&      shaderMacroPS
-) 
-{
-    auto itRItem = mRenderItems.find(renderItem);
-    if (itRItem == mRenderItems.end()) 
-        throw std::exception("cannot find render item in function(RenderItemChangeShader)");
-    auto itShader = mShaders.find(shader);
-    if (itShader == mShaders.end()) 
-        throw std::exception("cannot find shader in function(RenderItemChangeShader)");
-    std::string oldShader = itRItem->second->Shader;
-
-    auto& shaderMapped = GetShaderMappedRItem(priority, itRItem->second->opaque);
-    auto itSameShader = shaderMapped.find(oldShader);
-    if (itSameShader == shaderMapped.end())
-    {
-        spdlog::get("console")->error("cannot find old shader {0}", oldShader);
-        return;
-    }
-
-    // first remove the render item
-    bool bFound = false;
-    for (auto& itSamePSO : itSameShader->second) {
-        auto& vecRItems = itSamePSO.second;
-        for (auto it = vecRItems.begin(); it != vecRItems.end(); ++it) {
-            if ((*it)->Name == renderItem) {
-                vecRItems.erase(it);
-                bFound = true;
-                break;
-            }
-        }
-    }
-    if (!bFound)
-    {
-        spdlog::get("console")->error("cannot find render item {0}", renderItem);
-        return;
-    }
-    itRItem->second->SetShader(shader);
-    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
-    auto PSOName = shader + shaderMacroVS + shaderMacroPS + desc.AsPSOName();
-    if (!PSOManager->NameExist(PSOName))
-    {
-        AddPSO(PSOName, { shader,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode });
-    }
-    // add render item back to new place
-    auto& PSOMapped = shaderMapped[shader];
-    auto& vecItems = PSOMapped[PSOName];
-    vecItems.push_back(itRItem->second.get());
 }
 
 void Scene::RenderItemChangeMaterial(const std::string& renderItem, const std::string& matname)
@@ -489,20 +414,7 @@ void Scene::AddTextureGroup(const std::string& name, std::vector<std::wstring> f
 void Scene::AddTexture(const std::string& name, std::uint8_t* data, size_t len)
 {
     auto tex = std::make_shared<Texture>(name);
-    std::unique_ptr<std::uint8_t[]> ddsdata;
-    std::vector<D3D12_SUBRESOURCE_DATA> subresources;
-#ifdef USE_MS_DDS_LOADER
-    ThrowIfFailed
-    (
-        DirectX::LoadDDSTextureFromFile
-        (
-            Engine::GetEngine()->GetRenderer()->GetDevice(),
-            filename.c_str(),
-            tex->resource.GetAddressOf(),
-            ddsdata, subresources
-        )
-    );
-#else
+
     auto renderer = Engine::GetEngine()->GetRenderer();
     renderer->ResetCommandList();
     ThrowIfFailed
@@ -518,7 +430,6 @@ void Scene::AddTexture(const std::string& name, std::uint8_t* data, size_t len)
     renderer->ExecuteCommand();
     renderer->WaitForGPU();
     tex->uploadHeap = nullptr;
-#endif
     mTextures[tex->name] = std::move(tex);
 }
 

@@ -31,7 +31,6 @@ public:
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
     void BuildRootSignature(ID3D12Device* device);
-    void BuildPSO(ID3D12Device*, DXGI_FORMAT, DXGI_FORMAT);
     //void BuildConstantBuffers(ID3D12Device* device, UINT CBSize);
     //void BuildCBVDescriptorHeaps(ID3D12Device* device, UINT numDescriptors);
     void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
@@ -89,14 +88,9 @@ public:
     
     // todo : variant heaps with variant shaders
     ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();              }
-#ifndef TEX_SRV_USE_CB_HEAP
-    ID3D12DescriptorHeap* GetTexSRVHeap()       const { return mTexSrvDescriptorHeap.Get(); }
-#endif
     ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get();        }
     UINT GetTexSRVDescriptorTableSize()         const { return mTexSrvDescriptorTableSize;  }
-#ifdef TEX_SRV_USE_CB_HEAP
     UINT GetTexSrvOffset()                      const { return mTexSrvOffset;               }
-#endif
     UINT GetMatCBVOffset()                      const { return mMaterialCbvOffset;          }
     UINT GetMaterialCBVMaxCount()               const { return mMatCbvMaxCount;             }
     UINT GetPassCBVMaxCount()                   const { return mPassCbvMaxCount;            }
@@ -155,9 +149,6 @@ private:
     std::unique_ptr<UploadBuffer>                  mShaderCB             = nullptr;
     Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap              = nullptr;
-#ifndef TEX_SRV_USE_CB_HEAP
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mTexSrvDescriptorHeap = nullptr;
-#endif
 
     UINT                                           mTexSrvDescriptorTableSize = 4;
 

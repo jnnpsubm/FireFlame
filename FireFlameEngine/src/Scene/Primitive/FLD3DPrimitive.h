@@ -2,8 +2,6 @@
 #include "../Shape/FLD3DMesh.h"
 
 namespace FireFlame {
-class D3DRenderer;
-class D3DShaderWrapper;
 class D3DPrimitive {
 public:
 	D3DPrimitive();
@@ -13,14 +11,9 @@ public:
     bool Visible() const { return mVisible; }
     void SetVisible(bool visible) const { mVisible = visible; }
 
-    void Draw(D3DRenderer* renderer);
-
-    void SetShader(std::shared_ptr<D3DShaderWrapper> shader) { mShader = shader; }
-
 private:
-    mutable bool                              mVisible     = true;
+    mutable bool                      mVisible     = true;
 
 	std::unique_ptr<D3DMesh>          mMesh        = nullptr;
-    std::shared_ptr<D3DShaderWrapper> mShader      = nullptr;
 };
 }

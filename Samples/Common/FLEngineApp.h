@@ -75,7 +75,7 @@ struct PassConstants : PassConstantsLight
 };
 
 
-class FLEngineApp3
+class FLEngineApp
 {
 public:
     typedef std::unordered_map<std::string, FireFlame::stRawMesh>           RawMeshMap;
@@ -85,8 +85,8 @@ public:
     typedef std::unordered_map<std::string, NamedMaterialConstants>         MaterialMap;
 
 public:
-    FLEngineApp3(FireFlame::Engine& engine, float cameraMinDis = 3.0f, float cameraMaxDis = 150.f);
-    virtual ~FLEngineApp3();
+    FLEngineApp(FireFlame::Engine& engine, float cameraMinDis = 3.0f, float cameraMaxDis = 150.f);
+    virtual ~FLEngineApp();
 
     virtual void PreInitialize() {}
     virtual void Initialize() = 0;

@@ -1,14 +1,14 @@
-#include "FLEngineApp3.h"
+#include "FLEngineApp.h"
 #include <string>
 
-FLEngineApp3::FLEngineApp3(FireFlame::Engine& engine, float cameraMinDis, float cameraMaxDis) :
+FLEngineApp::FLEngineApp(FireFlame::Engine& engine, float cameraMinDis, float cameraMaxDis) :
     mEngine(engine),
     mMinRadius(cameraMinDis),
     mMaxRadius(cameraMaxDis)
 {}
-FLEngineApp3::~FLEngineApp3() {}
+FLEngineApp::~FLEngineApp() {}
 
-void FLEngineApp3::OnGameWindowResized(int w, int h) {
+void FLEngineApp::OnGameWindowResized(int w, int h) {
     // The window resized, so update the aspect ratio and recompute the projection matrix.
     DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH
     (
@@ -17,14 +17,14 @@ void FLEngineApp3::OnGameWindowResized(int w, int h) {
     );
     DirectX::XMStoreFloat4x4(&mProj, P);
 }
-void FLEngineApp3::Update(float time_elapsed) 
+void FLEngineApp::Update(float time_elapsed) 
 {
     OnKeyboardInput(time_elapsed);
     UpdateCamera(time_elapsed);
     UpdateMainPassCB(time_elapsed);
 }
 
-void FLEngineApp3::UpdateMainPassCB(float time_elapsed)
+void FLEngineApp::UpdateMainPassCB(float time_elapsed)
 {
     using namespace DirectX;
 
@@ -65,7 +65,7 @@ void FLEngineApp3::UpdateMainPassCB(float time_elapsed)
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstants), &passCB);
 }
 
-void FLEngineApp3::UpdateCamera(float time_elapsed)
+void FLEngineApp::UpdateCamera(float time_elapsed)
 {
     // Convert Spherical to Cartesian coordinates.
     mEyePos.x = mRadius*sinf(mPhi)*cosf(mTheta);
@@ -81,15 +81,15 @@ void FLEngineApp3::UpdateCamera(float time_elapsed)
     DirectX::XMStoreFloat4x4(&mView, view);
 }
 
-void FLEngineApp3::OnMouseDown(WPARAM btnState, int x, int y) {
+void FLEngineApp::OnMouseDown(WPARAM btnState, int x, int y) {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
     SetCapture(mEngine.GetWindow()->MainWnd());
 }
-void FLEngineApp3::OnMouseUp(WPARAM btnState, int x, int y) {
+void FLEngineApp::OnMouseUp(WPARAM btnState, int x, int y) {
     ReleaseCapture();
 }
-void FLEngineApp3::OnMouseMove(WPARAM btnState, int x, int y) {
+void FLEngineApp::OnMouseMove(WPARAM btnState, int x, int y) {
     if ((btnState & MK_LBUTTON) != 0) {
         // Make each pixel correspond to a quarter of a degree.
         float dx = DirectX::XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
@@ -120,7 +120,7 @@ void FLEngineApp3::OnMouseMove(WPARAM btnState, int x, int y) {
     mLastMousePos.y = y;
 }
 
-void FLEngineApp3::OnKeyUp(WPARAM wParam, LPARAM lParam) {
+void FLEngineApp::OnKeyUp(WPARAM wParam, LPARAM lParam) {
     if (wParam == 'W') {
         if (mEngine.GetFillMode() == FireFlame::Fill_Mode::Solid) {
             mEngine.SetFillMode(FireFlame::Fill_Mode::Wireframe);
@@ -143,7 +143,7 @@ void FLEngineApp3::OnKeyUp(WPARAM wParam, LPARAM lParam) {
     }
 }
 
-void FLEngineApp3::OnKeyboardInput(float time_elapsed)
+void FLEngineApp::OnKeyboardInput(float time_elapsed)
 {
     if (GetAsyncKeyState(VK_LEFT) & 0x8000)
         mSunTheta -= 1.0f*time_elapsed;

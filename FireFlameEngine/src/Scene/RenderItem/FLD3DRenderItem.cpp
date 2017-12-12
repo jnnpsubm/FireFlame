@@ -3,7 +3,6 @@
 #include "..\..\Engine\FLEngine.h"
 #include "..\..\Renderer\FLD3DRenderer.h"
 #include "..\..\ShaderWrapper\FLD3DShaderWrapper.h"
-#include "..\..\PSOManager\FLD3DPSOManager.h"
 #include "..\..\Material\FLMaterial.h"
 
 namespace FireFlame {

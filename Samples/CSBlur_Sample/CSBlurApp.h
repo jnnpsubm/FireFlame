@@ -1,5 +1,5 @@
 #pragma once
-#include "..\Common\FLEngineApp3.h"
+#include "..\Common\FLEngineApp.h"
 #include "..\Common\Waves.h"
 
 struct DepthComplexityObjConsts
@@ -13,9 +13,9 @@ struct MaterialConstants2 : MaterialConstants
     int UseTexture = 0;
 };
 
-class CSBlurApp : public FLEngineApp3 {
+class CSBlurApp : public FLEngineApp {
 public:
-    CSBlurApp(FireFlame::Engine& e) : FLEngineApp3(e)
+    CSBlurApp(FireFlame::Engine& e) : FLEngineApp(e)
     { 
         mTheta = 1.5f*FireFlame::MathHelper::FL_PI;
         mPhi = FireFlame::MathHelper::FL_PIDIV2 - 0.1f;
