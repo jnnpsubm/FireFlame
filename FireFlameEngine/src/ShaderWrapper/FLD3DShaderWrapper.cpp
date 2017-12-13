@@ -724,6 +724,9 @@ void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& sha
         case Shader_Type::PS: {
             mPSByteCodes[shaderStage.Macros2String()] = byteCode;
         }break;
+        case Shader_Type::CS: {
+            mCSByteCodes[shaderStage.Macros2String()] = byteCode;
+        }break;
         default:
             throw std::exception("unhandled shader stage type......");
             break;

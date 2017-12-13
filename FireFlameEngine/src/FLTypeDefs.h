@@ -383,6 +383,7 @@ enum class Shader_Type {
     TES,
     GS,
     PS,
+    CS,
 };
 struct stShaderStage {
     stShaderStage(const std::wstring& _file, Shader_Type _type, 

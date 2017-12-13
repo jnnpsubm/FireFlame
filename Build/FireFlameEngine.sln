@@ -85,6 +85,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GSIcosahedron_Sample", "..\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Text2CPPString", "..\Tools\Text2CPPString\Text2CPPString.vcxproj", "{6668D0BD-76A2-424C-B5C6-5A760AEC617A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CSTask_Sample", "..\Samples\CSTask_Sample\CSTask_Sample.vcxproj", "{21DC161A-22BC-44EA-85C3-11721B70F568}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -381,6 +383,14 @@ Global
 		{6668D0BD-76A2-424C-B5C6-5A760AEC617A}.Release|x64.Build.0 = Release|x64
 		{6668D0BD-76A2-424C-B5C6-5A760AEC617A}.Release|x86.ActiveCfg = Release|Win32
 		{6668D0BD-76A2-424C-B5C6-5A760AEC617A}.Release|x86.Build.0 = Release|Win32
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Debug|x64.ActiveCfg = Debug|x64
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Debug|x64.Build.0 = Debug|x64
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Debug|x86.ActiveCfg = Debug|Win32
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Debug|x86.Build.0 = Debug|Win32
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Release|x64.ActiveCfg = Release|x64
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Release|x64.Build.0 = Release|x64
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Release|x86.ActiveCfg = Release|Win32
+		{21DC161A-22BC-44EA-85C3-11721B70F568}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -421,6 +431,7 @@ Global
 		{8BE9AA59-808D-432E-9B42-7D9C26FB8E7C} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
 		{08D895C5-393A-42AB-93FB-273CDFCDF1EA} = {A5EEBEDF-D55E-4BFD-B8C0-226CDC1F27DE}
 		{6668D0BD-76A2-424C-B5C6-5A760AEC617A} = {C663A43D-4ABC-4F5B-A5B4-7A26BD712433}
+		{21DC161A-22BC-44EA-85C3-11721B70F568} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}

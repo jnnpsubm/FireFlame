@@ -156,6 +156,7 @@ private:
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mTSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mGSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mCSByteCodes;
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap              = nullptr;
