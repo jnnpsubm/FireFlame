@@ -107,6 +107,7 @@
     <ClInclude Include="src\Scene\Vertex\FLVertex.h" />
     <ClInclude Include="src\ShaderWrapper\FLD3DComputeShaderWrapper.h" />
     <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapper.h" />
+    <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapperBase.h" />
     <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h" />
     <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
@@ -152,6 +153,7 @@
     <ClCompile Include="src\Scene\Vertex\FLVertex.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLD3DComputeShaderWrapper.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapper.cpp" />
+    <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapperBase.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLShaderWrapper.cpp" />
     <ClCompile Include="src\Timer\FLStopWatch.cpp" />
     <ClCompile Include="src\Utility\loader\FLHKXLoader.cpp" />

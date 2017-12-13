@@ -1,4 +1,5 @@
 #pragma once
+#include "FLD3DShaderWrapperBase.h"
 #include <vector>
 #include <array>
 #include <forward_list>
@@ -14,7 +15,7 @@
 
 namespace FireFlame {
 struct ShaderDescription;
-class D3DShaderWrapper {
+class D3DShaderWrapper : public D3DShaderWrapperBase {
 private:
     struct RootParamData
     {
@@ -25,7 +26,7 @@ private:
     };
 
 public:
-    D3DShaderWrapper(const std::string& name) : mName(name) {}
+    D3DShaderWrapper(const std::string& name) : D3DShaderWrapperBase(name) {}
 
     void SetParamIndex(UINT texParamIndex, UINT objParamIndex, UINT multiObjParamIndex, UINT matParamIndex, UINT passParamIndex)
     {
@@ -99,7 +100,6 @@ public:
     
     // todo : variant heaps with variant shaders
     ID3D12DescriptorHeap* GetCBVHeap()          const { return mCbvHeap.Get();              }
-    ID3D12RootSignature*  GetRootSignature()    const { return mRootSignature.Get();        }
     UINT GetTexSRVDescriptorTableSize()         const { return mTexSrvDescriptorTableSize;  }
     UINT GetTexSrvOffset()                      const { return mTexSrvOffset;               }
     UINT GetMatCBVOffset()                      const { return mMaterialCbvOffset;          }
@@ -148,7 +148,6 @@ public:
     }
 
 private:
-    std::string                           mName;
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
     std::vector<std::string>              mSemanticNames;
 
@@ -156,9 +155,7 @@ private:
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mTSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mGSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
-    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mCSByteCodes;
 
-    Microsoft::WRL::ComPtr<ID3D12RootSignature>    mRootSignature        = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap              = nullptr;
 
     std::unordered_map<std::string, RootParamData> mRootParamData;
@@ -190,7 +187,6 @@ private:
     std::forward_list<UINT>                        mTexSrvHeapFreeList;
 
     void BuildInputLayout(const ShaderDescription& shaderDesc);
-    std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 };
 
 } // end namespace

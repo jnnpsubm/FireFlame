@@ -10,6 +10,7 @@
 namespace FireFlame {
 class D3DRenderer;
 class D3DShaderWrapper;
+class D3DComputeShaderWrapper;
 class D3DPrimitive;
 class StopWatch;
 struct D3DRenderItem;
@@ -58,6 +59,8 @@ public:
     void PrintScene() { mPrintScene = true; }
 
     void AddShader(const ShaderDescription& shaderDesc);
+    void AddComputeShader(const ComputeShaderDescription& desc);
+
     void AddPSO(const std::string& name, const PSODesc& desc);
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
@@ -231,7 +234,9 @@ private:
     std::unordered_map<std::string, std::shared_ptr<MultiObjectConstBuffer>> mMultiObjCBs;
 
 	std::unordered_map<std::string, std::shared_ptr<D3DPrimitive>>     mPrimitives;
-    std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>> mShaders;
+
+    std::unordered_map<std::string, std::shared_ptr<D3DShaderWrapper>>        mShaders;
+    std::unordered_map<std::string, std::shared_ptr<D3DComputeShaderWrapper>> mComputeShaders;
 
     // todo : move to primitive
     std::unordered_map<std::string, std::shared_ptr<Material>>         mMaterials;

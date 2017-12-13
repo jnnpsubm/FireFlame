@@ -12,8 +12,8 @@ public:
     void PreInitialize() override;
     void Initialize() override;
 
-    void Update(float time_elapsed) override;
-    void UpdateMainPassCB(float time_elapsed) override;
+    void Update(float time_elapsed) override {};
+    void UpdateMainPassCB(float time_elapsed) override {};
     void OnKeyUp(WPARAM wParam, LPARAM lParam) override;
 
 private:

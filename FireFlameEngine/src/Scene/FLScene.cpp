@@ -3,6 +3,7 @@
 #include "RenderItem\FLD3DRenderItem.h"
 #include "..\Renderer\FLD3DRenderer.h"
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
+#include "..\ShaderWrapper\FLD3DComputeShaderWrapper.h"
 #include "..\Timer\FLStopWatch.h"
 #include "..\Engine\FLEngine.h"
 #include "..\PSOManager\FLD3DPSOManager.h"
@@ -201,15 +202,19 @@ int Scene::GetReady() {
     return 0;
 }
 
-void Scene::AddShader(const ShaderDescription& shaderDesc) {
+void Scene::AddShader(const ShaderDescription& shaderDesc) 
+{
     std::shared_ptr<D3DShaderWrapper> shader = nullptr;
     auto it = mShaders.find(shaderDesc.name);
-    if (it == mShaders.end()) {
+    if (it == mShaders.end()) 
+    {
         shader = std::make_shared<D3DShaderWrapper>(shaderDesc.name);
         mShaders[shaderDesc.name] = shader;
     }
-    else {
-        shader = mShaders[shaderDesc.name];
+    else 
+    {
+        spdlog::get("console")->warn("Shader {0} already exist......", shaderDesc.name);
+        return;
     }
 
     if (shaderDesc.useRootParamDescription)
@@ -242,6 +247,24 @@ void Scene::AddShader(const ShaderDescription& shaderDesc) {
     std::string passName = shader->GetDefaultPassCBName();
     AddPassCB(shaderDesc.name, passName);
     SetShaderPassCB(shaderDesc.name, passName);
+}
+
+void Scene::AddComputeShader(const ComputeShaderDescription& desc)
+{
+    std::shared_ptr<D3DComputeShaderWrapper> shader = nullptr;
+    auto it = mComputeShaders.find(desc.name);
+    if (it == mComputeShaders.end())
+    {
+        shader = std::make_shared<D3DComputeShaderWrapper>(desc.name);
+        mComputeShaders[desc.name] = shader;
+    }
+    else
+    {
+        spdlog::get("console")->warn("ComputeShader {0} already exist......", desc.name);
+        return;
+    }
+    shader->BuildRootSignature(mRenderer->GetDevice(), desc);
+    shader->BuildShader(desc);
 }
 
 void Scene::AddPSO(const std::string& name, const PSODesc& desc)
