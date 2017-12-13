@@ -5,15 +5,11 @@ namespace FireFlame {
 class D3DFilter
 {
 public:
-    virtual void OnResize(UINT newWidth, UINT newHeight) = 0;
-    virtual void Go
-    (
-        ID3D12GraphicsCommandList* cmdList,
-        ID3D12RootSignature* rootSig,
-        ID3D12PipelineState* horzBlurPSO,
-        ID3D12PipelineState* vertBlurPSO,
-        ID3D12Resource* inputResource,
-        int blurCount
-    ) = 0;
+    virtual ~D3DFilter() = default;
+
+    virtual void Go(ID3D12GraphicsCommandList* cmdList,ID3D12Resource* inputResource) = 0;
+    virtual ID3D12Resource* GetResultResource() = 0;
+
+    virtual void OnResize(UINT sampleCount, UINT sampleQuality, UINT newWidth, UINT newHeight) = 0;
 };
 } // end FireFlame

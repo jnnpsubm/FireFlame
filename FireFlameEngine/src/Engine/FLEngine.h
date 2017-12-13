@@ -41,7 +41,8 @@ public:
     static int NumFrameResources() { return mNumFrameResources; }
 
     // Set methods
-    void AddFilter(const FilterParam& filter);
+    void AddFilter(const std::string& name, const FilterParam& filter);
+    void RemoveFilter(const std::string& name);
 
     void SetDefaultClearColor(const float(&color)[4]);
     void SetCullMode(Cull_Mode mode);

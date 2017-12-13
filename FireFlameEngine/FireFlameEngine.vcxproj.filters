@@ -509,6 +509,9 @@
     <Filter Include="src\Filters">
       <UniqueIdentifier>{030c202f-a8c6-4eed-8c71-3e312f3f5430}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Shaders">
+      <UniqueIdentifier>{b1f643eb-55f2-4611-960d-c669abda18f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\3rd_utils\spdlog\fmt\bundled\printf.cc">
@@ -523,5 +526,10 @@
     <None Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc">
       <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\Shaders\Blur.hlsl">
+      <Filter>src\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

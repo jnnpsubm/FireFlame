@@ -76,9 +76,6 @@ void D3DRenderer::RenderWithMSAA(const StopWatch& gt) {
 	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
     mDrawFuncWithCmdList(mCommandList.Get());
 
-    // post process
-
-
 	D3D12_RESOURCE_BARRIER barriers[2] =
 	{
 		CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRenderTarget.Get(),
@@ -93,9 +90,25 @@ void D3DRenderer::RenderWithMSAA(const StopWatch& gt) {
 	mCommandList->ResolveSubresource(CurrentBackBuffer(), 0,
 		mOffscreenRenderTarget.Get(), 0, mBackBufferFormat);
 
+    // post process
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+        D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
+    for (auto& itFilter : mFilters)
+    {
+        auto filter = itFilter.second.get();
+        filter->Go(mCommandList.Get(), CurrentBackBuffer());
+        // Prepare to copy blurred output to the back buffer.
+        mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+            D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+        mCommandList->CopyResource(CurrentBackBuffer(), filter->GetResultResource());
+        // Transition to original state.
+        mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+            D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
+    }
+
 	D3D12_RESOURCE_BARRIER barrier2Present =
 		CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-			D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_PRESENT);
+            D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PRESENT);
 	mCommandList->ResourceBarrier(1, &barrier2Present);
 }
 void D3DRenderer::RenderWithoutMSAA(const StopWatch& gt) {
@@ -117,9 +130,25 @@ void D3DRenderer::RenderWithoutMSAA(const StopWatch& gt) {
 	mDrawFunc(gt.DeltaTime()); // Engine users can draw here.
     mDrawFuncWithCmdList(mCommandList.Get());
 
-	// Indicate a state transition on the resource usage.
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+    // post process
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE));
+    for (auto& itFilter : mFilters)
+    {
+        auto filter = itFilter.second.get();
+        filter->Go(mCommandList.Get(), CurrentBackBuffer());
+        // Prepare to copy blurred output to the back buffer.
+        mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+            D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+        mCommandList->CopyResource(CurrentBackBuffer(), filter->GetResultResource());
+        // Transition to original state.
+        mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+            D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
+    }
+
+    // Indicate a state transition on the resource usage.
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+        D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PRESENT));
 }
 void D3DRenderer::ToggleMSAA() {
     if ((mMSAAMode + 1) < mMSAASupported.size() && ++mMSAAMode) {
@@ -213,10 +242,57 @@ void D3DRenderer::WaitForGPUCurrentFrame()
     }
 }
 
-void D3DRenderer::AddFilter(const FilterParam& filter)
+void D3DRenderer::AddFilter(const std::string& name, const FilterParam& filter)
 {
-    
-    std::unique_ptr<D3DFilter> d3dfilter = std::make_unique<D3DBlurFilter>(md3dDevice.Get(), d1, 1, mBackBufferFormat);
+    assert(!mRenderWnd.expired());
+    assert(md3dDevice);
+    assert(mCommandList);
+    auto renderWindow = mRenderWnd.lock();
+    if (!renderWindow) return;
+
+    auto it = mFilters.find(name);
+    if (it != mFilters.end())
+    {
+        spdlog::get("console")->warn("Filter {0} already exist......", name);
+    }
+
+    auto type = filter.type;
+    switch (type)
+    {
+    case FireFlame::FilterType::Blur:
+    {
+        auto d3dfilter = std::make_unique<D3DBlurFilter>
+        (
+            md3dDevice.Get(),
+            renderWindow->ClientWidth(), renderWindow->ClientHeight(), mBackBufferFormat,
+            filter.blurCount, filter.sigma
+        );
+        d3dfilter->BuildResources(mSampleCount, mMSAAQuality - 1);
+        d3dfilter->BuildDescriptors(mCbvSrvUavDescriptorSize);
+        mFilters.emplace(name, std::move(d3dfilter));
+    }break;
+    case FireFlame::FilterType::Sobel:
+        break;
+    case FireFlame::FilterType::HDR:
+        break;
+    case FireFlame::FilterType::Max:
+        break;
+    default:
+        break;
+    }
+}
+
+void D3DRenderer::RemoveFilter(const std::string& name)
+{
+    auto it = mFilters.find(name);
+    if (it == mFilters.end())
+    {
+        spdlog::get("console")->warn("can not find filter {0} to remove......", name);
+        return;
+    }
+
+    WaitForGPU();
+    mFilters.erase(it);
 }
 
 #include <wincodec.h>
@@ -440,6 +516,12 @@ void D3DRenderer::Resize(){
 	mScreenViewport.MaxDepth = 1.0f;
 
 	mScissorRect = { 0, 0, renderWindow->ClientWidth(), renderWindow->ClientHeight() };
+
+    for (auto& itFilter : mFilters)
+    {
+        auto filter = itFilter.second.get();
+        filter->OnResize(mSampleCount, mMSAAQuality - 1, renderWindow->ClientWidth(), renderWindow->ClientHeight());
+    }
 }
 void D3DRenderer::CreateRtvAndDsvDescriptorHeaps()
 {

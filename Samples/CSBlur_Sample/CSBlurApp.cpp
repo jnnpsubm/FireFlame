@@ -17,8 +17,6 @@ void CSBlurApp::Initialize()
 
     AddRenderItems();
 
-    mEngine.AddFilter({ FireFlame::FilterType::Blur });
-
     mPasses.push_back("DefaultPass");
     mEngine.GetScene()->AddPass(mPasses[0]);
 }
@@ -735,5 +733,23 @@ void CSBlurApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     {
         mShowDepthComplexity = !mShowDepthComplexity;
         mEngine.GetScene()->PrimitiveVisible(mMeshDescs["full_screen_rect"].name, mShowDepthComplexity);
+    }else if ((int)wParam == 'A')
+    {
+        std::string name("blur");
+        name += std::to_string(mFilters.size());
+
+        FireFlame::FilterParam filter(FireFlame::FilterType::Blur);
+        filter.blurCount = 4;
+        filter.sigma = 2.5f;
+        mEngine.AddFilter(name, filter);
+        mFilters.push(name);
+    }
+    else if ((int)wParam == 'X')
+    {
+        if (!mFilters.empty())
+        {
+            mEngine.RemoveFilter(mFilters.top());
+            mFilters.pop();
+        }
     }
 }

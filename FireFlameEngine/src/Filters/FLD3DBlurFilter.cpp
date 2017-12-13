@@ -10,14 +10,19 @@ D3DBlurFilter::D3DBlurFilter
 (
     ID3D12Device* device,
     UINT width, UINT height,
-    DXGI_FORMAT format
+    DXGI_FORMAT format,
+    int blurCount,
+    float sigma
 ):
     md3dDevice(device),
     mWidth(width),
     mHeight(height),
-    mFormat(format)
+    mFormat(format),
+    mBlurCount(blurCount),
+    mSigma(sigma)
 {
-    BuildResources();
+    BuildRootSignature();
+    BuildPSOs();
 }
 
 ID3D12Resource* D3DBlurFilter::GetResultResource()
@@ -25,19 +30,230 @@ ID3D12Resource* D3DBlurFilter::GetResultResource()
     return mBlurTexture0.Get();
 }
 
-void D3DBlurFilter::BuildDescriptors
-(
-    CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuDescriptor,
-    CD3DX12_GPU_DESCRIPTOR_HANDLE hGpuDescriptor,
-    UINT descriptorSize
-)
+void D3DBlurFilter::BuildRootSignature()
 {
+    CD3DX12_DESCRIPTOR_RANGE srvTable;
+    srvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+    CD3DX12_DESCRIPTOR_RANGE uavTable;
+    uavTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
+
+    // Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[3];
+
+    // Performance TIP: Order from most frequent to least frequent.
+    slotRootParameter[0].InitAsConstants(12, 0);
+    slotRootParameter[1].InitAsDescriptorTable(1, &srvTable);
+    slotRootParameter[2].InitAsDescriptorTable(1, &uavTable);
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter,
+        0, nullptr,
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature
+    (
+        &rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()
+    );
+
+    if (errorBlob != nullptr)
+    {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+    ThrowIfFailed(hr);
+
+    ThrowIfFailed
+    (
+        md3dDevice->CreateRootSignature(
+        0,
+        serializedRootSig->GetBufferPointer(),
+        serializedRootSig->GetBufferSize(),
+        IID_PPV_ARGS(mRootSignature.GetAddressOf()))
+    );
+}
+
+void D3DBlurFilter::BuildPSOs()
+{
+    std::string shaderData = 
+        "//=============================================================================\n"
+        "// Performs a separable Gaussian blur with a blur radius up to 5 pixels.\n"
+        "//=============================================================================\n"
+        "\n"
+        "cbuffer cbSettings : register(b0)\n"
+        "{\n"
+        "    // We cannot have an array entry in a constant buffer that gets mapped onto\n"
+        "    // root constants, so list each element.  \n"
+        "\n"
+        "    int gBlurRadius;\n"
+        "\n"
+        "    // Support up to 11 blur weights.\n"
+        "    float w0;\n"
+        "    float w1;\n"
+        "    float w2;\n"
+        "    float w3;\n"
+        "    float w4;\n"
+        "    float w5;\n"
+        "    float w6;\n"
+        "    float w7;\n"
+        "    float w8;\n"
+        "    float w9;\n"
+        "    float w10;\n"
+        "};\n"
+        "\n"
+        "static const int gMaxBlurRadius = 5;\n"
+        "\n"
+        "\n"
+        "Texture2D gInput            : register(t0);\n"
+        "RWTexture2D<float4> gOutput : register(u0);\n"
+        "\n"
+        "#define N 256\n"
+        "#define CacheSize (N + 2*gMaxBlurRadius)\n"
+        "groupshared float4 gCache[CacheSize];\n"
+        "\n"
+        "[numthreads(N, 1, 1)]\n"
+        "void HorzBlurCS(int3 groupThreadID : SV_GroupThreadID,\n"
+        "    int3 dispatchThreadID : SV_DispatchThreadID)\n"
+        "{\n"
+        "    // Put in an array for each indexing.\n"
+        "    float weights[11] = { w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10 };\n"
+        "\n"
+        "    //\n"
+        "    // Fill local thread storage to reduce bandwidth.  To blur \n"
+        "    // N pixels, we will need to load N + 2*BlurRadius pixels\n"
+        "    // due to the blur radius.\n"
+        "    //\n"
+        "\n"
+        "    // This thread group runs N threads.  To get the extra 2*BlurRadius pixels, \n"
+        "    // have 2*BlurRadius threads sample an extra pixel.\n"
+        "    if (groupThreadID.x < gBlurRadius)\n"
+        "    {\n"
+        "        // Clamp out of bound samples that occur at image borders.\n"
+        "        int x = max(dispatchThreadID.x - gBlurRadius, 0);\n"
+        "        gCache[groupThreadID.x] = gInput[int2(x, dispatchThreadID.y)];\n"
+        "    }\n"
+        "    if (groupThreadID.x >= N - gBlurRadius)\n"
+        "    {\n"
+        "        // Clamp out of bound samples that occur at image borders.\n"
+        "        int x = min(dispatchThreadID.x + gBlurRadius, gInput.Length.x - 1);\n"
+        "        gCache[groupThreadID.x + 2 * gBlurRadius] = gInput[int2(x, dispatchThreadID.y)];\n"
+        "    }\n"
+        "\n"
+        "    // Clamp out of bound samples that occur at image borders.\n"
+        "    gCache[groupThreadID.x + gBlurRadius] = gInput[min(dispatchThreadID.xy, gInput.Length.xy - 1)];\n"
+        "\n"
+        "    // Wait for all threads to finish.\n"
+        "    GroupMemoryBarrierWithGroupSync();\n"
+        "\n"
+        "    //\n"
+        "    // Now blur each pixel.\n"
+        "    //\n"
+        "\n"
+        "    float4 blurColor = float4(0, 0, 0, 0);\n"
+        "\n"
+        "    for (int i = -gBlurRadius; i <= gBlurRadius; ++i)\n"
+        "    {\n"
+        "        int k = groupThreadID.x + gBlurRadius + i;\n"
+        "\n"
+        "        blurColor += weights[i + gBlurRadius] * gCache[k];\n"
+        "    }\n"
+        "\n"
+        "    gOutput[dispatchThreadID.xy] = blurColor;\n"
+        "}\n"
+        "\n"
+        "[numthreads(1, N, 1)]\n"
+        "void VertBlurCS(int3 groupThreadID : SV_GroupThreadID,\n"
+        "    int3 dispatchThreadID : SV_DispatchThreadID)\n"
+        "{\n"
+        "    // Put in an array for each indexing.\n"
+        "    float weights[11] = { w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10 };\n"
+        "\n"
+        "    //\n"
+        "    // Fill local thread storage to reduce bandwidth.  To blur \n"
+        "    // N pixels, we will need to load N + 2*BlurRadius pixels\n"
+        "    // due to the blur radius.\n"
+        "    //\n"
+        "\n"
+        "    // This thread group runs N threads.  To get the extra 2*BlurRadius pixels, \n"
+        "    // have 2*BlurRadius threads sample an extra pixel.\n"
+        "    if (groupThreadID.y < gBlurRadius)\n"
+        "    {\n"
+        "        // Clamp out of bound samples that occur at image borders.\n"
+        "        int y = max(dispatchThreadID.y - gBlurRadius, 0);\n"
+        "        gCache[groupThreadID.y] = gInput[int2(dispatchThreadID.x, y)];\n"
+        "    }\n"
+        "    if (groupThreadID.y >= N - gBlurRadius)\n"
+        "    {\n"
+        "        // Clamp out of bound samples that occur at image borders.\n"
+        "        int y = min(dispatchThreadID.y + gBlurRadius, gInput.Length.y - 1);\n"
+        "        gCache[groupThreadID.y + 2 * gBlurRadius] = gInput[int2(dispatchThreadID.x, y)];\n"
+        "    }\n"
+        "\n"
+        "    // Clamp out of bound samples that occur at image borders.\n"
+        "    gCache[groupThreadID.y + gBlurRadius] = gInput[min(dispatchThreadID.xy, gInput.Length.xy - 1)];\n"
+        "\n"
+        "\n"
+        "    // Wait for all threads to finish.\n"
+        "    GroupMemoryBarrierWithGroupSync();\n"
+        "\n"
+        "    //\n"
+        "    // Now blur each pixel.\n"
+        "    //\n"
+        "\n"
+        "    float4 blurColor = float4(0, 0, 0, 0);\n"
+        "\n"
+        "    for (int i = -gBlurRadius; i <= gBlurRadius; ++i)\n"
+        "    {\n"
+        "        int k = groupThreadID.y + gBlurRadius + i;\n"
+        "\n"
+        "        blurColor += weights[i + gBlurRadius] * gCache[k];\n"
+        "    }\n"
+        "\n"
+        "    gOutput[dispatchThreadID.xy] = blurColor;\n"
+        "}\n";
+    auto HorzBlurCS = D3DUtils::CompileShader(shaderData, nullptr, "HorzBlurCS", "cs_5_0");
+    auto VertBlurCS = D3DUtils::CompileShader(shaderData, nullptr, "VertBlurCS", "cs_5_0");
+
+    D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
+    horzBlurPSO.pRootSignature = mRootSignature.Get();
+    horzBlurPSO.CS =
+    {
+        reinterpret_cast<BYTE*>(HorzBlurCS->GetBufferPointer()),
+        HorzBlurCS->GetBufferSize()
+    };
+    horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    ThrowIfFailed(md3dDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(mPSOHorz.GetAddressOf())));
+
+    D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
+    vertBlurPSO.pRootSignature = mRootSignature.Get();
+    vertBlurPSO.CS =
+    {
+        reinterpret_cast<BYTE*>(VertBlurCS->GetBufferPointer()),
+        VertBlurCS->GetBufferSize()
+    };
+    vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    ThrowIfFailed(md3dDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(mPSOVert.GetAddressOf())));
+}
+
+void D3DBlurFilter::BuildDescriptors(UINT descriptorSize)
+{
+    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+    srvHeapDesc.NumDescriptors = 4;
+    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(mDescriptorHeap.GetAddressOf())));
+
     // Save references to the descriptors. 
+    CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuDescriptor(mDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
     mBlur0CpuSrv = hCpuDescriptor;
     mBlur0CpuUav = hCpuDescriptor.Offset(1, descriptorSize);
     mBlur1CpuSrv = hCpuDescriptor.Offset(1, descriptorSize);
     mBlur1CpuUav = hCpuDescriptor.Offset(1, descriptorSize);
 
+    CD3DX12_GPU_DESCRIPTOR_HANDLE hGpuDescriptor(mDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
     mBlur0GpuSrv = hGpuDescriptor;
     mBlur0GpuUav = hGpuDescriptor.Offset(1, descriptorSize);
     mBlur1GpuSrv = hGpuDescriptor.Offset(1, descriptorSize);
@@ -46,14 +262,13 @@ void D3DBlurFilter::BuildDescriptors
     BuildDescriptors();
 }
 
-void D3DBlurFilter::OnResize(UINT newWidth, UINT newHeight)
+void D3DBlurFilter::OnResize(UINT sampleCount, UINT sampleQuality, UINT newWidth, UINT newHeight)
 {
     if ((mWidth != newWidth) || (mHeight != newHeight))
     {
         mWidth = newWidth;
         mHeight = newHeight;
-        BuildResources();
-
+        BuildResources(sampleCount, sampleQuality);
         // New resource, so we need new descriptors to that resource.
         BuildDescriptors();
     }
@@ -62,37 +277,34 @@ void D3DBlurFilter::OnResize(UINT newWidth, UINT newHeight)
 void D3DBlurFilter::Go
 (
     ID3D12GraphicsCommandList* cmdList,
-    ID3D12RootSignature* rootSig,
-    ID3D12PipelineState* horzBlurPSO,
-    ID3D12PipelineState* vertBlurPSO,
-    ID3D12Resource* inputResource,
-    int blurCount
+    ID3D12Resource* inputResource
 )
 {
-    auto weights = CalcGaussWeights(2.5f);
+    auto weights = CalcGaussWeights();
     int blurRadius = (int)weights.size() / 2;
 
-    cmdList->SetComputeRootSignature(rootSig);
+    cmdList->SetDescriptorHeaps(1, mDescriptorHeap.GetAddressOf());
+    cmdList->SetComputeRootSignature(mRootSignature.Get());
 
     cmdList->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
     cmdList->SetComputeRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1);
 
-    cmdList->ResourceBarrier
+    /*cmdList->ResourceBarrier
     (
-        1, 
+        1,
         &CD3DX12_RESOURCE_BARRIER::Transition
         (
             inputResource,
-            D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE
+            D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE
         )
-    );
+    );*/
     cmdList->ResourceBarrier
     (
         1, 
         &CD3DX12_RESOURCE_BARRIER::Transition
         (
             mBlurTexture0.Get(),
-            D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST
+            D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_DEST
         )
     );
     cmdList->CopyResource(mBlurTexture0.Get(), inputResource);
@@ -106,19 +318,10 @@ void D3DBlurFilter::Go
             D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
         )
     );
-    cmdList->ResourceBarrier
-    (
-        1, 
-        &CD3DX12_RESOURCE_BARRIER::Transition
-        (
-            mBlurTexture1.Get(),
-            D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-        )
-    );
-    for (int i = 0; i < blurCount; ++i)
+    for (int i = 0; i < mBlurCount; ++i)
     {
         // Horizontal Blur pass.
-        cmdList->SetPipelineState(horzBlurPSO);
+        cmdList->SetPipelineState(mPSOHorz.Get());
 
         cmdList->SetComputeRootDescriptorTable(1, mBlur0GpuSrv);
         cmdList->SetComputeRootDescriptorTable(2, mBlur1GpuUav);
@@ -147,7 +350,7 @@ void D3DBlurFilter::Go
         );
 
         // Vertical Blur pass.
-        cmdList->SetPipelineState(vertBlurPSO);
+        cmdList->SetPipelineState(mPSOVert.Get());
 
         cmdList->SetComputeRootDescriptorTable(1, mBlur1GpuSrv);
         cmdList->SetComputeRootDescriptorTable(2, mBlur0GpuUav);
@@ -177,15 +380,15 @@ void D3DBlurFilter::Go
     }
 }
 
-std::vector<float> D3DBlurFilter::CalcGaussWeights(float sigma)
+std::vector<float> D3DBlurFilter::CalcGaussWeights()
 {
-    float twoSigma2 = 2.0f*sigma*sigma;
+    float twoSigma2 = 2.0f*mSigma*mSigma;
 
     // Estimate the blur radius based on sigma since sigma controls the "width" of the bell curve.
     // For example, for sigma = 3, the width of the bell curve is 
-    int blurRadius = (int)ceil(2.0f * sigma);
+    int blurRadius = (int)ceil(2.0f * mSigma);
 
-    assert(blurRadius <= MaxBlurRadius);
+    assert(blurRadius <= mMaxBlurRadius);
 
     std::vector<float> weights;
     weights.resize(2 * blurRadius + 1);
@@ -231,7 +434,7 @@ void D3DBlurFilter::BuildDescriptors()
     md3dDevice->CreateUnorderedAccessView(mBlurTexture1.Get(), nullptr, &uavDesc, mBlur1CpuUav);
 }
 
-void D3DBlurFilter::BuildResources()
+void D3DBlurFilter::BuildResources(UINT sampleCount, UINT sampleQuality)
 {
     // Note, compressed formats cannot be used for UAV.  We get error like:
     // ERROR: ID3D11Device::CreateTexture2D: The format (0x4d, BC3_UNORM) 
@@ -258,9 +461,9 @@ void D3DBlurFilter::BuildResources()
             &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
             D3D12_HEAP_FLAG_NONE,
             &texDesc,
-            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
-            IID_PPV_ARGS(&mBlurTexture0)
+            IID_PPV_ARGS(mBlurTexture0.ReleaseAndGetAddressOf())
         )
     );
     ThrowIfFailed
@@ -270,9 +473,9 @@ void D3DBlurFilter::BuildResources()
             &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
             D3D12_HEAP_FLAG_NONE,
             &texDesc,
-            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
             nullptr,
-            IID_PPV_ARGS(&mBlurTexture1)
+            IID_PPV_ARGS(mBlurTexture1.ReleaseAndGetAddressOf())
         )
     );
 }

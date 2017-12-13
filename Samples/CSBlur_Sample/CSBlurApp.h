@@ -1,6 +1,7 @@
 #pragma once
 #include "..\Common\FLEngineApp3.h"
 #include "..\Common\Waves.h"
+#include <stack>
 
 struct DepthComplexityObjConsts
 {
@@ -62,4 +63,6 @@ private:
 
     bool                                                    mWaveStart = true;
     std::unique_ptr<Waves>                                  mWaves;
+
+    std::stack<std::string>                                mFilters;
 };

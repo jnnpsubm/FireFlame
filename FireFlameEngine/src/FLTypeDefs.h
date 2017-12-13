@@ -27,6 +27,7 @@ enum class FilterType
 {
     Blur = 0,
     Sobel,
+    HDR,
 
     Max
 };
@@ -37,7 +38,11 @@ struct FilterParam
     FilterType type;
     union 
     {
-        int blurRadius;
+        struct
+        {
+            int blurCount;
+            float sigma;
+        };
     };
 };
 

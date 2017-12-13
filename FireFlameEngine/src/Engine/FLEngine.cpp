@@ -58,8 +58,11 @@ int Engine::InitMainWindow(int x, int y, int w, int h) {
 int Engine::InitRenderer(API_Feature api) {
 	return mRenderer->Initialize(api);
 }
-void Engine::AddFilter(const FilterParam& filter) {
-    mRenderer->AddFilter(filter);
+void Engine::AddFilter(const std::string& name, const FilterParam& filter) {
+    mRenderer->AddFilter(name, filter);
+}
+void Engine::RemoveFilter(const std::string& name) {
+    mRenderer->RemoveFilter(name);
 }
 void Engine::SetDefaultClearColor(const float(&color)[4]) {
     mRenderer->SetDefaultClearColor(color);

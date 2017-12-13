@@ -1,0 +1,5 @@
+[numthreads(N, 1, 1)]
+void HorzBlurCS(int3 groupThreadID : SV_GroupThreadID, int3 dispatchThreadID : SV_DispatchThreadID)
+{
+    
+}

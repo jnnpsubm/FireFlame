@@ -30,7 +30,8 @@ public:
     void WaitForGPUFrame();
     void WaitForGPUCurrentFrame();
 
-    void AddFilter(const FilterParam& filter);
+    void AddFilter(const std::string& name, const FilterParam& filter);
+    void RemoveFilter(const std::string& name);
 
     void GrabScreen(const std::wstring& filename);
 
@@ -105,7 +106,7 @@ private:
 	void RenderWithoutMSAA(const StopWatch& gt);
 
     // post process
-    std::vector<std::unique_ptr<D3DFilter>>         mFilters;
+    std::unordered_map<std::string, std::unique_ptr<D3DFilter>>         mFilters;
 
 	// callbacks
 	std::function<void(float)>                      mDrawFunc   = [](float) {};
