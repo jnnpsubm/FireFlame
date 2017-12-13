@@ -60,15 +60,15 @@ private:
 
     bool                           mShowDepthComplexity = false;
     bool                           mShowDepthComplexity2 = false;
-    FireFlame::stShaderDescription mShaderDepthComplexity;
-    FireFlame::stShaderDescription mShaderDepthComplexity2;
+    FireFlame::ShaderDescription   mShaderDepthComplexity;
+    FireFlame::ShaderDescription   mShaderDepthComplexity2;
 
     bool                           mShowVNormal = false;
-    FireFlame::stShaderDescription mShaderShowVNormal;
+    FireFlame::ShaderDescription   mShaderShowVNormal;
     VecRItem                       mRenderItemsVNormal;
 
     bool                           mShowFNormal = false;
-    FireFlame::stShaderDescription mShaderShowFNormal;
+    FireFlame::ShaderDescription   mShaderShowFNormal;
     VecRItem                       mRenderItemsFNormal;
 
     bool                                                    mWaveStart = true;

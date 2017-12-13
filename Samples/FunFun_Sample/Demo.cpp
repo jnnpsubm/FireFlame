@@ -19,7 +19,7 @@ Demo::Demo(FireFlame::Engine& engine) :mEngine(engine) {
 }
 void Demo::AddShaders() {
     using namespace FireFlame;
-    stShaderDescription shader
+    ShaderDescription shader
     (
         "",
         { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT2 },

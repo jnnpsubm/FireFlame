@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		
         // use what shader to render the geometry
         std::string shaderName = "colorShader";
-        stShaderDescription shader
+        ShaderDescription shader
         (
             shaderName,
             { VERTEX_FORMAT_FLOAT3 , VERTEX_FORMAT_FLOAT4 },

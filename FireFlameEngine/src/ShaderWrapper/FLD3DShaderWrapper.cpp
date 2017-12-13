@@ -82,7 +82,7 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device){
     );
 }
 
-void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, const stShaderDescription& shaderDesc)
+void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, const ShaderDescription& shaderDesc)
 {
     std::vector<CD3DX12_DESCRIPTOR_RANGE> tables(shaderDesc.rootParameters.size());
     std::vector<CD3DX12_ROOT_PARAMETER> slotRootParameters(shaderDesc.rootParameters.size());
@@ -502,7 +502,7 @@ void D3DShaderWrapper::BuildRootInputResources
 }
 
 // todo:
-void D3DShaderWrapper::BuildRootInputResources(const stShaderDescription& shaderDesc)
+void D3DShaderWrapper::BuildRootInputResources(const ShaderDescription& shaderDesc)
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
     auto device = renderer->GetDevice();
@@ -679,7 +679,7 @@ void D3DShaderWrapper::BuildRootInputResources(const stShaderDescription& shader
 //    mMatCbvMaxCount = maxMatConstCount;
 }
 
-void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& shaderDesc) {
+void D3DShaderWrapper::BuildShadersAndInputLayout(const ShaderDescription& shaderDesc) {
     for (const auto& shaderStage : shaderDesc.shaderStage) {
         Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
         D3D_SHADER_MACRO* defines = nullptr; 
@@ -734,7 +734,7 @@ void D3DShaderWrapper::BuildShadersAndInputLayout(const stShaderDescription& sha
     }
     BuildInputLayout(shaderDesc);
 }
-void D3DShaderWrapper::BuildInputLayout(const stShaderDescription& shaderDesc) {
+void D3DShaderWrapper::BuildInputLayout(const ShaderDescription& shaderDesc) {
     // bug? pointer to temp char*
     std::unordered_map<UINT, UINT> slotOffset;
     mSemanticNames.reserve(shaderDesc.semanticNames.size()); // must not grow size and reallocation

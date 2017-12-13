@@ -13,7 +13,7 @@
 #include "..\FrameResource\FLD3DFrameResource.h"
 
 namespace FireFlame {
-struct stShaderDescription;
+struct ShaderDescription;
 class D3DShaderWrapper {
 private:
     struct RootParamData
@@ -40,9 +40,9 @@ public:
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
     void BuildRootSignature(ID3D12Device* device);
-    void BuildRootSignature(ID3D12Device* device, const stShaderDescription& shaderDesc);
+    void BuildRootSignature(ID3D12Device* device, const ShaderDescription& shaderDesc);
 
-    void BuildShadersAndInputLayout(const stShaderDescription& shaderDesc);
+    void BuildShadersAndInputLayout(const ShaderDescription& shaderDesc);
     void BuildRootInputResources
     (
         UINT objConstSize, UINT maxObjConstCount,
@@ -51,7 +51,7 @@ public:
         UINT texSRVTableSize, UINT texSRVCount,
         UINT multiObjConstSize, UINT maxMultiObjConstCount
     );
-    void BuildRootInputResources(const stShaderDescription& shaderDesc);
+    void BuildRootInputResources(const ShaderDescription& shaderDesc);
 
     UINT CreateTexSRV(ID3D12Resource* res);
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
@@ -189,7 +189,7 @@ private:
     std::forward_list<UINT>                        mMatCbvHeapFreeList;
     std::forward_list<UINT>                        mTexSrvHeapFreeList;
 
-    void BuildInputLayout(const stShaderDescription& shaderDesc);
+    void BuildInputLayout(const ShaderDescription& shaderDesc);
     std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 };
 

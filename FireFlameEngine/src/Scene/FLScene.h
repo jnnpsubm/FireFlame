@@ -57,7 +57,7 @@ public:
     void RenderItemVisible(const std::string& name, bool visible);
     void PrintScene() { mPrintScene = true; }
 
-    void AddShader(const stShaderDescription& shaderDesc);
+    void AddShader(const ShaderDescription& shaderDesc);
     void AddPSO(const std::string& name, const PSODesc& desc);
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);

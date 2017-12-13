@@ -201,7 +201,7 @@ int Scene::GetReady() {
     return 0;
 }
 
-void Scene::AddShader(const stShaderDescription& shaderDesc) {
+void Scene::AddShader(const ShaderDescription& shaderDesc) {
     std::shared_ptr<D3DShaderWrapper> shader = nullptr;
     auto it = mShaders.find(shaderDesc.name);
     if (it == mShaders.end()) {

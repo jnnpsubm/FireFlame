@@ -42,7 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
         // use what shader to render the geometry
         std::string shaderName = "colorShader";
-        stShaderDescription shader
+        ShaderDescription shader
         (
             shaderName,
             boxMesh.mVertexInputDes.format,

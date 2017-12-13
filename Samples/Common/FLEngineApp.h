@@ -64,7 +64,7 @@ public:
     virtual void PreInitialize() {}
     virtual void Initialize() = 0;
 
-    const FireFlame::stShaderDescription& GetShaderDesc()        const { return mShaderDesc; }
+    const FireFlame::ShaderDescription&   GetShaderDesc()        const { return mShaderDesc; }
     const VecRawMesh&                     GetMeshDesc()          const { return mMeshDesc; }
     const VecRItem&                       GetVecRenderItemDesc() const { return mRenderItems; }
 
@@ -85,7 +85,7 @@ public:
 protected:
     FireFlame::Engine& mEngine;
 
-    FireFlame::stShaderDescription mShaderDesc;
+    FireFlame::ShaderDescription   mShaderDesc;
     VecRawMesh                     mMeshDesc;
     VecRItem                       mRenderItems;
     std::vector<std::string>       mPasses;

@@ -82,7 +82,7 @@ protected:
 
     FireFlame::Engine& mEngine;
 
-    FireFlame::stShaderDescription mShaderDesc;
+    FireFlame::ShaderDescription   mShaderDesc;
     VecRawMesh                     mMeshDesc;
     VecRItem                       mRenderItems;
     MapNamedMat                    mMaterials;

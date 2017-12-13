@@ -88,7 +88,7 @@ public:
 protected:
     FireFlame::Engine& mEngine;
 
-    FireFlame::stShaderDescription mShaderDesc;
+    FireFlame::ShaderDescription   mShaderDesc;
     RawMeshMap                     mMeshDesc;
     RItemMap                       mRenderItems;
     std::vector<std::string>       mPasses;

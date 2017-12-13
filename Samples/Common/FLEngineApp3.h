@@ -80,7 +80,7 @@ class FLEngineApp3
 public:
     typedef std::unordered_map<std::string, FireFlame::stRawMesh>           RawMeshMap;
     typedef std::unordered_map<std::string, FireFlame::stRenderItemDesc>    RItemMap;
-    typedef std::unordered_map<std::string, FireFlame::stShaderDescription> ShaderMap;
+    typedef std::unordered_map<std::string, FireFlame::ShaderDescription>   ShaderMap;
     typedef std::unordered_map<std::string, PassConstants>                  PassCBMap;
     typedef std::unordered_map<std::string, NamedMaterialConstants>         MaterialMap;
 

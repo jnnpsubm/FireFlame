@@ -486,10 +486,129 @@ struct ROOT_PARAMETER
     unsigned maxDescriptor;
 };
 
-struct stShaderDescription {
-    stShaderDescription() = default;
-    stShaderDescription(const std::string& name) :name(name) {}
-    stShaderDescription(const std::string& _name,
+struct ComputeShaderDescription {
+    ComputeShaderDescription() = default;
+    ComputeShaderDescription(const std::string& name) :name(name) {}
+    ComputeShaderDescription(const std::string& _name,
+        const std::vector<unsigned long>& _vertexFormats,
+        const std::vector<stSemanticName>& _semanticNames,
+        unsigned int                objCBSize,
+        unsigned int                passCBSize)
+        : name(_name), vertexFormats(_vertexFormats), semanticNames(_semanticNames),
+        objCBSize(objCBSize), passCBSize(passCBSize)
+    {
+        inputSlots.resize(vertexFormats.size(), 0);
+    }
+    std::string                 name;
+
+    std::vector<stShaderStage>  shaderStage;
+
+    std::vector<unsigned long>  vertexFormats;
+    std::vector<unsigned int>   inputSlots;
+    std::vector<stSemanticName> semanticNames;   // order must match vertexFormats
+
+    bool                        useRootParamDescription = false;
+
+    bool                        addDefaultSamplers = true;
+    std::vector<ROOT_PARAMETER> rootParameters;
+
+    unsigned int                texSRVDescriptorTableSize = 1;
+    unsigned int                objCBSize = 1;
+    unsigned int                multiObjCBSize = 0;
+    unsigned int                materialCBSize = 0;
+    unsigned int                passCBSize = 1;
+    unsigned int                maxObjCBDescriptor = 100;
+    unsigned int                maxTexSRVDescriptor = 64;
+
+    // param0:register t0~tn
+    // param1:register b0
+    // param2:register b1
+    // param3:register b2
+    // param4:register b3
+    unsigned int                texParamIndex = -1;
+    unsigned int                objParamIndex = 1;
+    unsigned int                multiObjParamIndex = -1;
+    unsigned int                matParamIndex = -1;
+    unsigned int                passParamIndex = 2;
+    void ParamDefault()
+    {
+        texParamIndex = 0;
+        objParamIndex = 1;
+        matParamIndex = 2;
+        passParamIndex = 3;
+    }
+    void ParamDefault2()
+    {
+        texParamIndex = 0;
+        objParamIndex = 1;
+        matParamIndex = 2;
+        passParamIndex = 3;
+        multiObjParamIndex = 4;
+    }
+
+    const stShaderStage& AddShaderStage
+    (
+        const std::wstring& file, Shader_Type type,
+        const std::string& entry, const std::string& target
+    )
+    {
+        shaderStage.emplace_back(file, type, entry, target);
+        return shaderStage.back();
+    }
+    const stShaderStage& AddShaderStage
+    (
+        const std::wstring& file, Shader_Type type,
+        const std::string& entry, const std::string& target,
+        std::vector<std::pair<std::string, std::string>>& macros
+    )
+    {
+        shaderStage.emplace_back(file, type, entry, target, macros);
+        return shaderStage.back();
+    }
+    const stShaderStage& AddShaderStage
+    (
+        const std::string& data, Shader_Type type,
+        const std::string& entry, const std::string& target
+    )
+    {
+        shaderStage.emplace_back(data, type, entry, target);
+        return shaderStage.back();
+    }
+    void AddVertexInput
+    (
+        const std::string& semanticName, unsigned long format,
+        unsigned int slot = 0, unsigned int semanticIndex = 0
+    )
+    {
+        semanticNames.emplace_back(semanticName, semanticIndex);
+        inputSlots.emplace_back(slot);
+        vertexFormats.emplace_back(format);
+    }
+    void AddRootParameter
+    (
+        const std::string& name,
+        unsigned datasize,
+        unsigned maxDescriptor,
+        DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV,
+        unsigned baseRegister = 0,
+        unsigned registerSpace = 0,
+        ROOT_PARAMETER_TYPE ptype = ROOT_PARAMETER_TYPE::DESCRIPTOR_TABLE,
+        unsigned tablesize = 1,
+        SHADER_VISIBILITY visibility = SHADER_VISIBILITY::VISIBILITY_ALL
+    )
+    {
+        rootParameters.emplace_back
+        (
+            name, datasize, maxDescriptor,
+            vtype, baseRegister, registerSpace, ptype, tablesize, visibility
+        );
+    }
+};
+
+struct ShaderDescription {
+    ShaderDescription() = default;
+    ShaderDescription(const std::string& name) :name(name) {}
+    ShaderDescription(const std::string& _name,
                         const std::vector<unsigned long>& _vertexFormats,
                         const std::vector<stSemanticName>& _semanticNames,
                         unsigned int                objCBSize,

@@ -16,7 +16,7 @@ public:
     Demo(FireFlame::Engine& engine, const std::string& renderItemName);
     virtual ~Demo();
 
-    const FireFlame::stShaderDescription& GetShaderDesc()     const { return mShaderDesc; }
+    const FireFlame::ShaderDescription&   GetShaderDesc()     const { return mShaderDesc; }
     const FireFlame::stRawMesh&           GetMeshDesc()       const { return mMeshDesc; }
     const FireFlame::stRenderItemDesc&    GetRenderItemDesc() const { return mRenderItems[0]; }
     const VecRItem& GetVecRenderItemDesc()                    const { return mRenderItems; }
@@ -34,7 +34,7 @@ public:
 protected:
     FireFlame::Engine& mEngine;
 
-    FireFlame::stShaderDescription mShaderDesc;
+    FireFlame::ShaderDescription   mShaderDesc;
     FireFlame::stRawMesh           mMeshDesc;
     VecRItem                       mRenderItems;
 

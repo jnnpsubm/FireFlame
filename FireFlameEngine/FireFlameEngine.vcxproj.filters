@@ -103,6 +103,9 @@
     <ClCompile Include="src\Filters\FLD3DBlurFilter.cpp">
       <Filter>src\Filters</Filter>
     </ClCompile>
+    <ClCompile Include="src\ShaderWrapper\FLD3DComputeShaderWrapper.cpp">
+      <Filter>src\ShaderWrapper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -393,6 +396,9 @@
     <ClInclude Include="src\Filters\FLD3DFilter.h">
       <Filter>src\Filters</Filter>
     </ClInclude>
+    <ClInclude Include="src\ShaderWrapper\FLD3DComputeShaderWrapper.h">
+      <Filter>src\ShaderWrapper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -526,10 +532,6 @@
     <None Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc">
       <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="src\Shaders\Blur.hlsl">
-      <Filter>src\Shaders</Filter>
-    </FxCompile>
+    <None Include="src\Shaders\Blur.hlsl" />
   </ItemGroup>
 </Project>
