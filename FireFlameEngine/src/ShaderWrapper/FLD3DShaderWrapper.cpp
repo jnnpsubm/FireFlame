@@ -624,39 +624,7 @@ void D3DShaderWrapper::BuildRootInputResources(const ShaderDescription& shaderDe
 
 void D3DShaderWrapper::BuildShadersAndInputLayout(const ShaderDescription& shaderDesc) {
     for (const auto& shaderStage : shaderDesc.shaderStage) {
-        Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
-        D3D_SHADER_MACRO* defines = nullptr; 
-        if (!shaderStage.Macros.empty())
-        {
-            defines = new D3D_SHADER_MACRO[shaderStage.Macros.size() + 1];
-            for (size_t i = 0; i < shaderStage.Macros.size(); ++i)
-            {
-                defines[i].Name = shaderStage.Macros[i].first.c_str();
-                defines[i].Definition = shaderStage.Macros[i].second.c_str();
-            }
-            defines[shaderStage.Macros.size()].Name = NULL;
-            defines[shaderStage.Macros.size()].Definition = NULL;
-        }
-        if (!shaderStage.file.empty())
-        {
-            byteCode = D3DUtils::CompileShader
-            (
-                shaderStage.file, defines,
-                shaderStage.entry,
-                shaderStage.target
-            );
-        }
-        else
-        {
-            byteCode = D3DUtils::CompileShader
-            (
-                shaderStage.data, defines,
-                shaderStage.entry,
-                shaderStage.target
-            );
-        }
-        delete[] defines;
-
+        Microsoft::WRL::ComPtr<ID3DBlob> byteCode = CompileShaderStage(shaderStage);
         switch (shaderStage.type){
         case Shader_Type::VS:{
             mVSByteCodes[shaderStage.Macros2String()] = byteCode;

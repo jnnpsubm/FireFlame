@@ -42,10 +42,8 @@ void CSTaskApp::AddPSOs()
 {
     using namespace FireFlame;
 
-    PSODesc descDepthComplexity(mShaderDescs["DepthComplexity"].name);
-    descDepthComplexity.stencilEnable = true;
-    descDepthComplexity.stencilFunc = COMPARISON_FUNC::EQUAL;
-    mEngine.GetScene()->AddPSO("depth_complexity_default", descDepthComplexity);
+    ComputePSODesc desc("VectorLen");
+    mEngine.GetScene()->AddComputePSO("default", desc);
 }
 
 void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)

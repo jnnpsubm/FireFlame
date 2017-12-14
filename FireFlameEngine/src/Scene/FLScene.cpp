@@ -278,6 +278,17 @@ void Scene::AddPSO(const std::string& name, const PSODesc& desc)
     PSOManager->AddPSO(name, desc);
 }
 
+void Scene::AddComputePSO(const std::string& name, const ComputePSODesc& desc)
+{
+    auto PSOManager = Engine::GetEngine()->GetPSOManager2();
+    if (PSOManager->ComputePSONameExist(name))
+    {
+        spdlog::get("console")->error("ComputePSO {0} already exist......", name);
+        return;
+    }
+    PSOManager->AddComputePSO(name, desc);
+}
+
 void Scene::AddPrimitive(const stRawMesh& mesh) {
     mPrimitives.emplace(mesh.name, std::make_unique<D3DPrimitive>(mesh));
 }
@@ -783,6 +794,11 @@ void Scene::PrintAllShaders()
 {
     std::cout << "Shader Count:" << mShaders.size() << std::endl;
     for (const auto& itShader : mShaders)
+    {
+        std::cout << "   " << itShader.first << std::endl;
+    }
+    std::cout << "Compute Shader Count:" << mComputeShaders.size() << std::endl;
+    for (const auto& itShader : mComputeShaders)
     {
         std::cout << "   " << itShader.first << std::endl;
     }

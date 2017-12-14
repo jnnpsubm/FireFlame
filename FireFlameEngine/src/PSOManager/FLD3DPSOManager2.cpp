@@ -4,6 +4,7 @@
 #include "..\Engine\FLEngine.h"
 #include "..\Renderer\FLD3DRenderer.h"
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
+#include "..\ShaderWrapper\FLD3DComputeShaderWrapper.h"
 
 namespace FireFlame {
 void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
@@ -160,6 +161,42 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
     );
 }
 
+void D3DPSOManager2::AddComputePSO(const std::string& name, const ComputePSODesc& desc)
+{
+    D3D12_COMPUTE_PIPELINE_STATE_DESC PSODesc = {};
+    auto shader = Engine::GetEngine()->GetScene()->GetComputeShader(desc.shaderName);
+    if (!shader)
+    {
+        spdlog::get("console")->critical("cannot find shader {0} in AddComputePSO", desc.shaderName);
+        return;
+    }
+    PSODesc.pRootSignature = shader->GetRootSignature();
+
+    auto cs = shader->GetCS(desc.shaderMacroCS);
+    if (!cs.first)
+    {
+        spdlog::get("console")->warn
+        (
+            "cannot find CS with macro {0} in shader {1} in AddComputePSO",
+            desc.shaderMacroCS.c_str(),
+            desc.shaderName.c_str()
+        );
+    }
+    PSODesc.CS = {
+        reinterpret_cast<BYTE*>(cs.first),
+        cs.second
+    };
+    PSODesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+    auto device = Engine::GetEngine()->GetRenderer()->GetDevice();
+    PSO_ComPtr PSOadd = nullptr;
+    ThrowIfFailed
+    (
+        device->CreateComputePipelineState(&PSODesc, IID_PPV_ARGS(PSOadd.GetAddressOf()))
+    );
+    mComputePSOs[name] = PSOadd;
+}
+
 void D3DPSOManager2::PrintAllPSOs()
 {
     std::cout << "PSO Count:" << mPSOs.size() << std::endl;
@@ -169,6 +206,14 @@ void D3DPSOManager2::PrintAllPSOs()
             << std::get<0>(itPSO.first) 
             << "_MSAA" << std::get<1>(itPSO.first) 
             << "_FILL" << std::get<2>(itPSO.first)
+            << ":0x" << std::hex << itPSO.second.Get() << std::endl;
+    }
+
+    std::cout << "Compute PSO Count:" << mComputePSOs.size() << std::endl;
+    for (const auto& itPSO : mComputePSOs)
+    {
+        std::cout << "   "
+            << itPSO.first
             << ":0x" << std::hex << itPSO.second.Get() << std::endl;
     }
 }

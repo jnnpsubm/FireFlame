@@ -304,6 +304,24 @@ struct PSODesc
     };
 };
 
+struct ComputePSODesc
+{
+    ComputePSODesc
+    (
+        const std::string& shaderName
+    ) : shaderName(shaderName)
+    {}
+    ComputePSODesc
+    (
+        const std::string& shaderName,
+        const std::string& shaderMacroCS
+    ) : shaderName(shaderName),
+        shaderMacroCS(shaderMacroCS)
+    {}
+    std::string shaderName;
+    std::string shaderMacroCS;
+};
+
 struct stRawMesh {
     stRawMesh() = default;
     explicit stRawMesh(const std::string& _name) 

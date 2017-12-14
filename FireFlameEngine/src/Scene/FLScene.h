@@ -38,6 +38,13 @@ public:
         return nullptr;
     }
 
+    D3DComputeShaderWrapper* GetComputeShader(const std::string& name) const
+    {
+        auto it = mComputeShaders.find(name);
+        if (it != mComputeShaders.end()) return it->second.get();
+        return nullptr;
+    }
+
     Texture* GetTexture(const std::string& name) const
     {
         auto it = mTextures.find(name);
@@ -62,6 +69,8 @@ public:
     void AddComputeShader(const ComputeShaderDescription& desc);
 
     void AddPSO(const std::string& name, const PSODesc& desc);
+    void AddComputePSO(const std::string& name, const ComputePSODesc& desc);
+
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
 	void PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh);

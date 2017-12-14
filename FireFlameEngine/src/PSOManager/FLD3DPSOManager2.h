@@ -36,14 +36,30 @@ public:
         if (it != mPSOs.end()) return it->second.Get();
         return nullptr;
     }
+    void AddComputePSO(const std::string& name, const ComputePSODesc& desc);
+    ID3D12PipelineState*  GetComputePSO
+    (
+        const std::string& name
+    ) const
+    {
+        auto it = mComputePSOs.find(name);
+        if (it != mComputePSOs.end()) return it->second.Get();
+        return nullptr;
+    }
     
     bool NameExist(const std::string& name) const { return mNames.find(name) != mNames.end(); }
+    bool ComputePSONameExist(const std::string& name) const { 
+        return mComputePSONames.find(name) != mComputePSONames.end(); 
+    }
 
     void PrintAllPSOs();
 
 private:
     std::set<std::string>           mNames;
     std::map<PSO_TRAIT, PSO_ComPtr> mPSOs;
+
+    std::set<std::string>             mComputePSONames;
+    std::map<std::string, PSO_ComPtr> mComputePSOs;
 };
 }
 

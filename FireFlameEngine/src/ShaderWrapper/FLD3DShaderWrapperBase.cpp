@@ -1,7 +1,45 @@
 #include "FLD3DShaderWrapperBase.h"
 #include "..\3rd_utils\d3dx12.h"
+#include "..\FLD3DUtils.h"
 
 namespace FireFlame {
+D3DShaderWrapperBase::BlobPtr D3DShaderWrapperBase::CompileShaderStage(const stShaderStage& shaderStage)
+{
+    Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
+    D3D_SHADER_MACRO* defines = nullptr;
+    if (!shaderStage.Macros.empty())
+    {
+        defines = new D3D_SHADER_MACRO[shaderStage.Macros.size() + 1];
+        for (size_t i = 0; i < shaderStage.Macros.size(); ++i)
+        {
+            defines[i].Name = shaderStage.Macros[i].first.c_str();
+            defines[i].Definition = shaderStage.Macros[i].second.c_str();
+        }
+        defines[shaderStage.Macros.size()].Name = NULL;
+        defines[shaderStage.Macros.size()].Definition = NULL;
+    }
+    if (!shaderStage.file.empty())
+    {
+        byteCode = D3DUtils::CompileShader
+        (
+            shaderStage.file, defines,
+            shaderStage.entry,
+            shaderStage.target
+        );
+    }
+    else
+    {
+        byteCode = D3DUtils::CompileShader
+        (
+            shaderStage.data, defines,
+            shaderStage.entry,
+            shaderStage.target
+        );
+    }
+    delete[] defines;
+
+    return byteCode;
+}
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> D3DShaderWrapperBase::GetStaticSamplers()
 {
     // Applications usually only need a handful of samplers.  So just define them all up front
