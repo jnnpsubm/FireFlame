@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 #include <string>
+#include <functional>
 
 namespace FireFlame {
 enum class ControllerInputMode {
@@ -44,6 +45,20 @@ struct FilterParam
             float sigma;
         };
     };
+};
+
+enum class Resource_Dimension :std::uint8_t
+{
+    UNKNOWN = 0,
+    BUFFER = 1,
+    TEXTURE1D = 2,
+    TEXTURE2D = 3,
+    TEXTURE3D = 4
+};
+
+struct ResourceDesc
+{
+    Resource_Dimension dimension = Resource_Dimension::BUFFER;
 };
 
 enum class Index_Format {
@@ -320,6 +335,22 @@ struct ComputePSODesc
     {}
     std::string shaderName;
     std::string shaderMacroCS;
+};
+
+struct CSTaskDesc
+{
+    std::string name;
+    std::string shaderName;
+    std::string PSOName;
+
+    struct {
+        unsigned X;
+        unsigned Y;
+        unsigned Z;
+    } GroupSize;
+    
+    std::function<void(void*)>        callback1;
+    std::function<void(void*, void*)> callback2;
 };
 
 struct stRawMesh {

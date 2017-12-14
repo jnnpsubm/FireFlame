@@ -97,6 +97,8 @@
     <ClInclude Include="src\PSOManager\FLPSOTrait.h" />
     <ClInclude Include="src\Renderer\FLD3DRenderer.h" />
     <ClInclude Include="src\Renderer\FLRenderer.h" />
+    <ClInclude Include="src\Scene\CSTask\FLCSTask.h" />
+    <ClInclude Include="src\Scene\CSTask\FLD3DCSTask.h" />
     <ClInclude Include="src\Scene\FLScene.h" />
     <ClInclude Include="src\Scene\Pass\FLPass.h" />
     <ClInclude Include="src\Scene\Primitive\FLD3DPrimitive.h" />

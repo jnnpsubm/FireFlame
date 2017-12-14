@@ -29,7 +29,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultBuffer(
         &CD3DX12_RESOURCE_DESC::Buffer(byteSize),
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
-        IID_PPV_ARGS(uploadBuffer.GetAddressOf())));
+        IID_PPV_ARGS(uploadBuffer.ReleaseAndGetAddressOf())));
 
 
     // Describe the data we want to copy into the default buffer.
@@ -50,6 +50,26 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultBuffer(
     // Note: uploadBuffer has to be kept alive after the above function calls because
     // the command list has not been executed yet that performs the actual copy.
     // The caller can Release the uploadBuffer after it knows the copy has been executed.
+    return defaultBuffer;
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtils::CreateDefaultBufferUAV
+(
+    ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, UINT64 byteSize
+)
+{
+    using Microsoft::WRL::ComPtr;
+    ComPtr<ID3D12Resource> defaultBuffer;
+    // Create the actual default buffer resource.
+    ThrowIfFailed(device->CreateCommittedResource
+    (
+        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+        D3D12_HEAP_FLAG_NONE,
+        &CD3DX12_RESOURCE_DESC::Buffer(byteSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
+        D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+        nullptr,
+        IID_PPV_ARGS(defaultBuffer.GetAddressOf()))
+    );
     return defaultBuffer;
 }
 

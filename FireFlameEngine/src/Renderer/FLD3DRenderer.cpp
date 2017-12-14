@@ -242,6 +242,17 @@ void D3DRenderer::WaitForGPUCurrentFrame()
     }
 }
 
+UINT64 D3DRenderer::SetFence()
+{
+    mCommandQueue->Signal(mFence.Get(), ++mCurrentFence);
+    return mCurrentFence;
+}
+
+bool D3DRenderer::FenceReached(UINT64 fence)
+{
+    return (mFence->GetCompletedValue() >= fence);
+}
+
 void D3DRenderer::AddFilter(const std::string& name, const FilterParam& filter)
 {
     assert(!mRenderWnd.expired());

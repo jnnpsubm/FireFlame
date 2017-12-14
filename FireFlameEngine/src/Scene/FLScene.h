@@ -4,6 +4,7 @@
 #include <functional>
 #include <queue>
 #include "Primitive\FLD3DPrimitive.h"
+#include "CSTask\FLCSTask.h"
 #include "Vertex\FLVertex.h"
 #include "..\FLTypeDefs.h"
 
@@ -70,6 +71,13 @@ public:
 
     void AddPSO(const std::string& name, const PSODesc& desc);
     void AddComputePSO(const std::string& name, const ComputePSODesc& desc);
+
+    void SetCSRootParamData
+    (
+        const std::string& shaderName, const std::string& paramName, 
+        const ResourceDesc& resDesc, size_t dataLen, std::uint8_t* data
+    );
+    void AddCSTask(const CSTaskDesc& desc);
 
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
@@ -250,5 +258,7 @@ private:
     // todo : move to primitive
     std::unordered_map<std::string, std::shared_ptr<Material>>         mMaterials;
     std::unordered_map<std::string, std::shared_ptr<Texture>>          mTextures;
+
+    std::unordered_map<std::string, std::unique_ptr<CSTask>> mCSTasks;
 };
 }

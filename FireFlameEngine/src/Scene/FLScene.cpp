@@ -19,6 +19,7 @@
 #include "..\3rd_utils\DDSTextureLoaderLuna.h"
 #endif
 #include "..\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h"
+#include "CSTask\FLD3DCSTask.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -87,6 +88,36 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList)
     for (auto& pass : mPasses)
     {
         DrawPass(cmdList, pass.second.get());
+    }
+
+    auto engine = Engine::GetEngine();
+    auto renderer = engine->GetRenderer().get();
+    for (auto& itTask : mCSTasks)
+    {
+        auto task = itTask.second.get();
+        if (task->status == CSTask::Initial)
+        {
+            auto shader = mComputeShaders[task->shaderName].get();
+            shader->Dispatch(cmdList, *task);
+            task->fence = renderer->SetFence();
+            task->status = CSTask::Dispatched;
+            spdlog::get("console")->info("task:{0} dispatched at {1:f}", itTask.first, engine->TotalTime());
+        }
+    }
+    for (auto& itTask : mCSTasks)
+    {
+        auto task = itTask.second.get();
+        if (task->status == CSTask::Dispatched && renderer->FenceReached(task->fence))
+        {
+            spdlog::get("console")->info("task:{0} finished at {1:f}", itTask.first, engine->TotalTime());
+            task->status = CSTask::Done;
+        }
+    }
+    for (auto itTask = mCSTasks.begin(); itTask != mCSTasks.end();)
+    {
+        auto task = itTask->second.get();
+        if (task->status == CSTask::Done) itTask = mCSTasks.erase(itTask);
+        else ++itTask;
     }
 }
 void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass)
@@ -287,6 +318,43 @@ void Scene::AddComputePSO(const std::string& name, const ComputePSODesc& desc)
         return;
     }
     PSOManager->AddComputePSO(name, desc);
+}
+
+void Scene::SetCSRootParamData
+(
+    const std::string& shaderName, const std::string& paramName, 
+    const ResourceDesc& resDesc, size_t dataLen, std::uint8_t* data
+)
+{
+    auto itShader = mComputeShaders.find(shaderName);
+    if (itShader == mComputeShaders.end())
+    {
+        spdlog::get("console")->critical("can not find compute shader {0} in SetCSRootParamData", shaderName);
+        throw std::runtime_error("can not find compute shader in SetCSRootParamData");
+    }
+    itShader->second->SetCSRootParamData(paramName, resDesc, dataLen, data);
+}
+
+void Scene::AddCSTask(const CSTaskDesc& desc)
+{
+    auto it = mComputeShaders.find(desc.shaderName);
+    if (it == mComputeShaders.end())
+    {
+        spdlog::get("console")->critical("can not find compute shader {0} in AddCSTask", desc.shaderName);
+        throw std::runtime_error("can not find compute shader in AddCSTask");
+    }
+    auto itTask = mCSTasks.find(desc.name);
+    if (itTask != mCSTasks.end())
+    {
+        spdlog::get("console")->critical("compute task {0} already in process", desc.name);
+    }
+    auto task = std::make_unique<D3DCSTask>
+    (
+        desc.shaderName, desc.PSOName, 
+        desc.GroupSize.X,desc.GroupSize.Y,desc.GroupSize.Z,
+        desc.callback1
+    );
+    mCSTasks.emplace(desc.name, std::move(task));
 }
 
 void Scene::AddPrimitive(const stRawMesh& mesh) {

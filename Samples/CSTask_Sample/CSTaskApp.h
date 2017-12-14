@@ -21,4 +21,6 @@ private:
     void AddShaderVectorLen();
 
     void AddPSOs();
+
+    void TaskDone(void* data);
 };

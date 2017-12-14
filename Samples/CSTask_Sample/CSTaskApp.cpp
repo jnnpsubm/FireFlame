@@ -48,5 +48,48 @@ void CSTaskApp::AddPSOs()
 
 void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 {
-    
+    using namespace FireFlame;
+
+    if (wParam == 'A')
+    {
+        const size_t vecNum = 128;
+        std::vector<FireFlame::Vector3f> vertices;
+        vertices.resize(vecNum);
+        for (auto& v : vertices)
+        {
+            float len = MathHelper::RandF(1.0f, 10.f);
+            v = { MathHelper::RandF(),MathHelper::RandF(), MathHelper::RandF() };
+            v *= len;
+        }
+        mEngine.GetScene()->SetCSRootParamData
+        (
+            "VectorLen", "input",
+            { FireFlame::Resource_Dimension::BUFFER },
+            vertices.size() * sizeof(FireFlame::Vector3f), 
+            reinterpret_cast<std::uint8_t*>(vertices.data())
+        );
+        mEngine.GetScene()->SetCSRootParamData
+        (
+            "VectorLen", "output",
+            { FireFlame::Resource_Dimension::BUFFER },
+            vertices.size() * sizeof(float),
+            nullptr
+        );
+        mEngine.GetScene()->AddCSTask
+        (
+        {
+            "run1",
+            "VectorLen",
+            "default",
+            {1,1,1},
+            std::bind(&CSTaskApp::TaskDone,this,std::placeholders::_1),
+            nullptr
+        }
+        );
+    }
+}
+
+void CSTaskApp::TaskDone(void* data)
+{
+
 }

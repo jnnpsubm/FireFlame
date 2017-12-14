@@ -30,6 +30,9 @@ public:
     void WaitForGPUFrame();
     void WaitForGPUCurrentFrame();
 
+    UINT64 SetFence();
+    bool FenceReached(UINT64 fence);
+
     void AddFilter(const std::string& name, const FilterParam& filter);
     void RemoveFilter(const std::string& name);
 

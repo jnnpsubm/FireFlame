@@ -405,6 +405,12 @@
     <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapperBase.h">
       <Filter>src\ShaderWrapper</Filter>
     </ClInclude>
+    <ClInclude Include="src\Scene\CSTask\FLCSTask.h">
+      <Filter>src\Scene\CSTask</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\CSTask\FLD3DCSTask.h">
+      <Filter>src\Scene\CSTask</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -523,6 +529,9 @@
     </Filter>
     <Filter Include="src\Shaders">
       <UniqueIdentifier>{b1f643eb-55f2-4611-960d-c669abda18f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scene\CSTask">
+      <UniqueIdentifier>{5e0ead60-7ee5-4dbc-841b-82c0f4215919}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

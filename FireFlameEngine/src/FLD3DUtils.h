@@ -16,6 +16,11 @@ public:
         UINT64 byteSize,
         Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer
     );
+    static Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBufferUAV(
+        ID3D12Device* device,
+        ID3D12GraphicsCommandList* cmdList,
+        UINT64 byteSize
+    );
     static Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultTexture2D(
         ID3D12Device* device,
         ID3D12GraphicsCommandList* cmdList,
