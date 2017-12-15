@@ -46,19 +46,20 @@ public:
 	void ToggleMSAA();
 
     // Get Methods
-    ID3D12Device*              GetDevice()             const { return md3dDevice.Get(); }
-    DXGI_FORMAT                GetBackBufferFormat()   const { return mBackBufferFormat; }
-    DXGI_FORMAT                GetDepthStencilFormat() const { return mDepthStencilFormat; }
-    UINT                       GetMSAAMode()           const { return mMSAAMode; }
-    bool                       GetMSAAStatus()         const { return mSampleCount > 1; }
-    UINT                       GetMSAASampleCount()    const { return mSampleCount; }
-    UINT                       GetMSAAQuality()        const { return mMSAAQuality; }
-    CRef_MSAADesc_Vec          GetMSAASupported()      const { return mMSAASupported; }
-    ID3D12GraphicsCommandList* GetCommandList()        const { return mCommandList.Get(); }
-    D3D12_CULL_MODE            GetCullMode()           const { return mCullMode; }
-    D3D12_FILL_MODE            GetFillMode()           const { return mFillMode; }
-    UINT GetRtvDescriptorSize()                        const { return mRtvDescriptorSize; }
-    UINT GetDsvDescriptorSize()                        const { return mDsvDescriptorSize; }
+    ID3D12Device*              GetDevice()             const { return md3dDevice.Get();      }
+    DXGI_FORMAT                GetBackBufferFormat()   const { return mBackBufferFormat;     }
+    DXGI_FORMAT                GetDepthStencilFormat() const { return mDepthStencilFormat;   }
+    UINT                       GetMSAAMode()           const { return mMSAAMode;             }
+    bool                       GetMSAAStatus()         const { return mSampleCount > 1;      }
+    UINT                       GetMSAASampleCount()    const { return mSampleCount;          }
+    UINT                       GetMSAAQuality()        const { return mMSAAQuality;          }
+    CRef_MSAADesc_Vec          GetMSAASupported()      const { return mMSAASupported;        }
+    ID3D12GraphicsCommandList* GetCommandList()        const { return mCommandList.Get();    }
+    ID3D12GraphicsCommandList* GetComputeCmdList()     const { return mComputeCmdList.Get(); }
+    D3D12_CULL_MODE            GetCullMode()           const { return mCullMode;             }
+    D3D12_FILL_MODE            GetFillMode()           const { return mFillMode;             }
+    UINT GetRtvDescriptorSize()                        const { return mRtvDescriptorSize;    }
+    UINT GetDsvDescriptorSize()                        const { return mDsvDescriptorSize;    }
     UINT GetCbvSrvUavDescriptorSize()                  const { return mCbvSrvUavDescriptorSize; }
 
     VecFrameRes& GetFrameResources()                         { return mFrameResources; }
@@ -149,6 +150,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue>        mCommandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator>    mDirectCmdListAlloc;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mComputeCmdList;
 
     // frame resources
     VecFrameRes       mFrameResources;

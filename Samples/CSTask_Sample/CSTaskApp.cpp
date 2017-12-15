@@ -67,7 +67,7 @@ void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
             }
             std::string taskName("ComputeVectorLen");
             taskName += std::to_string(i);
-            /*mEngine.GetScene()->SetCSRootParamData
+            mEngine.GetScene()->SetCSRootParamData
             (
                 taskName, "VectorLen", "input",
                 { FireFlame::Resource_Dimension::BUFFER },
@@ -80,7 +80,7 @@ void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
                 { FireFlame::Resource_Dimension::BUFFER },
                 vertices.size() * sizeof(float),
                 nullptr
-            );*/
+            );
 
             CSTaskDesc<std::function<void(const std::string&, void*)>> taskDesc
             (

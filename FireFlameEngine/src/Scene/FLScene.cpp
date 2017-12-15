@@ -223,8 +223,7 @@ int Scene::Compute(std::shared_ptr<D3DRenderer> renderer)
 {
     auto engine = Engine::GetEngine();
     auto device = renderer->GetDevice();
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList;
-    renderer->CreateThisThreadCmdList(cmdList);
+    auto cmdList = renderer->GetComputeCmdList();
     while (!mQuit && !mCSTasks.empty())
     {
         std::lock_guard<std::mutex> lock(mComputeMutex);
@@ -238,8 +237,8 @@ int Scene::Compute(std::shared_ptr<D3DRenderer> renderer)
                 ThrowIfFailed(cmdAlloc->Reset());
                 ThrowIfFailed(cmdList->Reset(cmdAlloc.Get(), nullptr));
                 auto shader = mComputeShaders[task->shaderName].get();
-                //shader->Dispatch(device, cmdList.Get(), *task);
-                renderer->ExecuteCommand(cmdList.Get());
+                shader->Dispatch(device, cmdList, *task);
+                renderer->ExecuteCommand(cmdList);
                 task->fence = renderer->SetFence();
                 task->status = CSTask::Dispatched;
                 spdlog::get("console")->info("task:{0} dispatched at {1:f}", itTask.first, engine->TotalTime());
@@ -258,8 +257,8 @@ int Scene::Compute(std::shared_ptr<D3DRenderer> renderer)
                     ThrowIfFailed(cmdAlloc->Reset());
                     ThrowIfFailed(cmdList->Reset(cmdAlloc.Get(), nullptr));
                     auto shader = mComputeShaders[task->shaderName].get();
-                    //shader->Copyback(device, cmdList.Get(), *task);
-                    renderer->ExecuteCommand(cmdList.Get());
+                    shader->Copyback(device, cmdList, *task);
+                    renderer->ExecuteCommand(cmdList);
                     task->fence = renderer->SetFence();
                     task->status = CSTask::Copyback;
                 }

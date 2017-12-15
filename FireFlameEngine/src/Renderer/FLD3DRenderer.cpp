@@ -649,6 +649,14 @@ void D3DRenderer::CreateCommandObjects()
 	// to the command list we will Reset it, and it needs to be closed before
 	// calling Reset.
 	mCommandList->Close();
+
+    ThrowIfFailed(md3dDevice->CreateCommandList(
+        0,
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        mDirectCmdListAlloc.Get(), // Associated command allocator
+        nullptr,                   // Initial PipelineStateObject
+        IID_PPV_ARGS(mComputeCmdList.GetAddressOf())));
+    mComputeCmdList->Close();
 }
 ID3D12Resource* D3DRenderer::CurrentBackBuffer() const {
 	return mSwapChainBuffer[mCurrBackBuffer].Get();
