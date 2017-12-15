@@ -16,9 +16,9 @@ void main( uint3 DTid : SV_DispatchThreadID )
 
     // testing
     /*unsigned int i = 0;
-    while (++i < 10000*100)
+    while (++i < 10000*10)
     {
         gOutput[DTid.x] = length(float3(length(v)*length(v), length(v)*length(v), length(v)*length(v)));
-        gOutput[DTid.x] = cos(pow(gOutput[DTid.x], 128));
+        gOutput[DTid.x] = cos(pow(abs(gOutput[DTid.x]), 128));
     }*/
 }

@@ -10,6 +10,10 @@ namespace FireFlame {
 Engine* Engine::theEngine = nullptr;
 Engine::Engine(HINSTANCE hinst) {
     FireFlame::OpenConsole();
+
+    size_t q_size = 4096; //queue size must be power of 2
+    spdlog::set_async_mode(q_size);
+
     auto console = spdlog::stdout_color_mt("console");
     console->info("Welcome to FireFlame Engine!");
 

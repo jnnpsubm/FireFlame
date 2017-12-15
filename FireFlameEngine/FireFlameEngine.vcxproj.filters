@@ -547,6 +547,8 @@
     <None Include="src\3rd_utils\spdlog\fmt\bundled\posix.cc">
       <Filter>src\3rd_utils\spdlog\fmt\bundled</Filter>
     </None>
-    <None Include="src\Shaders\Blur.hlsl" />
+    <None Include="src\Shaders\Blur.hlsl">
+      <Filter>src\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

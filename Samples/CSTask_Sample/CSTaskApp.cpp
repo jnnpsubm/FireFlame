@@ -54,7 +54,7 @@ void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 
     if (wParam == 'A')
     {
-        for (size_t i = 0; i < 1024; i++)
+        for (size_t i = 0; i < 1; i++)
         {
             const size_t vecNum = 12800;
             std::vector<FireFlame::Vector3f> vertices;
