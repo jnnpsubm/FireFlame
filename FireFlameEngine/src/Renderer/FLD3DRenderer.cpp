@@ -208,9 +208,9 @@ void D3DRenderer::WaitForGPUFrame() {
         info += L"\n";
         OutputDebugString(info.c_str());
 #endif
-        spdlog::get("console")->debug
+        spdlog::get("console")->info
         (
-            "WaitForGPUFrame:Wait For GPU finishing Frame{0:d}......", 
+            "WaitForGPUFrame:Wait For GPU finishing Frame {0:d}......", 
             mCurrFrameResource->Fence
         );
 
@@ -245,11 +245,17 @@ void D3DRenderer::WaitForGPUCurrentFrame()
 UINT64 D3DRenderer::SetFence()
 {
     mCommandQueue->Signal(mFence.Get(), ++mCurrentFence);
+#ifdef _DEBUG
+    //spdlog::get("console")->info("Set Fence at {0:d}", mCurrentFence);
+#endif
     return mCurrentFence;
 }
 
 bool D3DRenderer::FenceReached(UINT64 fence)
 {
+#ifdef _DEBUG
+    //spdlog::get("console")->info("Current completed value {0:d}", mFence->GetCompletedValue());
+#endif
     return (mFence->GetCompletedValue() >= fence);
 }
 

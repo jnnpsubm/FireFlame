@@ -7,7 +7,7 @@
 #include <d3d12.h>
 
 namespace FireFlame {
-struct CSTask;
+class CSTask;
 class D3DComputeShaderWrapper : public D3DShaderWrapperBase
 {
 public:
@@ -21,6 +21,7 @@ public:
         const ResourceDesc& resDesc, size_t dataLen, std::uint8_t* data
     );
     void Dispatch(ID3D12GraphicsCommandList* cmdList, const CSTask& taskDesc);
+    void Copyback(ID3D12GraphicsCommandList* cmdList, const CSTask& taskDesc);
 
     std::pair<void*, size_t> GetCS(const std::string& macro) const
     {
@@ -39,7 +40,8 @@ private:
     struct RootParam
     {
         UINT paramIndex = 0;
-        FireFlame::ROOT_PARAMETER_TYPE paramType;
+        Root_Parameter_Mode paramMode;
+        ROOT_PARAMETER_TYPE paramType;
         
         Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Resource> uploadResource = nullptr;

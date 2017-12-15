@@ -23,13 +23,15 @@ void CSTaskApp::AddShaderVectorLen()
     ComputeShaderDescription shaderDesc("VectorLen");
     shaderDesc.AddRootParameter
     (
-        "input", 0, 1, 
+        "input",
+        Root_Parameter_Mode::In, 0, 1,
         DESCRIPTOR_RANGE_TYPE::SRV, 0, 0, 
         ROOT_PARAMETER_TYPE::SRV
     );
     shaderDesc.AddRootParameter
     (
-        "output", 0, 1,
+        "output", 
+        Root_Parameter_Mode::Out, 0, 1,
         DESCRIPTOR_RANGE_TYPE::UAV, 0, 0,
         ROOT_PARAMETER_TYPE::UAV
     );
@@ -52,7 +54,7 @@ void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 
     if (wParam == 'A')
     {
-        const size_t vecNum = 128;
+        const size_t vecNum = 12800;
         std::vector<FireFlame::Vector3f> vertices;
         vertices.resize(vecNum);
         for (auto& v : vertices)
@@ -75,17 +77,16 @@ void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
             vertices.size() * sizeof(float),
             nullptr
         );
-        mEngine.GetScene()->AddCSTask
+
+        CSTaskDesc2<std::function<void(void*,void*)>> taskDesc
         (
-        {
             "run1",
             "VectorLen",
             "default",
-            {1,1,1},
-            std::bind(&CSTaskApp::TaskDone,this,std::placeholders::_1),
-            nullptr
-        }
+            (unsigned)std::ceilf((float)vecNum / 64.f),1,1,
+            std::bind(&CSTaskApp::TaskDone, this, std::placeholders::_1)
         );
+        mEngine.GetScene()->AddCSTask(taskDesc);
     }
 }
 

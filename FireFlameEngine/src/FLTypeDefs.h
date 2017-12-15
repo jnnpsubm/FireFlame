@@ -337,8 +337,22 @@ struct ComputePSODesc
     std::string shaderMacroCS;
 };
 
-struct CSTaskDesc
+template<typename CALL_BACK>
+struct CSTaskDesc2
 {
+    CSTaskDesc2
+    (
+        const std::string& name,
+        const std::string& shaderName,
+        const std::string& PSOName,
+        unsigned X,
+        unsigned Y,
+        unsigned Z,
+        CALL_BACK callback
+    ) : name(name), shaderName(shaderName), PSOName(PSOName),
+        GroupSize {X, Y, Z}, callback(callback)
+    {}
+
     std::string name;
     std::string shaderName;
     std::string PSOName;
@@ -348,9 +362,8 @@ struct CSTaskDesc
         unsigned Y;
         unsigned Z;
     } GroupSize;
-    
-    std::function<void(void*)>        callback1;
-    std::function<void(void*, void*)> callback2;
+
+    CALL_BACK callback;
 };
 
 struct stRawMesh {
@@ -472,6 +485,13 @@ struct stShaderStage {
     }
 };
 
+enum class Root_Parameter_Mode :std::uint_fast8_t
+{
+    In = 0,
+    InOut,
+    Out
+};
+
 enum class ROOT_PARAMETER_TYPE :std::uint8_t
 {
     DESCRIPTOR_TABLE = 0,
@@ -504,6 +524,7 @@ struct ROOT_PARAMETER
     ROOT_PARAMETER
     (
         const std::string& name, 
+        Root_Parameter_Mode paramMode,
         unsigned datasize, 
         unsigned maxDescriptor, 
         DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV,
@@ -514,6 +535,7 @@ struct ROOT_PARAMETER
         SHADER_VISIBILITY visibility = SHADER_VISIBILITY::VISIBILITY_ALL
     ):
         name(name),
+        paramMode(paramMode),
         ptype(ptype),
         tablesize(tablesize),
         vtype(vtype),
@@ -524,6 +546,7 @@ struct ROOT_PARAMETER
         maxDescriptor(maxDescriptor)
     {}
     std::string name;
+    Root_Parameter_Mode paramMode = Root_Parameter_Mode::In;
     ROOT_PARAMETER_TYPE ptype = ROOT_PARAMETER_TYPE::DESCRIPTOR_TABLE;
     unsigned tablesize = 1;
     DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV;
@@ -577,6 +600,7 @@ struct ComputeShaderDescription {
     void AddRootParameter
     (
         const std::string& name,
+        Root_Parameter_Mode paramMode,
         unsigned datasize,
         unsigned maxDescriptor,
         DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV,
@@ -589,7 +613,7 @@ struct ComputeShaderDescription {
     {
         rootParameters.emplace_back
         (
-            name, datasize, maxDescriptor,
+            name, paramMode, datasize, maxDescriptor,
             vtype, baseRegister, registerSpace, ptype, tablesize, visibility
         );
     }
@@ -696,6 +720,7 @@ struct ShaderDescription {
     void AddRootParameter
     (
         const std::string& name,
+        Root_Parameter_Mode paramMode,
         unsigned datasize,
         unsigned maxDescriptor,
         DESCRIPTOR_RANGE_TYPE vtype = DESCRIPTOR_RANGE_TYPE::CBV,
@@ -708,7 +733,7 @@ struct ShaderDescription {
     {
         rootParameters.emplace_back
         (
-            name, datasize, maxDescriptor,
+            name, paramMode, datasize, maxDescriptor,
             vtype, baseRegister, registerSpace, ptype, tablesize, visibility
         );
     }

@@ -99,7 +99,10 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList)
         {
             auto shader = mComputeShaders[task->shaderName].get();
             shader->Dispatch(cmdList, *task);
-            task->fence = renderer->SetFence();
+            // wait for this frame to be ended, 
+            // there will be some error in task consumed time calculation
+            // because there maybe something else to deal with in each frame
+            task->fence = renderer->GetCurrentFence() + 1;
             task->status = CSTask::Dispatched;
             spdlog::get("console")->info("task:{0} dispatched at {1:f}", itTask.first, engine->TotalTime());
         }
@@ -110,7 +113,14 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList)
         if (task->status == CSTask::Dispatched && renderer->FenceReached(task->fence))
         {
             spdlog::get("console")->info("task:{0} finished at {1:f}", itTask.first, engine->TotalTime());
-            task->status = CSTask::Done;
+            if (task->needCopyback())
+            {
+                task->status = CSTask::Copyback;
+            }
+            else
+            {
+                task->status = CSTask::Done;
+            }
         }
     }
     for (auto itTask = mCSTasks.begin(); itTask != mCSTasks.end();)
@@ -335,26 +345,20 @@ void Scene::SetCSRootParamData
     itShader->second->SetCSRootParamData(paramName, resDesc, dataLen, data);
 }
 
-void Scene::AddCSTask(const CSTaskDesc& desc)
+void Scene::AddCSTaskImpl(const std::string& name, std::unique_ptr<CSTask> task)
 {
-    auto it = mComputeShaders.find(desc.shaderName);
+    auto it = mComputeShaders.find(task->shaderName);
     if (it == mComputeShaders.end())
     {
-        spdlog::get("console")->critical("can not find compute shader {0} in AddCSTask", desc.shaderName);
+        spdlog::get("console")->critical("can not find compute shader {0} in AddCSTask", task->shaderName);
         throw std::runtime_error("can not find compute shader in AddCSTask");
     }
-    auto itTask = mCSTasks.find(desc.name);
+    auto itTask = mCSTasks.find(name);
     if (itTask != mCSTasks.end())
     {
-        spdlog::get("console")->critical("compute task {0} already in process", desc.name);
+        spdlog::get("console")->critical("compute task {0} already in process", name);
     }
-    auto task = std::make_unique<D3DCSTask>
-    (
-        desc.shaderName, desc.PSOName, 
-        desc.GroupSize.X,desc.GroupSize.Y,desc.GroupSize.Z,
-        desc.callback1
-    );
-    mCSTasks.emplace(desc.name, std::move(task));
+    mCSTasks.emplace(name, std::move(task));
 }
 
 void Scene::AddPrimitive(const stRawMesh& mesh) {

@@ -32,6 +32,7 @@ public:
 
     UINT64 SetFence();
     bool FenceReached(UINT64 fence);
+    UINT64 GetCurrentFence() const { return mCurrentFence; }
 
     void AddFilter(const std::string& name, const FilterParam& filter);
     void RemoveFilter(const std::string& name);

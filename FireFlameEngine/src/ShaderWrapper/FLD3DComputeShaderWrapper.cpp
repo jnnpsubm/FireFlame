@@ -69,6 +69,11 @@ void D3DComputeShaderWrapper::Dispatch(ID3D12GraphicsCommandList* cmdList, const
     cmdList->Dispatch(taskDesc.GroupSize.X, taskDesc.GroupSize.Y, taskDesc.GroupSize.Z);
 }
 
+void D3DComputeShaderWrapper::Copyback(ID3D12GraphicsCommandList* cmdList, const CSTask& taskDesc)
+{
+
+}
+
 void D3DComputeShaderWrapper::UploadRootParamData(ID3D12GraphicsCommandList* cmdList)
 {
     auto renderer = Engine::GetEngine()->GetRenderer();
@@ -154,7 +159,7 @@ void D3DComputeShaderWrapper::BuildRootSignature(ID3D12Device* device, const Com
         default:
             throw std::runtime_error("unknown root parameter type...");
         }
-        mRootParams[rootParam.name] = { (UINT)i,paramType,nullptr,nullptr };
+        mRootParams[rootParam.name] = { (UINT)i,rootParam.paramMode,paramType,nullptr,nullptr };
     }
 
     auto staticSamplers = GetStaticSamplers();
