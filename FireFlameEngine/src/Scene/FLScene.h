@@ -3,6 +3,10 @@
 #include <unordered_map>
 #include <functional>
 #include <queue>
+#include <future>
+#include <thread>
+#include <mutex>
+#include <chrono>
 #include "Primitive\FLD3DPrimitive.h"
 #include "CSTask\FLCSTask.h"
 #include "Vertex\FLVertex.h"
@@ -59,6 +63,8 @@ public:
 	void Update(const StopWatch& gt);
 	void Render(const StopWatch& gt);
 
+    void Quit();
+
     void UpdateObjectCBs(const StopWatch& gt);
     void UpdateMaterialCBs(const StopWatch& gt);
 
@@ -74,12 +80,12 @@ public:
 
     void SetCSRootParamData
     (
-        const std::string& shaderName, const std::string& paramName, 
+        const std::string& taskName, const std::string& shaderName, const std::string& paramName,
         const ResourceDesc& resDesc, size_t dataLen, std::uint8_t* data
     );
 
     template <typename CALL_BACK>
-    void AddCSTask(const CSTaskDesc2<CALL_BACK>& desc);
+    void AddCSTask(const CSTaskDesc<CALL_BACK>& desc);
     void AddCSTaskImpl(const std::string& name, std::unique_ptr<CSTask> task);
 
     void AddPrimitive(const stRawMesh& mesh);
@@ -262,15 +268,21 @@ private:
     std::unordered_map<std::string, std::shared_ptr<Material>>         mMaterials;
     std::unordered_map<std::string, std::shared_ptr<Texture>>          mTextures;
 
+    // todo : get out of the scene
+    bool                                                     mQuit = false;
+    std::mutex                                               mComputeMutex;
+    int Compute(std::shared_ptr<D3DRenderer> renderer);
+    std::unique_ptr<std::future<int>>                        mCompute = nullptr;
     std::unordered_map<std::string, std::unique_ptr<CSTask>> mCSTasks;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> mCSTaskCmdAllocs;
 };
 
 template <typename CALL_BACK>
-void Scene::AddCSTask(const CSTaskDesc2<CALL_BACK>& desc)
+void Scene::AddCSTask(const CSTaskDesc<CALL_BACK>& desc)
 {
     auto task = std::make_unique<CSTaskCB<decltype (desc.callback)>>
     (
-        desc.shaderName, desc.PSOName,
+        desc.name, desc.shaderName, desc.PSOName,
         desc.GroupSize.X, desc.GroupSize.Y, desc.GroupSize.Z,
         desc.callback
     );

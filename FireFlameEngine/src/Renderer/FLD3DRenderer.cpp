@@ -19,6 +19,26 @@ namespace FireFlame {
 void D3DRenderer::Update(const StopWatch& gt) {
 	
 }
+
+void D3DRenderer::CreateThisThreadCmdList
+(
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& cmdList
+)
+{
+    ThrowIfFailed
+    (
+        md3dDevice->CreateCommandList
+        (
+            0,
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            mDirectCmdListAlloc.Get(), // Associated command allocator
+            nullptr,                   // Initial PipelineStateObject
+            IID_PPV_ARGS(cmdList.GetAddressOf())
+        )
+    );
+    cmdList->Close();
+}
+
 void D3DRenderer::Render(const StopWatch& gt) {
     mPreRenderFunc();
 	
@@ -50,7 +70,7 @@ void D3DRenderer::Render(const StopWatch& gt) {
     // Add an instruction to the command queue to set a new fence point. 
     // Because we are on the GPU timeline, the new fence point won't be 
     // set until the GPU finishes processing all the commands prior to this Signal().
-    mCommandQueue->Signal(mFence.Get(), mCurrentFence);
+    mCommandQueue->Signal(mFence.Get(), mCurrFrameResource->Fence);
 }
 void D3DRenderer::SelectMSAARenderer() {
     mMSAARenderer = mSampleCount > 1 ?
@@ -172,21 +192,27 @@ void D3DRenderer::ExecuteCommand() {
     ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 }
+void D3DRenderer::ExecuteCommand(ID3D12GraphicsCommandList* cmdList)
+{
+    ThrowIfFailed(cmdList->Close());
+    ID3D12CommandList* cmdsLists[] = { cmdList };
+    mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+}
 void D3DRenderer::WaitForGPU() {
 	// Advance the fence value to mark commands up to this fence point.
-	mCurrentFence++;
+	UINT64 fence = mCurrentFence++;
 
 	// Add an instruction to the command queue to set a new fence point.  Because we 
 	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
 	// processing all the commands prior to this Signal().
-	ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), mCurrentFence));
+	ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), fence));
 
 	// Wait until the GPU has completed commands up to this fence point.
-	if (mFence->GetCompletedValue() < mCurrentFence){
+	if (mFence->GetCompletedValue() < fence){
 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
 
 		// Fire event when GPU hits current fence.  
-		ThrowIfFailed(mFence->SetEventOnCompletion(mCurrentFence, eventHandle));
+		ThrowIfFailed(mFence->SetEventOnCompletion(fence, eventHandle));
 
 		// Wait until the GPU hits current fence event is fired.
 		WaitForSingleObject(eventHandle, INFINITE);
@@ -244,11 +270,12 @@ void D3DRenderer::WaitForGPUCurrentFrame()
 
 UINT64 D3DRenderer::SetFence()
 {
-    mCommandQueue->Signal(mFence.Get(), ++mCurrentFence);
+    UINT64 fence = ++mCurrentFence;
+    mCommandQueue->Signal(mFence.Get(), fence);
 #ifdef _DEBUG
-    //spdlog::get("console")->info("Set Fence at {0:d}", mCurrentFence);
+    //spdlog::get("console")->info("Set Fence at {0:d}", fence);
 #endif
-    return mCurrentFence;
+    return fence;
 }
 
 bool D3DRenderer::FenceReached(UINT64 fence)

@@ -54,43 +54,48 @@ void CSTaskApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 
     if (wParam == 'A')
     {
-        const size_t vecNum = 12800;
-        std::vector<FireFlame::Vector3f> vertices;
-        vertices.resize(vecNum);
-        for (auto& v : vertices)
+        for (size_t i = 0; i < 1024; i++)
         {
-            float len = MathHelper::RandF(1.0f, 10.f);
-            v = { MathHelper::RandF(),MathHelper::RandF(), MathHelper::RandF() };
-            v *= len;
-        }
-        mEngine.GetScene()->SetCSRootParamData
-        (
-            "VectorLen", "input",
-            { FireFlame::Resource_Dimension::BUFFER },
-            vertices.size() * sizeof(FireFlame::Vector3f), 
-            reinterpret_cast<std::uint8_t*>(vertices.data())
-        );
-        mEngine.GetScene()->SetCSRootParamData
-        (
-            "VectorLen", "output",
-            { FireFlame::Resource_Dimension::BUFFER },
-            vertices.size() * sizeof(float),
-            nullptr
-        );
+            const size_t vecNum = 12800;
+            std::vector<FireFlame::Vector3f> vertices;
+            vertices.resize(vecNum);
+            for (auto& v : vertices)
+            {
+                float len = MathHelper::RandF(1.0f, 10.f);
+                v = { MathHelper::RandF(),MathHelper::RandF(), MathHelper::RandF() };
+                v *= len;
+            }
+            std::string taskName("ComputeVectorLen");
+            taskName += std::to_string(i);
+            /*mEngine.GetScene()->SetCSRootParamData
+            (
+                taskName, "VectorLen", "input",
+                { FireFlame::Resource_Dimension::BUFFER },
+                vertices.size() * sizeof(FireFlame::Vector3f),
+                reinterpret_cast<std::uint8_t*>(vertices.data())
+            );
+            mEngine.GetScene()->SetCSRootParamData
+            (
+                taskName, "VectorLen", "output",
+                { FireFlame::Resource_Dimension::BUFFER },
+                vertices.size() * sizeof(float),
+                nullptr
+            );*/
 
-        CSTaskDesc2<std::function<void(void*,void*)>> taskDesc
-        (
-            "run1",
-            "VectorLen",
-            "default",
-            (unsigned)std::ceilf((float)vecNum / 64.f),1,1,
-            std::bind(&CSTaskApp::TaskDone, this, std::placeholders::_1)
-        );
-        mEngine.GetScene()->AddCSTask(taskDesc);
+            CSTaskDesc<std::function<void(const std::string&, void*)>> taskDesc
+            (
+                taskName,
+                "VectorLen",
+                "default",
+                (unsigned)std::ceilf((float)vecNum / 64.f), 1, 1,
+                std::bind(&CSTaskApp::TaskDone, this, std::placeholders::_1, std::placeholders::_2)
+            );
+            mEngine.GetScene()->AddCSTask(taskDesc);
+        }
     }
 }
 
-void CSTaskApp::TaskDone(void* data)
+void CSTaskApp::TaskDone(const std::string& taskName, void* data)
 {
 
 }

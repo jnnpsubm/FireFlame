@@ -50,6 +50,7 @@ int Engine::Run() {
 }
 void Engine::Stop() {
 	Pause();
+    mScene->Quit();
 	mRenderer->WaitForGPU();
 }
 int Engine::InitMainWindow(int x, int y, int w, int h) {

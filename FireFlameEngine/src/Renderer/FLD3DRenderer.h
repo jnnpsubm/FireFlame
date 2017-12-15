@@ -4,6 +4,7 @@
 #include <DXGI1_5.h>
 #include <d3d12.h>
 #include <functional>
+#include <atomic>
 #include "FLRenderer.h"
 #include "..\FLTypeDefs.h"
 #include "..\FrameResource\FLD3DFrameResource.h"
@@ -26,6 +27,7 @@ public:
 
     void ResetCommandList();
     void ExecuteCommand();
+    void ExecuteCommand(ID3D12GraphicsCommandList* cmdList);
 	void WaitForGPU();
     void WaitForGPUFrame();
     void WaitForGPUCurrentFrame();
@@ -62,6 +64,11 @@ public:
     VecFrameRes& GetFrameResources()                         { return mFrameResources; }
     D3DFrameResource* GetCurrFrameResource()                 { return mCurrFrameResource; }
     int GetCurrFrameResIndex()                               { return mCurrFrameResourceIndex; }
+
+    void CreateThisThreadCmdList
+    (
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& cmdList
+    );
 
     // Set Methods
     void SetDefaultClearColor(const float(&color)[4]) 
@@ -136,7 +143,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Device>   md3dDevice;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence>    mFence;
-	UINT64 mCurrentFence = 0;
+	//UINT64 mCurrentFence = 0;
+    std::atomic<UINT64> mCurrentFence = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue>        mCommandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator>    mDirectCmdListAlloc;

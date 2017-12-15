@@ -22,5 +22,5 @@ private:
 
     void AddPSOs();
 
-    void TaskDone(void* data);
+    void TaskDone(const std::string& taskName, void* data);
 };

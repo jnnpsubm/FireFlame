@@ -338,9 +338,9 @@ struct ComputePSODesc
 };
 
 template<typename CALL_BACK>
-struct CSTaskDesc2
+struct CSTaskDesc
 {
-    CSTaskDesc2
+    CSTaskDesc
     (
         const std::string& name,
         const std::string& shaderName,

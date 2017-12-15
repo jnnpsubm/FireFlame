@@ -8,12 +8,14 @@ class CSTask
 public:
     CSTask
     (
+        const std::string& name,
         const std::string& shaderName,
         const std::string& PSOName,
         unsigned X,
         unsigned Y,
         unsigned Z
-    ):  shaderName(shaderName),
+    ):  name(name),
+        shaderName(shaderName),
         PSOName(PSOName),
         GroupSize{ X,Y,Z },
         status(Initial), fence(0)
@@ -22,6 +24,7 @@ public:
 
     virtual bool needCopyback() const = 0;
 
+    std::string name;
     std::string shaderName;
     std::string PSOName;
 
@@ -47,13 +50,14 @@ class CSTaskCB : public CSTask
 public:
     CSTaskCB
     (
+        const std::string& name,
         const std::string& shaderName,
         const std::string& PSOName,
         unsigned X,
         unsigned Y,
         unsigned Z,
         CALL_BACK callback
-    ) : CSTask(shaderName, PSOName, X, Y, Z), callback(callback)
+    ) : CSTask(name, shaderName, PSOName, X, Y, Z), callback(callback)
     {}
 
     bool needCopyback() const override { return callback != nullptr; }

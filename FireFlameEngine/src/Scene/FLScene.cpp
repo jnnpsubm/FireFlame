@@ -68,6 +68,22 @@ void Scene::UpdateMaterialCBs(const StopWatch& gt)
     }
 }
 
+void Scene::Quit()
+{
+    mQuit = true;
+    if (mCompute)
+    {
+        if (mCompute->wait_for(std::chrono::seconds(60)) == std::future_status::ready)
+        {
+            spdlog::get("console")->info("Scene quited......");
+        }
+        else
+        {
+            throw std::runtime_error("Can not quit compute thread......");
+        }
+    }
+}
+
 void Scene::Render(const StopWatch& gt) {
 	mRenderer->Render(gt);
     
@@ -88,46 +104,6 @@ void Scene::Draw(ID3D12GraphicsCommandList* cmdList)
     for (auto& pass : mPasses)
     {
         DrawPass(cmdList, pass.second.get());
-    }
-
-    auto engine = Engine::GetEngine();
-    auto renderer = engine->GetRenderer().get();
-    for (auto& itTask : mCSTasks)
-    {
-        auto task = itTask.second.get();
-        if (task->status == CSTask::Initial)
-        {
-            auto shader = mComputeShaders[task->shaderName].get();
-            shader->Dispatch(cmdList, *task);
-            // wait for this frame to be ended, 
-            // there will be some error in task consumed time calculation
-            // because there maybe something else to deal with in each frame
-            task->fence = renderer->GetCurrentFence() + 1;
-            task->status = CSTask::Dispatched;
-            spdlog::get("console")->info("task:{0} dispatched at {1:f}", itTask.first, engine->TotalTime());
-        }
-    }
-    for (auto& itTask : mCSTasks)
-    {
-        auto task = itTask.second.get();
-        if (task->status == CSTask::Dispatched && renderer->FenceReached(task->fence))
-        {
-            spdlog::get("console")->info("task:{0} finished at {1:f}", itTask.first, engine->TotalTime());
-            if (task->needCopyback())
-            {
-                task->status = CSTask::Copyback;
-            }
-            else
-            {
-                task->status = CSTask::Done;
-            }
-        }
-    }
-    for (auto itTask = mCSTasks.begin(); itTask != mCSTasks.end();)
-    {
-        auto task = itTask->second.get();
-        if (task->status == CSTask::Done) itTask = mCSTasks.erase(itTask);
-        else ++itTask;
     }
 }
 void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass)
@@ -243,6 +219,82 @@ int Scene::GetReady() {
     return 0;
 }
 
+int Scene::Compute(std::shared_ptr<D3DRenderer> renderer)
+{
+    auto engine = Engine::GetEngine();
+    auto device = renderer->GetDevice();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList;
+    renderer->CreateThisThreadCmdList(cmdList);
+    while (!mQuit && !mCSTasks.empty())
+    {
+        std::lock_guard<std::mutex> lock(mComputeMutex);
+        //std::this_thread::yield();
+        for (auto& itTask : mCSTasks)
+        {
+            auto task = itTask.second.get();
+            if (task->status == CSTask::Initial)
+            {
+                auto cmdAlloc = mCSTaskCmdAllocs[itTask.first];
+                ThrowIfFailed(cmdAlloc->Reset());
+                ThrowIfFailed(cmdList->Reset(cmdAlloc.Get(), nullptr));
+                auto shader = mComputeShaders[task->shaderName].get();
+                //shader->Dispatch(device, cmdList.Get(), *task);
+                renderer->ExecuteCommand(cmdList.Get());
+                task->fence = renderer->SetFence();
+                task->status = CSTask::Dispatched;
+                spdlog::get("console")->info("task:{0} dispatched at {1:f}", itTask.first, engine->TotalTime());
+            }
+        }
+        for (auto& itTask : mCSTasks)
+        {
+            auto task = itTask.second.get();
+            if (task->status == CSTask::Dispatched && renderer->FenceReached(task->fence))
+            {
+                spdlog::get("console")->info("task:{0} finished at {1:f}", itTask.first, engine->TotalTime());
+                if (task->needCopyback())
+                {
+                    spdlog::get("console")->info("task:{0} start copyback at {1:f}", itTask.first, engine->TotalTime());
+                    auto cmdAlloc = mCSTaskCmdAllocs[itTask.first];
+                    ThrowIfFailed(cmdAlloc->Reset());
+                    ThrowIfFailed(cmdList->Reset(cmdAlloc.Get(), nullptr));
+                    auto shader = mComputeShaders[task->shaderName].get();
+                    //shader->Copyback(device, cmdList.Get(), *task);
+                    renderer->ExecuteCommand(cmdList.Get());
+                    task->fence = renderer->SetFence();
+                    task->status = CSTask::Copyback;
+                }
+                else
+                {
+                    task->status = CSTask::Done;
+                }
+            }
+        }
+        for (auto& itTask : mCSTasks)
+        {
+            auto task = itTask.second.get();
+            if (task->status == CSTask::Copyback && renderer->FenceReached(task->fence))
+            {
+                spdlog::get("console")->info("task:{0} copyback finished at {1:f}", itTask.first, engine->TotalTime());
+                // call back
+                task->status = CSTask::Done;
+            }
+        }
+        for (auto itTask = mCSTasks.begin(); itTask != mCSTasks.end();)
+        {
+            auto task = itTask->second.get();
+            if (task->status == CSTask::Done)
+            {
+                auto shader = mComputeShaders[task->shaderName].get();
+                shader->ClearTaskRes(task->name);
+                mCSTaskCmdAllocs.erase(task->name);
+                itTask = mCSTasks.erase(itTask);
+            }
+            else ++itTask;
+        }
+    }
+    return 0;
+}
+
 void Scene::AddShader(const ShaderDescription& shaderDesc) 
 {
     std::shared_ptr<D3DShaderWrapper> shader = nullptr;
@@ -332,7 +384,7 @@ void Scene::AddComputePSO(const std::string& name, const ComputePSODesc& desc)
 
 void Scene::SetCSRootParamData
 (
-    const std::string& shaderName, const std::string& paramName, 
+    const std::string& taskName, const std::string& shaderName, const std::string& paramName, 
     const ResourceDesc& resDesc, size_t dataLen, std::uint8_t* data
 )
 {
@@ -342,7 +394,8 @@ void Scene::SetCSRootParamData
         spdlog::get("console")->critical("can not find compute shader {0} in SetCSRootParamData", shaderName);
         throw std::runtime_error("can not find compute shader in SetCSRootParamData");
     }
-    itShader->second->SetCSRootParamData(paramName, resDesc, dataLen, data);
+    std::lock_guard<std::mutex> lock(mComputeMutex);
+    itShader->second->SetCSRootParamData(taskName, paramName, resDesc, dataLen, data);
 }
 
 void Scene::AddCSTaskImpl(const std::string& name, std::unique_ptr<CSTask> task)
@@ -353,12 +406,27 @@ void Scene::AddCSTaskImpl(const std::string& name, std::unique_ptr<CSTask> task)
         spdlog::get("console")->critical("can not find compute shader {0} in AddCSTask", task->shaderName);
         throw std::runtime_error("can not find compute shader in AddCSTask");
     }
+
+    std::lock_guard<std::mutex> lock(mComputeMutex);
     auto itTask = mCSTasks.find(name);
     if (itTask != mCSTasks.end())
     {
         spdlog::get("console")->critical("compute task {0} already in process", name);
     }
     mCSTasks.emplace(name, std::move(task));
+    ThrowIfFailed
+    (
+        Engine::GetEngine()->GetRenderer()->GetDevice()->CreateCommandAllocator
+        (
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            IID_PPV_ARGS(mCSTaskCmdAllocs[name].ReleaseAndGetAddressOf())
+        )
+    );
+    if (!mCompute || mCompute->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    {
+        mQuit = false;
+        mCompute = std::make_unique<std::future<int>>(std::async(std::launch::async, [=]() { return Compute(Engine::GetEngine()->GetRenderer()); }));
+    }
 }
 
 void Scene::AddPrimitive(const stRawMesh& mesh) {
