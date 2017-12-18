@@ -84,9 +84,7 @@ public:
         const ResourceDesc& resDesc, size_t dataLen, std::uint8_t* data
     );
 
-    template <typename CALL_BACK>
-    void AddCSTask(const CSTaskDesc<CALL_BACK>& desc);
-    void AddCSTaskImpl(const std::string& name, std::unique_ptr<CSTask> task);
+    void AddCSTask(const CSTaskDesc& desc);
 
     void AddPrimitive(const stRawMesh& mesh);
 	void AddPrimitive(const stRawMesh& mesh, const std::string& shaderName);
@@ -276,17 +274,4 @@ private:
     std::unordered_map<std::string, std::unique_ptr<CSTask>> mCSTasks;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> mCSTaskCmdAllocs;
 };
-
-template <typename CALL_BACK>
-void Scene::AddCSTask(const CSTaskDesc<CALL_BACK>& desc)
-{
-    auto task = std::make_unique<CSTaskCB<decltype (desc.callback)>>
-    (
-        desc.name, desc.shaderName, desc.PSOName,
-        desc.GroupSize.X, desc.GroupSize.Y, desc.GroupSize.Z,
-        desc.callback
-    );
-    AddCSTaskImpl(desc.name, std::move(task));
-}
-
 }

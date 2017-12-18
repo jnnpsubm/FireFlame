@@ -7,7 +7,7 @@
 #include <d3d12.h>
 
 namespace FireFlame {
-class CSTask;
+struct CSTask;
 class D3DComputeShaderWrapper : public D3DShaderWrapperBase
 {
 public:
@@ -22,6 +22,7 @@ public:
     );
     void Dispatch(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const CSTask& taskDesc);
     void Copyback(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const CSTask& taskDesc);
+    void TaskCallback(const CSTask& taskDesc);
     void ClearTaskRes(const std::string& taskName);
 
     std::pair<void*, size_t> GetCS(const std::string& macro) const

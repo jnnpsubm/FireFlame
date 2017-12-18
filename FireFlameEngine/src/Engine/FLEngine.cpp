@@ -17,6 +17,9 @@ Engine::Engine(HINSTANCE hinst) {
     auto console = spdlog::stdout_color_mt("console");
     console->info("Welcome to FireFlame Engine!");
 
+    // Create a file rotating logger with 5mb size max and 3 rotated files
+    //auto rotating_logger = spdlog::rotating_logger_mt("log", "logs/FireFlameLog.txt", 1048576 * 5, 3);
+
 	assert(theEngine == nullptr);
 	theEngine = this;
 	mRenderer = std::make_shared<D3DRenderer>();

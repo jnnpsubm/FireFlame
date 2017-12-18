@@ -22,5 +22,8 @@ private:
 
     void AddPSOs();
 
-    void TaskDone(const std::string& taskName, void* data);
+    void TaskDone(const std::string& taskName, void* data, unsigned size);
+
+    std::map<std::string, std::future<int>> mSaveThreads;
+    int Save2File(const std::string& taskName, const float* data, unsigned size);
 };

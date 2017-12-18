@@ -38,6 +38,11 @@ void D3DComputeShaderWrapper::SetCSRootParamData
         }else if (rootParam.paramType == ROOT_PARAMETER_TYPE::UAV)
         {
             taskRes.bufferOutLen = dataLen;
+            if (data && dataLen)
+            {
+                taskRes.bufferIn.resize(dataLen);
+                memcpy(taskRes.bufferIn.data(), data, dataLen);
+            }
         }
     }break;
     case Resource_Dimension::TEXTURE1D:
@@ -130,6 +135,47 @@ void D3DComputeShaderWrapper::Copyback(ID3D12Device* device, ID3D12GraphicsComma
     }
 }
 
+void D3DComputeShaderWrapper::TaskCallback(const CSTask& taskDesc)
+{
+    for (auto& itParam : mRootParams)
+    {
+        auto& rootParam = itParam.second;
+        auto& taskRes = rootParam.taskResources[taskDesc.name];
+        switch (rootParam.resDimension)
+        {
+        case Resource_Dimension::BUFFER:
+        {
+            if (rootParam.paramMode == Root_Parameter_Mode::InOut
+                || rootParam.paramMode == Root_Parameter_Mode::Out)
+            {
+                void* data = nullptr;
+                D3D12_RANGE range{ 0, taskRes.bufferOutLen };
+                taskRes.readBackRes->Map(0, &range, &data);
+                taskDesc.callback(taskDesc.name, data, (unsigned)taskRes.bufferOutLen);
+            }
+        }break;
+        case Resource_Dimension::TEXTURE1D:
+        {
+
+        }break;
+        case Resource_Dimension::TEXTURE2D:
+        {
+
+        }break;
+        case Resource_Dimension::TEXTURE3D:
+        {
+
+        }break;
+        case Resource_Dimension::UNKNOWN:
+        {
+
+        }break;
+        default:
+            throw std::runtime_error("unknown resource dimension");
+        }
+    }
+}
+
 void D3DComputeShaderWrapper::ClearTaskRes(const std::string& taskName)
 {
     for (auto& itParam : mRootParams)
@@ -168,10 +214,20 @@ void D3DComputeShaderWrapper::UploadRootParamData(ID3D12Device* device, ID3D12Gr
             }
             else if (rootParam.paramType == ROOT_PARAMETER_TYPE::UAV)
             {
-                taskRes.resource = D3DUtils::CreateDefaultBufferUAV
-                (
-                    device, cmdList, taskRes.bufferOutLen
-                );
+                if (!taskRes.bufferIn.empty())
+                {
+                    taskRes.resource = D3DUtils::CreateDefaultBufferUAV
+                    (
+                        device, cmdList, taskRes.bufferIn.data(), taskRes.bufferIn.size(), taskRes.uploadResource
+                    );
+                }
+                else
+                {
+                    taskRes.resource = D3DUtils::CreateDefaultBufferUAV
+                    (
+                        device, cmdList, taskRes.bufferOutLen
+                    );
+                }
                 cmdList->SetComputeRootUnorderedAccessView
                 (
                     rootParam.paramIndex, taskRes.resource->GetGPUVirtualAddress()

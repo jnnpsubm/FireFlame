@@ -186,7 +186,9 @@ void D3DPSOManager2::AddComputePSO(const std::string& name, const ComputePSODesc
         reinterpret_cast<BYTE*>(cs.first),
         cs.second
     };
+
     PSODesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    //PSODesc.Flags = D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG;
 
     auto device = Engine::GetEngine()->GetRenderer()->GetDevice();
     PSO_ComPtr PSOadd = nullptr;

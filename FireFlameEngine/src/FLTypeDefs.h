@@ -337,7 +337,6 @@ struct ComputePSODesc
     std::string shaderMacroCS;
 };
 
-template<typename CALL_BACK>
 struct CSTaskDesc
 {
     CSTaskDesc
@@ -348,7 +347,7 @@ struct CSTaskDesc
         unsigned X,
         unsigned Y,
         unsigned Z,
-        CALL_BACK callback
+        std::function<void(const std::string&, void*, unsigned)> callback
     ) : name(name), shaderName(shaderName), PSOName(PSOName),
         GroupSize {X, Y, Z}, callback(callback)
     {}
@@ -363,7 +362,7 @@ struct CSTaskDesc
         unsigned Z;
     } GroupSize;
 
-    CALL_BACK callback;
+    std::function<void(const std::string&,void*,unsigned)> callback;
 };
 
 struct stRawMesh {

@@ -275,6 +275,8 @@ int Scene::Compute(std::shared_ptr<D3DRenderer> renderer)
             {
                 spdlog::get("console")->info("task:{0} copyback finished at {1:f}", itTask.first, engine->TotalTime());
                 // call back
+                auto shader = mComputeShaders[task->shaderName].get();
+                shader->TaskCallback(*task);
                 task->status = CSTask::Done;
             }
         }
@@ -396,29 +398,34 @@ void Scene::SetCSRootParamData
     std::lock_guard<std::mutex> lock(mComputeMutex);
     itShader->second->SetCSRootParamData(taskName, paramName, resDesc, dataLen, data);
 }
-
-void Scene::AddCSTaskImpl(const std::string& name, std::unique_ptr<CSTask> task)
+void Scene::AddCSTask(const CSTaskDesc& desc)
 {
-    auto it = mComputeShaders.find(task->shaderName);
+    auto it = mComputeShaders.find(desc.shaderName);
     if (it == mComputeShaders.end())
     {
-        spdlog::get("console")->critical("can not find compute shader {0} in AddCSTask", task->shaderName);
+        spdlog::get("console")->critical("can not find compute shader {0} in AddCSTask", desc.shaderName);
         throw std::runtime_error("can not find compute shader in AddCSTask");
     }
+    auto task = std::make_unique<CSTask>
+    (
+        desc.name, desc.shaderName, desc.PSOName,
+        desc.GroupSize.X, desc.GroupSize.Y, desc.GroupSize.Z,
+        desc.callback
+    );
 
     std::lock_guard<std::mutex> lock(mComputeMutex);
-    auto itTask = mCSTasks.find(name);
+    auto itTask = mCSTasks.find(desc.name);
     if (itTask != mCSTasks.end())
     {
-        spdlog::get("console")->critical("compute task {0} already in process", name);
+        spdlog::get("console")->critical("compute task {0} already in process", desc.name);
     }
-    mCSTasks.emplace(name, std::move(task));
+    mCSTasks.emplace(desc.name, std::move(task));
     ThrowIfFailed
     (
         Engine::GetEngine()->GetRenderer()->GetDevice()->CreateCommandAllocator
         (
             D3D12_COMMAND_LIST_TYPE_DIRECT,
-            IID_PPV_ARGS(mCSTaskCmdAllocs[name].ReleaseAndGetAddressOf())
+            IID_PPV_ARGS(mCSTaskCmdAllocs[desc.name].ReleaseAndGetAddressOf())
         )
     );
     if (!mCompute || mCompute->wait_for(std::chrono::seconds(0)) == std::future_status::ready)

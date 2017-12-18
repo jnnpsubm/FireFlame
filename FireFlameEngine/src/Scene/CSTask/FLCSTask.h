@@ -3,9 +3,8 @@
 #include <functional>
 
 namespace FireFlame {
-class CSTask
+struct CSTask
 {
-public:
     CSTask
     (
         const std::string& name,
@@ -13,16 +12,20 @@ public:
         const std::string& PSOName,
         unsigned X,
         unsigned Y,
-        unsigned Z
+        unsigned Z,
+        std::function<void(const std::string&, void*, unsigned)> callback
     ):  name(name),
         shaderName(shaderName),
         PSOName(PSOName),
         GroupSize{ X,Y,Z },
-        status(Initial), fence(0)
+        status(Initial), fence(0),
+        callback(callback)
     {}
     virtual ~CSTask() = default;
 
-    virtual bool needCopyback() const = 0;
+    bool needCopyback() const {
+        return callback != nullptr;
+    }
 
     std::string name;
     std::string shaderName;
@@ -41,26 +44,7 @@ public:
         Done
     } status;
     std::uint64_t fence;
-};
 
-
-template <typename CALL_BACK>
-class CSTaskCB : public CSTask
-{
-public:
-    CSTaskCB
-    (
-        const std::string& name,
-        const std::string& shaderName,
-        const std::string& PSOName,
-        unsigned X,
-        unsigned Y,
-        unsigned Z,
-        CALL_BACK callback
-    ) : CSTask(name, shaderName, PSOName, X, Y, Z), callback(callback)
-    {}
-
-    bool needCopyback() const override { return callback != nullptr; }
-    CALL_BACK callback;
+    std::function<void(const std::string&, void*, unsigned)> callback;
 };
 } // end FireFlame

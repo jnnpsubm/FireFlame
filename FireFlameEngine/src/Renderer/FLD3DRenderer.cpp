@@ -64,13 +64,11 @@ void D3DRenderer::Render(const StopWatch& gt) {
     mCurrFrontBuffer = mCurrBackBuffer;
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
-    // Advance the fence value to mark commands up to this fence point.
-    mCurrFrameResource->Fence = ++mCurrentFence;
-
-    // Add an instruction to the command queue to set a new fence point. 
-    // Because we are on the GPU timeline, the new fence point won't be 
-    // set until the GPU finishes processing all the commands prior to this Signal().
-    mCommandQueue->Signal(mFence.Get(), mCurrFrameResource->Fence);
+    {
+        std::lock_guard<std::mutex> lock(mFenceMutex);
+        mCurrFrameResource->Fence = ++mCurrentFence;
+        mCommandQueue->Signal(mFence.Get(), mCurrFrameResource->Fence);
+    }
 }
 void D3DRenderer::SelectMSAARenderer() {
     mMSAARenderer = mSampleCount > 1 ?
@@ -199,14 +197,13 @@ void D3DRenderer::ExecuteCommand(ID3D12GraphicsCommandList* cmdList)
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 }
 void D3DRenderer::WaitForGPU() {
-	// Advance the fence value to mark commands up to this fence point.
-	UINT64 fence = mCurrentFence++;
-
-	// Add an instruction to the command queue to set a new fence point.  Because we 
-	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
-	// processing all the commands prior to this Signal().
-	ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), fence));
-
+    UINT64 fence = 0;
+    {
+        std::lock_guard<std::mutex> lock(mFenceMutex);
+        fence = mCurrentFence++;
+        ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), fence));
+    }
+	
 	// Wait until the GPU has completed commands up to this fence point.
 	if (mFence->GetCompletedValue() < fence){
 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
@@ -229,16 +226,16 @@ void D3DRenderer::WaitForGPUFrame() {
     if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
     {
 #ifdef _DEBUG
-        std::wstring info(L"Wait For GPU finishing current Frame......");
+        /*std::wstring info(L"Wait For GPU finishing current Frame......");
         info += std::to_wstring(mCurrFrameResource->Fence);
         info += L"\n";
-        OutputDebugString(info.c_str());
+        OutputDebugString(info.c_str());*/
 #endif
-        spdlog::get("console")->info
+        /*spdlog::get("console")->info
         (
-            "WaitForGPUFrame:Wait For GPU finishing Frame {0:d}......", 
+            "WaitForGPUFrame:Wait For GPU finishing Frame {0:d}......",
             mCurrFrameResource->Fence
-        );
+        );*/
 
         HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
         ThrowIfFailed(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
@@ -270,6 +267,7 @@ void D3DRenderer::WaitForGPUCurrentFrame()
 
 UINT64 D3DRenderer::SetFence()
 {
+    std::lock_guard<std::mutex> lock(mFenceMutex);
     UINT64 fence = ++mCurrentFence;
     mCommandQueue->Signal(mFence.Get(), fence);
 #ifdef _DEBUG
@@ -375,6 +373,7 @@ int D3DRenderer::Initialize(API_Feature api) {
         featureLevel,
 		IID_PPV_ARGS(&md3dDevice));
 
+    //hardwareResult = E_FAIL;
 	// Fallback to WARP device.
 	if (FAILED(hardwareResult)){
 		OutputDebugString(L"======Fallback to WARP device.======\n");

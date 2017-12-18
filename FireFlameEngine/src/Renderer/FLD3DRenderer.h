@@ -5,6 +5,10 @@
 #include <d3d12.h>
 #include <functional>
 #include <atomic>
+#include <future>
+#include <thread>
+#include <mutex>
+#include <chrono>
 #include "FLRenderer.h"
 #include "..\FLTypeDefs.h"
 #include "..\FrameResource\FLD3DFrameResource.h"
@@ -144,8 +148,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Device>   md3dDevice;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence>    mFence;
-	//UINT64 mCurrentFence = 0;
-    std::atomic<UINT64> mCurrentFence = 0;
+    std::mutex          mFenceMutex;
+	UINT64              mCurrentFence = 0;
+    //std::atomic<UINT64> mCurrentFence = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue>        mCommandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator>    mDirectCmdListAlloc;
