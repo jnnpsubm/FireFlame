@@ -10,7 +10,7 @@
 #include "..\PSOManager\FLD3DPSOManager2.h"
 #include "Pass\FLPass.h"
 #include "..\Material\FLMaterial.h"
-#include "..\Material\FLTexture.h"
+#include "..\Texture\FLD3DTexture.h"
 #include "..\Utility\chrono\FLchrono.h"
 #include "..\3rd_utils\spdlog\spdlog.h"
 #ifdef USE_MS_DDS_LOADER
@@ -20,6 +20,7 @@
 #endif
 #include "..\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h"
 #include "CSTask\FLD3DCSTask.h"
+#include "..\Texture\DynamicTexture\FLD3DTextureWaves.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -101,6 +102,10 @@ void Scene::PreRender() {
 }
 void Scene::Draw(ID3D12GraphicsCommandList* cmdList) 
 {
+    for (auto& tex : mTextures)
+    {
+        if(tex.second->needUpdate) tex.second->Update(cmdList);
+    }
     for (auto& pass : mPasses)
     {
         DrawPass(cmdList, pass.second.get());
@@ -651,7 +656,7 @@ void Scene::AddRenderItem
 
 void Scene::AddTexture(const std::string& name, const std::wstring& filename)
 {
-    auto tex = std::make_shared<Texture>(name, filename);
+    auto tex = std::make_shared<D3DTexture>(name, filename);
     auto renderer = Engine::GetEngine()->GetRenderer();
     renderer->ResetCommandList();
     ThrowIfFailed
@@ -678,21 +683,7 @@ void Scene::AddTextureGroup(const std::string& name, std::vector<std::wstring> f
 
 void Scene::AddTexture(const std::string& name, std::uint8_t* data, size_t len)
 {
-    auto tex = std::make_shared<Texture>(name);
-    std::unique_ptr<std::uint8_t[]> ddsdata;
-    std::vector<D3D12_SUBRESOURCE_DATA> subresources;
-#ifdef USE_MS_DDS_LOADER
-    ThrowIfFailed
-    (
-        DirectX::LoadDDSTextureFromFile
-        (
-            Engine::GetEngine()->GetRenderer()->GetDevice(),
-            filename.c_str(),
-            tex->resource.GetAddressOf(),
-            ddsdata, subresources
-        )
-    );
-#else
+    auto tex = std::make_shared<D3DTexture>(name);
     auto renderer = Engine::GetEngine()->GetRenderer();
     renderer->ResetCommandList();
     ThrowIfFailed
@@ -708,7 +699,6 @@ void Scene::AddTexture(const std::string& name, std::uint8_t* data, size_t len)
     renderer->ExecuteCommand();
     renderer->WaitForGPU();
     tex->uploadHeap = nullptr;
-#endif
     mTextures[tex->name] = std::move(tex);
 }
 
@@ -721,7 +711,7 @@ void Scene::AddTexture2D
     unsigned long height
 )
 {
-    auto tex = std::make_shared<Texture>(name);
+    auto tex = std::make_shared<D3DTexture>(name);
     auto renderer = Engine::GetEngine()->GetRenderer();
     renderer->ResetCommandList();
     tex->resource = D3DUtils::CreateDefaultTexture2D
@@ -735,6 +725,39 @@ void Scene::AddTexture2D
     renderer->WaitForGPU();
     tex->uploadHeap = nullptr;
     mTextures[tex->name] = std::move(tex);
+}
+
+void Scene::AddTextureWaves
+(
+    const std::string& name, 
+    unsigned width, unsigned height, 
+    unsigned disturbCount, 
+    float dx, float dt, float speed, float damping
+)
+{
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    renderer->ResetCommandList();
+
+    auto tex = std::make_shared<D3DTextureWaves>
+    (
+        name, renderer->GetDevice(),renderer->GetCommandList(), width, height, 
+        dx,dt,speed,damping,disturbCount
+    );
+    renderer->ExecuteCommand();
+    renderer->WaitForGPU();
+    tex->ClearUploadBuffer();
+    mTextures[tex->name] = std::move(tex);
+}
+
+void Scene::AnimateTexture(const std::string& name)
+{
+    auto itTex = mTextures.find(name);
+    if (itTex == mTextures.end())
+    {
+        spdlog::get("console")->warn("can not find texture {0}", name);
+        return;
+    }
+    itTex->second->needUpdate = true;
 }
 
 void Scene::AddMaterial(const stMaterialDesc& matDesc)
@@ -838,7 +861,7 @@ void Scene::UpdateMaterialCBData(const std::string& name, size_t size, const voi
         mat->data = new char[size];
         mat->dataLen = size;
     }
-    assert(mat->dataLen == size);
+    assert(mat->dataLen >= size);
     memcpy(mat->data, data, size);
 }
 
@@ -1001,7 +1024,7 @@ void Scene::PrintAllMaterials()
 
 void Scene::PrintAllTextures() 
 {
-    std::cout << "Texture Count:" << mTextures.size() << std::endl;
+    std::cout << "D3DTexture Count:" << mTextures.size() << std::endl;
     for (auto itTex : mTextures)
     {
         std::cout << "   " << itTex.first << std::endl;

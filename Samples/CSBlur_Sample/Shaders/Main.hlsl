@@ -18,8 +18,8 @@
 // Include structures and functions for lighting.
 #include "..\..\Common\LightingUtil.hlsli"
 
-Texture2D    gDiffuseMap : register(t0);
-
+Texture2D    gDiffuseMap    : register(t0);
+Texture2D    gWavesHeightMap : register(t1);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -33,6 +33,9 @@ cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
     float4x4 gTexTransform;
+    float2 gDisplacementMapTexelSize;
+    float gGridSpatialStep;
+    float cbPerObjectPad2;
 };
 
 cbuffer cbMaterial : register(b1)
@@ -41,7 +44,7 @@ cbuffer cbMaterial : register(b1)
     float3   gFresnelR0;
     float    gRoughness;
     float4x4 gMatTransform;
-    int      gUseTexture;
+    int      gUseTexture = 1;
 };
 
 // Constant data that varies per material.
@@ -93,6 +96,19 @@ struct VertexOut
 VertexOut VS(VertexIn vin)
 {
     VertexOut vout = (VertexOut)0.0f;
+
+#ifdef DISPLACEMENT_MAP
+    // Sample the displacement map using non-transformed [0,1]^2 tex-coords.
+    vin.PosL.y += gWavesHeightMap.SampleLevel(gsamLinearWrap, vin.TexC, 1.0f).r;
+    // Estimate normal using finite difference.
+    float du = gDisplacementMapTexelSize.x;
+    float dv = gDisplacementMapTexelSize.y;
+    float l = gWavesHeightMap.SampleLevel(gsamPointClamp, vin.TexC - float2(du, 0.0f), 0.0f).r;
+    float r = gWavesHeightMap.SampleLevel(gsamPointClamp, vin.TexC + float2(du, 0.0f), 0.0f).r;
+    float t = gWavesHeightMap.SampleLevel(gsamPointClamp, vin.TexC - float2(0.0f, dv), 0.0f).r;
+    float b = gWavesHeightMap.SampleLevel(gsamPointClamp, vin.TexC + float2(0.0f, dv), 0.0f).r;
+    vin.NormalL = normalize(float3(-r + l, 2.0f*gGridSpatialStep, b - t));
+#endif
 
     // Transform to world space.
     float4 posW = mul(float4(vin.PosL, 1.0f), gWorld);

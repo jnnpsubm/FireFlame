@@ -103,7 +103,7 @@ void Waves::Update(float dt)
 			{
 				// After this update we will be discarding the old previous
 				// buffer, so overwrite that buffer with the new update.
-				// Note how we can do this inplace (read/write to same element) 
+				// Note how we can do this in place (read/write to same element) 
 				// because we won't need prev_ij again and the assignment happens last.
 
 				// Note j indexes x and i indexes z: h(x_j, z_i, t_k)

@@ -81,7 +81,6 @@
     <ClInclude Include="src\GPUMemory\D3DUploadBuffer.h" />
     <ClInclude Include="src\Light\FLLight.h" />
     <ClInclude Include="src\Material\FLMaterial.h" />
-    <ClInclude Include="src\Material\FLTexture.h" />
     <ClInclude Include="src\MathHelper\FLVertex.h" />
     <ClInclude Include="src\MathHelper\FLMathHelper.h" />
     <ClInclude Include="src\MathHelper\FLVector.h" />
@@ -113,6 +112,8 @@
     <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapperBase.h" />
     <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h" />
     <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h" />
+    <ClInclude Include="src\Texture\DynamicTexture\FLD3DTextureWaves.h" />
+    <ClInclude Include="src\Texture\FLD3DTexture.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
     <ClInclude Include="src\Utility\chrono\FLchrono.h" />
     <ClInclude Include="src\Utility\io\io.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapper.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapperBase.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLShaderWrapper.cpp" />
+    <ClCompile Include="src\Texture\DynamicTexture\FLD3DTextureWaves.cpp" />
     <ClCompile Include="src\Timer\FLStopWatch.cpp" />
     <ClCompile Include="src\Utility\loader\FLHKXLoader.cpp" />
     <ClCompile Include="src\Utility\loader\FLVERLoader.cpp" />
@@ -183,6 +185,19 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Shaders\Waves.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

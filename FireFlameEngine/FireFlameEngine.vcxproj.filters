@@ -112,6 +112,9 @@
     <ClCompile Include="src\Filters\FLD3DBilateralBlurFilter.cpp">
       <Filter>src\Filters</Filter>
     </ClCompile>
+    <ClCompile Include="src\Texture\DynamicTexture\FLD3DTextureWaves.cpp">
+      <Filter>src\Texture\DynamicTexture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -242,9 +245,6 @@
     </ClInclude>
     <ClInclude Include="src\3rd_utils\DDSTextureLoader12.h">
       <Filter>src\3rd_utils\DDS</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Material\FLTexture.h">
-      <Filter>src\Material</Filter>
     </ClInclude>
     <ClInclude Include="src\PCH.h">
       <Filter>src</Filter>
@@ -417,6 +417,12 @@
     <ClInclude Include="src\Filters\FLD3DBilateralBlurFilter.h">
       <Filter>src\Filters</Filter>
     </ClInclude>
+    <ClInclude Include="src\Texture\FLD3DTexture.h">
+      <Filter>src\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture\DynamicTexture\FLD3DTextureWaves.h">
+      <Filter>src\Texture\DynamicTexture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -539,6 +545,12 @@
     <Filter Include="src\Scene\CSTask">
       <UniqueIdentifier>{5e0ead60-7ee5-4dbc-841b-82c0f4215919}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Texture">
+      <UniqueIdentifier>{d19cca86-c6e2-45db-aede-6beb7a109943}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Texture\DynamicTexture">
+      <UniqueIdentifier>{6a4c06f5-750e-4a89-8ea0-640edcf48a17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\3rd_utils\spdlog\fmt\bundled\printf.cc">
@@ -556,9 +568,10 @@
     <None Include="src\Shaders\GaussBlur.hlsl">
       <Filter>src\Shaders</Filter>
     </None>
+    <None Include="src\Shaders\BilateralBlur.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\Shaders\BilateralBlur.hlsl">
+    <FxCompile Include="src\Shaders\Waves.hlsl">
       <Filter>src\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

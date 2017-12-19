@@ -11,6 +11,7 @@ struct DepthComplexityObjConsts
 
 struct MaterialConstants2 : MaterialConstants
 {
+    MaterialConstants2(const MaterialConstants& m) :MaterialConstants(m) {}
     int UseTexture = 0;
 };
 
@@ -43,6 +44,7 @@ private:
 
     void AddMeshs();
     void AddMeshWaves();
+    void AddMeshGrid();
     void AddMeshBox();
     void AddMeshLand();
     void AddMeshTrees();
@@ -50,7 +52,10 @@ private:
     void AddMeshFullScreenRect();
 
     void AddRenderItems();
-    void AddRenderItemsMain();
+    void AddRenderItemsLand();
+    void AddRenderItemsBox();
+    void AddRenderItemsGrid();
+    void AddRenderItemsWaves();
     void AddRenderItemsTree();
     void AddRenderItemsImage();
     void AddRenderItemsDepthComplexity();
@@ -62,6 +67,10 @@ private:
 
     std::unordered_map<std::string, std::string> mTreeShaderMacrosPS;
 
+    bool                           mWaterOnly = true;
+    bool                           mGpuWaves = true;
+
+    bool                           mShowImage = false;
     bool                           mShowDepthComplexity = false;
 
     bool                                                    mWaveStart = true;

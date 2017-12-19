@@ -40,21 +40,23 @@ void CSBlurApp::UpdateWaves()
 {
     using namespace FireFlame;
 
+    if (mGpuWaves) return;
+
     // update waves
     // Every quarter second, generate a random wave.
     static float t_base = 0.0f;
     if ((mEngine.TotalTime() - t_base) >= 0.25f)
     {
         t_base += 0.25f;
-
-        int i = MathHelper::Rand(4, mWaves->RowCount() - 5);
-        int j = MathHelper::Rand(4, mWaves->ColumnCount() - 5);
-
-        float r = MathHelper::RandF(0.2f, 0.5f);
-
-        mWaves->Disturb(i, j, r);
+        for (size_t d = 0; d < 1; d++)
+        {
+            int i = MathHelper::Rand(4, mWaves->RowCount() - 5);
+            int j = MathHelper::Rand(4, mWaves->ColumnCount() - 5);
+            float r = MathHelper::RandF(0.2f, 0.4f);
+            mWaves->Disturb(i, j, r);
+        }
     }
-
+    
     // Update the wave simulation.
     mWaves->Update(mEngine.DeltaTime());
 
@@ -92,7 +94,7 @@ void CSBlurApp::UpdateWaves()
 
     waterMat.MatTransform[0][3] = tu;
     waterMat.MatTransform[1][3] = tv;
-    mEngine.GetScene()->UpdateMaterialCBData(waterMat.Name, sizeof(MaterialConstants2), &waterMat);
+    mEngine.GetScene()->UpdateMaterialCBData(waterMat.Name, sizeof(MaterialConstants), &waterMat);
 }
 
 void CSBlurApp::AddShaders()
@@ -109,9 +111,10 @@ void CSBlurApp::AddShaderMain()
 
     auto& shaderDesc = mShaderDescs["main"];
     shaderDesc.name = "main";
-    shaderDesc.objCBSize = sizeof(ObjectConsts);
+    shaderDesc.objCBSize = sizeof(ObjectConsts2);
     shaderDesc.passCBSize = sizeof(PassConstants);
     shaderDesc.materialCBSize = sizeof(MaterialConstants2);
+    shaderDesc.texSRVDescriptorTableSize = 2;
     shaderDesc.ParamDefault();
 
     /*shaderDesc.addDefaultSamplers = true;
@@ -139,11 +142,21 @@ void CSBlurApp::AddShaderMain()
     shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
     auto vs = shaderDesc.AddShaderStage(L"Shaders\\Main.hlsl", Shader_Type::VS, "VS", "vs_5_0");
 
+    // vs with macros
+    std::vector<std::pair<std::string, std::string>> macros = { { "DISPLACEMENT_MAP", "1" } };
+    auto vsDisplacement = shaderDesc.AddShaderStage
+    (
+        L"Shaders\\Main.hlsl",
+        Shader_Type::VS, "VS", "vs_5_0",
+        macros
+    );
+    mShaderMacrosVS["waves"] = vsDisplacement.Macros2String();
+
     // ps with macros
     auto& ps = shaderDesc.AddShaderStage(L"Shaders\\Main.hlsl", Shader_Type::PS, "PS", "ps_5_0");
     mShaderMacrosPS[""] = ps.Macros2String();
 
-    std::vector<std::pair<std::string, std::string>> macros = { { "FOG", "1" } };
+    macros = { { "FOG", "1" } };
     auto& psFogged = shaderDesc.AddShaderStage
     (
         L"Shaders\\Main.hlsl",
@@ -291,10 +304,16 @@ void CSBlurApp::AddPSOs()
     mEngine.GetScene()->AddPSO("ps_fogged", desc);
     desc.opaque = false;
     mEngine.GetScene()->AddPSO("transparent_ps_fogged", desc);
+    desc.shaderMacroVS = mShaderMacrosVS["waves"];
+    mEngine.GetScene()->AddPSO("displacement_transparent_ps_fogged", desc);
 }
 
 void CSBlurApp::AddTextures()
 {
+    if (mGpuWaves)
+    {
+        mEngine.GetScene()->AddTextureWaves("dynamic_water", 512, 512, 2, 1.0f / 1.5f, 0.03f, 6.0f, 0.4f);
+    }
     mEngine.GetScene()->AddTexture
     (
         "wirefenceTex",
@@ -360,11 +379,13 @@ void CSBlurApp::AddMaterials()
     grass.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     grass.FresnelR0 = FireFlame::Vector3f(0.01f, 0.01f, 0.01f);
     grass.Roughness = 0.125f;
+    MaterialConstants2 grass2(static_cast<MaterialConstants>(grass));
+    grass2.UseTexture = 1;
     mEngine.GetScene()->AddMaterial
     (
         grass.Name,
         mShaderDescs["main"].name, "grassTex",
-        sizeof(MaterialConstants2), &grass
+        sizeof(MaterialConstants2), &grass2
     );
 
     auto& wirefence = mMaterials["wirefence"];
@@ -372,35 +393,62 @@ void CSBlurApp::AddMaterials()
     wirefence.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     wirefence.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
     wirefence.Roughness = 0.25f;
+    MaterialConstants2 wirefence2(static_cast<MaterialConstants>(wirefence));
+    wirefence2.UseTexture = 1;
     mEngine.GetScene()->AddMaterial
     (
         wirefence.Name,
         mShaderDescs["main"].name, "wirefenceTex",
-        sizeof(MaterialConstants2), &wirefence
+        sizeof(MaterialConstants2), &wirefence2
     );
 
     auto& water = mMaterials["water"];
     water.Name = "water";
     water.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.5f);
-    water.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
-    water.Roughness = 0.0f;
+    water.FresnelR0 = FireFlame::Vector3f(0.3f, 0.3f, 0.3f);
+    water.Roughness = 0.3f;
+    MaterialConstants2 water2(static_cast<MaterialConstants>(water));
+    water2.UseTexture = 1;
     mEngine.GetScene()->AddMaterial
     (
         water.Name,
         mShaderDescs["main"].name, "waterTex",
-        sizeof(MaterialConstants2), &water
+        sizeof(MaterialConstants2), &water2
     );
+
+    if (mGpuWaves)
+    {
+        auto& still_water = mMaterials["still_water"];
+        still_water.Name = "still_water";
+        still_water.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.5f);
+        still_water.FresnelR0 = FireFlame::Vector3f(0.3f, 0.3f, 0.3f);
+        still_water.Roughness = 0.3f;
+        MaterialConstants2 still_water2(static_cast<MaterialConstants>(still_water));
+        still_water2.UseTexture = 0;
+        mEngine.GetScene()->AddMaterial
+        ({
+            still_water.Name,
+            mShaderDescs["main"].name,
+            {
+                {"waterTex", FireFlame::SRV_DIMENSION::TEXTURE2D },
+                {"dynamic_water", FireFlame::SRV_DIMENSION::TEXTURE2D }
+            },
+            sizeof(MaterialConstants2), &still_water2
+        });
+    }
 
     auto& image = mMaterials["image"];
     image.Name = "image";
     image.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.5f);
     image.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
     image.Roughness = 0.0f;
+    MaterialConstants2 image2(static_cast<MaterialConstants>(image));
+    image2.UseTexture = 1;
     mEngine.GetScene()->AddMaterial
     (
         image.Name,
         mShaderDescs["image"].name, "face",
-        sizeof(MaterialConstants2), &image
+        sizeof(MaterialConstants2), &image2
     );
 
     auto& treeSprites = mMaterials["treeSprites"];
@@ -408,6 +456,8 @@ void CSBlurApp::AddMaterials()
     treeSprites.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     treeSprites.FresnelR0 = FireFlame::Vector3f(0.01f, 0.01f, 0.01f);
     treeSprites.Roughness = 0.125f;
+    MaterialConstants2 treeSprites2(static_cast<MaterialConstants>(treeSprites));
+    treeSprites2.UseTexture = 1;
     mEngine.GetScene()->AddMaterial
     (
     {
@@ -420,7 +470,7 @@ void CSBlurApp::AddMaterials()
             //{ "ds3", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY }
             //{ "beauty", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY }
         },
-        sizeof(MaterialConstants), &treeSprites
+        sizeof(MaterialConstants2), &treeSprites2
     }  
     );
 }
@@ -428,11 +478,43 @@ void CSBlurApp::AddMaterials()
 void CSBlurApp::AddMeshs()
 {
     AddMeshBox();
-    AddMeshWaves();
+    if (mGpuWaves) AddMeshGrid();
+    else AddMeshWaves();
     AddMeshLand();
     AddMeshTrees();
     AddMeshImage();
     AddMeshFullScreenRect();
+}
+
+void CSBlurApp::AddMeshGrid()
+{
+    using namespace FireFlame;
+
+    GeometryGenerator geoGen;
+    GeometryGenerator::MeshData grid = geoGen.CreateGrid(256.f, 256.f, 512, 512);
+
+    std::vector<FLVertexNormalTex> vertices(grid.Vertices.size());
+    for (size_t i = 0; i < grid.Vertices.size(); ++i)
+    {
+        vertices[i].Pos = grid.Vertices[i].Position;
+        vertices[i].Normal = grid.Vertices[i].Normal;
+        vertices[i].Tex = grid.Vertices[i].TexC;
+    }
+    std::vector<std::uint32_t> indices = grid.Indices32;
+
+    auto& meshDesc = mMeshDescs["grid"];
+    meshDesc.name = "grid";
+    meshDesc.indexCount = (unsigned int)indices.size();
+    meshDesc.indexFormat = Index_Format::UINT32;
+    meshDesc.indices = indices.data();
+
+    meshDesc.vertexData.push_back(vertices.data());
+    meshDesc.vertexDataCount.push_back((unsigned)vertices.size());
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertexNormalTex));
+
+    // sub meshes
+    meshDesc.subMeshs.emplace_back("All", (UINT)indices.size());
+    mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
 void CSBlurApp::AddMeshWaves()
@@ -440,8 +522,8 @@ void CSBlurApp::AddMeshWaves()
     using namespace FireFlame;
 
     mWaves = std::make_unique<Waves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
-    std::vector<std::uint16_t> indices(3 * mWaves->TriangleCount()); // 3 indices per face
-    assert(mWaves->VertexCount() < 0x0000ffff);
+    std::vector<std::uint32_t> indices(3 * mWaves->TriangleCount()); // 3 indices per face
+    //assert(mWaves->VertexCount() < 0x0000ffff);
 
     // Iterate over each quad.
     int m = mWaves->RowCount();
@@ -466,7 +548,7 @@ void CSBlurApp::AddMeshWaves()
     auto& meshDesc = mMeshDescs["waves"];
     meshDesc.name = "waves";
     meshDesc.indexCount = (unsigned int)indices.size();
-    meshDesc.indexFormat = Index_Format::UINT16;
+    meshDesc.indexFormat = Index_Format::UINT32;
     meshDesc.indices = indices.data();
 
     meshDesc.vertexInFrameRes = true;
@@ -676,13 +758,49 @@ FireFlame::Vector3f CSBlurApp::GetHillsNormal(float x, float z) const
 
 void CSBlurApp::AddRenderItems()
 {
-    AddRenderItemsMain();
-    AddRenderItemsTree();
-    AddRenderItemsImage();
+    if (!mWaterOnly)
+    {
+        AddRenderItemsLand();
+        AddRenderItemsBox();
+    }
+    if (mGpuWaves) AddRenderItemsGrid();
+    else AddRenderItemsWaves();
+    if (!mWaterOnly) AddRenderItemsTree();
+    if (mShowImage) AddRenderItemsImage();
     AddRenderItemsDepthComplexity();
 }
 
-void CSBlurApp::AddRenderItemsMain()
+void CSBlurApp::AddRenderItemsLand()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem3("land", mMeshDescs["land"].subMeshs[0]);
+    XMFLOAT4X4 trans[2];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixTranspose(XMMatrixScaling(5.0f, 5.0f, 1.0f))
+    );
+    RItem3.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem3.data = &trans[0];
+    RItem3.mat = "grass";
+    mRenderItems[RItem3.name] = RItem3;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["land"].name,
+        mShaderDescs["main"].name,
+        "ps_fogged",
+        0,
+        RItem3
+    );
+}
+
+void CSBlurApp::AddRenderItemsBox()
 {
     using namespace DirectX;
 
@@ -711,8 +829,47 @@ void CSBlurApp::AddRenderItemsMain()
         0,
         RItem
     );
+}
+
+void CSBlurApp::AddRenderItemsGrid()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("grid", mMeshDescs["grid"].subMeshs[0]);
+    ObjectConsts2 obj;
+    XMStoreFloat4x4
+    (
+        &obj.World,
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    XMStoreFloat4x4
+    (
+        &obj.TexTransform,
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    obj.texSize[0] = 1.0f / 512;
+    obj.texSize[1] = 1.0f / 512;
+    obj.dx = 1.0f / 1.5f;
+    RItem.dataLen = sizeof(ObjectConsts2);
+    RItem.data = &obj;
+    RItem.mat = "still_water";
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["grid"].name,
+        mShaderDescs["main"].name,
+        "displacement_transparent_ps_fogged",
+        0,
+        RItem
+    );
+}
+
+void CSBlurApp::AddRenderItemsWaves()
+{
+    using namespace DirectX;
 
     FireFlame::stRenderItemDesc RItem2("Waves", mMeshDescs["waves"].subMeshs[0]);
+    XMFLOAT4X4 trans[2];
     XMStoreFloat4x4
     (
         &trans[0],
@@ -727,7 +884,7 @@ void CSBlurApp::AddRenderItemsMain()
     RItem2.data = &trans[0];
     RItem2.mat = "water";
     RItem2.opaque = false;
-    mRenderItems[RItem.name] = RItem;
+    mRenderItems[RItem2.name] = RItem2;
     mEngine.GetScene()->AddRenderItem
     (
         mMeshDescs["waves"].name,
@@ -735,30 +892,6 @@ void CSBlurApp::AddRenderItemsMain()
         "transparent_ps_fogged",
         0,
         RItem2
-    );
-
-    FireFlame::stRenderItemDesc RItem3("grid", mMeshDescs["land"].subMeshs[0]);
-    XMStoreFloat4x4
-    (
-        &trans[0],
-        XMMatrixTranspose(XMMatrixIdentity())
-    );
-    XMStoreFloat4x4
-    (
-        &trans[1],
-        XMMatrixTranspose(XMMatrixScaling(5.0f, 5.0f, 1.0f))
-    );
-    RItem3.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
-    RItem3.data = &trans[0];
-    RItem3.mat = "grass";
-    mRenderItems[RItem.name] = RItem;
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDescs["land"].name,
-        mShaderDescs["main"].name,
-        "ps_fogged",
-        0,
-        RItem3
     );
 }
 
@@ -859,6 +992,10 @@ void CSBlurApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     {
         mShowDepthComplexity = !mShowDepthComplexity;
         mEngine.GetScene()->PrimitiveVisible(mMeshDescs["full_screen_rect"].name, mShowDepthComplexity);
+    }
+    else if ((int)wParam == 'T')
+    {
+        mEngine.GetScene()->AnimateTexture("dynamic_water");
     }
     else if ((int)wParam == 'A')
     {

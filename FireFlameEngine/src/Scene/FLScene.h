@@ -21,7 +21,7 @@ class StopWatch;
 struct D3DRenderItem;
 struct Pass;
 struct Material;
-struct Texture;
+struct D3DTextureBase;
 struct PassConstBuffer;
 struct MultiObjectConstBuffer;
 class Scene {
@@ -50,7 +50,7 @@ public:
         return nullptr;
     }
 
-    Texture* GetTexture(const std::string& name) const
+    D3DTextureBase* GetTexture(const std::string& name) const
     {
         auto it = mTextures.find(name);
         if (it != mTextures.end()) return it->second.get();
@@ -149,6 +149,19 @@ public:
         unsigned long width, 
         unsigned long height
     );
+    // width height must be divideble by 16
+    void AddTextureWaves
+    (
+        const std::string& name,
+        unsigned width,
+        unsigned height,
+        unsigned disturbCount,
+        float dx,
+        float dt,
+        float speed,
+        float damping
+    );
+    void AnimateTexture(const std::string& name);
     void AddMaterial
     (
         const std::string& name,
@@ -264,7 +277,7 @@ private:
 
     // todo : move to primitive
     std::unordered_map<std::string, std::shared_ptr<Material>>         mMaterials;
-    std::unordered_map<std::string, std::shared_ptr<Texture>>          mTextures;
+    std::unordered_map<std::string, std::shared_ptr<D3DTextureBase>>      mTextures;
 
     // todo : get out of the scene
     bool                                                     mQuit = false;

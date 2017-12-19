@@ -5,7 +5,7 @@
 #include "..\Engine\FLEngine.h"
 #include "..\PSOManager\FLD3DPSOManager.h"
 #include "..\Renderer\FLD3DRenderer.h"
-#include "..\Material\FLTexture.h"
+#include "..\Texture\FLD3DTexture.h"
 #include "..\3rd_utils\spdlog\spdlog.h"
 
 namespace FireFlame {
@@ -243,7 +243,7 @@ UINT D3DShaderWrapper::CreateTexSRV(const std::vector<stMaterialDesc::TEX>& vecT
             spdlog::get("console")->warn("cannot find texture [{0}] in (CreateTexSRV)", vecTex[i].name);
             continue;
         }
-        auto res = texture->resource.Get();
+        auto res = texture->Resource();
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
         hDescriptor.Offset(index + mTexSrvOffset + (UINT)i, renderer->GetCbvSrvUavDescriptorSize());
