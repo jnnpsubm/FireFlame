@@ -10,7 +10,8 @@
 #include "..\3rd_utils\spdlog\spdlog.h"
 #include "..\3rd_utils\d3dx12.h"
 #include "..\3rd_utils\ScreenGrab\ScreenGrab12.h"
-#include "..\Filters\FLD3DBlurFilter.h"
+#include "..\Filters\FLD3DGaussBlurFilter.h"
+#include "..\Filters\FLD3DBilateralBlurFilter.h"
 
 namespace FireFlame {
 //D3DRenderer::~D3DRenderer() {
@@ -301,9 +302,21 @@ void D3DRenderer::AddFilter(const std::string& name, const FilterParam& filter)
     auto type = filter.type;
     switch (type)
     {
-    case FireFlame::FilterType::Blur:
+    case FireFlame::FilterType::GaussBlur:
     {
-        auto d3dfilter = std::make_unique<D3DBlurFilter>
+        auto d3dfilter = std::make_unique<D3DGaussBlurFilter>
+        (
+            md3dDevice.Get(),
+            renderWindow->ClientWidth(), renderWindow->ClientHeight(), mBackBufferFormat,
+            filter.blurCount, filter.sigma
+        );
+        d3dfilter->BuildResources(mSampleCount, mMSAAQuality - 1);
+        d3dfilter->BuildDescriptors(mCbvSrvUavDescriptorSize);
+        mFilters.emplace(name, std::move(d3dfilter));
+    }break;
+    case FireFlame::FilterType::BilateralBlur:
+    {
+        auto d3dfilter = std::make_unique<D3DBilateralBlurFilter>
         (
             md3dDevice.Get(),
             renderWindow->ClientWidth(), renderWindow->ClientHeight(), mBackBufferFormat,

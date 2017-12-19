@@ -26,7 +26,8 @@ enum class API_Feature {
 
 enum class FilterType
 {
-    Blur = 0,
+    GaussBlur = 0,
+    BilateralBlur,
     Sobel,
     HDR,
 

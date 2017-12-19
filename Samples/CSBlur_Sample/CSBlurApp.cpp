@@ -99,6 +99,7 @@ void CSBlurApp::AddShaders()
 {
     AddShaderMain();
     AddShaderTree();
+    AddShaderImage();
     AddShaderDepthComplexity();
 }
 
@@ -206,6 +207,26 @@ void CSBlurApp::AddShaderTree()
     mEngine.GetScene()->AddShader(shaderDesc);
 }
 
+void CSBlurApp::AddShaderImage()
+{
+    using namespace FireFlame;
+
+    auto& shaderImage = mShaderDescs["image"];
+    shaderImage.name = "image";
+    shaderImage.objCBSize = sizeof(DepthComplexityObjConsts);
+    shaderImage.texParamIndex = 0;
+    shaderImage.objParamIndex = 1;
+    shaderImage.materialCBSize = sizeof(MaterialConstants2);
+    shaderImage.matParamIndex = 2;
+
+    shaderImage.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderImage.AddVertexInput("TEXTURE", FireFlame::VERTEX_FORMAT_FLOAT2);
+    shaderImage.AddShaderStage(L"Shaders\\Image.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    shaderImage.AddShaderStage(L"Shaders\\Image.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+
+    mEngine.GetScene()->AddShader(shaderImage);
+}
+
 void CSBlurApp::AddShaderDepthComplexity()
 {
     using namespace FireFlame;
@@ -223,6 +244,9 @@ void CSBlurApp::AddShaderDepthComplexity()
 void CSBlurApp::AddPSOs()
 {
     using namespace FireFlame;
+
+    PSODesc descImage(mShaderDescs["image"].name);
+    mEngine.GetScene()->AddPSO("pso_image", descImage);
 
     PSODesc descTree(mShaderDescs["tree"].name,"",mTreeShaderMacrosPS["fogged_and_alpha_clip"]);
     descTree.opaque = true;
@@ -297,6 +321,36 @@ void CSBlurApp::AddTextures()
         "treeArrayTex2",
         L"..\\..\\Resources\\Textures\\treearray2.dds"
     );
+    mEngine.GetScene()->AddTexture
+    (
+        "face",
+        L"..\\..\\Resources\\Textures\\face.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "baby2",
+        L"..\\..\\Resources\\Textures\\baby2.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "baby",
+        L"..\\..\\Resources\\Textures\\baby.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "ds3",
+        L"..\\..\\Resources\\Textures\\ds3.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "beauty",
+        L"..\\..\\Resources\\Textures\\beauty.dds"
+    );
+    mEngine.GetScene()->AddTexture
+    (
+        "beauty2",
+        L"..\\..\\Resources\\Textures\\beauty2.dds"
+    );
 }
 
 void CSBlurApp::AddMaterials()
@@ -337,6 +391,18 @@ void CSBlurApp::AddMaterials()
         sizeof(MaterialConstants2), &water
     );
 
+    auto& image = mMaterials["image"];
+    image.Name = "image";
+    image.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 0.5f);
+    image.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
+    image.Roughness = 0.0f;
+    mEngine.GetScene()->AddMaterial
+    (
+        image.Name,
+        mShaderDescs["image"].name, "face",
+        sizeof(MaterialConstants2), &image
+    );
+
     auto& treeSprites = mMaterials["treeSprites"];
     treeSprites.Name = "treeSprites";
     treeSprites.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -349,6 +415,10 @@ void CSBlurApp::AddMaterials()
         mShaderDescs["tree"].name, 
         {
             {"treeArrayTex2", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY}
+            //{ "face", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY }
+            //{ "baby", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY }
+            //{ "ds3", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY }
+            //{ "beauty", FireFlame::SRV_DIMENSION::TEXTURE2DARRAY }
         },
         sizeof(MaterialConstants), &treeSprites
     }  
@@ -361,6 +431,7 @@ void CSBlurApp::AddMeshs()
     AddMeshWaves();
     AddMeshLand();
     AddMeshTrees();
+    AddMeshImage();
     AddMeshFullScreenRect();
 }
 
@@ -520,6 +591,38 @@ void CSBlurApp::AddMeshTrees()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
+void CSBlurApp::AddMeshImage()
+{
+    using namespace FireFlame;
+
+    std::array<FLVertexTex, 4> vertices = {
+        // front face 
+        FLVertexTex(-1.0f, -1.0f,  0.0f, 0.f, 1.f),
+        FLVertexTex(-1.0f, +1.0f,  0.0f, 0.f, 0.f),
+        FLVertexTex(+1.0f, +1.0f,  0.0f, 1.f, 0.f),
+        FLVertexTex(+1.0f, -1.0f,  0.0f, 1.f, 1.f)
+    };
+    std::array<std::uint16_t, 6> indices = {
+        // front face
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    auto& meshDesc = mMeshDescs["image"];
+    meshDesc.name = "image";
+    meshDesc.indexCount = (unsigned int)indices.size();
+    meshDesc.indexFormat = Index_Format::UINT16;
+    meshDesc.indices = indices.data();
+
+    meshDesc.vertexDataCount.push_back((unsigned int)vertices.size());
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertexTex));
+    meshDesc.vertexData.push_back(vertices.data());
+
+    // sub meshes
+    meshDesc.subMeshs.emplace_back("all", (UINT)indices.size());
+    mEngine.GetScene()->AddPrimitive(meshDesc);
+}
+
 void CSBlurApp::AddMeshFullScreenRect()
 {
     using namespace FireFlame;
@@ -575,6 +678,7 @@ void CSBlurApp::AddRenderItems()
 {
     AddRenderItemsMain();
     AddRenderItemsTree();
+    AddRenderItemsImage();
     AddRenderItemsDepthComplexity();
 }
 
@@ -690,6 +794,26 @@ void CSBlurApp::AddRenderItemsTree()
     );
 }
 
+void CSBlurApp::AddRenderItemsImage()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("image", mMeshDescs["image"].subMeshs[0]);
+    RItem.mat = "image";
+    DepthComplexityObjConsts consts;
+    RItem.dataLen = sizeof(DepthComplexityObjConsts);
+    RItem.data = &consts;
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["image"].name,
+        mShaderDescs["image"].name,
+        "pso_image",
+        5,
+        RItem
+    );
+}
+
 void CSBlurApp::AddRenderItemsDepthComplexity()
 {
     std::string itmename = "DepthComplexity";
@@ -726,20 +850,34 @@ void CSBlurApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     if ((int)wParam == 'R')
     {
         mEngine.Resume();
-    }else if ((int)wParam == 'S')
+    }
+    else if ((int)wParam == 'S')
     {
         mEngine.Stop();
-    }else if ((int)wParam == 'D')
+    }
+    else if ((int)wParam == 'D')
     {
         mShowDepthComplexity = !mShowDepthComplexity;
         mEngine.GetScene()->PrimitiveVisible(mMeshDescs["full_screen_rect"].name, mShowDepthComplexity);
-    }else if ((int)wParam == 'A')
+    }
+    else if ((int)wParam == 'A')
     {
-        std::string name("blur");
+        std::string name("gauss_blur");
         name += std::to_string(mFilters.size());
 
-        FireFlame::FilterParam filter(FireFlame::FilterType::Blur);
+        FireFlame::FilterParam filter(FireFlame::FilterType::GaussBlur);
         filter.blurCount = 4;
+        filter.sigma = 2.5f;
+        mEngine.AddFilter(name, filter);
+        mFilters.push(name);
+    }
+    else if ((int)wParam == 'B')
+    {
+        std::string name("bilateral_blur");
+        name += std::to_string(mFilters.size());
+
+        FireFlame::FilterParam filter(FireFlame::FilterType::BilateralBlur);
+        filter.blurCount = 1;
         filter.sigma = 2.5f;
         mEngine.AddFilter(name, filter);
         mFilters.push(name);

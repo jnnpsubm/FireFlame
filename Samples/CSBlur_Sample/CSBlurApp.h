@@ -33,6 +33,7 @@ private:
     void AddShaders();
     void AddShaderMain();
     void AddShaderTree();
+    void AddShaderImage();
     void AddShaderDepthComplexity();
 
     void AddPSOs();
@@ -45,11 +46,13 @@ private:
     void AddMeshBox();
     void AddMeshLand();
     void AddMeshTrees();
+    void AddMeshImage();
     void AddMeshFullScreenRect();
 
     void AddRenderItems();
     void AddRenderItemsMain();
     void AddRenderItemsTree();
+    void AddRenderItemsImage();
     void AddRenderItemsDepthComplexity();
 
     void UpdateWaves();

@@ -66,7 +66,8 @@
     <ClInclude Include="src\3rd_utils\spdlog\tweakme.h" />
     <ClInclude Include="src\3rd_utils\tinyply.h" />
     <ClInclude Include="src\Engine\FLEngine.h" />
-    <ClInclude Include="src\Filters\FLD3DBlurFilter.h" />
+    <ClInclude Include="src\Filters\FLD3DBilateralBlurFilter.h" />
+    <ClInclude Include="src\Filters\FLD3DGaussBlurFilter.h" />
     <ClInclude Include="src\Filters\FLD3DFilter.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
@@ -133,7 +134,8 @@
     <ClCompile Include="src\3rd_utils\tinyply.cpp" />
     <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />
-    <ClCompile Include="src\Filters\FLD3DBlurFilter.cpp" />
+    <ClCompile Include="src\Filters\FLD3DBilateralBlurFilter.cpp" />
+    <ClCompile Include="src\Filters\FLD3DGaussBlurFilter.cpp" />
     <ClCompile Include="src\FLD3DUtils.cpp" />
     <ClCompile Include="src\FrameResource\FLD3DFrameResource.cpp" />
     <ClCompile Include="src\FrameResource\FLFrameResource.cpp" />
@@ -163,7 +165,7 @@
     <ClCompile Include="src\Window\FLWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\Shaders\Blur.hlsl">
+    <None Include="src\Shaders\GaussBlur.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -172,6 +174,15 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Shaders\BilateralBlur.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
