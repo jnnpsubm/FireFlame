@@ -115,6 +115,9 @@
     <ClCompile Include="src\Texture\DynamicTexture\FLD3DTextureWaves.cpp">
       <Filter>src\Texture\DynamicTexture</Filter>
     </ClCompile>
+    <ClCompile Include="src\Filters\FLD3DSobelFilter.cpp">
+      <Filter>src\Filters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -423,6 +426,9 @@
     <ClInclude Include="src\FLUtils.h">
       <Filter>src\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="src\Filters\FLD3DSobelFilter.h">
+      <Filter>src\Filters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -572,5 +578,10 @@
     <None Include="src\Shaders\BilateralBlur.hlsl">
       <Filter>src\Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\Shaders\Sobel.hlsl">
+      <Filter>src\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

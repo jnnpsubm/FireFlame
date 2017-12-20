@@ -69,6 +69,7 @@
     <ClInclude Include="src\Filters\FLD3DBilateralBlurFilter.h" />
     <ClInclude Include="src\Filters\FLD3DGaussBlurFilter.h" />
     <ClInclude Include="src\Filters\FLD3DFilter.h" />
+    <ClInclude Include="src\Filters\FLD3DSobelFilter.h" />
     <ClInclude Include="src\FLD3DUtils.h" />
     <ClInclude Include="src\Exception\FLException.h" />
     <ClInclude Include="src\FLStringUtils.h" />
@@ -137,6 +138,7 @@
     <ClCompile Include="src\Exception\FLException.cpp" />
     <ClCompile Include="src\Filters\FLD3DBilateralBlurFilter.cpp" />
     <ClCompile Include="src\Filters\FLD3DGaussBlurFilter.cpp" />
+    <ClCompile Include="src\Filters\FLD3DSobelFilter.cpp" />
     <ClCompile Include="src\FLD3DUtils.cpp" />
     <ClCompile Include="src\FrameResource\FLD3DFrameResource.cpp" />
     <ClCompile Include="src\FrameResource\FLFrameResource.cpp" />
@@ -198,6 +200,11 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Shaders\Sobel.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

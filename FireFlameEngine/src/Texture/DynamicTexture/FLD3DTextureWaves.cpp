@@ -36,7 +36,19 @@ void D3DGpuWaves::Go(ID3D12GraphicsCommandList* cmdList)
 {
     ID3D12DescriptorHeap* heaps[1] = { mDescriptorHeap.Get() };
     cmdList->SetDescriptorHeaps(1, heaps);
-    Disturb(cmdList);
+
+    // The current solution is in the GENERIC_READ state so it can be read by the vertex shader.
+    // Change it to UNORDERED_ACCESS for the compute shader.  Note that a UAV can still be
+    // read in a compute shader.
+    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(),
+        D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+
+    static float t_base = 0.0f;
+    if ((Engine::GetEngine()->TotalTime() - t_base) >= 0.25f)
+    {
+        t_base += 0.25f;
+        Disturb(cmdList);
+    }
     Update(cmdList);
 }
 
@@ -199,11 +211,6 @@ void D3DGpuWaves::Disturb(ID3D12GraphicsCommandList* cmdList)
     cmdList->SetPipelineState(mDisturbPSO.Get());
     cmdList->SetComputeRootSignature(mRootSignature.Get());
     cmdList->SetComputeRootDescriptorTable(3, mCurrSolUav);
-    // The current solution is in the GENERIC_READ state so it can be read by the vertex shader.
-    // Change it to UNORDERED_ACCESS for the compute shader.  Note that a UAV can still be
-    // read in a compute shader.
-    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(),
-        D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
     for (size_t d = 0; d < mDisturbCount; d++)
     {

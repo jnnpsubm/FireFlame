@@ -28,7 +28,8 @@ enum class FilterType
 {
     GaussBlur = 0,
     BilateralBlur,
-    Sobel,
+    SobelEdge,
+    SobelCartoon,
     HDR,
 
     Max

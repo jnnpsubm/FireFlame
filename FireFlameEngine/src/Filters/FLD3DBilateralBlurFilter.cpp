@@ -318,7 +318,9 @@ void D3DBilateralBlurFilter::OnResize(UINT sampleCount, UINT sampleQuality, UINT
 void D3DBilateralBlurFilter::Go
 (
     ID3D12GraphicsCommandList* cmdList,
-    ID3D12Resource* inputResource
+    ID3D12Resource* inputResource,
+    ID3D12DescriptorHeap* heap,
+    D3D12_GPU_DESCRIPTOR_HANDLE descriptor
 )
 {
     auto weights = CalcGaussWeights();

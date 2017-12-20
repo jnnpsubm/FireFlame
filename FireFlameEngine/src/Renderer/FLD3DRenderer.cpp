@@ -12,6 +12,7 @@
 #include "..\3rd_utils\ScreenGrab\ScreenGrab12.h"
 #include "..\Filters\FLD3DGaussBlurFilter.h"
 #include "..\Filters\FLD3DBilateralBlurFilter.h"
+#include "..\Filters\FLD3DSobelFilter.h"
 
 namespace FireFlame {
 //D3DRenderer::~D3DRenderer() {
@@ -110,20 +111,7 @@ void D3DRenderer::RenderWithMSAA(const StopWatch& gt) {
 		mOffscreenRenderTarget.Get(), 0, mBackBufferFormat);
 
     // post process
-    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-        D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
-    for (auto& itFilter : mFilters)
-    {
-        auto filter = itFilter.second.get();
-        filter->Go(mCommandList.Get(), CurrentBackBuffer());
-        // Prepare to copy blurred output to the back buffer.
-        mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-            D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
-        mCommandList->CopyResource(CurrentBackBuffer(), filter->GetResultResource());
-        // Transition to original state.
-        mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-            D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
-    }
+    PostProcess(D3D12_RESOURCE_STATE_RESOLVE_DEST);
 
 	D3D12_RESOURCE_BARRIER barrier2Present =
 		CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -150,12 +138,21 @@ void D3DRenderer::RenderWithoutMSAA(const StopWatch& gt) {
     mDrawFuncWithCmdList(mCommandList.Get());
 
     // post process
+    PostProcess(D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+    // Indicate a state transition on the resource usage.
     mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE));
+        D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PRESENT));
+}
+
+void D3DRenderer::PostProcess(D3D12_RESOURCE_STATES stateBefore)
+{
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+        stateBefore, D3D12_RESOURCE_STATE_COPY_SOURCE));
     for (auto& itFilter : mFilters)
     {
         auto filter = itFilter.second.get();
-        filter->Go(mCommandList.Get(), CurrentBackBuffer());
+        filter->Go(mCommandList.Get(), CurrentBackBuffer(), mCbvSrvUavHeap.Get(), CurrentBackBufferGpuSrv());
         // Prepare to copy blurred output to the back buffer.
         mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
             D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
@@ -164,11 +161,8 @@ void D3DRenderer::RenderWithoutMSAA(const StopWatch& gt) {
         mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
             D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
     }
-
-    // Indicate a state transition on the resource usage.
-    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-        D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PRESENT));
 }
+
 void D3DRenderer::ToggleMSAA() {
     if ((mMSAAMode + 1) < mMSAASupported.size() && ++mMSAAMode) {
         
@@ -326,8 +320,24 @@ void D3DRenderer::AddFilter(const std::string& name, const FilterParam& filter)
         d3dfilter->BuildDescriptors(mCbvSrvUavDescriptorSize);
         mFilters.emplace(name, std::move(d3dfilter));
     }break;
-    case FireFlame::FilterType::Sobel:
-        break;
+    case FireFlame::FilterType::SobelEdge:
+    {
+        auto d3dfilter = std::make_unique<D3DSobelFilter>
+        (
+            md3dDevice.Get(), D3DSobelFilter::modeEdge,
+            renderWindow->ClientWidth(), renderWindow->ClientHeight(), mBackBufferFormat
+        );
+        mFilters.emplace(name, std::move(d3dfilter));
+    }break;
+    case FireFlame::FilterType::SobelCartoon:
+    {
+        auto d3dfilter = std::make_unique<D3DSobelFilter>
+        (
+            md3dDevice.Get(), D3DSobelFilter::modeCartoon,
+            renderWindow->ClientWidth(), renderWindow->ClientHeight(), mBackBufferFormat
+        );
+        mFilters.emplace(name, std::move(d3dfilter));
+    }break;
     case FireFlame::FilterType::HDR:
         break;
     case FireFlame::FilterType::Max:
@@ -482,6 +492,19 @@ void D3DRenderer::Resize(){
 		md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
 		rtvHeapHandle.Offset(1, mRtvDescriptorSize);
 	}
+    // create srv for swap chain
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = mBackBufferFormat;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.Texture2D.MipLevels = -1;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mCbvSrvUavHeap->GetCPUDescriptorHandleForHeapStart());
+    for (UINT i = 0; i < SwapChainBufferCount; i++) {
+        md3dDevice->CreateShaderResourceView(mSwapChainBuffer[i].Get(), &srvDesc, hDescriptor);
+        hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
+    }
+    
 	// Create offscreen RT and view
 	D3D12_RESOURCE_DESC msaaRTDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		mBackBufferFormat,
@@ -510,6 +533,14 @@ void D3DRenderer::Resize(){
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		SwapChainBufferCount, mRtvDescriptorSize);
 	md3dDevice->CreateRenderTargetView(mOffscreenRenderTarget.Get(), nullptr, rtvDescriptor);
+
+    // create srv for msaa render target
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = mBackBufferFormat;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.Texture2D.MipLevels = -1;
+    md3dDevice->CreateShaderResourceView(mOffscreenRenderTarget.Get(), &srvDesc, hDescriptor);
 
 	// Create the depth/stencil buffer and view.
 	D3D12_RESOURCE_DESC depthStencilDesc;
@@ -594,6 +625,12 @@ void D3DRenderer::CreateRtvAndDsvDescriptorHeaps()
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	dsvHeapDesc.NodeMask = 0;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
+
+    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+    srvHeapDesc.NumDescriptors = SwapChainBufferCount + 1;
+    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mCbvSrvUavHeap)));
 }
 void D3DRenderer::CreateSwapChain()
 {
@@ -687,6 +724,18 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3DRenderer::OffscreenRenderTargetView() const {
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		SwapChainBufferCount,
 		mRtvDescriptorSize);
+}
+D3D12_GPU_DESCRIPTOR_HANDLE D3DRenderer::CurrentBackBufferGpuSrv() const {
+    return CD3DX12_GPU_DESCRIPTOR_HANDLE(
+        mCbvSrvUavHeap->GetGPUDescriptorHandleForHeapStart(),
+        mCurrBackBuffer,
+        mCbvSrvUavDescriptorSize);
+}
+D3D12_GPU_DESCRIPTOR_HANDLE D3DRenderer::OffscreenRenderTargetGpuSrv() const {
+    return CD3DX12_GPU_DESCRIPTOR_HANDLE(
+        mCbvSrvUavHeap->GetGPUDescriptorHandleForHeapStart(),
+        SwapChainBufferCount,
+        mCbvSrvUavDescriptorSize);
 }
 D3D12_CPU_DESCRIPTOR_HANDLE D3DRenderer::DepthStencilView() const {
 	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();

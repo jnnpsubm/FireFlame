@@ -120,6 +120,7 @@ private:
     void SelectMSAARenderer();
 	void RenderWithMSAA(const StopWatch& gt);
 	void RenderWithoutMSAA(const StopWatch& gt);
+    void PostProcess(D3D12_RESOURCE_STATES stateBefore);
 
     // post process
     std::unordered_map<std::string, std::unique_ptr<D3DFilter>>         mFilters;
@@ -138,6 +139,9 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE OffscreenRenderTargetView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
+
+    D3D12_GPU_DESCRIPTOR_HANDLE CurrentBackBufferGpuSrv() const;
+    D3D12_GPU_DESCRIPTOR_HANDLE OffscreenRenderTargetGpuSrv() const;
 
     float                mDefaultClearColor[4]{ 0.823529482f, 0.411764741f, 0.117647067f, 1.000000000f };
 
@@ -171,6 +175,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvSrvUavHeap;
 
 	D3D12_VIEWPORT mScreenViewport;
 	D3D12_RECT     mScissorRect;

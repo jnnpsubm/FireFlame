@@ -40,6 +40,25 @@ void CSBlurApp::UpdateWaves()
 {
     using namespace FireFlame;
 
+    // Scroll the water material texture coordinates.
+    auto& waterMat = mMaterials[mGpuWaves ? "still_water" : "water"];
+
+    float& tu = waterMat.MatTransform[0][3];
+    float& tv = waterMat.MatTransform[1][3];
+
+    tu += 0.1f * mEngine.DeltaTime() / 4.f;
+    tv += 0.02f * mEngine.DeltaTime() / 4.f;
+
+    if (tu >= 1.0f)
+        tu -= 1.0f;
+
+    if (tv >= 1.0f)
+        tv -= 1.0f;
+
+    waterMat.MatTransform[0][3] = tu;
+    waterMat.MatTransform[1][3] = tv;
+    mEngine.GetScene()->UpdateMaterialCBData(waterMat.Name, sizeof(MaterialConstants), &waterMat);
+
     if (mGpuWaves) return;
 
     // update waves
@@ -76,25 +95,6 @@ void CSBlurApp::UpdateWaves()
         sizeof(FLVertexNormalTex)*vertices.size(),
         vertices.data()
     );
-
-    // Scroll the water material texture coordinates.
-    auto& waterMat = mMaterials["water"];
-
-    float& tu = waterMat.MatTransform[0][3];
-    float& tv = waterMat.MatTransform[1][3];
-
-    tu += 0.1f * mEngine.DeltaTime();
-    tv += 0.02f * mEngine.DeltaTime();
-
-    if (tu >= 1.0f)
-        tu -= 1.0f;
-
-    if (tv >= 1.0f)
-        tv -= 1.0f;
-
-    waterMat.MatTransform[0][3] = tu;
-    waterMat.MatTransform[1][3] = tv;
-    mEngine.GetScene()->UpdateMaterialCBData(waterMat.Name, sizeof(MaterialConstants), &waterMat);
 }
 
 void CSBlurApp::AddShaders()
@@ -312,7 +312,8 @@ void CSBlurApp::AddTextures()
 {
     if (mGpuWaves)
     {
-        mEngine.GetScene()->AddTextureWaves("dynamic_water", 512, 512, 2, 1.0f / 1.5f, 0.03f, 6.0f, 0.4f);
+        mEngine.GetScene()->AddTextureWaves("dynamic_water", 512, 512, 4, 0.25f, 0.03f, 2.0f, 0.2f);
+        mEngine.GetScene()->AnimateTexture("dynamic_water");
     }
     mEngine.GetScene()->AddTexture
     (
@@ -424,7 +425,7 @@ void CSBlurApp::AddMaterials()
         still_water.FresnelR0 = FireFlame::Vector3f(0.3f, 0.3f, 0.3f);
         still_water.Roughness = 0.3f;
         MaterialConstants2 still_water2(static_cast<MaterialConstants>(still_water));
-        still_water2.UseTexture = 0;
+        still_water2.UseTexture = mGpuWavesUseTex;
         mEngine.GetScene()->AddMaterial
         ({
             still_water.Name,
@@ -491,7 +492,7 @@ void CSBlurApp::AddMeshGrid()
     using namespace FireFlame;
 
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData grid = geoGen.CreateGrid(256.f, 256.f, 512, 512);
+    GeometryGenerator::MeshData grid = geoGen.CreateGrid(320.f, 320.f, 512, 512);
 
     std::vector<FLVertexNormalTex> vertices(grid.Vertices.size());
     for (size_t i = 0; i < grid.Vertices.size(); ++i)
@@ -1016,6 +1017,24 @@ void CSBlurApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
         FireFlame::FilterParam filter(FireFlame::FilterType::BilateralBlur);
         filter.blurCount = 1;
         filter.sigma = 2.5f;
+        mEngine.AddFilter(name, filter);
+        mFilters.push(name);
+    }
+    else if ((int)wParam == 'C')
+    {
+        std::string name("SobelCartoon");
+        name += std::to_string(mFilters.size());
+
+        FireFlame::FilterParam filter(FireFlame::FilterType::SobelCartoon);
+        mEngine.AddFilter(name, filter);
+        mFilters.push(name);
+    }
+    else if ((int)wParam == 'E')
+    {
+        std::string name("SobelEdge");
+        name += std::to_string(mFilters.size());
+
+        FireFlame::FilterParam filter(FireFlame::FilterType::SobelEdge);
         mEngine.AddFilter(name, filter);
         mFilters.push(name);
     }

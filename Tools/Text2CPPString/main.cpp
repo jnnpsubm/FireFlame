@@ -28,6 +28,12 @@ int main(int argc, char* argv[])
     std::string line;
     while (std::getline(in, line))
     {
+        auto pos = line.find('\"');
+        while (pos != std::string::npos)
+        {
+            line.insert(pos, "\\");
+            pos = line.find('\"', pos+=2);
+        }
         line.insert(line.begin(), '\"');
         line.push_back('\\');
         line.push_back('n');

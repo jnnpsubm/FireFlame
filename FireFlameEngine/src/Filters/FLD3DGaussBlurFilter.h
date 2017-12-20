@@ -25,7 +25,13 @@ public:
     ID3D12Resource* GetResultResource() override final;
     void OnResize(UINT sampleCount, UINT sampleQuality, UINT newWidth, UINT newHeight) override final;
     // todo : use one pso,transpose and then transpose back
-    void Go(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* inputResource) override final;
+    void Go
+    (
+        ID3D12GraphicsCommandList* cmdList, 
+        ID3D12Resource* inputResource,
+        ID3D12DescriptorHeap* heap,
+        D3D12_GPU_DESCRIPTOR_HANDLE descriptor
+    ) override final;
 
 private:
     std::vector<float> CalcGaussWeights();

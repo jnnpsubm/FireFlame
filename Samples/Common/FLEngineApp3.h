@@ -8,13 +8,6 @@ struct ObjectConsts
     DirectX::XMFLOAT4X4 TexTransform = FireFlame::Matrix4X4();
 };
 
-struct ObjectConsts2 : ObjectConsts
-{
-    float texSize[2];
-    float dx;
-    float pad1;
-};
-
 struct MultiObjectCBData
 {
     FireFlame::Light Lights[FireFlame::Light::MaxLights];

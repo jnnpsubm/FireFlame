@@ -277,7 +277,9 @@ void D3DGaussBlurFilter::OnResize(UINT sampleCount, UINT sampleQuality, UINT new
 void D3DGaussBlurFilter::Go
 (
     ID3D12GraphicsCommandList* cmdList,
-    ID3D12Resource* inputResource
+    ID3D12Resource* inputResource,
+    ID3D12DescriptorHeap* heap,
+    D3D12_GPU_DESCRIPTOR_HANDLE descriptor
 )
 {
     auto weights = CalcGaussWeights();

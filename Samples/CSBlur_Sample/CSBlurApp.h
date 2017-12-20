@@ -9,6 +9,13 @@ struct DepthComplexityObjConsts
     float reserve;
 };
 
+struct ObjectConsts2 : ObjectConsts
+{
+    float texSize[2];
+    float dx;
+    float pad1;
+};
+
 struct MaterialConstants2 : MaterialConstants
 {
     MaterialConstants2(const MaterialConstants& m) :MaterialConstants(m) {}
@@ -67,8 +74,9 @@ private:
 
     std::unordered_map<std::string, std::string> mTreeShaderMacrosPS;
 
-    bool                           mWaterOnly = true;
+    bool                           mWaterOnly = false;
     bool                           mGpuWaves = true;
+    bool                           mGpuWavesUseTex = true;
 
     bool                           mShowImage = false;
     bool                           mShowDepthComplexity = false;
