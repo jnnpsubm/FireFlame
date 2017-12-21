@@ -635,8 +635,8 @@ inline D3D12_SHADER_VISIBILITY FLShaderVisiblity2D3DShaderVisiblity(SHADER_VISIB
 
 inline std::wstring AnsiToWString(const std::string& str)
 {
-	WCHAR buffer[512];
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
+	WCHAR buffer[2048];
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 2048);
 	return std::wstring(buffer);
 }
 
