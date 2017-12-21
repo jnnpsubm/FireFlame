@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <algorithm>
+#include <cctype>
 
 namespace FireFlame {
 namespace StringUtils {
@@ -17,6 +19,29 @@ std::string wstring2string(const std::wstring &wstr)
         str[i] = (char)wstr[i];
     }
     return str;
+}
+
+inline
+bool ends_with(const std::string& str, const std::string& ends, bool bIgnoreCase)
+{
+    if (str.size() < ends.size()) return false;
+
+    auto str1 = str.substr(str.size() - ends.size());
+    for (size_t i = 0; i < ends.size(); i++)
+    {
+        auto c1 = bIgnoreCase ? std::tolower(str1[i]) : str1[i];
+        auto c2 = bIgnoreCase ? std::tolower(ends[i]) : ends[i];
+        if (c1 != c2) return false;
+    }
+    return true;
+}
+
+inline
+std::string file_name(const std::string& path)
+{
+    auto pos1 = path.rfind('\\');
+    auto pos2 = path.rfind('/');
+    return path.substr((std::min)(pos1, pos2)+1);
 }
 
 inline
