@@ -81,4 +81,14 @@ struct FLVertexNormalTex
         Tex(s, t)
     {}
 };
+
+struct FLVertexNormalTexBone : FLVertexNormalTex
+{
+    FLVertexNormalTexBone() = default;
+    FLVertexNormalTexBone(float x, float y, float z, float u, float v, float w, float s, float t) :
+        FLVertexNormalTex(x, y, z, u, v, w, s, t)
+    {}
+    Vector4<std::uint8_t> boneWeights;
+    Vector4<std::uint8_t> boneIndices;
+};
 }

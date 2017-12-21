@@ -574,14 +574,12 @@
     <None Include="src\Shaders\GaussBlur.hlsl">
       <Filter>src\Shaders</Filter>
     </None>
-    <None Include="src\Shaders\Waves.hlsl" />
     <None Include="src\Shaders\BilateralBlur.hlsl">
       <Filter>src\Shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="src\Shaders\Sobel.hlsl">
+    <None Include="src\Shaders\Sobel.hlsl" />
+    <None Include="src\Shaders\Waves.hlsl">
       <Filter>src\Shaders</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>
