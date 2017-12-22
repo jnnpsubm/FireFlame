@@ -1,6 +1,7 @@
 #include "M2.h"
 #include "DataBinary.h"
 #include "M2SkinBuilder.h"
+#include <iostream>
 #include <sstream>
 #include <locale>
 #include <codecvt>
@@ -213,7 +214,7 @@ M2Lib::EError M2Lib::M2::Load(const Char16* FileName)
 	}*/
 
 	// print info
-	//PrintInfo();
+	PrintInfo();
 
 	// done
 	return EError_OK;

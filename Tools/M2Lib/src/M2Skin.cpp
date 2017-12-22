@@ -59,7 +59,9 @@ M2Lib::EError M2Lib::M2Skin::Load(const Char16* FileName)
 	FileStream.close();
 
 	// print info
-	//PrintInfo();
+	PrintInfo();
+
+    GetMeshInfo();
 
 	// done
 	return EError_OK;
@@ -711,9 +713,9 @@ std::vector<M2Lib::M2Skin::MeshInfo> M2Lib::M2Skin::GetMeshInfo()
 		Info.ID = Submeshes[i].ID;
 		Info.pSubMesh = &Submeshes[i];
 
-		auto comparisonDataItr = ExtraDataBySubmeshIndex.find(i);
-		assert(comparisonDataItr != ExtraDataBySubmeshIndex.end());
-		Info.Description = comparisonDataItr->second->Description;
+		//auto comparisonDataItr = ExtraDataBySubmeshIndex.find(i);
+		//assert(comparisonDataItr != ExtraDataBySubmeshIndex.end());
+		//Info.Description = comparisonDataItr->second->Description;
 		
 		for (UInt32 j = 0; j < Header.nMaterial; ++j)
 		{
