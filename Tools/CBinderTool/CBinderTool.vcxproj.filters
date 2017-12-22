@@ -22,11 +22,5 @@
     <ClInclude Include="Options.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileType.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameVersion.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
