@@ -15,6 +15,10 @@ public:
 
 private:
     std::string mInputPath;
+    std::string mOutputPath;
+
+    FileType mInputType = FileType::Unknown;
+    GameVersion mInputGameVersion = GameVersion::Common;
 
     static std::pair<FileType, GameVersion> GetFileType(const std::string& fileName);
 };

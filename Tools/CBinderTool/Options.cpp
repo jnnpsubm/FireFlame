@@ -28,33 +28,35 @@ std::unique_ptr<Options> Options::Parse(int argc, char* argv[])
     }
 
     auto fileType = GetFileType(FireFlame::StringUtils::file_name(options->mInputPath));
-    /*options.InputType = fileType.type;
-    options.InputGameVersion = fileType.version;
+    options->mInputType = fileType.first;
+    options->mInputGameVersion = fileType.second;
 
-    if (options.InputType == FileType.Unknown)
+    if (options->mInputType == FileType::Unknown)
     {
-        throw new FormatException("Unsupported input file format");
+        throw std::exception("Unsupported input file format");
     }
 
-    if (args.Length >= 2)
+    if (argc >= 3)
     {
-        options.OutputPath = args[1];
+        options->mOutputPath = argv[2];
     }
     else
     {
-        options.OutputPath = Path.Combine(
-            Path.GetDirectoryName(options.InputPath),
-            Path.GetFileNameWithoutExtension(options.InputPath));
-        switch (options.InputType)
+        options->mOutputPath = FireFlame::StringUtils::combine_path
+        (
+            FireFlame::StringUtils::dir_name(options->mInputPath),
+            FireFlame::StringUtils::file_name_noext(options->mInputPath)
+        );
+        switch (options->mInputType)
         {
-        case FileType.EncryptedBhd:
-            options.OutputPath += "_decrypted.bhd";
+        case FileType::EncryptedBhd:
+            options->mOutputPath += "_decrypted.bhd";
             break;
-        case FileType.Dcx:
-        case FileType.Fmg:
+        case FileType::Dcx:
+        case FileType::Fmg:
             break;
         }
-    }*/
+    }
 
     return options;
 }

@@ -37,11 +37,35 @@ bool ends_with(const std::string& str, const std::string& ends, bool bIgnoreCase
 }
 
 inline
+std::string combine_path(const std::string& pathParent, const std::string& pathChild)
+{
+    return pathParent + "\\" + pathChild;
+}
+
+inline 
+std::string dir_name(const std::string& path)
+{
+    auto pos1 = path.rfind('\\');
+    auto pos2 = path.rfind('/');
+    return path.substr(0, (std::min)(pos1, pos2));
+}
+
+inline
 std::string file_name(const std::string& path)
 {
     auto pos1 = path.rfind('\\');
     auto pos2 = path.rfind('/');
     return path.substr((std::min)(pos1, pos2)+1);
+}
+
+inline
+std::string file_name_noext(const std::string& path)
+{
+    auto posDot = path.rfind('.');
+    auto posSplit = (std::min)(path.rfind('\\'), path.rfind('/'));
+    if (posSplit > posDot) return "";
+    auto count = posDot - posSplit - 1;
+    return path.substr(posSplit + 1, (std::max)((decltype(count))0, count));
 }
 
 inline
