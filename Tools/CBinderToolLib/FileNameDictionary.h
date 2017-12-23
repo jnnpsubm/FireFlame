@@ -193,6 +193,10 @@ public:
 
     static std::string NormalizeFileName(const std::string& fileName)
     {
+		for (const auto& virtualRoot : VirtualRoots)
+		{
+
+		}
         foreach(var virtualRoot in VirtualRoots)
         {
             if (fileName.StartsWith(virtualRoot))

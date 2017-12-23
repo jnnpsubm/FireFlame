@@ -22,6 +22,12 @@ std::string wstring2string(const std::wstring &wstr)
 }
 
 inline
+bool starts_with(const std::string& str, const std::string& ends, bool bIgnoreCase)
+{
+
+}
+
+inline
 bool ends_with(const std::string& str, const std::string& ends, bool bIgnoreCase)
 {
     if (str.size() < ends.size()) return false;
