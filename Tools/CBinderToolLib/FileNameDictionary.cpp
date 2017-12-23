@@ -7,7 +7,7 @@ const std::array<std::string, 2> FileNameDictionary::VirtualRoots =
     "N:\\FDP\\data\\"
 };
 
-const std::string FileNameDictionary::PhysicalRootsDs3[] = 
+const std::vector<std::string> FileNameDictionary::PhysicalRootsDs3 = 
 {
     "capture",
     "data1",
@@ -36,23 +36,23 @@ FileNameDictionary::FileNameDictionary()
 {
     if (SubstitutionMapDs2.empty())
     {
-        SubstitutionMapDs2.emplace( "chr", "gamedata:" );
-        SubstitutionMapDs2.emplace( "chrhq", "hqchr:" );
-        SubstitutionMapDs2.emplace( "dlc_data", "gamedata:" );
-        SubstitutionMapDs2.emplace( "dlc_menu", "gamedata:" );
-        SubstitutionMapDs2.emplace( "eventmaker", "gamedata:" );
-        SubstitutionMapDs2.emplace( "ezstate", "gamedata:" );
-        SubstitutionMapDs2.emplace( "gamedata", "gamedata:" );
-        SubstitutionMapDs2.emplace( "gamedata_patch", "gamedata:" );
-        SubstitutionMapDs2.emplace( "icon", "gamedata:" );
-        SubstitutionMapDs2.emplace( "map", "gamedata:" );
-        SubstitutionMapDs2.emplace( "maphq", "hqmap:" );
-        SubstitutionMapDs2.emplace( "menu", "gamedata:" );
-        SubstitutionMapDs2.emplace( "obj", "gamedata:" );
-        SubstitutionMapDs2.emplace( "objhq", "hqobj:" );
-        SubstitutionMapDs2.emplace( "parts", "gamedata:" );
-        SubstitutionMapDs2.emplace( "partshq", "hqparts:" );
-        SubstitutionMapDs2.emplace( "text", "gamedata:" );
+        SubstitutionMapDs2.emplace("chr", "gamedata:");
+        SubstitutionMapDs2.emplace("chrhq", "hqchr:");
+        SubstitutionMapDs2.emplace("dlc_data", "gamedata:");
+        SubstitutionMapDs2.emplace("dlc_menu", "gamedata:");
+        SubstitutionMapDs2.emplace("eventmaker", "gamedata:");
+        SubstitutionMapDs2.emplace("ezstate", "gamedata:");
+        SubstitutionMapDs2.emplace("gamedata", "gamedata:");
+        SubstitutionMapDs2.emplace("gamedata_patch", "gamedata:");
+        SubstitutionMapDs2.emplace("icon", "gamedata:");
+        SubstitutionMapDs2.emplace("map", "gamedata:");
+        SubstitutionMapDs2.emplace("maphq", "hqmap:");
+        SubstitutionMapDs2.emplace("menu", "gamedata:");
+        SubstitutionMapDs2.emplace("obj", "gamedata:");
+        SubstitutionMapDs2.emplace("objhq", "hqobj:");
+        SubstitutionMapDs2.emplace("parts", "gamedata:");
+        SubstitutionMapDs2.emplace("partshq", "hqparts:");
+        SubstitutionMapDs2.emplace("text", "gamedata:");
     }
     if (SubstitutionMapDs3.empty())
     {
