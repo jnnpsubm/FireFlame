@@ -95,12 +95,18 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header;../../Tools_Ext/crytpopp/include;../../Tools_Ext/openssl-1.0.2l-vs2017/include64</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>libeay32MDd.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib64</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -109,12 +115,16 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header;../../Tools_Ext/crytpopp/include;../../Tools_Ext/openssl-1.0.2l-vs2017/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>libeay32MDd.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -125,7 +135,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header;../../Tools_Ext/crytpopp/include;../../Tools_Ext/openssl-1.0.2l-vs2017/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,6 +143,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libeay32MD.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -143,7 +157,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine/header;../../Tools_Ext/crytpopp/include;../../Tools_Ext/openssl-1.0.2l-vs2017/include64</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,6 +165,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libeay32MD.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FireFlameEngine\FireFlameEngine.vcxproj">
@@ -158,13 +176,21 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bdt5FileStream.h" />
+    <ClInclude Include="CryptographyUtility.h" />
+    <ClInclude Include="DecryptionKeys.h" />
     <ClInclude Include="FileNameDictionary.h" />
     <ClInclude Include="FileType.h" />
     <ClInclude Include="GameVersion.h" />
+    <ClInclude Include="openssl_rsa_op.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bdt5FileStream.cpp" />
+    <ClCompile Include="CryptographyUtility.cpp" />
+    <ClCompile Include="DecryptionKeys.cpp" />
     <ClCompile Include="FileNameDictionary.cpp" />
+    <ClCompile Include="openssl_rsa_op.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

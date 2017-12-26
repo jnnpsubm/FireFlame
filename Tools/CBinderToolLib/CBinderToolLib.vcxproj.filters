@@ -5,9 +5,29 @@
     <ClInclude Include="GameVersion.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="FileNameDictionary.h" />
+    <ClInclude Include="Bdt5FileStream.h">
+      <Filter>Bdt5</Filter>
+    </ClInclude>
+    <ClInclude Include="DecryptionKeys.h" />
+    <ClInclude Include="CryptographyUtility.h" />
+    <ClInclude Include="openssl_rsa_op.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="FileNameDictionary.cpp" />
+    <ClCompile Include="Bdt5FileStream.cpp">
+      <Filter>Bdt5</Filter>
+    </ClCompile>
+    <ClCompile Include="DecryptionKeys.cpp" />
+    <ClCompile Include="CryptographyUtility.cpp" />
+    <ClCompile Include="openssl_rsa_op.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Bdt5">
+      <UniqueIdentifier>{4db74746-d489-4396-9593-e30f0c22aa24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bhd5">
+      <UniqueIdentifier>{fbe3f2b6-f5d6-49ba-9c5e-5895c87301ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

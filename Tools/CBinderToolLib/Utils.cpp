@@ -1,6 +1,8 @@
 #include "Utils.h"
 #include "FireFlameHeader.h"
+#include "DecryptionKeys.h"
 #include <regex>
+#include "CryptographyUtility.h"
 
 namespace CBinderToolLib {
 std::pair<FileType, GameVersion> Utils::GetFileType(const std::string& fileName)
@@ -99,5 +101,31 @@ std::pair<FileType, GameVersion> Utils::GetFileType(const std::string& fileName)
 std::string Utils::GetFileTypeDescription(const std::pair<FileType, GameVersion>& fileType)
 {
     return GetGameVersionStr(fileType.second) + ":" + GetFileTypeStr(fileType.first);
+}
+
+std::istream* Utils::DecryptBhdFile(const std::string& filePath, GameVersion version)
+{
+    std::string fileDirectory = FireFlame::StringUtils::dir_name(filePath);
+    std::string fileName = FireFlame::StringUtils::file_name(filePath);
+    std::string key;
+    switch (version)
+    {
+    case GameVersion::DarkSouls2: // todo
+        /*string keyFileName = Regex.Replace(fileName, @"Ebl\.bhd$", "KeyCode.pem", RegexOptions.IgnoreCase);
+            string keyFilePath = Path.Combine(fileDirectory, keyFileName);
+        if (File.Exists(keyFilePath))
+        {
+            key = File.ReadAllText(keyFilePath);
+        }*/
+        break;
+    case GameVersion::DarkSouls3:
+        DecryptionKeys::TryGetRsaFileKey(fileName, key);
+        break;
+    }
+    if (key.empty())
+    {
+        throw std::runtime_error("Missing decryption key for file \'{fileName}\'");
+    }
+    return (CryptographyUtility::DecryptRsa(filePath, key));
 }
 }

@@ -22,9 +22,24 @@ std::string wstring2string(const std::wstring &wstr)
 }
 
 inline
-bool starts_with(const std::string& str, const std::string& ends, bool bIgnoreCase)
+void tolower(std::string& str)
 {
+    std::for_each(str.begin(), str.end(), [](char& c) {c = std::tolower(c); });
+}
 
+inline
+bool starts_with(const std::string& str, const std::string& starts, bool bIgnoreCase)
+{
+    if (str.size() < starts.size()) return false;
+
+    auto str1 = str.substr(0, starts.size());
+    for (size_t i = 0; i < starts.size(); i++)
+    {
+        auto c1 = bIgnoreCase ? std::tolower(str1[i]) : str1[i];
+        auto c2 = bIgnoreCase ? std::tolower(starts[i]) : starts[i];
+        if (c1 != c2) return false;
+    }
+    return true;
 }
 
 inline
@@ -53,7 +68,17 @@ std::string dir_name(const std::string& path)
 {
     auto pos1 = path.rfind('\\');
     auto pos2 = path.rfind('/');
+    if (pos1 == std::string::npos && pos2 == std::string::npos) return "";
     return path.substr(0, (std::min)(pos1, pos2));
+}
+
+inline
+std::string change_extension(const std::string& path, const std::string& extension)
+{
+    std::string pathOut = path;
+    auto posDot = pathOut.rfind('.');
+    size_t len = path.size() - posDot - 1;
+    return pathOut.replace(posDot+1, len, extension);
 }
 
 inline
@@ -61,6 +86,7 @@ std::string file_name(const std::string& path)
 {
     auto pos1 = path.rfind('\\');
     auto pos2 = path.rfind('/');
+    if (pos1 == std::string::npos && pos2 == std::string::npos) return "";
     return path.substr((std::min)(pos1, pos2)+1);
 }
 
@@ -72,6 +98,20 @@ std::string file_name_noext(const std::string& path)
     if (posSplit > posDot) return "";
     auto count = posDot - posSplit - 1;
     return path.substr(posSplit + 1, (std::max)((decltype(count))0, count));
+}
+
+inline
+void trim_start(std::string& str, const char start)
+{
+    size_t pos = 0;
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        if (str[i] == start)
+            pos = i;
+        else
+            break;
+    }
+    str = str.substr(pos);
 }
 
 inline
@@ -88,6 +128,20 @@ void replace(std::string& str, const std::string& src, char dst)
     for (auto& c : str)
         if (src.find(c) != std::string::npos)
             c = dst;
+}
+
+inline
+void replace(std::string& str, const std::string& src, const std::string& dst)
+{
+    std::string::size_type pos = 0;
+    std::string::size_type srcLen = src.size();
+    std::string::size_type desLen = dst.size();
+    pos = str.find(src, pos);
+    while ((pos != std::string::npos))
+    {
+        str.replace(pos, srcLen, dst);
+        pos = str.find(src, (pos + desLen));
+    }
 }
 
 } // end StringUtils

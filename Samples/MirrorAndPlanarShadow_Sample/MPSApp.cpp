@@ -1515,7 +1515,7 @@ void MPSApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
     else if (wParam == 'R')
     {
         ++mCurUndedaLegionMat;
-        if (mCurUndedaLegionMat >= mTestMatUL.size())
+        if (mCurUndedaLegionMat >= (int)mTestMatUL.size())
         {
             mCurUndedaLegionMat = 0;
         }

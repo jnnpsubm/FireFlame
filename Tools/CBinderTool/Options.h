@@ -14,6 +14,7 @@ public:
     CBinderToolLib::GameVersion GetInputGameVersion() const { return mInputGameVersion; }
     CBinderToolLib::FileType    GetInputType()        const { return mInputType;        }
     std::string                 GetOutputPath()       const { return mOutputPath;       }
+    std::string                 GetInputPath()        const { return mInputPath;        }
 
     static std::unique_ptr<Options> Parse(int argc, char* argv[]);
 

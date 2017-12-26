@@ -3,6 +3,8 @@
 #include "Options.h"
 #include "FireFlameHeader.h"
 #include "..\CBinderToolLib\FileNameDictionary.h"
+#include "..\CBinderToolLib\Bdt5FileStream.h"
+#include "..\CBinderToolLib\Utils.h"
 
 void ShowUsage()
 {
@@ -95,20 +97,34 @@ void main(int argc, char* argv[])
 
 void UnpackBdtFile(CBinderTool::Options* options)
 {
-    CBinderToolLib::FileNameDictionary dictionary;
-    //FileNameDictionary dictionary = FileNameDictionary.OpenFromFile(options->GetInputGameVersion());
-    /*string fileNameWithoutExtension = Path.GetFileName(options.InputPath).Replace("Ebl.bdt", "").Replace(".bdt", "");
-    string archiveName = fileNameWithoutExtension.ToLower();
+    using namespace CBinderToolLib;
 
-    using (Bdt5FileStream bdtStream = Bdt5FileStream.OpenFile(options.InputPath, FileMode.Open, FileAccess.Read))
+    std::unique_ptr<FileNameDictionary> dictionary = nullptr;
+    dictionary.reset(FileNameDictionary::OpenFromFile(options->GetInputGameVersion()));
+    //dictionary->SaveDictionary2File("dictionary_save.txt");
+    std::string fileNameWithoutExtension = FireFlame::StringUtils::file_name(options->GetInputPath());
+    FireFlame::StringUtils::replace(fileNameWithoutExtension, "Ebl.bdt", "");
+    FireFlame::StringUtils::replace(fileNameWithoutExtension, ".bdt", "");
+    std::string archiveName = fileNameWithoutExtension;
+    FireFlame::StringUtils::tolower(archiveName);
+
+    //using (Bdt5FileStream bdtStream = Bdt5FileStream.OpenFile(options.InputPath, FileMode.Open, FileAccess.Read))
     {
-        Bhd5File bhdFile = Bhd5File.Read(
+        std::unique_ptr<Bdt5FileStream> bdtStream = nullptr;
+        bdtStream.reset(Bdt5FileStream::OpenFile(options->GetInputPath()));
+
+        auto inputStream = Utils::DecryptBhdFile
+        (
+            FireFlame::StringUtils::change_extension(options->GetInputPath(),"bhd"), 
+            options->GetInputGameVersion()
+        );
+        /*Bhd5File bhdFile = Bhd5File.Read(
             inputStream: DecryptBhdFile(
                 filePath : Path.ChangeExtension(options.InputPath, "bhd"),
                 version : options.InputGameVersion),
             version : options.InputGameVersion
-        );
-        foreach(var bucket in bhdFile.GetBuckets())
+        );*/
+        /*foreach(var bucket in bhdFile.GetBuckets())
         {
             foreach(var entry in bucket.GetEntries())
             {
@@ -213,6 +229,6 @@ void UnpackBdtFile(CBinderTool::Options* options)
                 Directory.CreateDirectory(Path.GetDirectoryName(newFileNamePath));
                 File.WriteAllBytes(newFileNamePath, data.ToArray());
             }
-        }
-    }*/
+        }*/
+    }
 }
