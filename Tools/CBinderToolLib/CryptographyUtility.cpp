@@ -41,7 +41,12 @@ std::istringstream* CryptographyUtility::DecryptRsa(const std::string& filePath,
     {
         int len = rsaDecipher.pubkey_decrypt((unsigned char*)inputBlock.data(), 256, &outputBlock, out_len);
         assert(len == inputBlockSize);
-        if (len > 0) outputStream.write((char*)outputBlock, len);
+        // skip one as BinderTool......
+        if (len > 0)
+        {
+            assert(outputBlock[0] == '\0');
+            outputStream.write((char*)outputBlock + 1, len - 1);
+        }
     }
 
     std::istringstream* outStream = new std::istringstream(outputStream.str(), std::ios::binary);

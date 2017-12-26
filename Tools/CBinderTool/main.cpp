@@ -5,6 +5,7 @@
 #include "..\CBinderToolLib\FileNameDictionary.h"
 #include "..\CBinderToolLib\Bdt5FileStream.h"
 #include "..\CBinderToolLib\Utils.h"
+#include "..\CBinderToolLib\Bhd5File.h"
 
 void ShowUsage()
 {
@@ -113,17 +114,15 @@ void UnpackBdtFile(CBinderTool::Options* options)
         std::unique_ptr<Bdt5FileStream> bdtStream = nullptr;
         bdtStream.reset(Bdt5FileStream::OpenFile(options->GetInputPath()));
 
-        auto inputStream = Utils::DecryptBhdFile
-        (
-            FireFlame::StringUtils::change_extension(options->GetInputPath(),"bhd"), 
-            options->GetInputGameVersion()
+        std::unique_ptr<std::istream> inputStream = nullptr;
+        inputStream.reset(
+            Utils::DecryptBhdFile
+            (
+                FireFlame::StringUtils::change_extension(options->GetInputPath(), "bhd"),
+                options->GetInputGameVersion()
+            )
         );
-        /*Bhd5File bhdFile = Bhd5File.Read(
-            inputStream: DecryptBhdFile(
-                filePath : Path.ChangeExtension(options.InputPath, "bhd"),
-                version : options.InputGameVersion),
-            version : options.InputGameVersion
-        );*/
+        auto bhdFile = Bhd5File::Read(*inputStream.get(),options->GetInputGameVersion());
         /*foreach(var bucket in bhdFile.GetBuckets())
         {
             foreach(var entry in bucket.GetEntries())

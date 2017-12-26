@@ -177,6 +177,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bdt5FileStream.h" />
+    <ClInclude Include="Bhd5AesKey.h" />
+    <ClInclude Include="Bhd5Bucket.h" />
+    <ClInclude Include="Bhd5BucketEntry.h" />
+    <ClInclude Include="Bhd5File.h" />
+    <ClInclude Include="Bhd5Range.h" />
+    <ClInclude Include="Bhd5SaltedShaHash.h" />
     <ClInclude Include="CryptographyUtility.h" />
     <ClInclude Include="DecryptionKeys.h" />
     <ClInclude Include="FileNameDictionary.h" />
@@ -187,6 +193,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bdt5FileStream.cpp" />
+    <ClCompile Include="Bhd5BucketEntry.cpp" />
+    <ClCompile Include="Bhd5File.cpp" />
     <ClCompile Include="CryptographyUtility.cpp" />
     <ClCompile Include="DecryptionKeys.cpp" />
     <ClCompile Include="FileNameDictionary.cpp" />

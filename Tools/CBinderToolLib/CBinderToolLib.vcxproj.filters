@@ -11,6 +11,24 @@
     <ClInclude Include="DecryptionKeys.h" />
     <ClInclude Include="CryptographyUtility.h" />
     <ClInclude Include="openssl_rsa_op.h" />
+    <ClInclude Include="Bhd5File.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="Bhd5BucketEntry.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="Bhd5Range.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="Bhd5AesKey.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="Bhd5SaltedShaHash.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="Bhd5Bucket.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils.cpp" />
@@ -21,6 +39,12 @@
     <ClCompile Include="DecryptionKeys.cpp" />
     <ClCompile Include="CryptographyUtility.cpp" />
     <ClCompile Include="openssl_rsa_op.cpp" />
+    <ClCompile Include="Bhd5File.cpp">
+      <Filter>Bhd5</Filter>
+    </ClCompile>
+    <ClCompile Include="Bhd5BucketEntry.cpp">
+      <Filter>Bhd5</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Bdt5">
