@@ -123,24 +123,23 @@ void UnpackBdtFile(CBinderTool::Options* options)
             )
         );
         auto bhdFile = Bhd5File::Read(*inputStream.get(),options->GetInputGameVersion());
-        /*foreach(var bucket in bhdFile.GetBuckets())
+        for (auto& bucket : bhdFile->GetBuckets())
         {
-            foreach(var entry in bucket.GetEntries())
+            for(auto& entry : bucket.GetEntries())
             {
-                MemoryStream data;
+                //MemoryStream data;
                 if (entry.FileSize == 0)
                 {
                     long fileSize;
-                    if (!TryReadFileSize(entry, bdtStream, out fileSize))
+                    if (!Utils::TryReadFileSize(entry, *bdtStream.get(), fileSize))
                     {
-                        Console.WriteLine($"Unable to determine the length of file '{entry.FileNameHash:D10}'");
+                        std::cerr << "Unable to determine the length of file, hash:" << entry.FileNameHash << std::endl;
                         continue;
                     }
-
                     entry.FileSize = fileSize;
                 }
 
-                if (entry.IsEncrypted)
+                /*if (entry.IsEncrypted)
                 {
                     data = bdtStream.Read(entry.FileOffset, entry.PaddedFileSize);
                     CryptographyUtility.DecryptAesEcb(data, entry.AesKey.Key, entry.AesKey.Ranges);
@@ -226,8 +225,8 @@ void UnpackBdtFile(CBinderTool::Options* options)
 
                 string newFileNamePath = Path.Combine(options.OutputPath, fileName);
                 Directory.CreateDirectory(Path.GetDirectoryName(newFileNamePath));
-                File.WriteAllBytes(newFileNamePath, data.ToArray());
+                File.WriteAllBytes(newFileNamePath, data.ToArray());*/
             }
-        }*/
+        }
     }
 }

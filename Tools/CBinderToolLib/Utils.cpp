@@ -5,6 +5,29 @@
 #include "CryptographyUtility.h"
 
 namespace CBinderToolLib {
+bool Utils::TryReadFileSize(Bhd5BucketEntry& entry, Bdt5FileStream& bdtStream, long& fileSize)
+{
+    fileSize = 0;
+
+    const int sampleLength = 48;
+    std::unique_ptr<std::istream> data = std::move(bdtStream.Read((long)entry.FileOffset, sampleLength));
+
+    if (entry.IsEncrypted())
+    {
+        data = CryptographyUtility::DecryptAesEcb(*data.get(), entry.AesKey->Key);
+    }
+
+    /*string sampleSignature;
+    if (!TryGetAsciiSignature(data, 4, out sampleSignature)
+        || sampleSignature != DcxFile.DcxSignature)
+    {
+        return false;
+    }
+
+    fileSize = DcxFile.DcxSize + DcxFile.ReadCompressedSize(data);*/
+    return true;
+}
+
 std::pair<FileType, GameVersion> Utils::GetFileType(const std::string& fileName)
 {
     if (fileName.empty())

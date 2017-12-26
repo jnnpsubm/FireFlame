@@ -4,6 +4,7 @@
 #include <sstream>
 #include <assert.h>
 #include <vector>
+#include <openssl/aes.h>
 #include "openssl_rsa_op.h"
 
 namespace CBinderToolLib {
@@ -51,5 +52,13 @@ std::istringstream* CryptographyUtility::DecryptRsa(const std::string& filePath,
 
     std::istringstream* outStream = new std::istringstream(outputStream.str(), std::ios::binary);
     return outStream;
+}
+
+CryptographyUtility::ISS_U_PTR CryptographyUtility::DecryptAesEcb(std::istream& inputStream, std::vector<std::uint8_t>& key)
+{
+    AES_KEY aeskey;
+    AES_set_decrypt_key(key.data(), key.size() * 8, &aeskey);
+
+    return nullptr;
 }
 }

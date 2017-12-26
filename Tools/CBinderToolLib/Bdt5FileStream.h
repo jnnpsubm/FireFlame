@@ -18,14 +18,14 @@ public:
     }
     ~Bdt5FileStream() = default;
 
-    std::istringstream Read(long fileOffset, long fileSize)
+    std::unique_ptr<std::istringstream> Read(long fileOffset, long fileSize)
     {
         if (fileOffset + fileSize > _length)
             throw std::runtime_error("Bdt5FileStream Read over end......");
         _inputStream->seekg(fileOffset, std::ios::beg);
         std::string bytes(fileSize, '\0');
         _inputStream->read(&bytes[0], fileSize);
-        return std::istringstream(bytes);
+        return std::make_unique<std::istringstream>(bytes);
     }
 
     static Bdt5FileStream* OpenFile(const std::string& path)

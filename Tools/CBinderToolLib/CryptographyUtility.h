@@ -1,16 +1,17 @@
 #pragma once
 #include <sstream>
+#include <memory>
+#include <vector>
 
 namespace CBinderToolLib{
 class CryptographyUtility
 {
-    /*public static MemoryStream DecryptAesEcb(Stream inputStream, byte[] key)
-    {
-        var cipher = CreateAesEcbCipher(key);
-        return DecryptAes(inputStream, cipher, inputStream.Length);
-    }
+    typedef std::unique_ptr<std::istringstream> ISS_U_PTR;
 
-    public static MemoryStream DecryptAesCbc(Stream inputStream, byte[] key, byte[] iv)
+public:
+    static ISS_U_PTR DecryptAesEcb(std::istream& inputStream, std::vector<std::uint8_t>& key);
+
+    /*public static MemoryStream DecryptAesCbc(Stream inputStream, byte[] key, byte[] iv)
     {
         AesEngine engine = new AesEngine();
         KeyParameter keyParameter = new KeyParameter(key);
