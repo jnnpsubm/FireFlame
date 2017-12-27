@@ -2,6 +2,10 @@
 #include <sstream>
 #include <memory>
 #include <vector>
+#include "Bhd5Range.h"
+
+struct aes_key_st;
+typedef struct aes_key_st AES_KEY;
 
 namespace CBinderToolLib{
 class CryptographyUtility
@@ -9,7 +13,7 @@ class CryptographyUtility
     typedef std::unique_ptr<std::istringstream> ISS_U_PTR;
 
 public:
-    static ISS_U_PTR DecryptAesEcb(std::istream& inputStream, std::vector<std::uint8_t>& key);
+    static ISS_U_PTR DecryptAesEcb(std::istream& inputStream, const std::vector<std::uint8_t>& key);
 
     /*public static MemoryStream DecryptAesCbc(Stream inputStream, byte[] key, byte[] iv)
     {
@@ -40,30 +44,10 @@ public:
         BufferedBlockCipher cipher = new BufferedBlockCipher(engine);
         cipher.Init(false, parameter);
         return cipher;
-    }
-
-    private static MemoryStream DecryptAes(Stream inputStream, BufferedBlockCipher cipher, long length)
-    {
-        int blockSize = cipher.GetBlockSize();
-        int inputLength = (int)length;
-        int paddedLength = inputLength;
-        if (paddedLength % blockSize > 0)
-        {
-            paddedLength += blockSize - paddedLength % blockSize;
-        }
-
-        byte[] input = new byte[paddedLength];
-        byte[] output = new byte[cipher.GetOutputSize(paddedLength)];
-
-        inputStream.Read(input, 0, inputLength);
-        int len = cipher.ProcessBytes(input, 0, input.Length, output, 0);
-        cipher.DoFinal(output, len);
-
-        MemoryStream outputStream = new MemoryStream();
-        outputStream.Write(output, 0, inputLength);
-        outputStream.Seek(0, SeekOrigin.Begin);
-        return outputStream;
     }*/
+
+private:
+    static std::string DecryptAes(const char* inputStream, AES_KEY& aeskey, long length);
 
     /// <summary>
     ///     Decrypts a file with a provided decryption key.
@@ -87,25 +71,8 @@ public:
         {
             return null;
         }
-    }
-
-    public static void DecryptAesEcb(MemoryStream inputStream, byte[] key, Bhd5Range[] ranges)
-    {
-        var cipher = CreateAesEcbCipher(key);
-
-        foreach(var range in ranges)
-        {
-            if (range.StartOffset == -1 || range.EndOffset == -1)
-            {
-                continue;
-            }
-
-            inputStream.Position = range.StartOffset;
-            long length = range.EndOffset - range.StartOffset;
-            MemoryStream decryptedStream = DecryptAes(inputStream, cipher, length);
-            inputStream.Position = range.StartOffset;
-            decryptedStream.WriteTo(inputStream);
-        }
     }*/
+
+    static void DecryptAesEcb(std::string& inputStream, const std::vector<std::uint8_t>& key, const std::vector<Bhd5Range>& ranges);
 };
 }

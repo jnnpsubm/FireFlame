@@ -163,7 +163,7 @@ int rsa_op::pubkey_decrypt(const unsigned char *in, int in_len,
     }
     memset((void *)*out, 0, out_len);
 
-    printf("pubkey_decrypt:Begin RSA_public_decrypt ...\n");
+    //printf("pubkey_decrypt:Begin RSA_public_decrypt ...\n");
     return RSA_public_decrypt(in_len, in, *out, _pub_key, RSA_NO_PADDING);
 }
 // ¹«Ô¿¼ÓÃÜº¯Êý

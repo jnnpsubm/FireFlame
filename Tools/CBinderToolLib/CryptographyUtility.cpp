@@ -4,8 +4,9 @@
 #include <sstream>
 #include <assert.h>
 #include <vector>
-#include <openssl/aes.h>
 #include "openssl_rsa_op.h"
+#include "FireFlameHeader.h"
+#include <openssl/aes.h>
 
 namespace CBinderToolLib {
 std::istringstream* CryptographyUtility::DecryptRsa(const std::string& filePath, const std::string& key)
@@ -54,11 +55,63 @@ std::istringstream* CryptographyUtility::DecryptRsa(const std::string& filePath,
     return outStream;
 }
 
-CryptographyUtility::ISS_U_PTR CryptographyUtility::DecryptAesEcb(std::istream& inputStream, std::vector<std::uint8_t>& key)
+CryptographyUtility::ISS_U_PTR CryptographyUtility::DecryptAesEcb(std::istream& inputStream, const std::vector<std::uint8_t>& key)
 {
     AES_KEY aeskey;
-    AES_set_decrypt_key(key.data(), key.size() * 8, &aeskey);
+    AES_set_decrypt_key(key.data(), (int)key.size() * 8, &aeskey);
 
-    return nullptr;
+    auto input_len = FireFlame::IO::file_size(inputStream);
+    auto padded_len = input_len;
+    if (padded_len % AES_BLOCK_SIZE)
+    {
+        padded_len += AES_BLOCK_SIZE - padded_len % AES_BLOCK_SIZE;
+    }
+
+    std::string input(padded_len, 0);
+    std::string output(padded_len, 0);
+    inputStream.read(&input[0], input_len);
+
+    for (size_t i = 0; i < input.size(); i += AES_BLOCK_SIZE)
+    {
+        AES_decrypt((std::uint8_t*)input.data()+i, (std::uint8_t*)&output[0]+i, &aeskey);
+    }
+    output.resize(input_len);
+    ISS_U_PTR ret = std::make_unique<std::istringstream>(output);
+    return std::move(ret);
+}
+
+void CryptographyUtility::DecryptAesEcb(std::string& inputStream, const std::vector<std::uint8_t>& key, const std::vector<Bhd5Range>& ranges)
+{
+    AES_KEY aeskey;
+    AES_set_decrypt_key(key.data(), (int)key.size() * 8, &aeskey);
+
+    for (const auto& range : ranges)
+    {
+        if (range.StartOffset == -1 || range.EndOffset == -1)
+        {
+            continue;
+        }
+        long length = range.EndOffset - range.StartOffset;
+        std::string decryptedStream = DecryptAes(&inputStream[range.StartOffset], aeskey, length);
+        inputStream.replace(range.StartOffset, length, decryptedStream);
+    }
+}
+
+std::string CryptographyUtility::DecryptAes(const char* inputStream, AES_KEY& aeskey, long length)
+{
+    int paddedLength = (int)length;
+    if (paddedLength % AES_BLOCK_SIZE > 0)
+    {
+        paddedLength += AES_BLOCK_SIZE - paddedLength % AES_BLOCK_SIZE;
+    }
+
+    std::string output(paddedLength, 0);
+
+    for (size_t i = 0; i < output.size(); i += AES_BLOCK_SIZE)
+    {
+        AES_decrypt((std::uint8_t*)inputStream + i, (std::uint8_t*)&output[0] + i, &aeskey);
+    }
+    output.resize(length);
+    return output;
 }
 }

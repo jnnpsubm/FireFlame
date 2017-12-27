@@ -1,11 +1,13 @@
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include "Options.h"
 #include "FireFlameHeader.h"
 #include "..\CBinderToolLib\FileNameDictionary.h"
 #include "..\CBinderToolLib\Bdt5FileStream.h"
 #include "..\CBinderToolLib\Utils.h"
 #include "..\CBinderToolLib\Bhd5File.h"
+#include "..\CBinderToolLib\CryptographyUtility.h"
 
 void ShowUsage()
 {
@@ -127,7 +129,6 @@ void UnpackBdtFile(CBinderTool::Options* options)
         {
             for(auto& entry : bucket.GetEntries())
             {
-                //MemoryStream data;
                 if (entry.FileSize == 0)
                 {
                     long fileSize;
@@ -138,31 +139,32 @@ void UnpackBdtFile(CBinderTool::Options* options)
                     }
                     entry.FileSize = fileSize;
                 }
+                std::cout << "entry file size:" << entry.FileSize << std::endl;
 
-                /*if (entry.IsEncrypted)
+                std::string data;
+                if (entry.IsEncrypted())
                 {
-                    data = bdtStream.Read(entry.FileOffset, entry.PaddedFileSize);
-                    CryptographyUtility.DecryptAesEcb(data, entry.AesKey.Key, entry.AesKey.Ranges);
-                    data.Position = 0;
-                    data.SetLength(entry.FileSize);
+                    data = std::move(bdtStream->Read((long)entry.FileOffset, (long)entry.PaddedFileSize));
+                    CryptographyUtility::DecryptAesEcb(data, entry.AesKey->Key, entry.AesKey->Ranges);
+                    data.resize(entry.FileSize);
                 }
                 else
                 {
-                    data = bdtStream.Read(entry.FileOffset, entry.FileSize);
+                    data = bdtStream->Read((long)entry.FileOffset, (long)entry.FileSize);
                 }
 
-                string fileName;
-                string dataExtension = GetDataExtension(data);
-                bool fileNameFound = dictionary.TryGetFileName(entry.FileNameHash, archiveName, out fileName);
+                std::string fileName;
+                std::string dataExtension = Utils::GetDataExtension(data);
+                bool fileNameFound = dictionary->TryGetFileName(entry.FileNameHash, archiveName, fileName);
                 if (!fileNameFound)
                 {
-                    fileNameFound = dictionary.TryGetFileName(entry.FileNameHash, archiveName, dataExtension, out fileName);
+                    fileNameFound = dictionary->TryGetFileName(entry.FileNameHash, archiveName, dataExtension, fileName);
                 }
 
-                string extension;
+                std::string extension;
                 if (fileNameFound)
                 {
-                    extension = Path.GetExtension(fileName);
+                    extension = FireFlame::StringUtils::file_extension(fileName);
 
                     if (dataExtension == ".dcx" && extension != ".dcx")
                     {
@@ -173,10 +175,13 @@ void UnpackBdtFile(CBinderTool::Options* options)
                 else
                 {
                     extension = dataExtension;
-                    fileName = $"{entry.FileNameHash:D10}_{fileNameWithoutExtension}{extension}";
+                    std::ostringstream oss;
+                    oss << std::setw(10) << std::right << entry.FileNameHash << '_' << fileNameWithoutExtension << extension;
+                    fileName = oss.str();
+                    //fileName = $"{entry.FileNameHash:D10}_{fileNameWithoutExtension}{extension}";
                 }
 
-                if (extension == ".enc")
+                /*if (extension == ".enc")
                 {
                     byte[] decryptionKey;
                     if (DecryptionKeys.TryGetAesFileKey(Path.GetFileName(fileName), out decryptionKey))

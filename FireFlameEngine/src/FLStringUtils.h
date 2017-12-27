@@ -91,6 +91,14 @@ std::string file_name(const std::string& path)
 }
 
 inline
+std::string file_extension(const std::string& path)
+{
+    auto pos = path.rfind('.');
+    if (pos == std::string::npos) return "";
+    return path.substr(pos);
+}
+
+inline
 std::string file_name_noext(const std::string& path)
 {
     auto posDot = path.rfind('.');

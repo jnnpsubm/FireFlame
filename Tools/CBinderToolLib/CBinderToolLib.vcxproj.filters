@@ -29,6 +29,16 @@
     <ClInclude Include="Bhd5Bucket.h">
       <Filter>Bhd5</Filter>
     </ClInclude>
+    <ClInclude Include="DcxFile.h">
+      <Filter>Dcx</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxCompression.h">
+      <Filter>Dcx</Filter>
+    </ClInclude>
+    <ClInclude Include="DeflateCompression.h">
+      <Filter>Dcx</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamEncoding.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils.cpp" />
@@ -45,6 +55,9 @@
     <ClCompile Include="Bhd5BucketEntry.cpp">
       <Filter>Bhd5</Filter>
     </ClCompile>
+    <ClCompile Include="DcxFile.cpp">
+      <Filter>Dcx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Bdt5">
@@ -52,6 +65,9 @@
     </Filter>
     <Filter Include="Bhd5">
       <UniqueIdentifier>{fbe3f2b6-f5d6-49ba-9c5e-5895c87301ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dcx">
+      <UniqueIdentifier>{fe531f31-ed7e-445d-8dd3-65d37d8515af}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

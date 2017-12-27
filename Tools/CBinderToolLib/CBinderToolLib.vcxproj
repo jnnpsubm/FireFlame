@@ -184,11 +184,15 @@
     <ClInclude Include="Bhd5Range.h" />
     <ClInclude Include="Bhd5SaltedShaHash.h" />
     <ClInclude Include="CryptographyUtility.h" />
+    <ClInclude Include="DcxCompression.h" />
+    <ClInclude Include="DcxFile.h" />
     <ClInclude Include="DecryptionKeys.h" />
+    <ClInclude Include="DeflateCompression.h" />
     <ClInclude Include="FileNameDictionary.h" />
     <ClInclude Include="FileType.h" />
     <ClInclude Include="GameVersion.h" />
     <ClInclude Include="openssl_rsa_op.h" />
+    <ClInclude Include="StreamEncoding.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +200,7 @@
     <ClCompile Include="Bhd5BucketEntry.cpp" />
     <ClCompile Include="Bhd5File.cpp" />
     <ClCompile Include="CryptographyUtility.cpp" />
+    <ClCompile Include="DcxFile.cpp" />
     <ClCompile Include="DecryptionKeys.cpp" />
     <ClCompile Include="FileNameDictionary.cpp" />
     <ClCompile Include="openssl_rsa_op.cpp" />

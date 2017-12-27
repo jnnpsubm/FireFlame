@@ -3,28 +3,139 @@
 #include "DecryptionKeys.h"
 #include <regex>
 #include "CryptographyUtility.h"
+#include "DcxFile.h"
 
 namespace CBinderToolLib {
+std::unordered_multimap<std::string, std::string> Utils::_fileExtensions =
+{
+    { "BND4",".bnd"},
+    { "BHF4",".bhd"},
+    { "BDF4",".bdt"},
+    { {'D','C','X','\0'},".dcx"},
+    { "DDS ",".dds"},
+    { "TAE ",".tae"},
+    { "FSB5",".fsb"},
+    { "fsSL",".esd"},
+    { "fSSL",".esd" },
+    { {'T','P','F','\0'},".tpf"},
+    { "PFBB",".pfbbin"},
+    { "OBJB",".breakobj"},
+    { "filt",".fltparam"}, // DS II //extension = ".gparam"; // DS III
+    { "VSDF",".vsd"},
+    { "NVG2",".ngp"},
+    { "#BOM",".txt"},
+    { "\x1BLua",".lua"}, // or .hks
+    { "RIFF",".fev"},
+    { "GFX\v",".gfx"},
+    { {'S','M','D','\0'},".metaparam"},
+    { "SMDD",".metadebug"},
+    { "CLM2",".clm2"},
+    { "FLVE",".flver"},
+    { "F2TR",".flver2tri"},
+    { "FRTR",".tri"},
+    { {'F','X','R','\0'},".fxr"},
+    { "ITLIMITER_INFO",".itl"},
+    { "EVD\0",".emevd"},
+    { "ENFL",".entryfilelist"},
+    { "NVMA",".nvma"}, // ?
+    { "MSB ",".msb"}, // ?
+    { "BJBO",".bjbo"}, // ?
+    { "ONAV",".onav"} // ?
+};
+
 bool Utils::TryReadFileSize(Bhd5BucketEntry& entry, Bdt5FileStream& bdtStream, long& fileSize)
 {
     fileSize = 0;
 
     const int sampleLength = 48;
-    std::unique_ptr<std::istream> data = std::move(bdtStream.Read((long)entry.FileOffset, sampleLength));
+    std::unique_ptr<std::istringstream> data = std::make_unique<std::istringstream>(bdtStream.Read((long)entry.FileOffset, sampleLength));
 
     if (entry.IsEncrypted())
     {
         data = CryptographyUtility::DecryptAesEcb(*data.get(), entry.AesKey->Key);
     }
 
-    /*string sampleSignature;
-    if (!TryGetAsciiSignature(data, 4, out sampleSignature)
-        || sampleSignature != DcxFile.DcxSignature)
+    std::string sampleSignature;
+    if (!TryGetAsciiSignature(*data.get(), 4, sampleSignature) || sampleSignature != DcxFile::DcxSignature)
     {
         return false;
     }
 
-    fileSize = DcxFile.DcxSize + DcxFile.ReadCompressedSize(data);*/
+    fileSize = DcxFile::DcxSize + DcxFile::ReadCompressedSize(*data.get());
+    return true;
+}
+
+bool Utils::TryGetAsciiSignature(std::istream& stream, int signatureLength, std::string& signature)
+{
+    const int asciiBytesPerChar = 1;
+    return TryGetSignature(stream, Encoding::ASCII, asciiBytesPerChar, signatureLength, signature);
+}
+
+bool Utils::TryGetUnicodeSignature(std::istream& stream, int signatureLength, std::string& signature)
+{
+    const int unicodeBytesPerChar = 2;
+    return TryGetSignature(stream, Encoding::Unicode, unicodeBytesPerChar, signatureLength, signature);
+}
+
+bool Utils::TryGetSignature(std::istream& stream, Encoding encoding, int bytesPerChar, int signatureLength, std::string& signature)
+{
+    signature.clear();
+
+    auto streamLength = FireFlame::IO::file_size(stream);
+    auto startPosition = stream.tellg();
+    if (streamLength - startPosition < bytesPerChar * signatureLength)
+    {
+        return false;
+    }
+
+    signature.resize(signatureLength);
+    stream.read(&signature[0], signatureLength);
+    stream.seekg(startPosition);
+
+    return true;
+}
+
+std::string Utils::GetDataExtension(const std::string& data)
+{
+    std::string signature;
+    std::string extension;
+
+    if (TryGetAsciiSignature(std::istringstream(data), 4, signature) 
+        && TryGetFileExtension(signature, extension))
+    {
+        //std::cout << "extension:" << extension << std::endl;
+        return extension;
+    }
+
+    const wchar_t* wcstr = reinterpret_cast<const wchar_t*>(&data[0]);
+    std::wstring wstr(wcstr, 4);
+    signature = FireFlame::StringUtils::wstring2string(wstr);
+    if (TryGetFileExtension(signature, extension))
+    {
+        return extension;
+    }
+
+    if (TryGetAsciiSignature(std::istringstream(data), 26, signature)
+        && TryGetFileExtension(signature.substr(12, 14), extension))
+    {
+        return extension;
+    }
+
+    std::cout << "Unknown signature" << std::endl;
+    //Debug.WriteLine($"Unknown signature: '{BitConverter.ToString(Encoding.ASCII.GetBytes(signature)).Replace("-", " ")}'");
+    return ".bin";
+}
+
+bool Utils::TryGetFileExtension(const std::string& signature, std::string& extension)
+{
+    auto& it = _fileExtensions.find(signature);
+    if (it == _fileExtensions.end())
+    {
+        //std::cerr << "unknown file extension" << std::endl;
+        extension = ".bin";
+        return false;
+    }
+    extension = it->second;
     return true;
 }
 
