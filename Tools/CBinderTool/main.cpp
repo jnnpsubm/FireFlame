@@ -140,14 +140,14 @@ void UnpackBdtFile(CBinderTool::Options* options)
                     }
                     entry.FileSize = fileSize;
                 }
-                std::cout << "entry file size:" << entry.FileSize << std::endl;
+                //std::cout << "entry file size:" << entry.FileSize << std::endl;
 
                 std::string data;
                 if (entry.IsEncrypted())
                 {
                     data = std::move(bdtStream->Read((long)entry.FileOffset, (long)entry.PaddedFileSize));
                     CryptographyUtility::DecryptAesEcb(data, entry.AesKey->Key, entry.AesKey->Ranges);
-                    data.resize(entry.FileSize);
+                    data.resize((unsigned)entry.FileSize);
                 }
                 else
                 {
@@ -155,7 +155,7 @@ void UnpackBdtFile(CBinderTool::Options* options)
                 }
 
                 std::string fileName;
-                std::string dataExtension = Utils::GetDataExtension(data);
+                std::string dataExtension = Utils::GetDataExtension(data.substr(0,128));
                 bool fileNameFound = dictionary->TryGetFileName(entry.FileNameHash, archiveName, fileName);
                 if (!fileNameFound)
                 {
@@ -177,8 +177,9 @@ void UnpackBdtFile(CBinderTool::Options* options)
                 {
                     extension = dataExtension;
                     std::ostringstream oss;
-                    oss << std::setw(10) << std::right << entry.FileNameHash << '_' << fileNameWithoutExtension << extension;
+                    oss << std::setw(10) << std::setfill('0') << std::right << entry.FileNameHash << '_' << fileNameWithoutExtension << extension;
                     fileName = oss.str();
+                    //std::cout << fileName << std::endl;
                     //fileName = $"{entry.FileNameHash:D10}_{fileNameWithoutExtension}{extension}";
                 }
 
@@ -206,34 +207,43 @@ void UnpackBdtFile(CBinderTool::Options* options)
                     dcxFile.Read(data);
                     data = std::move(dcxFile.Decompress());
 
-                    /*fileName = Path.Combine(Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName));
+                    
+                    fileName = FireFlame::StringUtils::combine_path
+                    (
+                        FireFlame::StringUtils::dir_name(fileName), 
+                        FireFlame::StringUtils::file_name_noext(fileName)
+                    );
 
                     if (fileNameFound)
                     {
-                        extension = Path.GetExtension(fileName);
+                        extension = FireFlame::StringUtils::file_extension(fileName);
                     }
                     else
                     {
-                        extension = GetDataExtension(data);
+                        extension = Utils::GetDataExtension(data.substr(0,128));
                         fileName += extension;
-                    }*/
+                    }
                 }
 
-                /*Debug.WriteLine(
-                    "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}",
-                    fileNameWithoutExtension,
-                    fileName,
-                    extension,
-                    entry.FileNameHash,
-                    entry.FileOffset,
-                    entry.FileSize,
-                    entry.PaddedFileSize,
-                    entry.IsEncrypted,
-                    fileNameFound);
+                std::ostringstream oss;
+                oss << fileNameWithoutExtension << '\t'
+                    << fileName << '\t'
+                    << extension << '\t'
+                    << entry.FileNameHash << '\t'
+                    << entry.FileOffset << '\t'
+                    << entry.FileSize << '\t'
+                    << entry.PaddedFileSize << '\t'
+                    << entry.IsEncrypted() << '\t'
+                    << fileNameFound << std::endl;
+                OutputDebugStringA(oss.str().c_str());
+                std::cout << oss.str() << std::endl;
 
-                string newFileNamePath = Path.Combine(options.OutputPath, fileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(newFileNamePath));
-                File.WriteAllBytes(newFileNamePath, data.ToArray());*/
+                //if (fileNameFound) continue;
+                std::string newFileNamePath 
+                    = FireFlame::StringUtils::combine_path(options->GetOutputPath(), fileName);
+                FireFlame::IO::create_directory(FireFlame::StringUtils::dir_name(newFileNamePath));
+                std::ofstream outFile(newFileNamePath, std::ios::binary);
+                outFile.write(data.data(), data.size());
             }
         }
     }

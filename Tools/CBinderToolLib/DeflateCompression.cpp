@@ -44,24 +44,10 @@ std::string DeflateCompression::DecompressData(const std::vector<std::uint8_t>& 
         }
         else
         {
+            output.resize(dst_len);
             break;
         }
     }
     return output;
-    /*std::string output(compressedData.size() * 2,'\0');
-    int cnt = 0;
-    while (cnt++ < 10)
-    {
-        auto result = Deflate(compressedData.data(), &output[0], output.size(), DeflateTrackOutSize{});
-        if (result.first == 0)
-        {
-            output.resize(result.second);
-        }
-        else
-        {
-            output.resize(output.size() * 2);
-        }
-    }
-    return output;*/
 }
 }

@@ -30,7 +30,7 @@
      <enum>QFrame::Plain</enum>
     </property>
     <property name="indentation">
-     <number>2</number>
+     <number>5</number>
     </property>
     <attribute name="headerVisible">
      <bool>false</bool>
@@ -56,6 +56,7 @@
      <string>File</string>
     </property>
     <addaction name="actionLoad_DS_Folder"/>
+    <addaction name="actionViewDS3NameDictionary"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -73,6 +74,11 @@
     <string>Load DS Folder</string>
    </property>
   </action>
+  <action name="actionViewDS3NameDictionary">
+   <property name="text">
+    <string>ViewDS3NameDictionary</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -83,7 +89,7 @@
    <sender>actionLoad_DS_Folder</sender>
    <signal>triggered()</signal>
    <receiver>DSExplorerClass</receiver>
-   <slot>LoadDSStorage()</slot>
+   <slot>OnLoadDSStorage()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -91,6 +97,38 @@
     </hint>
     <hint type="destinationlabel">
      <x>558</x>
+     <y>430</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>treeFiles</sender>
+   <signal>itemDoubleClicked(QTreeWidgetItem*,int)</signal>
+   <receiver>DSExplorerClass</receiver>
+   <slot>OnTreeItemDBClick(QTreeWidgetItem*, int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>170</x>
+     <y>435</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>763</x>
+     <y>430</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionViewDS3NameDictionary</sender>
+   <signal>triggered()</signal>
+   <receiver>DSExplorerClass</receiver>
+   <slot>OnViewDS3NameDictionary()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>763</x>
      <y>430</y>
     </hint>
    </hints>

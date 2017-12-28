@@ -67,15 +67,15 @@ CryptographyUtility::ISS_U_PTR CryptographyUtility::DecryptAesEcb(std::istream& 
         padded_len += AES_BLOCK_SIZE - padded_len % AES_BLOCK_SIZE;
     }
 
-    std::string input(padded_len, 0);
-    std::string output(padded_len, 0);
+    std::string input((unsigned)padded_len, 0);
+    std::string output((unsigned)padded_len, 0);
     inputStream.read(&input[0], input_len);
 
     for (size_t i = 0; i < input.size(); i += AES_BLOCK_SIZE)
     {
         AES_decrypt((std::uint8_t*)input.data()+i, (std::uint8_t*)&output[0]+i, &aeskey);
     }
-    output.resize(input_len);
+    output.resize((unsigned)input_len);
     ISS_U_PTR ret = std::make_unique<std::istringstream>(output);
     return std::move(ret);
 }

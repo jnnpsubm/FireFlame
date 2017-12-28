@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="DSUtility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="DSGameVersion.h">
+      <Filter>DSGameFileType</Filter>
+    </ClInclude>
+    <ClInclude Include="DSFileType.h">
+      <Filter>DSGameFileType</Filter>
+    </ClInclude>
+    <ClInclude Include="DSGameFileType.h">
+      <Filter>DSGameFileType</Filter>
+    </ClInclude>
+    <ClInclude Include="DSException.h" />
+    <ClInclude Include="DSFileNameDictionary.h">
+      <Filter>FileNameDictionary</Filter>
+    </ClInclude>
+    <ClInclude Include="type.h" />
+    <ClInclude Include="DSBdt5FileStream.h">
+      <Filter>Bdt5</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{d2dfbfe3-86fc-4814-8c23-53e66b6f87d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSGameFileType">
+      <UniqueIdentifier>{2b047eaa-426a-4c66-9a28-5e9052603b6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileNameDictionary">
+      <UniqueIdentifier>{f7787c28-5893-43c6-a88c-99c6b5e57d63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bdt5">
+      <UniqueIdentifier>{872c07fb-bc8d-4737-bfa4-b76b5c883264}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DSUtility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="DSGameFileType.cpp">
+      <Filter>DSGameFileType</Filter>
+    </ClCompile>
+    <ClCompile Include="DSFileNameDictionary.cpp">
+      <Filter>FileNameDictionary</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

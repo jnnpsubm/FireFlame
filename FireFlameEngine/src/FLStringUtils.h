@@ -103,7 +103,8 @@ std::string file_name_noext(const std::string& path)
 {
     auto posDot = path.rfind('.');
     auto posSplit = (std::min)(path.rfind('\\'), path.rfind('/'));
-    if (posSplit > posDot) return "";
+    //if (posSplit == std::string::npos) posSplit = 0;
+    //if (posSplit > posDot) return "";
     auto count = posDot - posSplit - 1;
     return path.substr(posSplit + 1, (std::max)((decltype(count))0, count));
 }
