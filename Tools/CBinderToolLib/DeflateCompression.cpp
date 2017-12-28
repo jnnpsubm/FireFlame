@@ -1,6 +1,7 @@
 #include "DeflateCompression.h"
 #include "FireFlameHeader.h"
 #include "..\..\Tools_Ext\TinyDeflate\gunzip.hh"
+#include "..\..\Tools_Ext\zlib-1.2.11\zlib.h"
 
 namespace CBinderToolLib {
 const std::string DeflateCompression::DeflateSignature = "DFLT";
@@ -31,7 +32,23 @@ std::string DeflateCompression::CompressData(const std::vector<std::uint8_t>& un
 
 std::string DeflateCompression::DecompressData(const std::vector<std::uint8_t>& compressedData)
 {
-    std::string output(compressedData.size() * 2,'\0');
+    int failed_number = 0;
+    std::string output(compressedData.size() * 2, '\0');
+    while (failed_number < 10)
+    {
+        uLongf dst_len = (uLongf)output.size();
+        if (uncompress((Bytef*)&output[0], &dst_len, compressedData.data(), (uLong)compressedData.size()) != Z_OK)
+        {
+            output.resize(output.size() * 2);
+            failed_number++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return output;
+    /*std::string output(compressedData.size() * 2,'\0');
     int cnt = 0;
     while (cnt++ < 10)
     {
@@ -45,6 +62,6 @@ std::string DeflateCompression::DecompressData(const std::vector<std::uint8_t>& 
             output.resize(output.size() * 2);
         }
     }
-    return output;
+    return output;*/
 }
 }

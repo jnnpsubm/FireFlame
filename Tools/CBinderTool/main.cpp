@@ -204,7 +204,7 @@ void UnpackBdtFile(CBinderTool::Options* options)
                 {
                     DcxFile dcxFile;
                     dcxFile.Read(data);
-                    data = dcxFile.Decompress();
+                    data = std::move(dcxFile.Decompress());
 
                     /*fileName = Path.Combine(Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName));
 

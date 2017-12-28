@@ -11,7 +11,7 @@ const std::string DcxFile::DcaSignature = { 'D','C','A','\0' };
 
 void DcxFile::Read(const std::string& inputStream)
 {
-    std::istringstream iss(inputStream, std::ios::binary);
+    std::istringstream iss(std::move(inputStream), std::ios::binary);
     ReadCommonHeader(iss, Encoding::UTF8, Endian::Big);
     ReadCompressionHeader(iss);
     CompressedData.resize(CompressedSize);
