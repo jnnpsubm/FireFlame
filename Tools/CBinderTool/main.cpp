@@ -8,6 +8,7 @@
 #include "..\CBinderToolLib\Utils.h"
 #include "..\CBinderToolLib\Bhd5File.h"
 #include "..\CBinderToolLib\CryptographyUtility.h"
+#include "..\CBinderToolLib\DcxFile.h"
 
 void ShowUsage()
 {
@@ -181,9 +182,10 @@ void UnpackBdtFile(CBinderTool::Options* options)
                     //fileName = $"{entry.FileNameHash:D10}_{fileNameWithoutExtension}{extension}";
                 }
 
-                /*if (extension == ".enc")
+                if (extension == ".enc")
                 {
-                    byte[] decryptionKey;
+                    throw std::runtime_error("unimplemented......");
+                    /*byte[] decryptionKey;
                     if (DecryptionKeys.TryGetAesFileKey(Path.GetFileName(fileName), out decryptionKey))
                     {
                         EncFile encFile = EncFile.ReadEncFile(data, decryptionKey);
@@ -195,15 +197,16 @@ void UnpackBdtFile(CBinderTool::Options* options)
                     else
                     {
                         Debug.WriteLine($"No decryption key for file \'{fileName}\' found.");
-                    }
+                    }*/
                 }
 
                 if (extension == ".dcx")
                 {
-                    DcxFile dcxFile = DcxFile.Read(data);
-                    data = new MemoryStream(dcxFile.Decompress());
+                    DcxFile dcxFile;
+                    dcxFile.Read(data);
+                    data = dcxFile.Decompress();
 
-                    fileName = Path.Combine(Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName));
+                    /*fileName = Path.Combine(Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName));
 
                     if (fileNameFound)
                     {
@@ -213,10 +216,10 @@ void UnpackBdtFile(CBinderTool::Options* options)
                     {
                         extension = GetDataExtension(data);
                         fileName += extension;
-                    }
+                    }*/
                 }
 
-                Debug.WriteLine(
+                /*Debug.WriteLine(
                     "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}",
                     fileNameWithoutExtension,
                     fileName,

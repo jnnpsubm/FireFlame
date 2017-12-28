@@ -2,37 +2,15 @@
 #include "DcxCompression.h"
 
 namespace CBinderToolLib {
-class DeflateCompression : DcxCompression
+class DeflateCompression : public DcxCompression
 {
-    /*public const string DeflateSignature = "DFLT";
-    public int Level{ get; private set; }
+public:
+    static const std::string DeflateSignature; // "DFLT";
 
-        public override MemoryStream CompressData(byte[] uncompressedData)
-    {
-        MemoryStream compressedBufferStream = new MemoryStream();
-        using (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(compressedBufferStream))
-        {
-            deflaterStream.Write(uncompressedData, 0, uncompressedData.Length);
-        }
-        return compressedBufferStream;
-    }
+    int Level;
+    std::string CompressData(const std::vector<std::uint8_t>& uncompressedData) override;
+    std::string DecompressData(const std::vector<std::uint8_t>& compressedData) override;
 
-    public override MemoryStream DecompressData(byte[] compressedData)
-    {
-        InflaterInputStream inflaterStream = new InflaterInputStream(new MemoryStream(compressedData));
-        MemoryStream outputStream = new MemoryStream();
-        inflaterStream.CopyTo(outputStream);
-        outputStream.Position = 0;
-        return outputStream;
-    }
-
-    public static DeflateCompression Read(BinaryReader reader)
-    {
-        DeflateCompression result = new DeflateCompression();
-        int headerSize = reader.ReadInt32();
-        result.Level = reader.ReadInt32();
-        reader.Skip(16);
-        return result;
-    }*/
+    static DeflateCompression* Read(std::istream& reader);
 };
 }

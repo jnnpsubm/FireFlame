@@ -58,6 +58,9 @@
     <ClCompile Include="DcxFile.cpp">
       <Filter>Dcx</Filter>
     </ClCompile>
+    <ClCompile Include="DeflateCompression.cpp">
+      <Filter>Dcx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Bdt5">

@@ -1,6 +1,7 @@
 #include "DcxFile.h"
 #include <assert.h>
 #include "FireFlameHeader.h"
+#include "DeflateCompression.h"
 
 namespace CBinderToolLib {
 const std::string DcxFile::DcxSignature = { 'D','C','X','\0' };
@@ -8,11 +9,44 @@ const std::string DcxFile::DcsSignature = { 'D','C','S','\0' };
 const std::string DcxFile::DcpSignature = { 'D','C','P','\0' };
 const std::string DcxFile::DcaSignature = { 'D','C','A','\0' };
 
+void DcxFile::Read(const std::string& inputStream)
+{
+    std::istringstream iss(inputStream, std::ios::binary);
+    ReadCommonHeader(iss, Encoding::UTF8, Endian::Big);
+    ReadCompressionHeader(iss);
+    CompressedData.resize(CompressedSize);
+    iss.read((char*)CompressedData.data(), CompressedSize);
+}
+
 int DcxFile::ReadCompressedSize(std::istream& inputStream)
 {
     DcxFile result;
     result.ReadCommonHeader(inputStream, Encoding::UTF8, Endian::Big);
     return result.CompressedSize;
+}
+
+void DcxFile::ReadCompressionHeader(std::istream& reader)
+{
+    std::string signature(4,'\0');
+    reader.read(&signature[0], 4);
+    if (signature != DcpSignature)
+        throw std::runtime_error("Signature was not DCP");
+
+    reader.read(&signature[0], 4);
+    if (signature != DeflateCompression::DeflateSignature)
+        throw std::runtime_error("Compression not implemented ({signature})");
+
+    Compression.reset(DeflateCompression::Read(reader));
+
+    reader.read(&signature[0], 4);
+    if (signature != DcaSignature)
+        throw std::runtime_error("Signature was not DCA");
+
+    unsigned dcaHeaderSize = 0;
+    FireFlame::IO::read_type(reader, dcaHeaderSize);
+    FireFlame::IO::endian_swap(dcaHeaderSize);
+    if (dcaHeaderSize != DcaHeaderSize)
+        throw std::runtime_error("Unsupported DCA header size.");
 }
 
 void DcxFile::ReadCommonHeader(std::istream& inputStream, Encoding encoding, Endian endian)

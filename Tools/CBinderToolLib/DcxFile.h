@@ -29,51 +29,23 @@ private:
         CompressedData = compressedData;
     }
 
-    std::shared_ptr<DcxCompression> Compression;
+    std::shared_ptr<DcxCompression> Compression = nullptr;
     int CompressedSize;
     int UncompressedSize;
 
 public:
     std::vector<std::uint8_t> CompressedData;
+    void Read(const std::string& inputStream);
 
-    /*static DcxFile Read(Stream inputStream)
-    {
-        DcxFile result = new DcxFile();
-        BigEndianBinaryReader reader = new BigEndianBinaryReader(inputStream, Encoding.UTF8, true);
-        result.ReadCommonHeader(reader);
-        result.ReadCompressionHeader(reader);
-        result.CompressedData = reader.ReadBytes(result.CompressedSize);
-        return result;
-    }*/
-
-public:
     static int ReadCompressedSize(std::istream& inputStream);
+
+    std::string Decompress()
+    {
+        return Compression->DecompressData(CompressedData);
+    }
 
 private:
     void ReadCommonHeader(std::istream& inputStream, Encoding encoding, Endian endian);
-
-    /*private void ReadCompressionHeader(BinaryReader reader)
-    {
-        string signature = reader.ReadString(4);
-        if (signature != DcpSignature)
-            throw new Exception("Signature was not DCP");
-        signature = reader.ReadString(4);
-        if (signature != DeflateCompression.DeflateSignature)
-            throw new NotImplementedException($"Compression not implemented ({signature}) ");
-
-        Compression = DeflateCompression.Read(reader);
-
-        signature = reader.ReadString(4);
-        if (signature != DcaSignature)
-            throw new Exception("Signature was not DCA");
-        int dcaHeaderSize = reader.ReadInt32();
-        if (dcaHeaderSize != DcaHeaderSize)
-            throw new Exception("Unsupported DCA header size.");
-    }
-
-    public byte[] Decompress()
-    {
-        return Compression.DecompressData(CompressedData).ToArray();
-    }*/
+    void ReadCompressionHeader(std::istream& reader);
 };
 }
