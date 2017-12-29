@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#ifdef WIN32
+#ifdef _WIN32
 #include <io.h>
 #include <direct.h> 
 #else
@@ -10,7 +10,7 @@
 
 #define MAX_PATH_LEN 512
 
-#ifdef WIN32
+#ifdef _WIN32
 #define ACCESS(fileName,accessMode) _access(fileName,accessMode)
 #define MKDIR(path) _mkdir(path)
 #else

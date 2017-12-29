@@ -90,12 +90,16 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../FireFlameEngine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine;../../Tools_Ext/openssl-1.0.2l-vs2017/include64</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libeay32MDd.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -105,12 +109,16 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../FireFlameEngine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine;../../Tools_Ext/openssl-1.0.2l-vs2017/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libeay32MDd.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -122,7 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../FireFlameEngine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine;../../Tools_Ext/openssl-1.0.2l-vs2017/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,6 +138,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libeay32MD.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -141,7 +153,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../FireFlameEngine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../FireFlameEngine;../../Tools_Ext/openssl-1.0.2l-vs2017/include64</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -149,8 +161,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\Tools_Ext\openssl-1.0.2l-vs2017\lib64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libeay32MD.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DSBhd5Aes.h" />
+    <ClInclude Include="DSBhd5Bucket.h" />
+    <ClInclude Include="DSBhd5BucketEntry.h" />
+    <ClInclude Include="DSBhd5Range.h" />
+    <ClInclude Include="DSBhd5SaltedShaHash.h" />
+    <ClInclude Include="DSDecipherKeys.h" />
+    <ClInclude Include="DSBhd5File.h" />
     <ClInclude Include="DSBdt5FileStream.h" />
     <ClInclude Include="DSException.h" />
     <ClInclude Include="DSFileNameDictionary.h" />
@@ -158,12 +181,22 @@
     <ClInclude Include="DSGameFileType.h" />
     <ClInclude Include="DSGameVersion.h" />
     <ClInclude Include="DSUtility.h" />
+    <ClInclude Include="openssl_rsa_op.h" />
     <ClInclude Include="type.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DSBhd5BucketEntry.cpp" />
+    <ClCompile Include="DSDecipherKeys.cpp" />
+    <ClCompile Include="DSBhd5File.cpp" />
     <ClCompile Include="DSFileNameDictionary.cpp" />
     <ClCompile Include="DSGameFileType.cpp" />
     <ClCompile Include="DSUtility.cpp" />
+    <ClCompile Include="openssl_rsa_op.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Tools_Ext\zlib-1.2.11\contrib\vstudio\vc14\zlibstat.vcxproj">
+      <Project>{745dec58-ebb3-47a9-a9b8-4c6627c01bf8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,12 +5,61 @@
 #include "DSExplorer.h"
 #include "QFileDialog"
 #include "QMessageBox"
+#include "qtextstream.h"
+#include "qmutex.h"
+#include "qdatetime.h"
 #include "src\FLStringUtils.h"
+
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    // 加锁
+    static QMutex mutex;
+    mutex.lock();
+
+    QByteArray localMsg = msg.toLocal8Bit();
+
+    QString strMsg("");
+    switch (type)
+    {
+    case QtDebugMsg:
+        strMsg = QString("Debug:");
+        break;
+    case QtWarningMsg:
+        strMsg = QString("Warning:");
+        break;
+    case QtCriticalMsg:
+        strMsg = QString("Critical:");
+        break;
+    case QtFatalMsg:
+        strMsg = QString("Fatal:");
+        break;
+    }
+
+    // 设置输出信息格式
+    QString strDateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ddd");
+    QString strMessage = QString("Message:%1 File:%2  Line:%3  Function:%4  DateTime:%5")
+        .arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(strDateTime);
+
+    // 输出信息至文件中（读写、追加形式）
+    QFile file("log.txt");
+    file.open(QIODevice::ReadWrite | QIODevice::Append);
+    QTextStream stream(&file);
+    stream << strMessage << "\r\n";
+    file.flush();
+    file.close();
+
+    std::cout << strMessage.toStdString() << std::endl;
+
+    // 解锁
+    mutex.unlock();
+}
 
 DSExplorer::DSExplorer(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+
+    qInstallMessageHandler(myMessageOutput);
 
     AllocConsole();
     FILE *stream;
@@ -25,20 +74,19 @@ DSExplorer::~DSExplorer()
 
 void DSExplorer::OnLoadDSStorage()
 {
-    QString filePath = QFileDialog::getExistingDirectory();
+    QString filePath = QFileDialog::getExistingDirectory(this, tr("Open Directory"),"D:\\DSIII\\Datas2",QFileDialog::ShowDirsOnly);
     if (filePath.size() > 0)
     {
+        mDSPath = filePath;
         if (!mFileNameDictionary)
         {
-            mFileNameDictionary = std::make_unique<DSFS::FileNameDictionary>();
-            mFileNameDictionary->Init(DSFS::GameVersion::DarkSouls3);
-            //mFileNameDictionary->SaveDictionary2File("fileNameDictionary.txt");
+            if (mAsyncTask.Running()) return;
+            mAsyncTask.Run(this, [&]() { LoadNameDictionary(); }, [&]() {FormFileTree(mDSPath); });
         }
-
-        ClearFileTree();
-        std::cout << "DS path:" << filePath.toStdString() << std::endl;
-        FormFileTree(filePath, nullptr);
-        TrimFileTree();
+        else
+        {
+            FormFileTree(mDSPath);
+        }
     }
 }
 
@@ -46,24 +94,8 @@ void DSExplorer::OnViewDS3NameDictionary()
 {
     if (!mFileNameDictionary)
     {
-        mProgressDlg.reset(new QProgressDialog());
-        mProgressDlg->setMinimumDuration(0);
-        mProgressDlg->setWindowTitle("Please wait...");
-        mProgressDlg->setWindowModality(Qt::WindowModal);
-        mProgressDlg->setModal(true);
-        mProgressDlg->setCancelButton(0);
-        mProgressDlg->setFixedWidth(300);
-        mProgressDlg->setRange(0, 100);
-        mProgressDlg->setValue(0);
-
-        mProgressTimer.reset(new QTimer());
-        connect(mProgressTimer.get(), SIGNAL(timeout()), this, SLOT(OnProgressTimer()));
-        mProgressTimer->setInterval(100);
-        mProgressTimer->start();
-        mProgressDlg->show();
-
-        mFutureLoad = std::async(std::launch::async, [&]() { LoadNameDictionary(); });
-        //LoadNameDictionary();
+        if (mAsyncTask.Running()) return;
+        mAsyncTask.Run(this, [&]() { LoadNameDictionary(); }, [&]() {FormNameDictionaryTree(); });
     }
     else 
     {
@@ -78,6 +110,18 @@ void DSExplorer::LoadNameDictionary()
         mFileNameDictionary = std::make_unique<DSFS::FileNameDictionary>();
         mFileNameDictionary->Init(DSFS::GameVersion::DarkSouls3);
     }
+}
+
+void DSExplorer::ParseEncryptedBdtFile(TreeItemData* dataBase)
+{
+    TreeItemDataEBdt* data = reinterpret_cast<TreeItemDataEBdt*>(dataBase);
+    data->bdt5FileStream = std::make_unique<DSFS::Bdt5FileStream>(data->absFilePath);
+
+    std::string bhdFileName = FireFlame::StringUtils::change_extension(data->absFilePath, "bhd");
+    auto bhd5File = std::make_unique<DSFS::Bhd5File>(bhdFileName, data->gameFileType.gameVersion);
+    bhd5File->Decipher();
+    bhd5File->Parse();
+    data->bhd5File = std::move(bhd5File);
 }
 
 void DSExplorer::FormNameDictionaryTree()
@@ -107,12 +151,12 @@ void DSExplorer::FormNameDictionaryTree()
 
 void DSExplorer::OnTreeItemDBClick(QTreeWidgetItem* item, int)
 {
-    TreeItemData* data = TreeItemData::GetItemData(item);
+    TreeItemDataDS* data = (TreeItemDataDS*)TreeItemDataHelper::GetItemData(item);
     if (data == nullptr) return;
 
     std::cout << "Processing " << data->absFilePath 
-        << " type:" << DSFS::GetGameFileTypeStr(data->type) << std::endl;
-    if (data->type.fileType == DSFS::FileType::EncryptedBdt && data->bdt5FileStream == nullptr)
+        << " type:" << DSFS::GetGameFileTypeStr(data->gameFileType) << std::endl;
+    if (data->gameFileType.fileType == DSFS::FileType::EncryptedBdt && data->bdt5FileStream == nullptr)
     {
         std::string fileNameWithoutExtension = FireFlame::StringUtils::file_name(data->absFilePath);
         FireFlame::StringUtils::replace(fileNameWithoutExtension, "Ebl.bdt", "");
@@ -121,11 +165,23 @@ void DSExplorer::OnTreeItemDBClick(QTreeWidgetItem* item, int)
         FireFlame::StringUtils::tolower(archiveName);
         std::cout << "Archive: " << archiveName << std::endl;
 
-        data->bdt5FileStream = std::make_unique<DSFS::Bdt5FileStream>(data->absFilePath);
+        while (mAsyncTask.Running())
+        {
+            QCoreApplication::processEvents();
+        }
+        mAsyncTask.Run(this, [&]() {ParseEncryptedBdtFile(data); }, nullptr);
     }
 }
 
-void DSExplorer::FormFileTree(QString path, QTreeWidgetItem* parent)
+void DSExplorer::FormFileTree(const QString& path)
+{
+    ClearFileTree();
+    std::cout << "DS path:" << path.toStdString() << std::endl;
+    FormFileTree(path, nullptr);
+    TrimFileTree();
+}
+
+void DSExplorer::FormFileTree(const QString& path, QTreeWidgetItem* parent)
 {
     QDir dir(path);
     QFileInfoList fileList = dir.entryInfoList(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
@@ -140,7 +196,7 @@ void DSExplorer::FormFileTree(QString path, QTreeWidgetItem* parent)
         if (fileType.fileType == DSFS::FileType::Unknown) continue;
 
         QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << itemName);
-        QVariant var = QVariant::fromValue((void*)new TreeItemData(fileType, absFilePath.toStdString(), false));
+        QVariant var = QVariant::fromValue((void*)TreeItemDataHelper::AllocDSTreeItemData(fileType, absFilePath.toStdString()));
         item->setData(0, Qt::UserRole, var);
         if (parent)
             parent->addChild(item);
@@ -153,7 +209,7 @@ void DSExplorer::FormFileTree(QString path, QTreeWidgetItem* parent)
         auto itemName = absFilePath.mid(path.size() + 1);
 
         QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << itemName);
-        QVariant var = QVariant::fromValue((void*)new TreeItemData(absFilePath.toStdString(), true));
+        QVariant var = QVariant::fromValue((void*)new TreeItemData(true));
         item->setData(0, Qt::UserRole, var);
         if (parent)
             parent->addChild(item);
@@ -167,16 +223,15 @@ void DSExplorer::TrimFileTree()
 {
     QTreeWidgetItemIterator it(ui.treeFiles);
     while (*it) {
-        TreeItemData* data = TreeItemData::GetItemData(*it);
-        std::cout << "tree item data:" << data->absFilePath << std::endl;
-        if (!data->bDir) TreeItemData::SetMeaningful(*it);
+        TreeItemData* data = TreeItemDataHelper::GetItemData(*it);
+        if (!data->is_directory) TreeItemDataHelper::SetMeaningful(*it);
         ++it;
     }
     auto root = ui.treeFiles->topLevelItemCount();
     for (int i = 0; i < ui.treeFiles->topLevelItemCount(); i++)
     {
         auto item = ui.treeFiles->topLevelItem(i);
-        auto data = TreeItemData::GetItemData(item);
+        auto data = TreeItemDataHelper::GetItemData(item);
         if (!data->meaningful)
         {
             ui.treeFiles->takeTopLevelItem(i);
@@ -189,31 +244,11 @@ void DSExplorer::ClearFileTree()
 {
     QTreeWidgetItemIterator it(ui.treeFiles);
     while (*it) {
-        TreeItemData* data = TreeItemData::GetItemData(*it);
-        delete data;
+        TreeItemData* data = TreeItemDataHelper::GetItemData(*it);
+        delete data;check memory leaks?
         ++it;
     }
     ui.treeFiles->clear();
-}
-
-void DSExplorer::OnProgressTimer()
-{
-    mProgressVal++;
-    if (mProgressVal == 100)
-        mProgressVal = 0;
-    mProgressDlg->setValue(mProgressVal);
-    QCoreApplication::processEvents();
-
-    if (mFutureLoad.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        mProgressTimer->stop();
-        mProgressDlg->setValue(100);
-        mProgressDlg->hide();
-        mProgressTimer.reset(nullptr);
-        mProgressDlg.reset(nullptr);
-
-        FormNameDictionaryTree();
-    }
 }
 
 QFileInfoList DSExplorer::GetFileList(QString path)

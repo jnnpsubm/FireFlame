@@ -21,6 +21,30 @@
     <ClInclude Include="DSBdt5FileStream.h">
       <Filter>Bdt5</Filter>
     </ClInclude>
+    <ClInclude Include="DSBhd5File.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="DSDecipherKeys.h">
+      <Filter>Decipher</Filter>
+    </ClInclude>
+    <ClInclude Include="openssl_rsa_op.h">
+      <Filter>Decipher</Filter>
+    </ClInclude>
+    <ClInclude Include="DSBhd5Range.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="DSBhd5Aes.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="DSBhd5SaltedShaHash.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="DSBhd5BucketEntry.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
+    <ClInclude Include="DSBhd5Bucket.h">
+      <Filter>Bhd5</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Utility">
@@ -35,6 +59,12 @@
     <Filter Include="Bdt5">
       <UniqueIdentifier>{872c07fb-bc8d-4737-bfa4-b76b5c883264}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Bhd5">
+      <UniqueIdentifier>{fed30dc8-d657-4166-882a-827887d4e71d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Decipher">
+      <UniqueIdentifier>{b4209236-993b-4903-86a9-1ea3b3c08f89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DSUtility.cpp">
@@ -45,6 +75,18 @@
     </ClCompile>
     <ClCompile Include="DSFileNameDictionary.cpp">
       <Filter>FileNameDictionary</Filter>
+    </ClCompile>
+    <ClCompile Include="DSBhd5File.cpp">
+      <Filter>Bhd5</Filter>
+    </ClCompile>
+    <ClCompile Include="DSDecipherKeys.cpp">
+      <Filter>Decipher</Filter>
+    </ClCompile>
+    <ClCompile Include="openssl_rsa_op.cpp">
+      <Filter>Decipher</Filter>
+    </ClCompile>
+    <ClCompile Include="DSBhd5BucketEntry.cpp">
+      <Filter>Bhd5</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
