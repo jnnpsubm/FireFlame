@@ -30,7 +30,7 @@
      <enum>QFrame::Plain</enum>
     </property>
     <property name="indentation">
-     <number>5</number>
+     <number>15</number>
     </property>
     <attribute name="headerVisible">
      <bool>false</bool>

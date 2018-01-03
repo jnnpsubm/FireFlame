@@ -4,6 +4,9 @@
 
 namespace DSFS {
     struct GameFileType {
+        GameFileType() = default;
+        GameFileType(FileType fileType, GameVersion gameVersion)
+            : fileType(fileType), gameVersion(gameVersion) {}
         FileType fileType = FileType::Unknown;
         GameVersion gameVersion = GameVersion::Common;
     };

@@ -55,7 +55,7 @@ public:
         treeFiles->setGeometry(QRect(0, 0, 341, 791));
         treeFiles->setFrameShape(QFrame::StyledPanel);
         treeFiles->setFrameShadow(QFrame::Plain);
-        treeFiles->setIndentation(5);
+        treeFiles->setIndentation(15);
         treeFiles->header()->setVisible(false);
         DSExplorerClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(DSExplorerClass);

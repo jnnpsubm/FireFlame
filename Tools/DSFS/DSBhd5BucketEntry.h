@@ -5,6 +5,7 @@
 #include <memory>
 
 namespace DSFS {
+class Bdt5FileStream;
 class Bhd5BucketEntry{
 public:
     Bhd5BucketEntry(std::istream& reader, GameVersion version);
@@ -16,14 +17,19 @@ public:
         
     bool IsEncrypted() const { return Aes != nullptr; }
 
+    std::string Decipher(Bdt5FileStream& bdtStream, unsigned bytes);
+
+    bool TryGetFileSize(Bdt5FileStream& bdtStream);
+    std::string GetDataExtension(Bdt5FileStream& bdtStream);
+
 private:
     unsigned FileNameHash = 0;
     std::int64_t FileOffset = 0;
     std::int64_t FileSize = 0;
     long PaddedFileSize = 0;
 
-    std::unique_ptr<Bhd5Aes>           Aes     = nullptr;
-    std::unique_ptr<Bhd5SaltedShaHash> ShaHash = nullptr;
+    std::shared_ptr<Bhd5Aes>           Aes     = nullptr;
+    std::shared_ptr<Bhd5SaltedShaHash> ShaHash = nullptr;
 };
 }
 

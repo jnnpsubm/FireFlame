@@ -125,6 +125,7 @@ void UnpackBdtFile(CBinderTool::Options* options)
                 options->GetInputGameVersion()
             )
         );
+        std::ofstream outFileNames("D:\\filenames1.txt");
         auto bhdFile = Bhd5File::Read(*inputStream.get(),options->GetInputGameVersion());
         for (auto& bucket : bhdFile->GetBuckets())
         {
@@ -166,7 +167,6 @@ void UnpackBdtFile(CBinderTool::Options* options)
                 if (fileNameFound)
                 {
                     extension = FireFlame::StringUtils::file_extension(fileName);
-
                     if (dataExtension == ".dcx" && extension != ".dcx")
                     {
                         extension = ".dcx";
@@ -182,7 +182,8 @@ void UnpackBdtFile(CBinderTool::Options* options)
                     //std::cout << fileName << std::endl;
                     //fileName = $"{entry.FileNameHash:D10}_{fileNameWithoutExtension}{extension}";
                 }
-
+                outFileNames << fileName << std::endl;
+                continue;
                 if (extension == ".enc")
                 {
                     throw std::runtime_error("unimplemented......");

@@ -167,6 +167,10 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Dcx\DcxCompression.h" />
+    <ClInclude Include="Dcx\DcxFile.h" />
+    <ClInclude Include="Dcx\DeflateCompression.h" />
+    <ClInclude Include="DecipherUtility.h" />
     <ClInclude Include="DSBhd5Aes.h" />
     <ClInclude Include="DSBhd5Bucket.h" />
     <ClInclude Include="DSBhd5BucketEntry.h" />
@@ -185,6 +189,9 @@
     <ClInclude Include="type.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dcx\DcxFile.cpp" />
+    <ClCompile Include="Dcx\DeflateCompression.cpp" />
+    <ClCompile Include="DecipherUtility.cpp" />
     <ClCompile Include="DSBhd5BucketEntry.cpp" />
     <ClCompile Include="DSDecipherKeys.cpp" />
     <ClCompile Include="DSBhd5File.cpp" />

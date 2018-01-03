@@ -16,7 +16,7 @@ namespace DSFS {
             _inputStream.seekg(0, std::ios::beg);
         }
 
-        std::string Read(long fileOffset, long fileSize)
+        std::string Read(std::streampos fileOffset, std::streamsize fileSize)
         {
             if (fileOffset + fileSize > _length)
                 throw std::runtime_error("Bdt5FileStream Read overflow......");

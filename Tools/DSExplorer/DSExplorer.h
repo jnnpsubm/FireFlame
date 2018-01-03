@@ -33,6 +33,13 @@ struct TreeItemDataEBdt : TreeItemDataDS {
     std::unique_ptr<DSFS::Bhd5File>       bhd5File = nullptr;
 };
 
+struct TreeItemDataDSEntry : TreeItemDataDS {
+    TreeItemDataDSEntry(const DSFS::GameFileType& type, const std::string& path)
+        :TreeItemDataDS(type, path) {}
+    std::string fileName;
+    DSFS::Bhd5BucketEntry* entry = nullptr;
+};
+
 struct TreeItemDataHelper {
     static TreeItemData* AllocDSTreeItemData(DSFS::GameFileType gameFileType, const std::string& filePath) {
         switch (gameFileType.fileType)
@@ -51,6 +58,27 @@ struct TreeItemDataHelper {
         auto data = GetItemData(item);
         data->meaningful = true;
         if (item->parent()) SetMeaningful(item->parent());
+    }
+};
+
+class QTreeWidgetHelper
+{
+public:
+    static QTreeWidgetItem* GetChild(const QTreeWidgetItem* parent, const QString& text) {
+        int chindCount = parent->childCount();
+        for (int i = 0; i < chindCount; i++) // todo : search
+        {
+            if (parent->child(i)->text(0) == text) return parent->child(i);
+        }
+        return nullptr;
+    }
+    static void SortChildren(QTreeWidgetItem* parent) {
+        parent->sortChildren(0, Qt::SortOrder::AscendingOrder);
+        int chindCount = parent->childCount();
+        for (int i = 0; i < chindCount; i++)
+        {
+            SortChildren(parent->child(i));
+        }
     }
 };
 
@@ -74,6 +102,8 @@ private:
     void ClearFileTree();
 
     void FormNameDictionaryTree();
+
+    void ExpandEBdtNode(QTreeWidgetItem* node);
 
     QAsyncTask mAsyncTask;
     void LoadNameDictionary();

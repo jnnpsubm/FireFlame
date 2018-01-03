@@ -45,6 +45,18 @@
     <ClInclude Include="DSBhd5Bucket.h">
       <Filter>Bhd5</Filter>
     </ClInclude>
+    <ClInclude Include="DecipherUtility.h">
+      <Filter>Decipher</Filter>
+    </ClInclude>
+    <ClInclude Include="Dcx\DcxCompression.h">
+      <Filter>Dcx</Filter>
+    </ClInclude>
+    <ClInclude Include="Dcx\DcxFile.h">
+      <Filter>Dcx</Filter>
+    </ClInclude>
+    <ClInclude Include="Dcx\DeflateCompression.h">
+      <Filter>Dcx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Utility">
@@ -64,6 +76,9 @@
     </Filter>
     <Filter Include="Decipher">
       <UniqueIdentifier>{b4209236-993b-4903-86a9-1ea3b3c08f89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dcx">
+      <UniqueIdentifier>{97d7ea6b-9f58-4daa-92f8-266b697b14b9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +102,15 @@
     </ClCompile>
     <ClCompile Include="DSBhd5BucketEntry.cpp">
       <Filter>Bhd5</Filter>
+    </ClCompile>
+    <ClCompile Include="DecipherUtility.cpp">
+      <Filter>Decipher</Filter>
+    </ClCompile>
+    <ClCompile Include="Dcx\DcxFile.cpp">
+      <Filter>Dcx</Filter>
+    </ClCompile>
+    <ClCompile Include="Dcx\DeflateCompression.cpp">
+      <Filter>Dcx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
