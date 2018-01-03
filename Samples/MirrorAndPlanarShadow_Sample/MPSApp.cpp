@@ -146,7 +146,7 @@ void MPSApp::AddPSOs()
     scene->AddPSO("terrain", descTerrain);
 
     //PSODesc* pDesc = new (&desc) PSODesc(mShaderDesc.name, mShaderMacrosVS[""], mShaderMacrosPS[""]);
-    desc.default();
+    desc.defaultParam();
     desc.colorWriteEnable[0] = (std::uint8_t)0/*COLOR_WRITE_ENABLE::COLOR_WRITE_ENABLE_ALL*/;
     desc.depthWriteMask = 0;
 
@@ -158,7 +158,7 @@ void MPSApp::AddPSOs()
 
     scene->AddPSO("markStencilMirrors", desc);
 
-    desc.default();
+    desc.defaultParam();
     desc.stencilEnable = true;
     desc.stencilFailOp = STENCIL_OP::KEEP;
     desc.stencilDepthFailOp = STENCIL_OP::KEEP;
@@ -174,12 +174,12 @@ void MPSApp::AddPSOs()
     scene->AddPSO("drawStencilReflections_fk_hair", desc);
 
     // chap11 exercise05
-    desc.default();
+    desc.defaultParam();
     desc.frontCounterClockwise = true;
     scene->AddPSO("drawStencilReflections2", desc);
 
     // transparent
-    desc.default();
+    desc.defaultParam();
     desc.opaque = false;
     scene->AddPSO("transparent", desc);
 
@@ -195,17 +195,17 @@ void MPSApp::AddPSOs()
     scene->AddPSO("shadow_fk", desc);
 
     // firekeeper
-    desc.default();
+    desc.defaultParam();
     desc.opaque = true;
     desc.cullMode = Cull_Mode::None;
     scene->AddPSO("firekeeper", desc);
-    desc.default();
+    desc.defaultParam();
     desc.opaque = false;
     desc.alpha2Coverage = true;
     desc.cullMode = Cull_Mode::None;
     scene->AddPSO("firekeeper_hair", desc);
 
-    desc.default();
+    desc.defaultParam();
     desc.depthEnable = false;
     scene->AddPSO("depth_disabled", desc);
 }

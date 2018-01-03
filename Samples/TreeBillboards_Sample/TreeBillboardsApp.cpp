@@ -205,7 +205,7 @@ void TreeBillboardsApp::AddPSOs()
 
     PSODesc descTree(mShaderDescs["tree"].name,"",mTreeShaderMacrosPS["fogged_and_alpha_clip"]);
     descTree.opaque = true;
-    descTree.topology = Primitive_Topology::PointList;
+    descTree.topologyType = Primitive_Topology_Type::Point;
     descTree.alpha2Coverage = true;
     descTree.cullMode = Cull_Mode::None;
     // for depth complexity
@@ -234,7 +234,7 @@ void TreeBillboardsApp::AddPSOs()
     // end
     mEngine.GetScene()->AddPSO("cull_none_ps_fogged_clipped", desc);
 
-    desc.default();
+    desc.defaultParam();
     // for depth complexity
     desc.stencilEnable = true;
     desc.stencilFailOp = STENCIL_OP::INCR;

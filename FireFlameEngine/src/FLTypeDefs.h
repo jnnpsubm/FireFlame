@@ -114,9 +114,42 @@ enum class Primitive_Topology {
     LineStrip,
     LineList,
     TriangleStrip,
-    TriangleList
+    TriangleList,
+    CONTROL_POINT_PATCHLIST_1 = 33,
+    CONTROL_POINT_PATCHLIST_2 = 34,
+    CONTROL_POINT_PATCHLIST_3 = 35,
+    CONTROL_POINT_PATCHLIST_4 = 36,
+    CONTROL_POINT_PATCHLIST_5 = 37,
+    CONTROL_POINT_PATCHLIST_6 = 38,
+    CONTROL_POINT_PATCHLIST_7 = 39,
+    CONTROL_POINT_PATCHLIST_8 = 40,
+    CONTROL_POINT_PATCHLIST_9 = 41,
+    CONTROL_POINT_PATCHLIST_10 = 42,
+    CONTROL_POINT_PATCHLIST_11 = 43,
+    CONTROL_POINT_PATCHLIST_12 = 44,
+    CONTROL_POINT_PATCHLIST_13 = 45,
+    CONTROL_POINT_PATCHLIST_14 = 46,
+    CONTROL_POINT_PATCHLIST_15 = 47,
+    CONTROL_POINT_PATCHLIST_16 = 48,
+    CONTROL_POINT_PATCHLIST_17 = 49,
+    CONTROL_POINT_PATCHLIST_18 = 50,
+    CONTROL_POINT_PATCHLIST_19 = 51,
+    CONTROL_POINT_PATCHLIST_20 = 52,
+    CONTROL_POINT_PATCHLIST_21 = 53,
+    CONTROL_POINT_PATCHLIST_22 = 54,
+    CONTROL_POINT_PATCHLIST_23 = 55,
+    CONTROL_POINT_PATCHLIST_24 = 56,
+    CONTROL_POINT_PATCHLIST_25 = 57,
+    CONTROL_POINT_PATCHLIST_26 = 58,
+    CONTROL_POINT_PATCHLIST_27 = 59,
+    CONTROL_POINT_PATCHLIST_28 = 60,
+    CONTROL_POINT_PATCHLIST_29 = 61,
+    CONTROL_POINT_PATCHLIST_30 = 62,
+    CONTROL_POINT_PATCHLIST_31 = 63,
+    CONTROL_POINT_PATCHLIST_32 = 64,
 };
 enum class Primitive_Topology_Type {
+    Undefined,
     Point,
     Line,
     Triangle,
@@ -221,7 +254,7 @@ struct PSODesc
         const std::string& shaderName
     ) : shaderName(shaderName)
     {
-        default();
+        defaultParam();
     }
     PSODesc
     (
@@ -229,20 +262,20 @@ struct PSODesc
         const std::string& shaderMacroVS,
         const std::string& shaderMacroPS,
         bool opaque = true,
-        Primitive_Topology topology = Primitive_Topology::TriangleList,
+        Primitive_Topology_Type topologyType = Primitive_Topology_Type::Triangle,
         Cull_Mode cullMode = Cull_Mode::Back
     ) : shaderName(shaderName),
         shaderMacroVS(shaderMacroVS),
         shaderMacroPS(shaderMacroPS),
         opaque(opaque),
-        topology(topology),
+        topologyType(topologyType),
         cullMode(cullMode)
     {}
-    void default() {
+    void defaultParam() {
         shaderMacroVS = "";
         shaderMacroPS = "";
 
-        topology = Primitive_Topology::TriangleList;
+        topologyType = Primitive_Topology_Type::Triangle;
         cullMode = Cull_Mode::Back;
         frontCounterClockwise = false;
 
@@ -280,10 +313,12 @@ struct PSODesc
     }
     std::string shaderName;
     std::string shaderMacroVS;
+    std::string shaderMacroHS;
+    std::string shaderMacroDS;
     std::string shaderMacroGS;
     std::string shaderMacroPS;
     
-    Primitive_Topology topology = Primitive_Topology::TriangleList;
+    Primitive_Topology_Type topologyType = Primitive_Topology_Type::Triangle;
     Cull_Mode cullMode = Cull_Mode::Back;
     bool frontCounterClockwise = false;
 
@@ -442,6 +477,8 @@ struct stRenderItemDesc {
 
 enum class Shader_Type {
     VS = 0,
+    HS,
+    DS,
     TCS,
     TES,
     GS,

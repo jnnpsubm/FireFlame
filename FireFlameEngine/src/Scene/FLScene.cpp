@@ -528,7 +528,14 @@ void Scene::RenderItemChangeShader
     auto PSOName = shader + shaderMacroVS + shaderMacroPS + desc.AsPSOName();
     if (!PSOManager->NameExist(PSOName))
     {
-        AddPSO(PSOName, { shader,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode });
+        AddPSO
+        (
+            PSOName, 
+            { 
+                shader,shaderMacroVS,shaderMacroPS,desc.opaque,
+                FLTopology2FLTopologyType(desc.topology),desc.cullMode
+            }
+        );
     }
     // add render item back to new place
     auto& PSOMapped = shaderMapped[shader];
@@ -576,7 +583,15 @@ void Scene::AddRenderItem
     auto PSOName = shaderName + shaderMacroVS + shaderMacroPS + desc.AsPSOName();
     if (!PSOManager->NameExist(PSOName))
     {
-        AddPSO(PSOName,PSODesc(shaderName,shaderMacroVS,shaderMacroPS,desc.opaque,desc.topology,desc.cullMode));
+        AddPSO
+        (
+            PSOName,
+            PSODesc
+            (
+                shaderName,shaderMacroVS,shaderMacroPS,desc.opaque,
+                FLTopology2FLTopologyType(desc.topology),desc.cullMode
+            )
+        );
     }
     AddRenderItem(primitiveName, shaderName, PSOName, desc);
 }

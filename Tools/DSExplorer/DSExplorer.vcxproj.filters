@@ -42,9 +42,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_DSExplorer.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_DSExplorer.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="QAsyncTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -61,9 +58,6 @@
     </CustomBuild>
     <CustomBuild Include="DSExplorer.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="DSExplorer.qrc">
-      <Filter>Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="QAsyncTask.h">
       <Filter>Header Files</Filter>

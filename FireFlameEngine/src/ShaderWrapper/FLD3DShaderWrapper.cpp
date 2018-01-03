@@ -629,6 +629,12 @@ void D3DShaderWrapper::BuildShadersAndInputLayout(const ShaderDescription& shade
         case Shader_Type::VS:{
             mVSByteCodes[shaderStage.Macros2String()] = byteCode;
         }break;
+        case Shader_Type::HS: {
+            mHSByteCodes[shaderStage.Macros2String()] = byteCode;
+        }break;
+        case Shader_Type::DS: {
+            mDSByteCodes[shaderStage.Macros2String()] = byteCode;
+        }break;
         case Shader_Type::GS: {
             mGSByteCodes[shaderStage.Macros2String()] = byteCode;
         }break;

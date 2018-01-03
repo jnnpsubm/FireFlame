@@ -35,12 +35,12 @@ public:
         UINT64 width, UINT height,
         Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer
     );
-    static Microsoft::WRL::ComPtr<ID3DBlob> D3DUtils::CompileShader(
+    static Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
         const std::wstring& filename,
         const D3D_SHADER_MACRO* defines,
         const std::string& entrypoint,
         const std::string& target);
-    static Microsoft::WRL::ComPtr<ID3DBlob> D3DUtils::CompileShader(
+    static Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
         const std::string& shaderdata,
         const D3D_SHADER_MACRO* defines,
         const std::string& entrypoint,
@@ -350,6 +350,70 @@ inline D3D12_PRIMITIVE_TOPOLOGY FLPrimitiveTop2D3DPrimitiveTop(Primitive_Topolog
         return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     case FireFlame::Primitive_Topology::TriangleStrip:
         return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_1:
+        return D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_2:
+        return D3D_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_3:
+        return D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_4:
+        return D3D_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_5:
+        return D3D_PRIMITIVE_TOPOLOGY_5_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_6:
+        return D3D_PRIMITIVE_TOPOLOGY_6_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_7:
+        return D3D_PRIMITIVE_TOPOLOGY_7_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_8:
+        return D3D_PRIMITIVE_TOPOLOGY_8_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_9:
+        return D3D_PRIMITIVE_TOPOLOGY_9_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_10:
+        return D3D_PRIMITIVE_TOPOLOGY_10_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_11:
+        return D3D_PRIMITIVE_TOPOLOGY_11_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_12:
+        return D3D_PRIMITIVE_TOPOLOGY_12_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_13:
+        return D3D_PRIMITIVE_TOPOLOGY_13_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_14:
+        return D3D_PRIMITIVE_TOPOLOGY_14_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_15:
+        return D3D_PRIMITIVE_TOPOLOGY_15_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_16:
+        return D3D_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_17:
+        return D3D_PRIMITIVE_TOPOLOGY_17_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_18:
+        return D3D_PRIMITIVE_TOPOLOGY_18_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_19:
+        return D3D_PRIMITIVE_TOPOLOGY_19_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_20:
+        return D3D_PRIMITIVE_TOPOLOGY_20_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_21:
+        return D3D_PRIMITIVE_TOPOLOGY_21_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_22:
+        return D3D_PRIMITIVE_TOPOLOGY_22_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_23:
+        return D3D_PRIMITIVE_TOPOLOGY_23_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_24:
+        return D3D_PRIMITIVE_TOPOLOGY_24_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_25:
+        return D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_26:
+        return D3D_PRIMITIVE_TOPOLOGY_26_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_27:
+        return D3D_PRIMITIVE_TOPOLOGY_27_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_28:
+        return D3D_PRIMITIVE_TOPOLOGY_28_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_29:
+        return D3D_PRIMITIVE_TOPOLOGY_29_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_30:
+        return D3D_PRIMITIVE_TOPOLOGY_30_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_31:
+        return D3D_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST;
+    case FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_32:
+        return D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST;
     default:
         throw std::exception("unknown primitive topology");
     }
@@ -409,6 +473,8 @@ inline D3D12_PRIMITIVE_TOPOLOGY_TYPE D3DPrimitiveType(D3D12_PRIMITIVE_TOPOLOGY t
 inline D3D12_PRIMITIVE_TOPOLOGY_TYPE FLPrimitiveType2D3DPrimitiveType(Primitive_Topology_Type type) {
     switch (type)
     {
+    case FireFlame::Primitive_Topology_Type::Undefined:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
     case FireFlame::Primitive_Topology_Type::Point:
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
     case FireFlame::Primitive_Topology_Type::Line:

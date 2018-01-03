@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{525DC611-FC18-414A-A3AF-E38B897EA08B}</ProjectGuid>
+    <ProjectGuid>{EE903AC5-9935-4E0A-883A-85AC9F196DEA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>BasicTessellationSample</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
@@ -154,11 +154,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\Tessellation.hlsl">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\Common\FLEngineApp3.cpp" />
     <ClCompile Include="BasicTessellationApp.cpp" />
     <ClCompile Include="main.cpp" />
@@ -166,6 +161,19 @@
   <ItemGroup>
     <ClInclude Include="..\Common\FLEngineApp3.h" />
     <ClInclude Include="BasicTessellationApp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Tessellation.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

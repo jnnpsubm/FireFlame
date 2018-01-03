@@ -113,11 +113,11 @@ void GSCylinderApp::AddPSOs()
     using namespace FireFlame;
 
     PSODesc descCircle(mShaderDescs["circle"].name);
-    descCircle.topology = Primitive_Topology::LineStrip;
+    descCircle.topologyType = Primitive_Topology_Type::Line;
     mEngine.GetScene()->AddPSO("circle_default", descCircle);
 
     PSODesc descCylinder(mShaderDescs["cylinder"].name);
-    descCylinder.topology = Primitive_Topology::LineStrip;
+    descCylinder.topologyType = Primitive_Topology_Type::Line;
     descCylinder.cullMode = Cull_Mode::None;
     mEngine.GetScene()->AddPSO("cylinder_default", descCylinder);
 }

@@ -1,6 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{707725da-39b2-4ce0-af23-38c0ef0caa66}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Tessellation.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BasicTessellationApp.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\Common\FLEngineApp3.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BasicTessellationApp.h" />
+    <ClInclude Include="..\Common\FLEngineApp3.h" />
   </ItemGroup>
 </Project>

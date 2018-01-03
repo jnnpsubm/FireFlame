@@ -233,7 +233,7 @@ void BlendApp::AddPSOs()
     mEngine.GetScene()->AddPSO("show_fnormal_default", descShowFNormal);
 
     PSODesc descShowVNormal(mShaderShowVNormal.name);
-    descShowVNormal.topology = Primitive_Topology::PointList;
+    descShowVNormal.topologyType = Primitive_Topology_Type::Point;
     mEngine.GetScene()->AddPSO("show_vnormal_default", descShowVNormal);
 
     PSODesc descDepthComplexity2(mShaderDepthComplexity2.name);
@@ -260,7 +260,7 @@ void BlendApp::AddPSOs()
     // end
     mEngine.GetScene()->AddPSO("cull_none_ps_fogged_clipped", desc);
 
-    desc.default();
+    desc.defaultParam();
     // for depth complexity
     desc.stencilEnable = true;
     desc.stencilFailOp = STENCIL_OP::INCR;

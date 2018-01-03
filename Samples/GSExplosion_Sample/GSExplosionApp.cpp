@@ -122,11 +122,11 @@ void GSExplosionApp::AddPSOs()
     mEngine.GetScene()->AddPSO("explosion_default", descIcosahedron);
 
     PSODesc desc(mShaderDescs["explosion2"].name);
-    desc.default();
+    desc.defaultParam();
     desc.opaque = false;
     desc.cullMode = Cull_Mode::None;
     mEngine.GetScene()->AddPSO("undead_legion", desc);
-    desc.default();
+    desc.defaultParam();
     desc.opaque = false;
     desc.alpha2Coverage = true;
     desc.cullMode = Cull_Mode::None;

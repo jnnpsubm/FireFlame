@@ -77,6 +77,26 @@ public:
             it->second->GetBufferSize()
         );
     }
+    std::pair<void*, size_t> GetHS(const std::string& macro) const
+    {
+        auto it = mHSByteCodes.find(macro);
+        if (it == mHSByteCodes.end()) return std::make_pair(nullptr, 0);
+        return std::make_pair
+        (
+            reinterpret_cast<void*>(it->second->GetBufferPointer()),
+            it->second->GetBufferSize()
+        );
+    }
+    std::pair<void*, size_t> GetDS(const std::string& macro) const
+    {
+        auto it = mDSByteCodes.find(macro);
+        if (it == mDSByteCodes.end()) return std::make_pair(nullptr, 0);
+        return std::make_pair
+        (
+            reinterpret_cast<void*>(it->second->GetBufferPointer()),
+            it->second->GetBufferSize()
+        );
+    }
     std::pair<void*, size_t> GetGS(const std::string& macro) const
     {
         auto it = mGSByteCodes.find(macro);
@@ -152,7 +172,8 @@ private:
     std::vector<std::string>              mSemanticNames;
 
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mVSByteCodes;
-    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mTSByteCodes;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mHSByteCodes;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mDSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mGSByteCodes;
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mPSByteCodes;
 

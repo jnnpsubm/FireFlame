@@ -23,6 +23,7 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
     psoDesc.InputLayout = { (D3D12_INPUT_ELEMENT_DESC*)inputLayout.second, (UINT)inputLayout.first };
     psoDesc.pRootSignature = shader->GetRootSignature();
 
+    // vs
     auto vs = shader->GetVS(desc.shaderMacroVS);
     if (!vs.first)
     {
@@ -38,29 +39,33 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
         vs.second
     };
 
+    // hs
+    auto hs = shader->GetHS(desc.shaderMacroHS);
+    if (hs.first)
+    {
+        psoDesc.HS = {
+            reinterpret_cast<BYTE*>(hs.first),
+            hs.second
+        };
+    }
+    // ds
+    auto ds = shader->GetDS(desc.shaderMacroDS);
+    if (ds.first)
+    {
+        psoDesc.DS = {
+            reinterpret_cast<BYTE*>(ds.first),
+            ds.second
+        };
+    }
+
     auto gs = shader->GetGS(desc.shaderMacroGS);
-    if (!gs.first)
+    if (gs.first)
     {
-        spdlog::get("console")->info
-        (
-            "no gs with macro [{0}] in shader {1} in AddPSO",
-            desc.shaderMacroGS.c_str(),
-            desc.shaderName.c_str()
-        );
+        psoDesc.GS = {
+            reinterpret_cast<BYTE*>(gs.first),
+            gs.second
+        };
     }
-    else
-    {
-        spdlog::get("console")->info
-        (
-            "found gs with macro [{0}] in shader {1}",
-            desc.shaderMacroGS.c_str(),
-            desc.shaderName.c_str()
-        );
-    }
-    psoDesc.GS = {
-        reinterpret_cast<BYTE*>(gs.first),
-        gs.second
-    };
 
     auto ps = shader->GetPS(desc.shaderMacroPS);
     if (!ps.first)
@@ -92,7 +97,7 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
         psoDesc.SampleDesc.Count = msaaDesc.sampleCount;
         psoDesc.SampleDesc.Quality = msaaDesc.qualityLevels - 1;
         
-        psoDesc.PrimitiveTopologyType = D3DPrimitiveType(FLPrimitiveTop2D3DPrimitiveTop(desc.topology));
+        psoDesc.PrimitiveTopologyType = FLPrimitiveType2D3DPrimitiveType(desc.topologyType);
         psoDesc.RasterizerState.CullMode = FLCullMode2D3DCullMode(desc.cullMode);
         for (UINT fill = D3D12_FILL_MODE_WIREFRAME;
             fill <= D3D12_FILL_MODE_SOLID; ++fill)

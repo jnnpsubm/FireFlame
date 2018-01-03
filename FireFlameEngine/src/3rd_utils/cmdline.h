@@ -729,8 +729,7 @@ private:
         actual=read(value);
         has=true;
       }
-      catch(const std::exception &e){
-        e;
+      catch(std::exception e){
         return false;
       }
       return true;
