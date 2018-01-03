@@ -225,6 +225,7 @@ void DSExplorer::OnTreeItemDBClick(QTreeWidgetItem* item, int)
     else if (data->gameFileType.fileType == DSFS::FileType::Dcx)
     {
         TreeItemDataDSEntry* dataEntry = (TreeItemDataDSEntry*)data;
+        // todo : add fileNameFound
     }
 }
 

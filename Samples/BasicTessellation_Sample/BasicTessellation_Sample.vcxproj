@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{E3E0EC86-D7F5-493F-9D3D-E51B6C88896A}</ProjectGuid>
+    <ProjectGuid>{EE903AC5-9935-4E0A-883A-85AC9F196DEA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ZFrankDX12Chap06Exercise01</RootNamespace>
+    <RootNamespace>BasicTessellationSample</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -93,6 +93,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -105,6 +106,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -119,6 +121,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -135,6 +138,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../FireFlameEngine/header</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -150,18 +154,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="Mesh.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shaders\color.hlsl">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
