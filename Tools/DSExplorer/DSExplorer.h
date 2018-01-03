@@ -38,6 +38,7 @@ struct TreeItemDataDSEntry : TreeItemDataDS {
         :TreeItemDataDS(type, path) {}
     std::string fileName;
     DSFS::Bhd5BucketEntry* entry = nullptr;
+    DSFS::Bdt5FileStream*  bdt5FileStream = nullptr;
 };
 
 struct TreeItemDataHelper {

@@ -130,8 +130,6 @@ void DSExplorer::ParseEncryptedBdtFile(TreeItemData* dataBase)
     auto bhd5File = std::make_unique<DSFS::Bhd5File>(bhdFileName, data->gameFileType.gameVersion);
     bhd5File->Decipher();
     bhd5File->Parse();
-    //std::ofstream outFileNames("D:\\filenames1.txt");
-    std::ofstream outSizes("D:\\temp\\sizes.txt");
     for (auto& bucket : bhd5File->GetBuckets())
     {
         for (auto& entry : bucket.GetEntries())
@@ -140,7 +138,6 @@ void DSExplorer::ParseEncryptedBdtFile(TreeItemData* dataBase)
             {
                 entry.TryGetFileSize(*data->bdt5FileStream.get());
             }
-            outSizes << "entry file size:\'" << entry.GetFileSize() << '\'' << std::endl;
 
             std::string dataExtension = entry.GetDataExtension(*data->bdt5FileStream.get());
             /*std::cout << "hash:" << entry.GetFileNameHash() 
@@ -173,11 +170,8 @@ void DSExplorer::ParseEncryptedBdtFile(TreeItemData* dataBase)
                 oss << std::setw(10) << std::setfill('0') << std::right << entry.GetFileNameHash() 
                     << '_' << fileNameWithoutExtension << extension;
                 fileName = oss.str();
-                //std::cout << fileName << std::endl;
-                //fileName = $"{entry.FileNameHash:D10}_{fileNameWithoutExtension}{extension}";
             }
             bucket.AddEntryMap(fileName, &entry);
-            //outFileNames << fileName << std::endl;
         }
     }
     data->bhd5File = std::move(bhd5File);
@@ -228,6 +222,10 @@ void DSExplorer::OnTreeItemDBClick(QTreeWidgetItem* item, int)
             mAsyncTask.Run(this, [this,data]() {ParseEncryptedBdtFile(data); }, [item,this]() {ExpandEBdtNode(item); });
         }
     }
+    else if (data->gameFileType.fileType == DSFS::FileType::Dcx)
+    {
+        TreeItemDataDSEntry* dataEntry = (TreeItemDataDSEntry*)data;
+    }
 }
 
 void DSExplorer::ExpandEBdtNode(QTreeWidgetItem* node)
@@ -262,7 +260,10 @@ void DSExplorer::ExpandEBdtNode(QTreeWidgetItem* node)
             QString fileName = (filePath.substr(pos1)).c_str();
             QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << fileName);
             auto gameFileType = DSFS::GetGameFileType(filePath);
-            QVariant var = QVariant::fromValue((void*)new TreeItemDataDSEntry(gameFileType, filePath));
+            TreeItemDataDSEntry* dataEntry = new TreeItemDataDSEntry(gameFileType, filePath);
+            dataEntry->entry = itEntry.second;
+            dataEntry->bdt5FileStream = bdt5FileStream;
+            QVariant var = QVariant::fromValue((void*)dataEntry);
             item->setData(0, Qt::UserRole, var);
             parent->addChild(item);
 
