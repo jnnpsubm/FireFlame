@@ -70,11 +70,15 @@ void BasicTessellationApp::AddShaders()
     shaderDesc.materialCBSize = sizeof(MaterialConstants);
     shaderDesc.ParamDefault();
 
+    std::wstring strHlslFile = L"Shaders\\Tessellation.hlsl";
+    if (mTessTriangle)
+        strHlslFile = L"Shaders\\TriangleTess.hlsl";
+
     shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
-    shaderDesc.AddShaderStage(L"Shaders\\Tessellation.hlsl", Shader_Type::VS, "VS", "vs_5_0");
-    shaderDesc.AddShaderStage(L"Shaders\\Tessellation.hlsl", Shader_Type::HS, "HS", "hs_5_0");
-    shaderDesc.AddShaderStage(L"Shaders\\Tessellation.hlsl", Shader_Type::DS, "DS", "ds_5_0");
-    shaderDesc.AddShaderStage(L"Shaders\\Tessellation.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::VS, "VS", "vs_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::HS, "HS", "hs_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::DS, "DS", "ds_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::PS, "PS", "ps_5_0");
 
     mEngine.GetScene()->AddShader(shaderDesc);
 }
@@ -99,7 +103,15 @@ void BasicTessellationApp::AddMeshs()
         FLVertex(-10.0f, 0.0f, -10.0f),
         FLVertex(+10.0f, 0.0f, -10.0f)
     };
-    std::array<std::int16_t, 4> indices = { 0, 1, 2, 3 };
+    std::vector<std::int16_t> indices;
+    if (mTessTriangle)
+    {
+        indices = { 0, 1, 2, 1, 3, 2 };
+    }
+    else
+    {
+        indices = { 0, 1, 2, 3 };
+    }
 
     auto& meshDesc = mMeshDescs["quad"];
     meshDesc.name = "quad";
@@ -121,7 +133,10 @@ void BasicTessellationApp::AddRenderItems()
     using namespace DirectX;
 
     FireFlame::stRenderItemDesc RItem("land", mMeshDescs["quad"].subMeshs[0]);
-    RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_4;
+    if (mTessTriangle)
+        RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_3;
+    else
+        RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_4;
     XMFLOAT4X4 trans[1];
     XMStoreFloat4x4
     (

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TSIcosahedronApp.cpp" />
+    <ClCompile Include="..\Common\FLEngineApp3.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TSIcosahedronApp.h" />
+    <ClInclude Include="..\Common\FLEngineApp3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{3328513f-c927-48ea-8033-77855dd9011a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\main.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\PNTriangle.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

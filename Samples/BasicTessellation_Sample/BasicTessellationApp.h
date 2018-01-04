@@ -20,4 +20,6 @@ private:
     void AddPSOs();
     void AddMeshs();
     void AddRenderItems();
+
+    bool mTessTriangle = true;
 };

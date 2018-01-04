@@ -636,4 +636,59 @@ GeometryGenerator::MeshData GeometryGenerator::CreateQuad(float x, float y, floa
 
     return meshData;
 }
+
+GeometryGenerator::MeshData GeometryGenerator::CreateIcosahedron()
+{
+    MeshData meshData;
+
+    const float X = 0.525731f;
+    const float Z = 0.850651f;
+    Vector3f pos[12] = {
+        Vector3f(-X, 0.0f, Z),  Vector3f(X, 0.0f, Z),
+        Vector3f(-X, 0.0f, -Z), Vector3f(X, 0.0f, -Z),
+        Vector3f(0.0f, Z, X),   Vector3f(0.0f, Z, -X),
+        Vector3f(0.0f, -Z, X),  Vector3f(0.0f, -Z, -X),
+        Vector3f(Z, X, 0.0f),   Vector3f(-Z, X, 0.0f),
+        Vector3f(Z, -X, 0.0f),  Vector3f(-Z, -X, 0.0f)
+    };
+
+    uint32 k[60] = {
+        1,4,0,  4,9,0,  4,5,9,  8,5,4,  1,8,4,
+        1,10,8, 10,3,8, 8,3,5,  3,2,5,  3,7,2,
+        3,10,7, 10,6,7, 6,11,7, 6,0,11, 6,1,0,
+        10,1,6, 11,0,9, 2,11,9, 5,2,9,  11,2,7
+    };
+
+    meshData.Vertices.resize(12);
+    meshData.Indices32.assign(&k[0], &k[60]);
+
+    for (uint32 i = 0; i < 12; ++i)
+        meshData.Vertices[i].Position = pos[i];
+
+    return meshData;
+}
+
+GeometryGenerator::MeshData GeometryGenerator::CreateOctahedron()
+{
+    MeshData meshData;
+
+    Vector3f pos[6] = {
+        Vector3f(0.f, 1.f, 0.f),  
+        Vector3f(-1.f, 0.f, 0.f),Vector3f(0.f, 0.f, 1.f),Vector3f(1.f, 0.f, 0.f),Vector3f(0.f, 0.f, -1.f),
+        Vector3f(0.f, -1.0f, 0.f)
+    };
+
+    uint32 k[24] = {
+        0,2,1, 0,2,3, 0,4,3, 0,1,4,
+        5,1,2, 5,2,3, 5,3,4, 5,4,1
+    };
+
+    meshData.Vertices.resize(6);
+    meshData.Indices32.assign(&k[0], &k[24]);
+
+    for (uint32 i = 0; i < 6; ++i)
+        meshData.Vertices[i].Position = pos[i];
+
+    return meshData;
+}
 }

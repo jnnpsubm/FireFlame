@@ -167,6 +167,11 @@
     <ClInclude Include="..\Common\FLEngineApp3.h" />
     <ClInclude Include="BasicTessellationApp.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\TriangleTess.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

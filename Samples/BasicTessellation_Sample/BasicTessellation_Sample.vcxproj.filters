@@ -9,6 +9,9 @@
     <None Include="Shaders\Tessellation.hlsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\TriangleTess.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicTessellationApp.cpp" />
