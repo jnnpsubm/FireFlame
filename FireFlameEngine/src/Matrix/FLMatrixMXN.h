@@ -1,6 +1,21 @@
 #pragma once
 #include <iostream>
 namespace FireFlame {
+template<size_t N>
+class VectorN{
+public:
+    float m[N];
+
+    float operator*(const VectorN<N>& rhs) {
+        float val = 0.f;
+        for (size_t i = 0; i < N; i++)
+        {
+            val += m[i] * rhs.m[i];
+        }
+        return val;
+    }
+};
+
 template <size_t M, size_t N>
 class MatrixMXN {
 public:
@@ -36,6 +51,19 @@ public:
 		}
 		return m;
 	}
+
+    /*template <size_t P>
+    MatrixMXN<P, N> operator*(const MatrixMXN<P, M>& rhs) {
+        MatrixMXN<P, N> M;
+        memset(&M, 0, sizeof(M));
+        for (size_t i = 0; i < P; i++)
+        {
+            for (size_t j = 0; j < M; j++)
+            {
+                M[i][j]
+            }
+        }
+    }*/
 };
 
 template <size_t M, size_t N>

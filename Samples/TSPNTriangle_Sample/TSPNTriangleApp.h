@@ -19,8 +19,6 @@ public:
     void OnKeyUp(WPARAM wParam, LPARAM lParam) override;
 
 private:
-    void AddMeshObjFromFile(const std::string& fileName);
-
     void LoadFBXModel(const std::string& fileName);
     void PrintFBXModelInfo(std::ofstream& out, const std::string& prefix, const fbx::FBXNode& node);
 
@@ -28,6 +26,7 @@ private:
     void AddShaderOctahedron();
     void AddShaderModel();
     void AddShaderModelTess();
+    void AddShaderDSModel();
 
     void AddPSOs();
 
@@ -36,13 +35,26 @@ private:
 
     void AddMeshs();
     void AddMeshOctahedron();
+    void AddMeshObjFromFile(const std::string& fileName);
+    void AddMeshDSModel();
+    void AddMeshDSModelPart(size_t part, bool reverseNormal);
 
     void AddRenderItems();
     void AddRenderItemOctahedron();
     void AddRenderItemModel();
     void AddRenderItemModelTess();
+    void AddRenderItemDSModel();
 
     float mTessLod = 1.0f;
 
     fbx::FBXDocument mFBXModel;
+
+    FireFlame::FLVERLoader mSilverKnightLoader;
+
+    std::vector<std::string>  mSKTextures;
+    std::vector<std::wstring> mSKTexFiles;
+
+    std::string mCurrDSModelPart;
+    int         mCurrDSMaterial = 0;
+    std::map<std::string, int> mMapPartMat;
 };

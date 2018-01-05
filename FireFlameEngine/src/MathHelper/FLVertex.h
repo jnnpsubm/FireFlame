@@ -82,6 +82,20 @@ struct FLVertexNormalTex
     {}
 };
 
+struct FLVertexNormalTangentTex
+{
+    Vector3f Pos;
+    Vector3f Normal;
+    Vector3f Tangent;
+    Vector2f Tex;
+    FLVertexNormalTangentTex() = default;
+    FLVertexNormalTangentTex(float x, float y, float z, float u, float v, float w, float s, float t) :
+        Pos(x, y, z),
+        Normal(u, v, w),
+        Tex(s, t)
+    {}
+};
+
 struct FLVertexNormalTexBone : FLVertexNormalTex
 {
     FLVertexNormalTexBone() = default;

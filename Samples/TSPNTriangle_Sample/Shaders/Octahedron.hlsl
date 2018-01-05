@@ -109,6 +109,7 @@ PatchTess ConstantHS(InputPatch<VertexOut, 3> patch, uint patchID : SV_Primitive
     PatchTess patchTess;
 
     float tess = min(64.f, gTessLod);
+    tess = max(1.0f, tess);
     // Uniformly tessellate the patch.
     patchTess.EdgeTess[0] = tess;
     patchTess.EdgeTess[1] = tess;
@@ -166,8 +167,9 @@ struct HullOut
 };
 
 [domain("tri")]
-[partitioning("fractional_odd")]
-[outputtopology("triangle_cw")]
+//[partitioning("fractional_odd")]
+[partitioning("integer")]
+[outputtopology("triangle_ccw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("ConstantHS")]
 [maxtessfactor(64.f)]

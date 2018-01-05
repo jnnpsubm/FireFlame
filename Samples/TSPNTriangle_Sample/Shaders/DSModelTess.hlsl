@@ -18,7 +18,10 @@
 // Include structures and functions for lighting.
 #include "..\..\Common\LightingUtil.hlsli"
 
-Texture2D    gDiffuseMap    : register(t0);
+Texture2D    gDiffuseMap      : register(t0);
+Texture2D    gRoughnessMap    : register(t1);
+Texture2D    gNormalMap       : register(t2);
+
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
 SamplerState gsamLinearWrap       : register(s2);
@@ -39,6 +42,7 @@ cbuffer cbMaterial : register(b1)
     float3   gFresnelR0;
     float    gRoughness;
     float4x4 gMatTransform;
+    int      gUseTexture;
 };
 
 // Constant data that varies per material.
@@ -75,16 +79,18 @@ cbuffer cbPass : register(b2)
 
 struct VertexIn
 {
-    float3 PosL    : POSITION;
-    float3 NormalL : NORMAL;
-    float2 TexC    : TEXCOORD;
+    float3 PosL     : POSITION;
+    float3 NormalL  : NORMAL;
+    float3 TangentL : TANGENT;
+    float2 TexC     : TEXCOORD;
 };
 
 struct VertexOut
 {
-    float3 PosL    : POSITION;
-    float3 NormalL : NORMAL;
-    float2 TexC    : TEXCOORD;
+    float3 PosL     : POSITION;
+    float3 NormalL  : NORMAL;
+    float3 TangentL : TANGENT;
+    float2 TexC     : TEXCOORD;
 };
 
 VertexOut VS(VertexIn vin)
@@ -92,6 +98,7 @@ VertexOut VS(VertexIn vin)
     VertexOut vout = (VertexOut)0.0f;
     vout.PosL = vin.PosL;
     vout.NormalL = vin.NormalL;
+    vout.TangentL = vin.TangentL;
     vout.TexC = vin.TexC;
     return vout;
 }
@@ -136,6 +143,10 @@ PatchTess ConstantHS(InputPatch<VertexOut, 3> patch, uint patchID : SV_Primitive
     float3 normal1 = normalize(patch[0].NormalL);
     float3 normal2 = normalize(patch[1].NormalL);
     float3 normal3 = normalize(patch[2].NormalL);
+
+    //float3 normal1 = gNormalMap.SampleLevel(gsamAnisotropicWrap, patch[0].TexC, 0).xyz;
+    //float3 normal2 = gNormalMap.SampleLevel(gsamAnisotropicWrap, patch[0].TexC, 0).xyz;
+    //float3 normal3 = gNormalMap.SampleLevel(gsamAnisotropicWrap, patch[0].TexC, 0).xyz;
 
 #define P1 (patch[0].PosL)
 #define P2 (patch[1].PosL)
@@ -185,6 +196,7 @@ struct HullOut
 {
     float3 PosL    : POSITION;
     float3 NormalL : NORMAL;
+    float3 TangentL: TANGENT;
     float2 TexC    : TEXCOORD;
 };
 
@@ -200,6 +212,7 @@ HullOut HS(InputPatch<VertexOut, 3> p, uint i : SV_OutputControlPointID, uint pa
     HullOut hout;
     hout.PosL = p[i].PosL;
     hout.NormalL = p[i].NormalL;
+    hout.TangentL = p[i].TangentL;
     hout.TexC = p[i].TexC;
     return hout;
 }
@@ -209,6 +222,7 @@ struct DomainOut
     float4 PosH    : SV_POSITION;
     float3 PosW    : POSITION;
     float3 NormalW : NORMAL;
+    float3 TangentW: TANGENT;
     float2 TexC    : TEXCOORD;
 };
 
@@ -232,6 +246,8 @@ DomainOut DS(PatchTess patch, float3 uvw : SV_DomainLocation, const OutputPatch<
     //p = uvw.x*tri[0].PosL + uvw.y*tri[1].PosL + uvw.z*tri[2].PosL;
     //normal = uvw.x*tri[0].NormalL + uvw.y*tri[1].NormalL + uvw.z*tri[2].NormalL;
     //normal = normalize(normal);
+    float3 tangent = uvw.x*tri[0].TangentL + uvw.y*tri[1].TangentL + uvw.z*tri[2].TangentL;
+    tangent = normalize(tangent);
 #undef u
 #undef v
 #undef w
@@ -239,6 +255,7 @@ DomainOut DS(PatchTess patch, float3 uvw : SV_DomainLocation, const OutputPatch<
     float4 PosW = mul(float4(p, 1.f), gWorld);
     dout.PosW = PosW.xyz;
     dout.NormalW = mul(normal, (float3x3)gWorld);
+    dout.TangentW = mul(tangent, (float3x3)gWorld);
     dout.PosH = mul(PosW, gViewProj);
 
     float4 texC4 = mul(float4(TexC, 0.0f, 1.0f), gTexTransform);
@@ -247,10 +264,49 @@ DomainOut DS(PatchTess patch, float3 uvw : SV_DomainLocation, const OutputPatch<
     return dout;
 }
 
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
+{
+    // Uncompress each component from [0,1] to [-1,1].
+    float3 normalT = 2.0f*normalMapSample - 1.0f;
+    //float3 normalT = normalMapSample;
+
+    // Build orthonormal basis.
+    float3 N = unitNormalW;
+    float3 T = normalize(tangentW - dot(tangentW, N)*N);
+    float3 B = cross(N, T);
+
+    float3x3 TBN = float3x3(T, B, N);
+
+    // Transform from tangent space to world space.
+    float3 bumpedNormalW = mul(normalT, TBN);
+
+    return bumpedNormalW;
+}
+
 float4 PS(DomainOut pin) : SV_Target
 {
-    float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
-    //float4 diffuseAlbedo = gDiffuseAlbedo;
+    float4 ambientDiffuseAlbedo = gDiffuseAlbedo;
+    float4 diffuseAlbedo = gDiffuseAlbedo;
+    float roughness = gRoughness;
+    float3 fresnelR0 = gFresnelR0;
+    if (gUseTexture) {
+        ambientDiffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+        //roughness = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC).r;
+        //diffuseAlbedo = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC);
+        //diffuseAlbedo *= 10.f;
+        fresnelR0 = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC).xyz;
+        //diffuseAlbedo = float4(fresnelR0,1.0f);
+
+        float3 normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC).xyz;
+        float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+        //normalMapSample = 2.0f*normalMapSample - 1.0f;
+        //pin.NormalW += normalMapSample;
+        //pin.NormalW = -bumpedNormalW;
+    }
+    else{
+        ambientDiffuseAlbedo = gDiffuseAlbedo;
+        diffuseAlbedo = gDiffuseAlbedo;
+    }
 
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);
@@ -261,10 +317,10 @@ float4 PS(DomainOut pin) : SV_Target
     toEyeW /= toEyeDis;
 
     // Light terms.
-    float4 ambient = gAmbientLight * diffuseAlbedo;
+    float4 ambient = gAmbientLight * ambientDiffuseAlbedo;
 
-    const float shininess = 1.0f - gRoughness;
-    Material mat = { diffuseAlbedo, gFresnelR0, shininess };
+    const float shininess = 1.0f - roughness;
+    Material mat = { diffuseAlbedo, fresnelR0, shininess };
     float3 shadowFactor = 1.0f;
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
         pin.NormalW, toEyeW, shadowFactor);

@@ -10,6 +10,7 @@ void TSPNTriangleApp::Initialize()
 {
     //LoadFBXModel("Models\\illidan.fbx");
     //LoadFBXModel("Models\\b.fbx");
+    mSilverKnightLoader.load("Models\\silverknight\\silverknight.flver");
 
     AddShaders();
     AddPSOs();
@@ -69,6 +70,7 @@ void TSPNTriangleApp::UpdateMainPassCB(float time_elapsed)
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstants), &passCB);
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["model_shader"].name, sizeof(PassConstants), &passCB);
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["model_shader_tess"].name, sizeof(PassConstants), &passCB);
+    mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["ds_model_shader_tess"].name, sizeof(PassConstants), &passCB);
 }
 
 void TSPNTriangleApp::LoadFBXModel(const std::string& fileName)
@@ -106,6 +108,7 @@ void TSPNTriangleApp::AddShaders()
     AddShaderOctahedron();
     AddShaderModel();
     AddShaderModelTess();
+    AddShaderDSModel();
 }
 
 void TSPNTriangleApp::AddShaderOctahedron()
@@ -173,6 +176,31 @@ void TSPNTriangleApp::AddShaderModelTess()
     mEngine.GetScene()->AddShader(shaderDesc);
 }
 
+void TSPNTriangleApp::AddShaderDSModel()
+{
+    using namespace FireFlame;
+
+    auto& shaderDesc = mShaderDescs["ds_model_shader_tess"];
+    shaderDesc.name = "ds_model_shader_tess";
+    shaderDesc.objCBSize = sizeof(ObjectConsts);
+    shaderDesc.passCBSize = sizeof(PassConstants);
+    shaderDesc.materialCBSize = sizeof(MaterialConstants);
+    shaderDesc.texSRVDescriptorTableSize = 4;
+    shaderDesc.ParamDefault();
+
+    std::wstring strHlslFile = L"Shaders\\DSModelTess.hlsl";
+    shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("TANGENT", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::VS, "VS", "vs_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::HS, "HS", "hs_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::DS, "DS", "ds_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::PS, "PS", "ps_5_0");
+
+    mEngine.GetScene()->AddShader(shaderDesc);
+}
+
 void TSPNTriangleApp::AddPSOs()
 {
     using namespace FireFlame;
@@ -195,6 +223,13 @@ void TSPNTriangleApp::AddPSOs()
     descModelTess.opaque = false;
     descModelTess.alpha2Coverage = true;
     mEngine.GetScene()->AddPSO("model_pso_tess", descModelTess);
+
+    PSODesc descDSModelTess(mShaderDescs["ds_model_shader_tess"].name);
+    descDSModelTess.topologyType = Primitive_Topology_Type::Patch;
+    descDSModelTess.cullMode = Cull_Mode::None;
+    //descDSModelTess.opaque = false;
+    //descDSModelTess.alpha2Coverage = true;
+    mEngine.GetScene()->AddPSO("ds_model_pso_tess", descDSModelTess);
 }
 
 void TSPNTriangleApp::AddTextures()
@@ -202,8 +237,49 @@ void TSPNTriangleApp::AddTextures()
     mEngine.GetScene()->AddTexture
     (
         "illidan_tex",
-        L"Models\\illidan\\illidan_illidan2.dds"
+        //L"Models\\illidan\\illidan_illidan2.dds"
+        L"Models\\illidananims\\illidan_illidan.dds"
+        //L"Models\\lobster\\lobster_lobstrok2_red.dds"
     );
+
+    mSKTextures.push_back("head");
+    mSKTexFiles.push_back(L"c1410_HD8500_");
+    mSKTextures.push_back("body1");
+    mSKTexFiles.push_back(L"c1410_BD8500_1_");
+    mSKTextures.push_back("body2");
+    mSKTexFiles.push_back(L"c1410_BD8500_2_");
+    mSKTextures.push_back("leg");
+    mSKTexFiles.push_back(L"c1410_LG8500_");
+    mSKTextures.push_back("armor");
+    mSKTexFiles.push_back(L"c1410_AM8500_");
+    mSKTextures.push_back("shield");
+    mSKTexFiles.push_back(L"c1410_shield_");
+    mSKTextures.push_back("spear");
+    mSKTexFiles.push_back(L"c1410_spear_");
+    mSKTextures.push_back("sword");
+    mSKTexFiles.push_back(L"c1410_sword_");
+    mSKTextures.push_back("weapon");
+    mSKTexFiles.push_back(L"c1410_WP1360_");
+    mSKTextures.push_back("arrow");
+    mSKTexFiles.push_back(L"c1410_arrow_");
+    for (size_t i = 0; i < mSKTextures.size(); i++)
+    {
+        mEngine.GetScene()->AddTexture
+        (
+            mSKTextures[i]+"_a",
+            std::wstring(L"Models\\silverKnight\\textures\\") + mSKTexFiles[i]+L"a.dds"
+        );
+        mEngine.GetScene()->AddTexture
+        (
+            mSKTextures[i] + "_r",
+            std::wstring(L"Models\\silverKnight\\textures\\") + mSKTexFiles[i] + L"r.dds"
+        );
+        mEngine.GetScene()->AddTexture
+        (
+            mSKTextures[i] + "_n",
+            std::wstring(L"Models\\silverKnight\\textures\\") + mSKTexFiles[i] + L"n.dds"
+        );
+    }
 }
 
 void TSPNTriangleApp::AddMaterials()
@@ -211,7 +287,7 @@ void TSPNTriangleApp::AddMaterials()
     auto& metal = mMaterials["metal"];
     metal.Name = "metal";
     metal.DiffuseAlbedo = FireFlame::Vector4f(0.2f, 0.5f, 0.5f, 1.0f);
-    metal.FresnelR0 = FireFlame::Vector3f(0.35f, 0.75f, 0.75f);
+    metal.FresnelR0 = FireFlame::Vector3f(0.75f, 0.75f, 0.75f);
     metal.Roughness = 0.725f;
     mEngine.GetScene()->AddMaterial
     (
@@ -231,12 +307,63 @@ void TSPNTriangleApp::AddMaterials()
         mShaderDescs["model_shader"].name, "illidan_tex",
         sizeof(MaterialConstants), &model_mat
     );
+
+    auto& model_mat_tess = mMaterials["model_mat_tess"];
+    model_mat_tess.Name = "model_mat_tess";
+    model_mat_tess.DiffuseAlbedo = FireFlame::Vector4f(1.5f, 1.5f, 1.5f, 1.0f);
+    model_mat_tess.FresnelR0 = FireFlame::Vector3f(0.05f, 0.05f, 0.05f);
+    model_mat_tess.Roughness = 0.05f;
+    mEngine.GetScene()->AddMaterial
+    (
+        model_mat_tess.Name,
+        mShaderDescs["model_shader_tess"].name, "illidan_tex",
+        sizeof(MaterialConstants), &model_mat_tess
+    );
+
+    for (size_t i = 0; i < mSKTextures.size(); i++)
+    {
+        std::string matName = std::string("ds_model_mat_tess_") + std::to_string(i);
+        auto& ds_model_mat_tess = mMaterials[matName];
+        ds_model_mat_tess.Name = matName;
+        ds_model_mat_tess.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+        ds_model_mat_tess.FresnelR0 = FireFlame::Vector3f(0.85f, 0.85f, 0.85f);
+        ds_model_mat_tess.Roughness = 0.85f;
+        mEngine.GetScene()->AddMaterial
+        (
+            {
+                ds_model_mat_tess.Name,
+                mShaderDescs["ds_model_shader_tess"].name, 
+                {
+                    { mSKTextures[i]+"_a", FireFlame::SRV_DIMENSION::TEXTURE2D },
+                    { mSKTextures[i]+"_r", FireFlame::SRV_DIMENSION::TEXTURE2D },
+                    { mSKTextures[i]+"_n", FireFlame::SRV_DIMENSION::TEXTURE2D }
+                },
+                sizeof(MaterialConstants), &ds_model_mat_tess
+            }
+        );
+    }
+    std::string matName = std::string("ds_model_mat_defalt");
+    auto& ds_model_defalt = mMaterials[matName];
+    ds_model_defalt.Name = matName;
+    ds_model_defalt.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    ds_model_defalt.FresnelR0 = FireFlame::Vector3f(0.85f, 0.85f, 0.85f);
+    ds_model_defalt.Roughness = 0.85f;
+    ds_model_defalt.UseTexture = 0;
+    mEngine.GetScene()->AddMaterial
+    (
+        ds_model_defalt.Name,
+        mShaderDescs["ds_model_shader_tess"].name, "",
+        sizeof(MaterialConstants), &ds_model_defalt
+    );
 }
 
 void TSPNTriangleApp::AddMeshs()
 {
     AddMeshOctahedron();
-    AddMeshObjFromFile("Models\\illidan\\illidan.obj");
+    //AddMeshObjFromFile("Models\\illidan\\illidan.obj");
+    AddMeshObjFromFile("Models\\illidananims\\illidan.obj");
+    //AddMeshObjFromFile("Models\\lobster\\lobster.obj");
+    AddMeshDSModel();
 }
 
 void TSPNTriangleApp::AddMeshOctahedron()
@@ -335,11 +462,103 @@ void TSPNTriangleApp::AddMeshObjFromFile(const std::string& fileName)
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
+void TSPNTriangleApp::AddMeshDSModel()
+{
+    auto parts = mSilverKnightLoader.get_part_count();
+    for (size_t i = 0; i < parts; i++)
+    {
+        AddMeshDSModelPart(i, true);
+    }
+}
+
+void TSPNTriangleApp::AddMeshDSModelPart(size_t part, bool reverseNormal)
+{
+    using namespace FireFlame;
+
+    std::vector<FireFlame::FLVertexNormalTangentTex> vertices;
+    auto& rawUVs = mSilverKnightLoader.get_uvs();
+    auto& rawVertices = mSilverKnightLoader.get_vertices();
+    auto& rawIndices = mSilverKnightLoader.get_indices();
+
+    std::vector<std::uint32_t> indices;
+    for (const auto& index : rawIndices[part])
+    {
+        indices.push_back(index);
+    }
+
+    vertices.reserve(rawVertices[part].size());
+    for (size_t i = 0; i < rawVertices[part].size(); i++)
+    {
+        vertices.emplace_back
+        (
+            rawVertices[part][i].x, rawVertices[part][i].y, rawVertices[part][i].z,
+            0.f, 0.f, 0.f,
+            rawUVs[part][i].u, -rawUVs[part][i].v
+        );
+    }
+
+    // begin normals
+    for (size_t i = 0; i < indices.size() / 3; i++)
+    {
+        auto& v0 = vertices[indices[i * 3 + 0]];
+        auto& v1 = vertices[indices[i * 3 + 1]];
+        auto& v2 = vertices[indices[i * 3 + 2]];
+        auto e0 = v1.Pos - v0.Pos;
+        auto e1 = v2.Pos - v0.Pos;
+        auto normal = FireFlame::Vector3Cross(reverseNormal ? e1 : e0, reverseNormal ? e0 : e1);
+
+        v0.Normal += normal;
+        v1.Normal += normal;
+        v2.Normal += normal;
+    }
+    for (auto& vertex : vertices)
+    {
+        vertex.Normal.Normalize();
+    }
+    // end normals
+    // begin tangents
+    /*for (size_t i = 0; i < indices.size() / 3; i++)
+    {
+        auto& p0 = vertices[indices[i * 3 + 0]];
+        auto& p1 = vertices[indices[i * 3 + 1]];
+        auto& p2 = vertices[indices[i * 3 + 2]];
+        auto Q0 = p1.Pos - p0.Pos;
+        auto Q1 = p2.Pos - p0.Pos;
+        DirectX::XMFloat
+        auto normal = FireFlame::Vector3Cross(reverseNormal ? e1 : e0, reverseNormal ? e0 : e1);
+
+        v0.Normal += normal;
+        v1.Normal += normal;
+        v2.Normal += normal;
+    }
+    for (auto& vertex : vertices)
+    {
+        vertex.Normal.Normalize();
+    }*/
+    // end tangents
+
+    std::string meshName = "ds_model_" + std::to_string(part);
+    auto& mesh = mMeshDescs[meshName];
+    mesh.name = meshName;
+    mesh.indexCount = (unsigned int)indices.size();
+    mesh.indexFormat = Index_Format::UINT32;
+    mesh.indices = indices.data();
+
+    mesh.vertexDataCount.push_back((unsigned int)vertices.size());
+    mesh.vertexDataSize.push_back(sizeof(FLVertexNormalTangentTex));
+    mesh.vertexData.push_back(vertices.data());
+
+    // sub meshes
+    mesh.subMeshs.emplace_back("All", (UINT)indices.size());
+    mEngine.GetScene()->AddPrimitive(mesh);
+}
+
 void TSPNTriangleApp::AddRenderItems()
 {
-    AddRenderItemOctahedron();
-    AddRenderItemModel();
-    AddRenderItemModelTess();
+    //AddRenderItemOctahedron();
+    //AddRenderItemModel();
+    //AddRenderItemModelTess();
+    AddRenderItemDSModel();
 }
 
 void TSPNTriangleApp::AddRenderItemOctahedron()
@@ -404,12 +623,12 @@ void TSPNTriangleApp::AddRenderItemModelTess()
 
     FireFlame::stRenderItemDesc RItem("model2Tess", mMeshDescs["model1"].subMeshs[0]);
     RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_3;
-    RItem.mat = "model_mat";
+    RItem.mat = "model_mat_tess";
     XMFLOAT4X4 trans[2];
     XMStoreFloat4x4
     (
         &trans[0],
-        XMMatrixTranspose(XMMatrixTranslation(6.0f, 0.0f, 0.0f))
+        XMMatrixTranspose(XMMatrixTranslation(0.0f, 0.0f, 0.0f))
     );
     XMStoreFloat4x4
     (
@@ -431,6 +650,50 @@ void TSPNTriangleApp::AddRenderItemModelTess()
     );
 }
 
+void TSPNTriangleApp::AddRenderItemDSModel()
+{
+    using namespace DirectX;
+
+    auto parts = mSilverKnightLoader.get_part_count();
+    for (size_t part = 0; part < parts; part++) // 9
+    {
+        //if (part == 9) continue;
+
+        std::string matName = "ds_model_mat_defalt";
+        std::string meshName = "ds_model_" + std::to_string(part);
+
+        // add render item
+        FireFlame::stRenderItemDesc RItem(meshName, mMeshDescs[meshName].subMeshs[0]);
+        RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_3;
+        RItem.mat = matName;
+        XMFLOAT4X4 trans[2];
+        DirectX::XMMATRIX fkRotate = XMMatrixRotationY(0/*FireFlame::MathHelper::FL_PI*/);
+        DirectX::XMMATRIX fkScale = XMMatrixScaling(0.03f, 0.03f, 0.03f);
+        DirectX::XMMATRIX fkOffset = XMMatrixTranslation(0.0f, -4.0f, -4.0f);
+        DirectX::XMMATRIX fkWorld = fkRotate * fkScale*fkOffset;
+        XMStoreFloat4x4
+        (
+            &trans[0],
+            XMMatrixTranspose(fkWorld)
+        );
+        XMStoreFloat4x4
+        (
+            &trans[1],
+            XMMatrixIdentity()
+        );
+        RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+        RItem.data = &trans[0];
+        mRenderItems[RItem.name] = RItem;
+        mEngine.GetScene()->AddRenderItem
+        (
+            mMeshDescs[meshName].name,
+            "ds_model_shader_tess",
+            "ds_model_pso_tess",
+            RItem
+        );
+    }
+}
+
 void TSPNTriangleApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 {
     FLEngineApp3::OnKeyUp(wParam, lParam);
@@ -444,5 +707,69 @@ void TSPNTriangleApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
         {
             mTessLod = 1.f;
         }
+    }else if (wParam == 'Z')
+    {
+        mTessLod = 1.f;
+    }
+    else if (wParam == 'M')
+    {
+        mTessLod = 64.f;
+    }
+
+    bool bDirty = false;
+    if (wParam >= '0' && wParam <= '9')
+    {
+        mCurrDSModelPart = "ds_model_" + std::to_string(wParam - '0');
+        bDirty = true;
+    }
+    else if (wParam == 'P')
+    {
+        mCurrDSModelPart = "ds_model_10";
+        bDirty = true;
+    }
+    else if (wParam == 'O')
+    {
+        mCurrDSModelPart = "ds_model_11";
+        bDirty = true;
+    }
+    else if (wParam == 'I')
+    {
+        mCurrDSModelPart = "ds_model_12";
+        bDirty = true;
+    }
+    else if (wParam == 'R')
+    {
+        ++mCurrDSMaterial;
+        if (mCurrDSMaterial >= (int)mSKTextures.size())
+        {
+            mCurrDSMaterial = 0;
+        }
+        bDirty = true;
+    }
+    else if (wParam == 'T')
+    {
+        --mCurrDSMaterial;
+        if (mCurrDSMaterial < 0)
+        {
+            mCurrDSMaterial = 0;
+        }
+        bDirty = true;
+    }
+    else if (wParam == 'S')
+    {
+        for (const auto& pairPM : mMapPartMat)
+        {
+            std::cout << "part:" << pairPM.first << " mat:" << pairPM.second << std::endl;
+        }
+    }
+    if (bDirty)
+    {
+        mEngine.GetScene()->RenderItemChangeMaterial
+        (
+            mCurrDSModelPart,
+            std::string("ds_model_mat_tess_") + std::to_string(mCurrDSMaterial)
+        );
+        std::cout << "part:" << mCurrDSModelPart << " material:" << mCurrDSMaterial << std::endl;
+        mMapPartMat[mCurrDSModelPart] = mCurrDSMaterial;
     }
 }
