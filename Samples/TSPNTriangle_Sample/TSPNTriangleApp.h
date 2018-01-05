@@ -27,6 +27,7 @@ private:
     void AddShaders();
     void AddShaderOctahedron();
     void AddShaderModel();
+    void AddShaderModelTess();
 
     void AddPSOs();
 
@@ -39,6 +40,7 @@ private:
     void AddRenderItems();
     void AddRenderItemOctahedron();
     void AddRenderItemModel();
+    void AddRenderItemModelTess();
 
     float mTessLod = 1.0f;
 

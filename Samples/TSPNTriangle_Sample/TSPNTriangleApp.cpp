@@ -68,6 +68,7 @@ void TSPNTriangleApp::UpdateMainPassCB(float time_elapsed)
     passCB.TessLod = mTessLod;
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstants), &passCB);
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["model_shader"].name, sizeof(PassConstants), &passCB);
+    mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["model_shader_tess"].name, sizeof(PassConstants), &passCB);
 }
 
 void TSPNTriangleApp::LoadFBXModel(const std::string& fileName)
@@ -104,6 +105,7 @@ void TSPNTriangleApp::AddShaders()
 {
     AddShaderOctahedron();
     AddShaderModel();
+    AddShaderModelTess();
 }
 
 void TSPNTriangleApp::AddShaderOctahedron()
@@ -143,8 +145,29 @@ void TSPNTriangleApp::AddShaderModel()
     shaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
     shaderDesc.AddShaderStage(strHlslFile, Shader_Type::VS, "VS", "vs_5_0");
-    //shaderDesc.AddShaderStage(strHlslFile, Shader_Type::HS, "HS", "hs_5_0");
-    //shaderDesc.AddShaderStage(strHlslFile, Shader_Type::DS, "DS", "ds_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::PS, "PS", "ps_5_0");
+
+    mEngine.GetScene()->AddShader(shaderDesc);
+}
+
+void TSPNTriangleApp::AddShaderModelTess()
+{
+    using namespace FireFlame;
+
+    auto& shaderDesc = mShaderDescs["model_shader_tess"];
+    shaderDesc.name = "model_shader_tess";
+    shaderDesc.objCBSize = sizeof(ObjectConsts);
+    shaderDesc.passCBSize = sizeof(PassConstants);
+    shaderDesc.materialCBSize = sizeof(MaterialConstants);
+    shaderDesc.ParamDefault();
+
+    std::wstring strHlslFile = L"Shaders\\ModelTess.hlsl";
+    shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::VS, "VS", "vs_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::HS, "HS", "hs_5_0");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::DS, "DS", "ds_5_0");
     shaderDesc.AddShaderStage(strHlslFile, Shader_Type::PS, "PS", "ps_5_0");
 
     mEngine.GetScene()->AddShader(shaderDesc);
@@ -165,6 +188,13 @@ void TSPNTriangleApp::AddPSOs()
     descModel.opaque = false;
     descModel.alpha2Coverage = true;
     mEngine.GetScene()->AddPSO("model_pso", descModel);
+
+    PSODesc descModelTess(mShaderDescs["model_shader_tess"].name);
+    descModelTess.topologyType = Primitive_Topology_Type::Patch;
+    descModelTess.cullMode = Cull_Mode::None;
+    descModelTess.opaque = false;
+    descModelTess.alpha2Coverage = true;
+    mEngine.GetScene()->AddPSO("model_pso_tess", descModelTess);
 }
 
 void TSPNTriangleApp::AddTextures()
@@ -307,15 +337,16 @@ void TSPNTriangleApp::AddMeshObjFromFile(const std::string& fileName)
 
 void TSPNTriangleApp::AddRenderItems()
 {
-    //AddRenderItemOctahedron();
+    AddRenderItemOctahedron();
     AddRenderItemModel();
+    AddRenderItemModelTess();
 }
 
 void TSPNTriangleApp::AddRenderItemOctahedron()
 {
     using namespace DirectX;
 
-    FireFlame::stRenderItemDesc RItem("land", mMeshDescs["quad"].subMeshs[0]);
+    FireFlame::stRenderItemDesc RItem("Octahedron", mMeshDescs["quad"].subMeshs[0]);
     RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_3;
     XMFLOAT4X4 trans[1];
     XMStoreFloat4x4
@@ -347,7 +378,7 @@ void TSPNTriangleApp::AddRenderItemModel()
     XMStoreFloat4x4
     (
         &trans[0],
-        XMMatrixTranspose(XMMatrixTranslation(0.0f, 0.0f, 0.0f))
+        XMMatrixTranspose(XMMatrixTranslation(-6.0f, 0.0f, 0.0f))
     );
     XMStoreFloat4x4
     (
@@ -362,6 +393,39 @@ void TSPNTriangleApp::AddRenderItemModel()
         mMeshDescs["model1"].name,
         mShaderDescs["model_shader"].name,
         "model_pso",
+        0,
+        RItem
+    );
+}
+
+void TSPNTriangleApp::AddRenderItemModelTess()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("model2Tess", mMeshDescs["model1"].subMeshs[0]);
+    RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_3;
+    RItem.mat = "model_mat";
+    XMFLOAT4X4 trans[2];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose(XMMatrixTranslation(6.0f, 0.0f, 0.0f))
+    );
+    XMStoreFloat4x4
+    (
+        &trans[1],
+        XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f))
+    );
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["model1"].name,
+        mShaderDescs["model_shader_tess"].name,
+        "model_pso_tess",
+        //mShaderDescs["main"].name,
+        //"default",
         0,
         RItem
     );
