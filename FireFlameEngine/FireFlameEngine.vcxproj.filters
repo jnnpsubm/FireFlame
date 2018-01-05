@@ -118,6 +118,18 @@
     <ClCompile Include="src\Filters\FLD3DSobelFilter.cpp">
       <Filter>src\Filters</Filter>
     </ClCompile>
+    <ClCompile Include="src\3rd_utils\fbx\fbxdocument.cpp">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\fbx\fbxnode.cpp">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\fbx\fbxproperty.cpp">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_utils\fbx\fbxutil.cpp">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -429,6 +441,21 @@
     <ClInclude Include="src\Filters\FLD3DSobelFilter.h">
       <Filter>src\Filters</Filter>
     </ClInclude>
+    <ClInclude Include="src\3rd_utils\fbx\fbxdocument.h">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\fbx\fbxnode.h">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\fbx\fbxproperty.h">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\fbx\fbxutil.h">
+      <Filter>src\3rd_utils\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_utils\tinyobjloader\tiny_obj_loader.h">
+      <Filter>src\3rd_utils\tinyObjLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -556,6 +583,12 @@
     </Filter>
     <Filter Include="src\Texture\DynamicTexture">
       <UniqueIdentifier>{6a4c06f5-750e-4a89-8ea0-640edcf48a17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils\fbx">
+      <UniqueIdentifier>{163f68c7-adbe-444c-a567-d8f212a49026}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rd_utils\tinyObjLoader">
+      <UniqueIdentifier>{89faf6e9-f7ff-49e0-8584-22f4795863d6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

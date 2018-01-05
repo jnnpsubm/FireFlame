@@ -57,6 +57,8 @@ float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 t
     specAlbedo = specAlbedo / (specAlbedo + 1.0f);
 
     return (mat.DiffuseAlbedo.rgb + specAlbedo) * lightStrength;
+    //return (mat.DiffuseAlbedo.rgb) * lightStrength;
+    //return (specAlbedo) * lightStrength;
 }
 
 //---------------------------------------------------------------------------------------
