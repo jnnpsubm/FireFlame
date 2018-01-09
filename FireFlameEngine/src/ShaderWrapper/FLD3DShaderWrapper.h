@@ -28,6 +28,9 @@ private:
 public:
     D3DShaderWrapper(const std::string& name) : D3DShaderWrapperBase(name) {}
 
+    void SetTextureGroupSrvIndex(UINT index) { mTextureGroupSrvIndex = index; }
+    UINT GetTextureGroupSrvIndex() const { return mTextureGroupSrvIndex; }
+
     void SetParamIndex(UINT texParamIndex, UINT objParamIndex, UINT multiObjParamIndex, UINT matParamIndex, UINT passParamIndex)
     {
         mTexParamIndex = texParamIndex;
@@ -40,7 +43,9 @@ public:
     void UpdateMultiObjCBData(unsigned int index, size_t size, const void* data);
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
-    void BuildRootSignature(ID3D12Device* device);
+    void BuildRootSignature(ID3D12Device* device, bool dynamicMat);
+    void BuildRootSignatureNormal(ID3D12Device* device);
+    void BuildRootSignatureDynamicMat(ID3D12Device* device);
     void BuildRootSignature(ID3D12Device* device, const ShaderDescription& shaderDesc);
 
     void BuildShadersAndInputLayout(const ShaderDescription& shaderDesc);
@@ -56,7 +61,7 @@ public:
 
     UINT CreateTexSRV(ID3D12Resource* res);
     UINT CreateTexSRV(const std::vector<ID3D12Resource*>& vecRes);
-    UINT CreateTexSRV(const std::vector<stMaterialDesc::TEX>& vecTex);
+    UINT CreateTexSRV(const std::vector<TEX>& vecTex);
 
     // Get Methods
     std::string           GetDefaultPassCBName() const { return mName + "_pass0"; }
@@ -180,6 +185,9 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>   mCbvHeap              = nullptr;
 
     std::unordered_map<std::string, RootParamData> mRootParamData;
+
+    bool                                           mDynamicMaterials = false;
+    UINT                                           mTextureGroupSrvIndex = -1;
 
     UINT                                           mTexSrvDescriptorTableSize = 4;
 

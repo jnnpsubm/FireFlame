@@ -679,6 +679,7 @@ struct ShaderDescription {
     std::vector<stSemanticName> semanticNames;   // order must match vertexFormats
 
     bool                        useRootParamDescription = false;
+    bool                        useDynamicMat = false;
 
     bool                        addDefaultSamplers = true;
     std::vector<ROOT_PARAMETER> rootParameters;
@@ -801,15 +802,16 @@ enum class SRV_DIMENSION :std::uint8_t
     TEXTURECUBEARRAY = 10
 };
 
+struct TEX
+{
+    explicit TEX(const std::string& name) :name(name) {}
+    TEX(const std::string& name, SRV_DIMENSION dim) :name(name), viewDimension(dim) {}
+    std::string name;
+    SRV_DIMENSION viewDimension = SRV_DIMENSION::TEXTURE2D;
+};
+
 struct stMaterialDesc
 {
-    struct TEX
-    {
-        explicit TEX(const std::string& name) :name(name) {}
-        TEX(const std::string& name, SRV_DIMENSION dim) :name(name), viewDimension(dim) {}
-        std::string name;
-        SRV_DIMENSION viewDimension = SRV_DIMENSION::TEXTURE2D;
-    };
     std::string name;
     std::string shaderName;
     std::vector<TEX> textures;

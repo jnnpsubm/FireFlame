@@ -336,7 +336,7 @@ void Scene::AddShader(const ShaderDescription& shaderDesc)
             shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
             shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
         );
-        shader->BuildRootSignature(mRenderer->GetDevice());
+        shader->BuildRootSignature(mRenderer->GetDevice(), shaderDesc.useDynamicMat);
     }
     
     shader->BuildShadersAndInputLayout(shaderDesc);
@@ -691,9 +691,15 @@ void Scene::AddTexture(const std::string& name, const std::wstring& filename)
     mTextures[tex->name] = std::move(tex);
 }
 
-void Scene::AddTextureGroup(const std::string& name, std::vector<std::wstring> filenames)
+void Scene::AddTextureGroup(const std::string& shaderName, const std::vector<TEX>& textures)
 {
+    auto itShader = mShaders.find(shaderName);
+    if (itShader == mShaders.end())
+        throw std::exception("cannot find shader in AddTextureGroup");
+    auto shader = itShader->second;
 
+    assert(textures.size() <= shader->GetTexSRVDescriptorTableSize());
+    if (!textures.empty()) shader->SetTextureGroupSrvIndex(shader->CreateTexSRV(textures));
 }
 
 void Scene::AddTexture(const std::string& name, std::uint8_t* data, size_t len)

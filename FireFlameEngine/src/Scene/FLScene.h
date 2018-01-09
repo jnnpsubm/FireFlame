@@ -139,7 +139,7 @@ public:
         const stRenderItemDesc& desc
     );
     void AddTexture(const std::string& name, const std::wstring& filename);
-    void AddTextureGroup(const std::string& name, std::vector<std::wstring> filenames);
+    void AddTextureGroup(const std::string& shaderName, const std::vector<TEX>& textures);
     void AddTexture(const std::string& name, std::uint8_t* data, size_t len);
     void AddTexture2D
     (

@@ -290,15 +290,15 @@ float4 PS(DomainOut pin) : SV_Target
     float roughness = gRoughness;
     float3 fresnelR0 = gFresnelR0;
     if (gUseTexture) {
-        ambientDiffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+        //ambientDiffuseAlbedo = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC);
         //roughness = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC).r;
-        //diffuseAlbedo = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC);
+        diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
         //diffuseAlbedo *= 10.f;
-        fresnelR0 = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC).xyz;
+        //fresnelR0 = gRoughnessMap.Sample(gsamAnisotropicWrap, pin.TexC).xyz;
         //diffuseAlbedo = float4(fresnelR0,1.0f);
 
-        float3 normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC).xyz;
-        float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+        //float3 normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC).xyz;
+        //float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
         //normalMapSample = 2.0f*normalMapSample - 1.0f;
         //pin.NormalW += normalMapSample;
         //pin.NormalW = -bumpedNormalW;
