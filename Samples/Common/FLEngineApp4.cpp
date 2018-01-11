@@ -1,26 +1,20 @@
 #include "FLEngineApp4.h"
 #include <string>
 
-FLEngineApp4::FLEngineApp4(FireFlame::Engine& engine, float cameraMinDis, float cameraMaxDis) :
-    mEngine(engine),
-    mMinRadius(cameraMinDis),
-    mMaxRadius(cameraMaxDis)
-{}
+FLEngineApp4::FLEngineApp4(FireFlame::Engine& engine) :
+    mEngine(engine)
+{
+    mCamera.SetPosition(0.0f, 2.0f, -15.0f);
+}
 FLEngineApp4::~FLEngineApp4() {}
 
 void FLEngineApp4::OnGameWindowResized(int w, int h) {
-    // The window resized, so update the aspect ratio and recompute the projection matrix.
-    DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH
-    (
-        0.25f*DirectX::XMVectorGetX(DirectX::g_XMPi),
-        (float)w / h, 1.0f, 1000.0f
-    );
-    DirectX::XMStoreFloat4x4(&mProj, P);
+    float aspectRatio = static_cast<float>(w) / h;
+    mCamera.SetLens(0.25f*FireFlame::MathHelper::FL_PI, aspectRatio, 1.0f, 1000.0f);
 }
 void FLEngineApp4::Update(float time_elapsed) 
 {
     OnKeyboardInput(time_elapsed);
-    UpdateCamera(time_elapsed);
     UpdateMainPassCB(time_elapsed);
 }
 
@@ -29,8 +23,8 @@ void FLEngineApp4::UpdateMainPassCB(float time_elapsed)
     using namespace DirectX;
 
     // pass constants
-    XMMATRIX view = XMLoadFloat4x4(&mView);
-    XMMATRIX proj = XMLoadFloat4x4(&mProj);
+    XMMATRIX view = mCamera.GetView();
+    XMMATRIX proj = mCamera.GetProj();
 
     XMMATRIX viewProj = XMMatrixMultiply(view, proj);
     XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
@@ -44,7 +38,7 @@ void FLEngineApp4::UpdateMainPassCB(float time_elapsed)
     XMStoreFloat4x4(&passCB.InvProj, XMMatrixTranspose(invProj));
     XMStoreFloat4x4(&passCB.ViewProj, XMMatrixTranspose(viewProj));
     XMStoreFloat4x4(&passCB.InvViewProj, XMMatrixTranspose(invViewProj));
-    passCB.EyePosW = mEyePos;
+    passCB.EyePosW = mCamera.GetPosition3f();
     float clientWidth = (float)mEngine.GetWindow()->ClientWidth();
     float clientHeight = (float)mEngine.GetWindow()->ClientHeight();
     passCB.RenderTargetSize = XMFLOAT2(clientWidth, clientHeight);
@@ -65,22 +59,6 @@ void FLEngineApp4::UpdateMainPassCB(float time_elapsed)
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstants), &passCB);
 }
 
-void FLEngineApp4::UpdateCamera(float time_elapsed)
-{
-    // Convert Spherical to Cartesian coordinates.
-    mEyePos.x = mRadius*sinf(mPhi)*cosf(mTheta);
-    mEyePos.z = mRadius*sinf(mPhi)*sinf(mTheta);
-    mEyePos.y = mRadius*cosf(mPhi);
-
-    // Build the view matrix.
-    DirectX::XMVECTOR pos = DirectX::XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
-    DirectX::XMVECTOR target = DirectX::XMVectorZero();
-    DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-    DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(pos, target, up);
-    DirectX::XMStoreFloat4x4(&mView, view);
-}
-
 void FLEngineApp4::OnMouseDown(WPARAM btnState, int x, int y) {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -90,32 +68,13 @@ void FLEngineApp4::OnMouseUp(WPARAM btnState, int x, int y) {
     ReleaseCapture();
 }
 void FLEngineApp4::OnMouseMove(WPARAM btnState, int x, int y) {
-    if ((btnState & MK_LBUTTON) != 0) {
+    if ((btnState & MK_LBUTTON) != 0){
         // Make each pixel correspond to a quarter of a degree.
-        float dx = DirectX::XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
-        float dy = DirectX::XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
-
-        // Update angles based on input to orbit camera around box.
-        mTheta += dx;
-        mPhi += dy;
-
-        // Restrict the angle mPhi.
-
-        mPhi = FireFlame::MathHelper::Clamp(mPhi, 0.1f, DirectX::XMVectorGetX(DirectX::g_XMPi) - 0.1f);
+        float dx = FireFlame::MathHelper::ToRadius(0.25f*static_cast<float>(x - mLastMousePos.x));
+        float dy = FireFlame::MathHelper::ToRadius(0.25f*static_cast<float>(y - mLastMousePos.y));
+        mCamera.Pitch(dy);
+        mCamera.RotateY(dx);
     }
-    else if ((btnState & MK_RBUTTON) != 0)
-    {
-        // Make each pixel correspond to 0.005 unit in the scene.
-        float dx = mPixelStep*static_cast<float>(x - mLastMousePos.x);
-        float dy = mPixelStep*static_cast<float>(y - mLastMousePos.y);
-
-        // Update the camera radius based on input.
-        mRadius += dx - dy;
-
-        // Restrict the radius.
-        mRadius = FireFlame::MathHelper::Clamp(mRadius, mMinRadius, mMaxRadius);
-    }
-
     mLastMousePos.x = x;
     mLastMousePos.y = y;
 }
@@ -126,20 +85,28 @@ void FLEngineApp4::OnKeyUp(WPARAM wParam, LPARAM lParam) {
 
 void FLEngineApp4::OnKeyboardInput(float time_elapsed)
 {
+    const float dt = mEngine.DeltaTime();
+    if (GetAsyncKeyState('W') & 0x8000)
+        mCamera.Walk(10.0f*dt);
+    if (GetAsyncKeyState('S') & 0x8000)
+        mCamera.Walk(-10.0f*dt);
+    if (GetAsyncKeyState('A') & 0x8000)
+        mCamera.Strafe(-10.0f*dt);
+    if (GetAsyncKeyState('D') & 0x8000)
+        mCamera.Strafe(10.0f*dt);
     if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-        mSunTheta -= 1.0f*time_elapsed;
-
+        mCamera.Roll(10.0f*dt);
     if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-        mSunTheta += 1.0f*time_elapsed;
+        mCamera.Roll(-10.0f*dt);
+    if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+    {
+        if (GetAsyncKeyState(VK_LSHIFT) & 0x8000)
+            mCamera.Descend(5.f*dt);
+        else
+            mCamera.Ascend(5.f*dt);
+    }
+    mCamera.UpdateViewMatrix();
 
-    if (GetAsyncKeyState(VK_UP) & 0x8000)
-        mSunPhi -= 1.0f*time_elapsed;
-
-    if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-        mSunPhi += 1.0f*time_elapsed;
-
-    mSunPhi = FireFlame::MathHelper::Clamp(mSunPhi, 0.1f, FireFlame::MathHelper::FL_PIDIV2);
-
-    if (GetAsyncKeyState(VK_F5) & 0x8000)
+    if (GetAsyncKeyState(VK_F8) & 0x8000)
         mEngine.GetScene()->PrintScene();
 }

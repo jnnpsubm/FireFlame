@@ -130,6 +130,9 @@
     <ClCompile Include="src\3rd_utils\fbx\fbxutil.cpp">
       <Filter>src\3rd_utils\fbx</Filter>
     </ClCompile>
+    <ClCompile Include="src\Camera\FLD3DCamera.cpp">
+      <Filter>src\Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -456,6 +459,9 @@
     <ClInclude Include="src\3rd_utils\tinyobjloader\tiny_obj_loader.h">
       <Filter>src\3rd_utils\tinyObjLoader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Camera\FLD3DCamera.h">
+      <Filter>src\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -589,6 +595,9 @@
     </Filter>
     <Filter Include="src\3rd_utils\tinyObjLoader">
       <UniqueIdentifier>{89faf6e9-f7ff-49e0-8584-22f4795863d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Camera">
+      <UniqueIdentifier>{e3411109-ff13-448b-bf3c-3f892b030744}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

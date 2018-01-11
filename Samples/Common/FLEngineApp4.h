@@ -6,7 +6,7 @@ struct ObjectConsts
 {
     DirectX::XMFLOAT4X4 World = FireFlame::Matrix4X4();
     DirectX::XMFLOAT4X4 TexTransform = FireFlame::Matrix4X4();
-    unsigned            DiffuseMapIndex = 0;
+    unsigned            MaterialIndex = 0;
     unsigned            ObjectPad0;
     unsigned            ObjectPad1;
     unsigned            ObjectPad2;
@@ -20,7 +20,11 @@ struct MaterialConstants
 
     // Used in texture mapping.
     FireFlame::Matrix4X4 MatTransform = FireFlame::Matrix4X4();
-    int UseTexture = 1;
+
+    UINT DiffuseMapIndex = 0;
+    UINT UseTexture = 1;
+    UINT MaterialPad0;
+    UINT MaterialPad1;
 };
 
 struct NamedMaterialConstants : MaterialConstants
@@ -74,7 +78,6 @@ struct PassConstants : PassConstantsLight
     float Pad2;
 };
 
-
 class FLEngineApp4
 {
 public:
@@ -85,7 +88,7 @@ public:
     typedef std::unordered_map<std::string, NamedMaterialConstants>         MaterialMap;
 
 public:
-    FLEngineApp4(FireFlame::Engine& engine, float cameraMinDis = 3.0f, float cameraMaxDis = 150.f);
+    FLEngineApp4(FireFlame::Engine& engine);
     virtual ~FLEngineApp4();
 
     virtual void PreInitialize() {}
@@ -102,8 +105,6 @@ public:
     virtual void OnKeyUp(WPARAM wParam, LPARAM lParam);
     virtual void OnKeyboardInput(float time_elapsed);
 
-    virtual void UpdateCamera(float time_elapsed);
-
 protected:
     FireFlame::Engine& mEngine;
 
@@ -118,22 +119,7 @@ protected:
     std::unordered_map<std::string, std::string> mShaderMacrosVS;
     std::unordered_map<std::string, std::string> mShaderMacrosPS;
 
-    DirectX::XMFLOAT3   mEyePos = { 0.0f, 0.0f, 0.0f };
-    DirectX::XMFLOAT4X4 mView = FireFlame::Matrix4X4();
-    DirectX::XMFLOAT4X4 mProj = FireFlame::Matrix4X4();
-
-    float mTheta = 1.5f*DirectX::XM_PI;
-    float mPhi = 0.2f*DirectX::XM_PI;
-    float mRadius = 15.0f;
-
-    float mMinRadius = 3.0f;
-    float mMaxRadius = 150.f;
-
-    float mPixelStep = 0.005f;
-
-    float mSunTheta = 1.25f*FireFlame::MathHelper::FL_PI;
-    float mSunPhi = FireFlame::MathHelper::FL_PIDIV4;
-
+    FireFlame::D3DCamera mCamera;
     POINT mLastMousePos;
 };
 

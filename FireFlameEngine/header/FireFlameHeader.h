@@ -17,3 +17,4 @@
 #include "..\src\Utility\loader\FLHKXLoader.h"
 #include "..\src\Utility\loader\FLVERLoader.h"
 #include "..\src\Utility\io\io.h"
+#include "..\src\Camera\FLD3DCamera.h"

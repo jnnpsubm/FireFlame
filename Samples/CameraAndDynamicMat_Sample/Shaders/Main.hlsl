@@ -108,7 +108,7 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    MaterialData MatData =   gMaterialData[gMaterialIndex];
+    MaterialData matData =   gMaterialData[gMaterialIndex];
     float4 diffuseAlbedo =   matData.DiffuseAlbedo;
     float3 fresnelR0 =       matData.FresnelR0;
     float  roughness =       matData.Roughness;
@@ -128,8 +128,8 @@ float4 PS(VertexOut pin) : SV_Target
     // Light terms.
     float4 ambient = gAmbientLight * diffuseAlbedo;
 
-    const float shininess = 1.0f - gRoughness;
-    Material mat = { diffuseAlbedo, gFresnelR0, shininess };
+    const float shininess = 1.0f - roughness;
+    Material mat = { diffuseAlbedo, fresnelR0, shininess };
     float3 shadowFactor = 1.0f;
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
         pin.NormalW, toEyeW, shadowFactor);

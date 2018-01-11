@@ -21,6 +21,14 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, bool dynamicMat)
     mDynamicMaterials = dynamicMat;
 }
 
+ID3D12Resource* D3DShaderWrapper::GetCurrentDynamicMatBuffer()
+{
+    if (!mDynamicMaterials) return nullptr;
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    auto& shaderRes = renderer->GetCurrFrameResource()->ShaderResources[mName];
+    return shaderRes.MaterialCB->Resource();
+}
+
 void D3DShaderWrapper::BuildRootSignatureDynamicMat(ID3D12Device* device)
 {
     CD3DX12_ROOT_PARAMETER slotRootParameter[4];
@@ -33,20 +41,16 @@ void D3DShaderWrapper::BuildRootSignatureDynamicMat(ID3D12Device* device)
     CD3DX12_DESCRIPTOR_RANGE cbvTable1;
     cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
 
-    // Material index 2
+    // Texture index 2
     CD3DX12_DESCRIPTOR_RANGE srvTable0;
-    srvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
-
-    // Texture index 3
-    CD3DX12_DESCRIPTOR_RANGE srvTable1;
-    srvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mTexSrvDescriptorTableSize, 0, 1);
+    srvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mTexSrvDescriptorTableSize, 0, 0);
 
     // Performance TIP: Order from most frequent to least frequent.
     // todo : visibility
     slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
     slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
     slotRootParameter[2].InitAsDescriptorTable(1, &srvTable0);
-    slotRootParameter[3].InitAsDescriptorTable(1, &srvTable1);
+    slotRootParameter[3].InitAsShaderResourceView(0, 1);
 
     auto staticSamplers = GetStaticSamplers();
 
@@ -353,7 +357,7 @@ void D3DShaderWrapper::BuildRootInputResources
 (
     UINT objConstSize, UINT maxObjConstCount,
     UINT passConstSize, UINT maxPassConstCount,
-    UINT matConstSize, UINT maxMatConstCount,
+    UINT matConstSize, UINT maxMatConstCount, bool DynamicMat,
     UINT texSRVTableSize, UINT texSRVCount,
     UINT multiObjConstSize, UINT maxMultiObjConstCount
 )
@@ -365,7 +369,18 @@ void D3DShaderWrapper::BuildRootInputResources
         auto& shaderRes = frameRes->ShaderResources[mName];
         if (objConstSize) shaderRes.ObjectCB->Init(device, maxObjConstCount, objConstSize);
         if (passConstSize) shaderRes.PassCB->Init(device, maxPassConstCount, passConstSize);
-        if (matConstSize) shaderRes.MaterialCB->Init(device, maxMatConstCount, matConstSize);
+        if (matConstSize)
+        {
+            if (DynamicMat)
+            {
+                shaderRes.MaterialCB = std::make_unique<UploadBuffer>(false);
+                shaderRes.MaterialCB->Init(device, maxMatConstCount, matConstSize);
+            }
+            else
+            {
+                shaderRes.MaterialCB->Init(device, maxMatConstCount, matConstSize);
+            }
+        }
         if (multiObjConstSize) shaderRes.MultiObjectCB->Init(device, maxMultiObjConstCount, multiObjConstSize);
     }
 
@@ -374,14 +389,14 @@ void D3DShaderWrapper::BuildRootInputResources
 
     // Need a CBV descriptor for each object for each frame resource,
     // +1 for the perPass CBV for each frame resource.
-    UINT numDescriptors = (objCount + maxPassConstCount + maxMatConstCount) * numFrameResources;
+    UINT numDescriptors = (objCount + maxPassConstCount +  (DynamicMat?0:maxMatConstCount)) * numFrameResources;
     numDescriptors += maxMultiObjConstCount * numFrameResources;
     numDescriptors += texSRVCount;
     
     // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
     mPassCbvOffset = objCount * numFrameResources;
     mMaterialCbvOffset = mPassCbvOffset + maxPassConstCount*numFrameResources;
-    mMultiObjCbvOffset = mMaterialCbvOffset + maxMatConstCount*numFrameResources;
+    mMultiObjCbvOffset = mMaterialCbvOffset + (DynamicMat?0:maxMatConstCount)*numFrameResources;
     mTexSrvOffset = mMultiObjCbvOffset + maxMultiObjConstCount * numFrameResources;
 
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
@@ -453,29 +468,32 @@ void D3DShaderWrapper::BuildRootInputResources
     }
 
     // material  CBV
-    UINT matCBByteSize = D3DUtils::CalcConstantBufferByteSize(matConstSize);
-    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
-        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
-        auto matCB = shaderRes.MaterialCB->Resource();
-        for (UINT i = 0; i < maxMatConstCount; ++i) {
-            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = matCB->GetGPUVirtualAddress();
+    if (!DynamicMat)
+    {
+        UINT matCBByteSize = D3DUtils::CalcConstantBufferByteSize(matConstSize);
+        for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+            auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+            auto matCB = shaderRes.MaterialCB->Resource();
+            for (UINT i = 0; i < maxMatConstCount; ++i) {
+                D3D12_GPU_VIRTUAL_ADDRESS cbAddress = matCB->GetGPUVirtualAddress();
 
-            // Offset to the ith object constant buffer in the buffer.
-            cbAddress += i*matCBByteSize;
+                // Offset to the ith object constant buffer in the buffer.
+                cbAddress += i * matCBByteSize;
 
-            // Offset to the mat cbv in the descriptor heap.
-            int heapIndex = mMaterialCbvOffset + frameIndex*maxMatConstCount + i;
-            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
-            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+                // Offset to the mat cbv in the descriptor heap.
+                int heapIndex = mMaterialCbvOffset + frameIndex * maxMatConstCount + i;
+                auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+                handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
 
-            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-            cbvDesc.BufferLocation = cbAddress;
-            cbvDesc.SizeInBytes = matCBByteSize;
+                D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+                cbvDesc.BufferLocation = cbAddress;
+                cbvDesc.SizeInBytes = matCBByteSize;
 
-            device->CreateConstantBufferView(&cbvDesc, handle);
+                device->CreateConstantBufferView(&cbvDesc, handle);
+            }
         }
     }
-    for (UINT i = 0; i < maxMatConstCount; ++i) {
+    for (int i = maxMatConstCount-1; i >= 0; --i) {
         mMatCbvHeapFreeList.push_front(i);
     }
 

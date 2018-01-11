@@ -160,7 +160,17 @@ void Scene::DrawRenderItems
         cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
         cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
+        if (Shader->UseDynamicMaterial())
+        {
+            auto matBuffer = Shader->GetCurrentDynamicMatBuffer();
+            cmdList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 
+            auto texSRVIndex = Shader->GetTextureGroupSrvIndex();
+            auto texSRVHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+            texSRVIndex += Shader->GetTexSrvOffset();
+            texSRVHandle.Offset(texSRVIndex, renderer->GetCbvSrvUavDescriptorSize());
+            cmdList->SetGraphicsRootDescriptorTable(2, texSRVHandle);
+        }
         if (Shader->GetPassParamIndex() != (UINT)-1 && Shader->GetPassCBVIndex() != (UINT)-1)
         {
             UINT passCbvIndex = Shader->GetPassCBVIndex();
@@ -332,7 +342,7 @@ void Scene::AddShader(const ShaderDescription& shaderDesc)
         (
             shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
             shaderDesc.passCBSize, 3,
-            shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0,
+            shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0, shaderDesc.useDynamicMat,
             shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
             shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
         );

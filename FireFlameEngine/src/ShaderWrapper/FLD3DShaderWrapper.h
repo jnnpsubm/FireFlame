@@ -30,6 +30,8 @@ public:
 
     void SetTextureGroupSrvIndex(UINT index) { mTextureGroupSrvIndex = index; }
     UINT GetTextureGroupSrvIndex() const { return mTextureGroupSrvIndex; }
+    bool UseDynamicMaterial() const { return mDynamicMaterials; }
+    ID3D12Resource* GetCurrentDynamicMatBuffer();
 
     void SetParamIndex(UINT texParamIndex, UINT objParamIndex, UINT multiObjParamIndex, UINT matParamIndex, UINT passParamIndex)
     {
@@ -53,7 +55,7 @@ public:
     (
         UINT objConstSize, UINT maxObjConstCount,
         UINT passConstSize, UINT maxPassConstCount,
-        UINT matConstSize, UINT maxMatConstCount,
+        UINT matConstSize, UINT maxMatConstCount, bool DynamicMat,
         UINT texSRVTableSize, UINT texSRVCount,
         UINT multiObjConstSize, UINT maxMultiObjConstCount
     );

@@ -3,11 +3,7 @@
 
 class CameraAndDynamicMatApp : public FLEngineApp4 {
 public:
-    CameraAndDynamicMatApp(FireFlame::Engine& e) : FLEngineApp4(e) {
-        mTheta = 1.24f*DirectX::XM_PI;
-        mPhi = 0.42f*DirectX::XM_PI;
-        mRadius = 12.0f;
-    }
+    CameraAndDynamicMatApp(FireFlame::Engine& e) : FLEngineApp4(e) {}
     void PreInitialize() override;
     void Initialize() override;
 

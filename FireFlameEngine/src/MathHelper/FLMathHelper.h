@@ -77,7 +77,7 @@ public:
     }
 
     static float ToRadius(float d) {
-        return (d*180.f) / FL_PI;
+        return (d*FL_PI) / 180.f;
     }
 
     static const float FL_PI;

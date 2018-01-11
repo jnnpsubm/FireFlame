@@ -70,6 +70,7 @@
     <ClInclude Include="src\3rd_utils\spdlog\tweakme.h" />
     <ClInclude Include="src\3rd_utils\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="src\3rd_utils\tinyply.h" />
+    <ClInclude Include="src\Camera\FLD3DCamera.h" />
     <ClInclude Include="src\Engine\FLEngine.h" />
     <ClInclude Include="src\Filters\FLD3DBilateralBlurFilter.h" />
     <ClInclude Include="src\Filters\FLD3DGaussBlurFilter.h" />
@@ -143,6 +144,7 @@
     <ClCompile Include="src\3rd_utils\ScreenGrab\ScreenGrab.cpp" />
     <ClCompile Include="src\3rd_utils\ScreenGrab\ScreenGrab12.cpp" />
     <ClCompile Include="src\3rd_utils\tinyply.cpp" />
+    <ClCompile Include="src\Camera\FLD3DCamera.cpp" />
     <ClCompile Include="src\Engine\FLEngine.cpp" />
     <ClCompile Include="src\Exception\FLException.cpp" />
     <ClCompile Include="src\Filters\FLD3DBilateralBlurFilter.cpp" />
