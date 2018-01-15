@@ -461,6 +461,7 @@ struct stRenderItemDesc {
     Cull_Mode cullMode = Cull_Mode::Back;
 
     size_t dataLen = 0;
+    size_t dataCount = 1;
     void*  data = nullptr;
 
     std::string mat;
@@ -680,6 +681,7 @@ struct ShaderDescription {
 
     bool                        useRootParamDescription = false;
     bool                        useDynamicMat = false;
+    bool                        useInstancing = false;
 
     bool                        addDefaultSamplers = true;
     std::vector<ROOT_PARAMETER> rootParameters;

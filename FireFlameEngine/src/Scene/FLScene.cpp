@@ -160,6 +160,11 @@ void Scene::DrawRenderItems
         cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
         cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
+        if (Shader->UseInstancing())
+        {
+            auto instBuffer = Shader->GetCurrentInstanceBuffer();
+            cmdList->SetGraphicsRootShaderResourceView(0, instBuffer->GetGPUVirtualAddress());
+        }
         if (Shader->UseDynamicMaterial())
         {
             auto matBuffer = Shader->GetCurrentDynamicMatBuffer();
@@ -340,13 +345,13 @@ void Scene::AddShader(const ShaderDescription& shaderDesc)
         );
         shader->BuildRootInputResources
         (
-            shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor,
+            shaderDesc.objCBSize, shaderDesc.maxObjCBDescriptor, shaderDesc.useInstancing,
             shaderDesc.passCBSize, 3,
             shaderDesc.materialCBSize, shaderDesc.materialCBSize ? 100 : 0, shaderDesc.useDynamicMat,
             shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
             shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
         );
-        shader->BuildRootSignature(mRenderer->GetDevice(), shaderDesc.useDynamicMat);
+        shader->BuildRootSignature(mRenderer->GetDevice(), shaderDesc.useDynamicMat, shaderDesc.useInstancing);
     }
     
     shader->BuildShadersAndInputLayout(shaderDesc);

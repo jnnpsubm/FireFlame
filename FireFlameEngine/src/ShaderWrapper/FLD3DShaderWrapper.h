@@ -31,7 +31,9 @@ public:
     void SetTextureGroupSrvIndex(UINT index) { mTextureGroupSrvIndex = index; }
     UINT GetTextureGroupSrvIndex() const { return mTextureGroupSrvIndex; }
     bool UseDynamicMaterial() const { return mDynamicMaterials; }
+    bool UseInstancing()      const { return mInstancing;       }
     ID3D12Resource* GetCurrentDynamicMatBuffer();
+    ID3D12Resource* GetCurrentInstanceBuffer();
 
     void SetParamIndex(UINT texParamIndex, UINT objParamIndex, UINT multiObjParamIndex, UINT matParamIndex, UINT passParamIndex)
     {
@@ -45,15 +47,16 @@ public:
     void UpdateMultiObjCBData(unsigned int index, size_t size, const void* data);
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
-    void BuildRootSignature(ID3D12Device* device, bool dynamicMat);
+    void BuildRootSignature(ID3D12Device* device, bool dynamicMat, bool instancing);
     void BuildRootSignatureNormal(ID3D12Device* device);
     void BuildRootSignatureDynamicMat(ID3D12Device* device);
+    void BuildRootSignatureDynamicInstancing(ID3D12Device* device);
     void BuildRootSignature(ID3D12Device* device, const ShaderDescription& shaderDesc);
 
     void BuildShadersAndInputLayout(const ShaderDescription& shaderDesc);
     void BuildRootInputResources
     (
-        UINT objConstSize, UINT maxObjConstCount,
+        UINT objConstSize, UINT maxObjConstCount, bool Instancing,
         UINT passConstSize, UINT maxPassConstCount,
         UINT matConstSize, UINT maxMatConstCount, bool DynamicMat,
         UINT texSRVTableSize, UINT texSRVCount,
@@ -189,6 +192,7 @@ private:
     std::unordered_map<std::string, RootParamData> mRootParamData;
 
     bool                                           mDynamicMaterials = false;
+    bool                                           mInstancing = false;
     UINT                                           mTextureGroupSrvIndex = -1;
 
     UINT                                           mTexSrvDescriptorTableSize = 4;

@@ -7,6 +7,10 @@ class D3DPrimitive;
 class D3DShaderWrapper;
 class D3DShaderWrapper;
 struct Material;
+struct InstanceData {
+    //DirectX::XMFLOAT4X4 worldTrans;
+    Matrix4X4 worldTrans;
+};
 struct D3DRenderItem {
     D3DRenderItem() = default;
     ~D3DRenderItem();
@@ -19,6 +23,8 @@ struct D3DRenderItem {
 
     char* Data = nullptr;
     size_t DataLen = 0;
+    size_t DataCount = 1;
+    std::vector<InstanceData> InstDatas;
 
     // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
     UINT ObjCBIndex = -1;

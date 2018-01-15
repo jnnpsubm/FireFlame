@@ -9,8 +9,13 @@
 #include "..\3rd_utils\spdlog\spdlog.h"
 
 namespace FireFlame {
-void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, bool dynamicMat){
-    if (dynamicMat)
+void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, bool dynamicMat, bool instancing){
+    if (instancing)
+    {
+        assert(dynamicMat);
+        BuildRootSignatureDynamicInstancing(device);
+    }
+    else if (dynamicMat)
     {
         BuildRootSignatureDynamicMat(device);
     }
@@ -18,6 +23,7 @@ void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, bool dynamicMat)
     {
         BuildRootSignatureNormal(device);
     }
+    mInstancing = instancing;
     mDynamicMaterials = dynamicMat;
 }
 
@@ -27,6 +33,69 @@ ID3D12Resource* D3DShaderWrapper::GetCurrentDynamicMatBuffer()
     auto renderer = Engine::GetEngine()->GetRenderer();
     auto& shaderRes = renderer->GetCurrFrameResource()->ShaderResources[mName];
     return shaderRes.MaterialCB->Resource();
+}
+
+ID3D12Resource* D3DShaderWrapper::GetCurrentInstanceBuffer()
+{
+    if (!mInstancing) return nullptr;
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    auto& shaderRes = renderer->GetCurrFrameResource()->ShaderResources[mName];
+    return shaderRes.ObjectCB->Resource();
+}
+
+void D3DShaderWrapper::BuildRootSignatureDynamicInstancing(ID3D12Device* device)
+{
+    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+
+    // Pass constants index 1
+    CD3DX12_DESCRIPTOR_RANGE cbvTable0;
+    cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+
+    // Texture index 2
+    CD3DX12_DESCRIPTOR_RANGE srvTable0;
+    srvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mTexSrvDescriptorTableSize, 0, 0);
+
+    // Performance TIP: Order from most frequent to least frequent.
+    // todo : visibility
+    slotRootParameter[0].InitAsShaderResourceView(0, 1);       // object data     t0 space1
+    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable0); // pass const data b0
+    slotRootParameter[2].InitAsDescriptorTable(1, &srvTable0); // textures        t0 space0
+    slotRootParameter[3].InitAsShaderResourceView(1, 1);       // material data   t1 space1
+
+    auto staticSamplers = GetStaticSamplers();
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc
+    (
+        4, slotRootParameter,
+        (UINT)staticSamplers.size(), staticSamplers.data(),
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+    );
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature
+    (
+        &rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()
+    );
+
+    if (errorBlob != nullptr) {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+    ThrowIfFailed(hr);
+
+    ThrowIfFailed
+    (
+        device->CreateRootSignature
+        (
+            0,
+            serializedRootSig->GetBufferPointer(),
+            serializedRootSig->GetBufferSize(),
+            IID_PPV_ARGS(mRootSignature.ReleaseAndGetAddressOf())
+        )
+    );
 }
 
 void D3DShaderWrapper::BuildRootSignatureDynamicMat(ID3D12Device* device)
@@ -355,7 +424,7 @@ UINT D3DShaderWrapper::CreateTexSRV(const std::vector<TEX>& vecTex)
 
 void D3DShaderWrapper::BuildRootInputResources
 (
-    UINT objConstSize, UINT maxObjConstCount,
+    UINT objConstSize, UINT maxObjConstCount, bool Instancing,
     UINT passConstSize, UINT maxPassConstCount,
     UINT matConstSize, UINT maxMatConstCount, bool DynamicMat,
     UINT texSRVTableSize, UINT texSRVCount,
@@ -367,7 +436,18 @@ void D3DShaderWrapper::BuildRootInputResources
     auto frameResources = renderer->GetFrameResources();
     for (const auto& frameRes : frameResources){
         auto& shaderRes = frameRes->ShaderResources[mName];
-        if (objConstSize) shaderRes.ObjectCB->Init(device, maxObjConstCount, objConstSize);
+        if (objConstSize) 
+        {
+            if (Instancing)
+            {
+                shaderRes.ObjectCB = std::make_unique<UploadBuffer>(false);
+                shaderRes.ObjectCB->Init(device, maxObjConstCount, objConstSize);
+            }
+            else
+            {
+                shaderRes.ObjectCB->Init(device, maxObjConstCount, objConstSize);
+            }
+        }
         if (passConstSize) shaderRes.PassCB->Init(device, maxPassConstCount, passConstSize);
         if (matConstSize)
         {
@@ -389,12 +469,12 @@ void D3DShaderWrapper::BuildRootInputResources
 
     // Need a CBV descriptor for each object for each frame resource,
     // +1 for the perPass CBV for each frame resource.
-    UINT numDescriptors = (objCount + maxPassConstCount +  (DynamicMat?0:maxMatConstCount)) * numFrameResources;
+    UINT numDescriptors = ((Instancing?0:objCount) + maxPassConstCount +  (DynamicMat?0:maxMatConstCount)) * numFrameResources;
     numDescriptors += maxMultiObjConstCount * numFrameResources;
     numDescriptors += texSRVCount;
     
     // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
-    mPassCbvOffset = objCount * numFrameResources;
+    mPassCbvOffset = (Instancing?0:objCount) * numFrameResources;
     mMaterialCbvOffset = mPassCbvOffset + maxPassConstCount*numFrameResources;
     mMultiObjCbvOffset = mMaterialCbvOffset + (DynamicMat?0:maxMatConstCount)*numFrameResources;
     mTexSrvOffset = mMultiObjCbvOffset + maxMultiObjConstCount * numFrameResources;
@@ -413,30 +493,33 @@ void D3DShaderWrapper::BuildRootInputResources
         )
     );
 
-    UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(objConstSize);
-    // Need a CBV descriptor for each object for each frame resource.
-    for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex){
-        auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
-        auto objectCB = shaderRes.ObjectCB->Resource();
-        for (UINT i = 0; i < objCount; ++i){
-            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
+    if (!Instancing)
+    {
+        UINT objCBByteSize = D3DUtils::CalcConstantBufferByteSize(objConstSize);
+        // Need a CBV descriptor for each object for each frame resource.
+        for (UINT frameIndex = 0; frameIndex < numFrameResources; ++frameIndex) {
+            auto& shaderRes = renderer->GetFrameResources()[frameIndex]->ShaderResources[mName];
+            auto objectCB = shaderRes.ObjectCB->Resource();
+            for (UINT i = 0; i < objCount; ++i) {
+                D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
 
-            // Offset to the ith object constant buffer in the buffer.
-            cbAddress += i*objCBByteSize;
+                // Offset to the ith object constant buffer in the buffer.
+                cbAddress += i * objCBByteSize;
 
-            // Offset to the object cbv in the descriptor heap.
-            int heapIndex = frameIndex*objCount + i;
-            auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
-            handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
+                // Offset to the object cbv in the descriptor heap.
+                int heapIndex = frameIndex * objCount + i;
+                auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+                handle.Offset(heapIndex, renderer->GetCbvSrvUavDescriptorSize());
 
-            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-            cbvDesc.BufferLocation = cbAddress;
-            cbvDesc.SizeInBytes = objCBByteSize;
+                D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+                cbvDesc.BufferLocation = cbAddress;
+                cbvDesc.SizeInBytes = objCBByteSize;
 
-            device->CreateConstantBufferView(&cbvDesc, handle);
+                device->CreateConstantBufferView(&cbvDesc, handle);
+            }
         }
     }
-    for (UINT i = 0; i < objCount; ++i) {
+    for (int i = objCount-1; i >= 0; --i) {
         mObjCbvHeapFreeList.push_front(i);
     }
 

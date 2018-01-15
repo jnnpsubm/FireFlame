@@ -26,12 +26,15 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
         cmdList->SetGraphicsRootDescriptorTable(Shader->GetMultiObjParamIndex(), multiObjCbvHandle);
     }
 
-    // Offset to the CBV in the descriptor heap for this object and for this frame resource.
-    UINT cbvIndex = renderer->GetCurrFrameResIndex()*Shader->GetObjCBVMaxCount() + ObjCBIndex;
-    auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(Shader->GetCBVHeap()->GetGPUDescriptorHandleForHeapStart());
-    cbvHandle.Offset(cbvIndex, renderer->GetCbvSrvUavDescriptorSize());
-    cmdList->SetGraphicsRootDescriptorTable(Shader->GetObjParamIndex(), cbvHandle);
-
+    if (Shader->GetObjParamIndex() != (UINT)-1)
+    {
+        // Offset to the CBV in the descriptor heap for this object and for this frame resource.
+        UINT cbvIndex = renderer->GetCurrFrameResIndex()*Shader->GetObjCBVMaxCount() + ObjCBIndex;
+        auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(Shader->GetCBVHeap()->GetGPUDescriptorHandleForHeapStart());
+        cbvHandle.Offset(cbvIndex, renderer->GetCbvSrvUavDescriptorSize());
+        cmdList->SetGraphicsRootDescriptorTable(Shader->GetObjParamIndex(), cbvHandle);
+    }
+    
     if (Mat && Shader->GetMatParamIndex() != (UINT)-1)
     {
         int matCbvIndex = Mat->MatCBIndex;
