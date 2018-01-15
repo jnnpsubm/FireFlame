@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <DirectXCollision.h>
 
 namespace FireFlame {
 enum class ControllerInputMode {
@@ -402,6 +403,12 @@ struct CSTaskDesc
     std::function<void(const std::string&,void*,unsigned)> callback;
 };
 
+enum class BoundingMode :std::uint8_t {
+    None,
+    Box,
+    Sphere
+};
+
 struct stRawMesh {
     stRawMesh() = default;
     explicit stRawMesh(const std::string& _name) 
@@ -422,19 +429,49 @@ struct stRawMesh {
 
 	struct stSubMesh {
         stSubMesh() = default;
-        explicit stSubMesh(const std::string& _name):name(_name){}
+        explicit stSubMesh(const std::string& _name):name(_name),boundingMode(BoundingMode::None){}
         stSubMesh(const std::string& _name,unsigned int indexCount,
                   unsigned int startIndexLocation = 0,
                   int baseVertexLocation = 0)
             : name(_name), indexCount(indexCount), startIndexLocation(startIndexLocation)
             , baseVertexLocation(baseVertexLocation)
         {}
+        stSubMesh(const std::string& _name, unsigned int indexCount,
+            const DirectX::BoundingBox& boundingBox,
+            unsigned int startIndexLocation = 0,
+            int baseVertexLocation = 0)
+            : name(_name), boundingBox(boundingBox), boundingMode(BoundingMode::Box),
+              indexCount(indexCount), startIndexLocation(startIndexLocation)
+            , baseVertexLocation(baseVertexLocation)
+        {}
+        stSubMesh(const std::string& _name, unsigned int indexCount,
+            const DirectX::BoundingSphere& boundingSphere,
+            unsigned int startIndexLocation = 0,
+            int baseVertexLocation = 0)
+            : name(_name), boundingSphere(boundingSphere), boundingMode(BoundingMode::Sphere),
+            indexCount(indexCount), startIndexLocation(startIndexLocation)
+            , baseVertexLocation(baseVertexLocation)
+        {}
 		std::string  name;
 		unsigned int indexCount = 0;
 		unsigned int startIndexLocation = 0;			
 		int          baseVertexLocation = 0;
+
+        BoundingMode boundingMode;
+        DirectX::BoundingBox boundingBox;
+        DirectX::BoundingSphere boundingSphere;
 	};
     std::vector<stSubMesh> subMeshs;
+};
+
+struct InstanceData {
+    //DirectX::XMFLOAT4X4 worldTrans;
+    Matrix4X4 worldTrans;
+    Matrix4X4 texTransform;
+    UINT      materialIndex;
+    UINT      instancePad0;
+    UINT      instancePad1;
+    UINT      instancePad2;
 };
 
 struct stRenderItemDesc {
@@ -463,6 +500,7 @@ struct stRenderItemDesc {
     size_t dataLen = 0;
     size_t dataCount = 1;
     void*  data = nullptr;
+    std::vector<InstanceData> InstDatas;
 
     std::string mat;
 

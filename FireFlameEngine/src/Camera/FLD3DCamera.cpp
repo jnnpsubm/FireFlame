@@ -120,6 +120,8 @@ void D3DCamera::SetLens(float fovY, float aspect, float zn, float zf)
 
     DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
 	XMStoreFloat4x4(&mProj, P);
+
+    DirectX::BoundingFrustum::CreateFromMatrix(mFrustum, P);
 }
 
 void D3DCamera::LookAt(DirectX::FXMVECTOR pos, DirectX::FXMVECTOR target, DirectX::FXMVECTOR worldUp)

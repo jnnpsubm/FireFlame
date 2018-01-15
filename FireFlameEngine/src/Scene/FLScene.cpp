@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "FLScene.h"
 #include "RenderItem\FLD3DRenderItem.h"
+#include "..\Camera\FLD3DCamera.h"
 #include "..\Renderer\FLD3DRenderer.h"
 #include "..\ShaderWrapper\FLD3DShaderWrapper.h"
 #include "..\ShaderWrapper\FLD3DComputeShaderWrapper.h"
@@ -43,10 +44,69 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
             auto shader = mShaders[shaderName];
             auto currObjectCB = shaderRes[shaderName].ObjectCB.get();
             //currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-            shader->UpdateObjCBData(item->ObjCBIndex, item->DataLen, item->Data);
-            //Matrix4X4* m = (Matrix4X4*)item->Data;
-            // Next FrameResource need to be updated too.
+            if (item->Data)
+                shader->UpdateObjCBData(item->ObjCBIndex, item->DataLen, item->Data);
             item->NumFramesDirty--;
+        }
+    }
+
+    DirectX::XMMATRIX view;
+    if (mCamera) view = mCamera->GetView();
+    DirectX::XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+    for (auto& e : mRenderItems) {
+        // Only update the cbuffer data if the constants have changed.  
+        // This needs to be tracked per frame resource.
+        auto& item = e.second;
+        if (!item->InstDatas.empty()) {
+            auto shaderName = item->Shader;
+            auto shader = mShaders[shaderName];
+            auto currObjectCB = shaderRes[shaderName].ObjectCB.get();
+            const auto& instanceData = item->InstDatas;
+            std::vector<InstanceData> InstDatas;
+            for (UINT i = 0; i < (UINT)instanceData.size(); ++i)
+            {
+                using namespace DirectX;
+                assert(mCamera);
+                XMMATRIX world = XMLoadFloat4x4(&(XMFLOAT4X4)instanceData[i].worldTrans);
+                XMMATRIX texTransform = XMLoadFloat4x4(&(XMFLOAT4X4)instanceData[i].texTransform);
+
+                XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(world), world);
+
+                // View space to the object's local space.
+                XMMATRIX viewToLocal = XMMatrixMultiply(invView, invWorld);
+
+                // Transform the camera frustum from view space to the object's local space.
+                BoundingFrustum localSpaceFrustum;
+                mCamera->GetFrustum().Transform(localSpaceFrustum, viewToLocal);
+
+                // Perform the box/frustum intersection test in local space.
+                bool bContains = false;
+                switch (item->BoundsMode)
+                {
+                case BoundingMode::Box:
+                    bContains = (localSpaceFrustum.Contains(item->BoundsBox) != DirectX::DISJOINT);
+                    break;
+                case BoundingMode::Sphere:
+                    bContains = (localSpaceFrustum.Contains(item->BoundsSphere) != DirectX::DISJOINT);
+                    break;
+                }
+                if (bContains)
+                {
+                    InstanceData data;
+                    XMStoreFloat4x4((XMFLOAT4X4*)&data.worldTrans, XMMatrixTranspose(world));
+                    XMStoreFloat4x4((XMFLOAT4X4*)&data.texTransform, XMMatrixTranspose(texTransform));
+                    data.materialIndex = instanceData[i].materialIndex;
+                    InstDatas.push_back(data);
+                }
+            }
+            item->InstCount = (UINT)InstDatas.size();
+            shader->UpdateObjCBData(item->ObjCBIndex, InstDatas.size() * sizeof(InstanceData), InstDatas.data());
+            
+            spdlog::get("console")->info
+            (
+                "{0:d} instances out of {1:d} instances is feed to pipeline",
+                item->InstCount, item->InstDatas.size()
+            );
         }
     }
 }
@@ -668,6 +728,7 @@ void Scene::AddRenderItem
         renderItem->DataLen = desc.dataLen;
         memcpy(renderItem->Data, desc.data, desc.dataLen);
     }
+    renderItem->InstDatas = std::move(desc.InstDatas);
     if (!desc.mat.empty())
     {
         auto itMat = mMaterials.find(desc.mat);
@@ -675,7 +736,19 @@ void Scene::AddRenderItem
             throw std::exception("cannot find material in AddRenderItem");
         renderItem->Mat = itMat->second.get();
     }
-
+    renderItem->BoundsMode = desc.subMesh.boundingMode;
+    switch (desc.subMesh.boundingMode)
+    {
+    case BoundingMode::Box:
+        renderItem->BoundsBox = desc.subMesh.boundingBox;
+        break;
+    case BoundingMode::Sphere:
+        renderItem->BoundsSphere = desc.subMesh.boundingSphere;
+        break;
+    default:
+        break;
+    }
+    
     auto& shaderMapped = GetShaderMappedRItem(priority, desc.opaque);
     auto& PSOMapped = shaderMapped[shaderName];
     auto& vecItems = PSOMapped[PSOName];

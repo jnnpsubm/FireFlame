@@ -71,7 +71,7 @@ void D3DRenderItem::Render(D3DShaderWrapper* Shader) {
 
     cmdList->DrawIndexedInstanced
     (
-        IndexCount, 1,
+        IndexCount, InstCount,
         StartIndexLocation,
         BaseVertexLocation, 0
     );

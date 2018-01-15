@@ -17,6 +17,7 @@ class D3DRenderer;
 class D3DShaderWrapper;
 class D3DComputeShaderWrapper;
 class D3DPrimitive;
+class D3DCamera;
 class StopWatch;
 struct D3DRenderItem;
 struct Pass;
@@ -71,6 +72,8 @@ public:
     void PrimitiveVisible(const std::string& name, bool visible);
     void RenderItemVisible(const std::string& name, bool visible);
     void PrintScene() { mPrintScene = true; }
+
+    void SetCamera(D3DCamera* camera) { mCamera = camera; }
 
     void AddShader(const ShaderDescription& shaderDesc);
     void AddComputeShader(const ComputeShaderDescription& desc);
@@ -226,6 +229,7 @@ public:
 
 private:
     std::shared_ptr<D3DRenderer> mRenderer;
+    D3DCamera* mCamera = nullptr;
 
     void PreRender();
     void Draw(ID3D12GraphicsCommandList* cmdList);

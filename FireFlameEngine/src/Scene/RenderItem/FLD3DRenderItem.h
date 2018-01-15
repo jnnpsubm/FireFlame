@@ -1,16 +1,14 @@
 #pragma once
 #include <string>
 #include <d3d12.h>
+#include <vector>
+#include "..\..\FLTypeDefs.h"
 
 namespace FireFlame {
 class D3DPrimitive;
 class D3DShaderWrapper;
 class D3DShaderWrapper;
 struct Material;
-struct InstanceData {
-    //DirectX::XMFLOAT4X4 worldTrans;
-    Matrix4X4 worldTrans;
-};
 struct D3DRenderItem {
     D3DRenderItem() = default;
     ~D3DRenderItem();
@@ -25,6 +23,11 @@ struct D3DRenderItem {
     size_t DataLen = 0;
     size_t DataCount = 1;
     std::vector<InstanceData> InstDatas;
+    UINT                      InstCount = 0;
+
+    BoundingMode              BoundsMode = BoundingMode::None;
+    DirectX::BoundingBox      BoundsBox;
+    DirectX::BoundingSphere   BoundsSphere;
 
     // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
     UINT ObjCBIndex = -1;

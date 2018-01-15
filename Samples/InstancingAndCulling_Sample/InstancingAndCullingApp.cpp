@@ -17,6 +17,7 @@ void InstancingAndCullingApp::Initialize()
     mEngine.GetScene()->AddPass(mPasses[0]);
 
     mCamera.SetPosition(0.0f, 2.0f, -15.0f);
+    mEngine.GetScene()->SetCamera(&mCamera);
 }
 
 void InstancingAndCullingApp::Update(float time_elapsed)
@@ -301,9 +302,27 @@ void InstancingAndCullingApp::AddMeshs()
     }
 
     using namespace DirectX;
-    DirectX::BoundingBox bounds;
-    XMStoreFloat3(&bounds.Center, 0.5f*(vMin + vMax));
-    XMStoreFloat3(&bounds.Extents, 0.5f*(vMax - vMin));
+    DirectX::BoundingBox boundsBox;
+    DirectX::BoundingSphere boundsSphere;
+    XMStoreFloat3(&boundsBox.Center, 0.5f*(vMin + vMax));
+    XMStoreFloat3(&boundsBox.Extents, 0.5f*(vMax - vMin));
+    XMStoreFloat3(&boundsSphere.Center, 0.5f*(vMin + vMax));
+
+    // search for sphere radius
+    auto sphereCenter = XMLoadFloat3(&boundsSphere.Center);
+    DirectX::XMVECTOR maxLength = XMLoadFloat3(&XMFLOAT3(minfloat, minfloat, minfloat));
+    for (UINT i = 0; i < vcount; ++i)
+    {
+        DirectX::XMFLOAT3 Pos(vertices[i].Pos.x, vertices[i].Pos.y, vertices[i].Pos.z);
+        DirectX::XMVECTOR P = XMLoadFloat3(&Pos);
+        auto length = XMVector3Length(P - sphereCenter);
+        if (XMVector3Greater(length, maxLength)) // SIMD so about same as compare one value
+        {
+            maxLength = length;
+        }
+    }
+    boundsSphere.Radius = XMVectorGetX(maxLength);
+    // end
 
     fin >> ignore;
     fin >> ignore;
@@ -330,7 +349,8 @@ void InstancingAndCullingApp::AddMeshs()
     meshDesc.vertexDataSize.push_back(sizeof(FLVertexNormalTex));
 
     // sub meshes
-    meshDesc.subMeshs.emplace_back("all", (UINT)indices.size());
+    meshDesc.subMeshs.emplace_back("all", (UINT)indices.size(), boundsBox);
+    //meshDesc.subMeshs.emplace_back("all", (UINT)indices.size(), boundsSphere);
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
@@ -342,9 +362,6 @@ void InstancingAndCullingApp::AddRenderItems()
     
     // Generate instance data.
     const int n = 5;
-    skullRitem.dataLen = sizeof(ObjectConsts);
-    skullRitem.dataCount = n * n * n;
-    skullRitem.data = new ObjectConsts[skullRitem.dataCount];
 
     float width = 200.0f;
     float height = 200.0f;
@@ -363,16 +380,15 @@ void InstancingAndCullingApp::AddRenderItems()
             for (int j = 0; j < n; ++j)
             {
                 int index = k * n*n + i * n + j;
-                ObjectConsts objConsts;
-                auto world = XMFLOAT4X4(
+                FireFlame::InstanceData instdata;
+                instdata.worldTrans = XMFLOAT4X4(
                     1.0f, 0.0f, 0.0f, 0.0f,
                     0.0f, 1.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     x + j * dx, y + i * dy, z + k * dz, 1.0f);
-                auto worldTrans = XMLoadFloat4x4(&world);
-                XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(worldTrans));
-                XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(2.0f, 2.0f, 1.0f)));
-                objConsts.MaterialIndex = index % mMaterials.size();
+                XMStoreFloat4x4((DirectX::XMFLOAT4X4*)&instdata.texTransform, XMMatrixScaling(2.0f, 2.0f, 1.0f));
+                instdata.materialIndex = index % mMaterials.size();
+                skullRitem.InstDatas.push_back(instdata);
             }
         }
     }

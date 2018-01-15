@@ -1,6 +1,7 @@
 #ifndef _FL_CAMERA_H_
 #define _FL_CAMERA_H_
 
+#include <DirectXCollision.h>
 #include "..\FLD3DUtils.h"
 #include "..\Matrix\FLMatrix4X4.h"
 
@@ -45,11 +46,13 @@ public:
     void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
 
     // Get View/Proj matrices.
-    DirectX::XMMATRIX GetView()const;
-    DirectX::XMMATRIX GetProj()const;
+    DirectX::XMMATRIX GetView() const;
+    DirectX::XMMATRIX GetProj() const;
 
-    DirectX::XMFLOAT4X4 GetView4x4f()const;
-    DirectX::XMFLOAT4X4 GetProj4x4f()const;
+    DirectX::XMFLOAT4X4 GetView4x4f() const;
+    DirectX::XMFLOAT4X4 GetProj4x4f() const;
+
+    const DirectX::BoundingFrustum& GetFrustum() const { return mFrustum; }
 
     // Strafe/Walk the camera a distance d.
     void Strafe(float d);
@@ -85,6 +88,8 @@ private:
     // Cache View/Proj matrices.
     DirectX::XMFLOAT4X4 mView = FireFlame::Matrix4X4();
     DirectX::XMFLOAT4X4 mProj = FireFlame::Matrix4X4();
+
+    DirectX::BoundingFrustum mFrustum;
 };
 } // end namespace
 #endif // _FL_CAMERA_H_
