@@ -77,4 +77,7 @@
   <ItemGroup>
     <ResourceCompile Include="WorldEditor.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Todo.txt" />
+  </ItemGroup>
 </Project>
