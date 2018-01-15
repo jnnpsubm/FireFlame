@@ -102,11 +102,11 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
             item->InstCount = (UINT)InstDatas.size();
             shader->UpdateObjCBData(item->ObjCBIndex, InstDatas.size() * sizeof(InstanceData), InstDatas.data());
             
-            spdlog::get("console")->info
+            /*spdlog::get("console")->info
             (
                 "{0:d} instances out of {1:d} instances is feed to pipeline",
                 item->InstCount, item->InstDatas.size()
-            );
+            );*/
         }
     }
 }

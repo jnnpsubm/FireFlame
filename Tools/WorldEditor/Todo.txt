@@ -1,0 +1,2 @@
+1.地图分block，每个block是一个grid，每个grid里面的每个格子Patch曲面细分，block用于场景管理
+2.可以显示高度图、地形图和Patch的控制点图

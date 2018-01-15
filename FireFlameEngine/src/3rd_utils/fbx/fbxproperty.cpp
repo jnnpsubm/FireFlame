@@ -93,7 +93,7 @@ FBXProperty::FBXProperty(std::ifstream &input)
         if(encoding) {
             uint64_t uncompressedLength = arrayElementSize(type - ('a'-'A')) * arrayLength;
 
-            uint8_t *decompressedBuffer = (uint8_t*) malloc(uncompressedLength);
+            uint8_t *decompressedBuffer = (uint8_t*) malloc((size_t)uncompressedLength);
             if(decompressedBuffer == NULL) throw std::string("Malloc failed");
             BufferAutoFree baf(decompressedBuffer);
 
