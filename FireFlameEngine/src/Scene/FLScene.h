@@ -75,6 +75,12 @@ public:
 
     void SetCamera(D3DCamera* camera) { mCamera = camera; }
 
+    bool TestIntersect
+    (
+        int sx, int sy, const std::vector<std::string>& listItems,
+        std::string& hitRenderItem, UINT& hitTriangle
+    );
+
     void AddShader(const ShaderDescription& shaderDesc);
     void AddComputeShader(const ComputeShaderDescription& desc);
 
@@ -213,6 +219,18 @@ public:
         const std::string& renderItem,
         const std::string& matname
     );
+    void RenderItemChangeSubmesh
+    (
+        const std::string& name,
+        UINT indexCount,
+        UINT startIndexLocation,
+        int baseVertexLocation
+    );
+    std::shared_ptr<D3DRenderItem> GetRenderItem(const std::string& name) {
+        auto it = mRenderItems.find(name);
+        if (it == mRenderItems.end()) return nullptr;
+        return it->second;
+    }
 
     void UpdateRenderItemCBData(const std::string& name, size_t size, const void* data);
     

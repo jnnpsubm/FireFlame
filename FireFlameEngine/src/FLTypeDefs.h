@@ -333,6 +333,7 @@ struct PSODesc
     BLEND destBlendAlpha = BLEND::ZERO;
 
     bool depthEnable = true;
+    COMPARISON_FUNC depthFunc = COMPARISON_FUNC::LESS;
     bool stencilEnable = false;
     std::uint8_t stencilReadMask = 0xff;
     std::uint8_t stencilWriteMask = 0xff;

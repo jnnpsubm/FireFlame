@@ -47,6 +47,33 @@ public:
         return D3DPrimitiveType(mPrimitiveTopology);
     }
 
+    void* GetVertexBufferCPU() const {
+        return mVertexBufferCPU[0]->GetBufferPointer();
+    }
+    void* GetIndexBufferCPU() const {
+        return mIndexBufferCPU->GetBufferPointer();
+    }
+    UINT GetVertexBufferStride() const {
+        return mVertexByteStride[0];
+    }
+    UINT GetIndex(UINT index) const {
+        switch (mIndexFormat)
+        {
+        case DXGI_FORMAT_R16_UINT:
+            return *((std::uint16_t*)GetIndexBufferCPU() + index);
+        case DXGI_FORMAT_R32_UINT:
+            return *((std::uint32_t*)GetIndexBufferCPU() + index);
+        default:
+            throw std::runtime_error("unsupported format");
+            break;
+        }
+    }
+    const DirectX::XMFLOAT3* GetPos(UINT index) const {
+        std::uint8_t* buffer = (std::uint8_t*)GetVertexBufferCPU();
+        buffer += index * mVertexByteStride[0];
+        return reinterpret_cast<DirectX::XMFLOAT3*>(buffer);
+    }
+
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView(size_t index) const {
         D3D12_VERTEX_BUFFER_VIEW vbv;
         vbv.BufferLocation = mVertexBufferGPU[index]->GetGPUVirtualAddress();

@@ -1,5 +1,6 @@
 #include "PCH.h"
 #include "FLScene.h"
+#include "..\MathHelper\FLVertex.h"
 #include "RenderItem\FLD3DRenderItem.h"
 #include "..\Camera\FLD3DCamera.h"
 #include "..\Renderer\FLD3DRenderer.h"
@@ -555,6 +556,112 @@ void Scene::RenderItemVisible(const std::string& name, bool visible)
     itRItem->second->SetVisible(visible);
 }
 
+bool Scene::TestIntersect
+(
+    int sx, int sy, const std::vector<std::string>& listItems,
+    std::string& hitRenderItem, UINT& hitTriangle
+)
+{
+    using namespace DirectX;
+
+    assert(mCamera);
+    XMFLOAT4X4 P = mCamera->GetProj4x4f();
+
+    auto window = Engine::GetEngine()->GetWindow();
+    float clientWidth = (float)window->ClientWidth();
+    float clientHeight = (float)window->ClientHeight();
+
+    // Compute picking ray in view space.
+    float vx = (+2.0f*sx / clientWidth - 1.0f) / P(0, 0);
+    float vy = (-2.0f*sy / clientHeight + 1.0f) / P(1, 1);
+
+    // Ray definition in view space.
+    XMVECTOR rayOrigin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+    XMVECTOR rayDir = XMVectorSet(vx, vy, 1.0f, 0.0f);
+
+    XMMATRIX V = mCamera->GetView();
+    XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(V), V);
+
+    bool bHit = false;
+    float tmin = (std::numeric_limits<float>::max)();
+    float t = 0.0f;
+    // Check if we picked an opaque render item.  A real app might keep a separate "picking list"
+    // of objects that can be selected.   
+    for (const auto& itemName : listItems)
+    {
+        auto ri = GetRenderItem(itemName);
+        assert(ri);
+        if (!ri) continue;
+        XMMATRIX W = XMLoadFloat4x4((XMFLOAT4X4*)&ri->InstDatas[0].worldTrans);
+        XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
+
+        // Tranform ray to vi space of Mesh.
+        XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
+
+        rayOrigin = XMVector3TransformCoord(rayOrigin, toLocal);
+        rayDir = XMVector3TransformNormal(rayDir, toLocal);
+
+        // Make the ray direction unit length for the intersection tests.
+        rayDir = XMVector3Normalize(rayDir);
+
+        // If we hit the bounding box of the Mesh, then we might have picked a Mesh triangle,
+        // so do the ray/triangle tests.
+        //
+        // If we did not hit the bounding box, then it is impossible that we hit 
+        // the Mesh, so do not waste effort doing ray/triangle tests.
+        
+        bool bIntersect = false;
+        switch (ri->BoundsMode)
+        {
+        case FireFlame::BoundingMode::Box:
+            bIntersect = ri->BoundsBox.Intersects(rayOrigin, rayDir, t);
+            break;
+        case FireFlame::BoundingMode::Sphere:
+            bIntersect = ri->BoundsSphere.Intersects(rayOrigin, rayDir, t);
+            break;
+        }
+        if (bIntersect)
+        {
+            auto mesh = ri->Primitive->GetMesh();
+            // NOTE: For the demo, we know what to cast the vertex/index data to.  If we were mixing
+            // formats, some metadata would be needed to figure out what to cast it to.
+            // assume pos info always comes first
+            auto vertices = (FLVertex*)mesh->GetVertexBufferCPU();
+            auto indices = (std::uint32_t*)mesh->GetIndexBufferCPU();
+            auto vertexStride = mesh->GetVertexBufferStride();
+            UINT triCount = ri->IndexCount / 3;
+
+            // Find the nearest ray/triangle intersection.
+            for (UINT i = 0; i < triCount; ++i)
+            {
+                // Indices for this triangle.
+                UINT i0 = mesh->GetIndex(i * 3 + 0);
+                UINT i1 = mesh->GetIndex(i * 3 + 1);
+                UINT i2 = mesh->GetIndex(i * 3 + 2);
+
+                // Vertices for this triangle.
+                XMVECTOR v0 = XMLoadFloat3(mesh->GetPos(i0));
+                XMVECTOR v1 = XMLoadFloat3(mesh->GetPos(i1));
+                XMVECTOR v2 = XMLoadFloat3(mesh->GetPos(i2));
+
+                // We have to iterate over all the triangles in order to find the nearest intersection.
+                if (TriangleTests::Intersects(rayOrigin, rayDir, v0, v1, v2, t))
+                {
+                    bHit = true;
+                    if (t < tmin)
+                    {
+                        // This is the new nearest picked triangle.
+                        tmin = t;
+                        hitRenderItem = itemName;
+                        hitTriangle = i;
+                    }
+                }
+            }
+        }
+    }
+    return bHit;
+}
+
 void Scene::RenderItemChangeShader
 (
     const std::string& renderItem,
@@ -636,6 +743,27 @@ void Scene::RenderItemChangeMaterial(const std::string& renderItem, const std::s
     auto renderitem = itRItem->second;
     auto mat = itMat->second;
     renderitem->Mat = mat.get();
+}
+
+void Scene::RenderItemChangeSubmesh
+(
+    const std::string& name,
+    UINT indexCount,
+    UINT startIndexLocation,
+    int baseVertexLocation
+)
+{
+    auto itRItem = mRenderItems.find(name);
+    if (itRItem == mRenderItems.end())
+    {
+        spdlog::get("console")->error("cannot find render item in function(RenderItemChangeSubmesh)");
+        throw std::exception("cannot find render item in function(RenderItemChangeSubmesh)");
+    }
+
+    auto renderitem = itRItem->second;
+    renderitem->IndexCount = indexCount;
+    renderitem->StartIndexLocation = startIndexLocation;
+    renderitem->BaseVertexLocation = baseVertexLocation;
 }
 
 void Scene::PrimitiveAddSubMesh(const std::string& name, const stRawMesh::stSubMesh& subMesh){
@@ -728,7 +856,15 @@ void Scene::AddRenderItem
         renderItem->DataLen = desc.dataLen;
         memcpy(renderItem->Data, desc.data, desc.dataLen);
     }
-    renderItem->InstDatas = std::move(desc.InstDatas);
+    renderItem->InstDatas = /*std::move*/(desc.InstDatas);
+    if (!renderItem->InstDatas.empty())
+    {
+        for (size_t i = 0; i < renderItem->InstDatas.size()-1; i++)
+        {
+            shader->GetFreeObjCBV();
+        }
+    }
+    
     if (!desc.mat.empty())
     {
         auto itMat = mMaterials.find(desc.mat);

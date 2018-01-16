@@ -60,9 +60,13 @@ void FLEngineApp4::UpdateMainPassCB(float time_elapsed)
 }
 
 void FLEngineApp4::OnMouseDown(WPARAM btnState, int x, int y) {
-    mLastMousePos.x = x;
-    mLastMousePos.y = y;
-    SetCapture(mEngine.GetWindow()->MainWnd());
+    if ((btnState & MK_LBUTTON) != 0)
+    {
+        mLastMousePos.x = x;
+        mLastMousePos.y = y;
+
+        SetCapture(mEngine.GetWindow()->MainWnd());
+    }
 }
 void FLEngineApp4::OnMouseUp(WPARAM btnState, int x, int y) {
     ReleaseCapture();

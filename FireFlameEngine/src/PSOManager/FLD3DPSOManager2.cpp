@@ -119,6 +119,7 @@ void D3DPSOManager2::AddPSO(const std::string& name, const PSODesc& desc)
             psoDesc.BlendState.RenderTarget[0].LogicOpEnable = FALSE;
 
             psoDesc.DepthStencilState.DepthEnable = desc.depthEnable;
+            psoDesc.DepthStencilState.DepthFunc = FLCompareFunc2D3DCompareFunc(desc.depthFunc);
             psoDesc.DepthStencilState.DepthWriteMask = FLDepthWriteMask2D3DDepthWriteMask(desc.depthWriteMask);
             psoDesc.DepthStencilState.StencilEnable = desc.stencilEnable;
             psoDesc.DepthStencilState.StencilReadMask = desc.stencilReadMask;
