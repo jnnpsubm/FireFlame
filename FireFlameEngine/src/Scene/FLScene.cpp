@@ -51,8 +51,9 @@ void Scene::UpdateObjectCBs(const StopWatch& gt){
         }
     }
 
+    if (!mCamera) return;
     DirectX::XMMATRIX view;
-    if (mCamera) view = mCamera->GetView();
+    view = mCamera->GetView();
     DirectX::XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
     for (auto& e : mRenderItems) {
         // Only update the cbuffer data if the constants have changed.  

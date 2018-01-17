@@ -59,6 +59,7 @@ public:
     }
 
 	int InitMainWindow(int x, int y, int w, int h);
+    int InitMainWindow(HWND hwnd, int w, int h);
 	int InitRenderer(API_Feature api);
 	int Run();
 

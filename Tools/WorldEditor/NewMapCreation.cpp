@@ -8,6 +8,8 @@ NewMapCreation::NewMapCreation(WorldEditor* editor, QWidget *parent)
 
     ui.widthEditor->setValidator(new QIntValidator(0, 10240, this));
     ui.heightEditor->setValidator(new QIntValidator(0, 10240, this));
+    ui.widthEditor->setText("4096");
+    ui.heightEditor->setText("4096");
 }
 
 NewMapCreation::~NewMapCreation()

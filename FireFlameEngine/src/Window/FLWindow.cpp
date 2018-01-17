@@ -121,6 +121,18 @@ int Window::InitMainWindow(int x, int y, int w, int h) {
 	UpdateWindow(mhMainWnd);
 	return 0;
 }
+int Window::InitMainWindow(HWND hwnd, int w, int h) {
+    spdlog::get("console")->info
+    (
+        "client width:{0:d},client height:{1:d}",
+        w, h
+    );
+
+    mClientWidth = w;
+    mClientHeight = h;
+    mhMainWnd = hwnd;
+    return 0;
+}
 void Window::SetWindowCaption(const std::wstring& caption) {
 	SetWindowText(mhMainWnd, caption.c_str());
 }

@@ -63,6 +63,9 @@ void Engine::Stop() {
 int Engine::InitMainWindow(int x, int y, int w, int h) {
 	return mMainWnd->InitMainWindow(x, y, w, h);
 }
+int Engine::InitMainWindow(HWND hwnd, int w, int h) {
+    return mMainWnd->InitMainWindow(hwnd, w, h);
+}
 int Engine::InitRenderer(API_Feature api) {
 	return mRenderer->Initialize(api);
 }

@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_WorldEditor.h"
+#include "FireFlameHeader.h"
 
 class WorldEditor : public QMainWindow
 {
@@ -17,4 +18,7 @@ private slots:
 
 private:
     Ui::WorldEditorClass ui;
+
+    FireFlame::Engine mEngine;
+    bool              mEngineInitialized = false;
 };

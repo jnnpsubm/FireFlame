@@ -25,6 +25,7 @@ public:
 	int       ClientHeight() const { return mClientHeight; }
 
 	int InitMainWindow(int x, int y, int w, int h);
+    int InitMainWindow(HWND hwnd, int w, int h);
 
 	int HandleMsg();
 	int Quitted() const { return msg.message == WM_QUIT; }
