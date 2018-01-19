@@ -21,5 +21,11 @@
     <None Include="Shaders\Main.hlsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\CommonHeader.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Sky.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

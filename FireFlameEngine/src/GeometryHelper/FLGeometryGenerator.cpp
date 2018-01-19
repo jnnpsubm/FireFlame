@@ -143,6 +143,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateSphere(float radius, uint32
             v.TangentU.z = +radius*sinf(phi)*cosf(theta);
 
             v.TangentU.Normalize();
+            v.Normal = v.Position;
             v.Normal.Normalize();
 
             v.TexC.x = theta / MathHelper::FL_2PI;
@@ -417,7 +418,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius
             vertex.TangentU = Vector3f(-s, 0.0f, c);
             float dr = bottomRadius - topRadius;
             Vector3f bitangent(dr*c, -height, dr*s);
-            vertex.Normal = Vector3Cross(bitangent, vertex.TangentU).Normalize();
+            vertex.Normal = Vector3Cross(vertex.TangentU, bitangent).Normalize();
 
             meshData.Vertices.push_back(vertex);
         }

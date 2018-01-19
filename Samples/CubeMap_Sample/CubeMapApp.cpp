@@ -63,9 +63,16 @@ void CubeMapApp::UpdateMainPassCB(float time_elapsed)
     passCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
 
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstantsLight), &passCB);
+    mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["sky"].name, sizeof(PassConstantsLight), &passCB);
 }
 
 void CubeMapApp::AddShaders()
+{
+    AddShaderMain();
+    AddShaderSky();
+}
+
+void CubeMapApp::AddShaderMain()
 {
     using namespace FireFlame;
 
@@ -76,10 +83,36 @@ void CubeMapApp::AddShaders()
     shaderDesc.passCBSize = sizeof(PassConstantsLight);
     shaderDesc.objParamIndex = 0;
     shaderDesc.passParamIndex = 1;
-    shaderDesc.texSRVDescriptorTableSize = 4;
+    shaderDesc.texSRVDescriptorTableSize = 5;
+    shaderDesc.maxTexSRVDescriptor = 5;
     shaderDesc.useDynamicMat = true;
 
     std::wstring strHlslFile = L"Shaders\\Main.hlsl";
+    shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::VS, "VS", "vs_5_1");
+    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::PS, "PS", "ps_5_1");
+
+    mEngine.GetScene()->AddShader(shaderDesc);
+}
+
+void CubeMapApp::AddShaderSky()
+{
+    using namespace FireFlame;
+
+    auto& shaderDesc = mShaderDescs["sky"];
+    shaderDesc.name = "sky";
+    shaderDesc.objCBSize = sizeof(ObjectConsts);
+    shaderDesc.materialCBSize = sizeof(MaterialConstants);
+    shaderDesc.passCBSize = sizeof(PassConstantsLight);
+    shaderDesc.objParamIndex = 0;
+    shaderDesc.passParamIndex = 1;
+    shaderDesc.texSRVDescriptorTableSize = 5;
+    shaderDesc.maxTexSRVDescriptor = 5;
+    shaderDesc.useDynamicMat = true;
+
+    std::wstring strHlslFile = L"Shaders\\Sky.hlsl";
     shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
     shaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
     shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
@@ -95,6 +128,12 @@ void CubeMapApp::AddPSOs()
 
     PSODesc descDefault(mShaderDescs["main"].name);
     mEngine.GetScene()->AddPSO("default", descDefault);
+
+    //descDefault.shaderName = mShaderDescs["sky"].name;
+    PSODesc descSky(mShaderDescs["sky"].name);
+    descSky.depthFunc = FireFlame::COMPARISON_FUNC::LESS_EQUAL;
+    descSky.cullMode = FireFlame::Cull_Mode::None;
+    mEngine.GetScene()->AddPSO("skyPSO", descSky);
 }
 
 void CubeMapApp::AddTextures()
@@ -117,16 +156,30 @@ void CubeMapApp::AddTextures()
     mEngine.GetScene()->AddTexture
     (
         "skyCubeMap",
-        L"../../Resources/Textures/grasscube1024.dds"
+        //L"../../Resources/Textures/grasscube1024.dds"
+        L"../../Resources/terrain/desertcube1024.dds"
     );
     mEngine.GetScene()->AddTextureGroup
     (
         "main",
         { 
+            FireFlame::TEX("skyCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE),
             FireFlame::TEX("bricksDiffuseMap"),
             FireFlame::TEX("tileDiffuseMap"),
             FireFlame::TEX("defaultDiffuseMap"),
-            FireFlame::TEX("skyCubeMap")
+            FireFlame::TEX("skyCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE)
+        }
+    );
+
+    mEngine.GetScene()->AddTextureGroup
+    (
+        "sky",
+        {
+            FireFlame::TEX("skyCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE),
+            FireFlame::TEX("bricksDiffuseMap"),
+            FireFlame::TEX("tileDiffuseMap"),
+            FireFlame::TEX("defaultDiffuseMap"),
+            FireFlame::TEX("skyCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE)
         }
     );
 }
@@ -200,6 +253,12 @@ void CubeMapApp::AddMaterials()
 }
 
 void CubeMapApp::AddMeshs()
+{
+    AddMeshShapes();
+    AddMeshSkull();
+}
+
+void CubeMapApp::AddMeshShapes()
 {
     using namespace FireFlame;
 
@@ -280,12 +339,152 @@ void CubeMapApp::AddMeshs()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
+void CubeMapApp::AddMeshSkull()
+{
+    std::ifstream fin("../../Resources/Geometry/skull.txt");
+    if (!fin)
+    {
+        MessageBox(0, L"Models/skull.txt not found.", 0, 0);
+        return;
+    }
+
+    UINT vcount = 0;
+    UINT tcount = 0;
+    std::string ignore;
+
+    fin >> ignore >> vcount;
+    fin >> ignore >> tcount;
+    fin >> ignore >> ignore >> ignore >> ignore;
+
+    auto maxfloat = (std::numeric_limits<float>::max)();
+    auto minfloat = (std::numeric_limits<float>::min)();
+    DirectX::XMFLOAT3 vMinf3(maxfloat, maxfloat, maxfloat);
+    DirectX::XMFLOAT3 vMaxf3(minfloat, minfloat, minfloat);
+
+    DirectX::XMVECTOR vMin = XMLoadFloat3(&vMinf3);
+    DirectX::XMVECTOR vMax = XMLoadFloat3(&vMaxf3);
+
+    std::vector<FireFlame::FLVertexNormalTex> vertices(vcount);
+    for (UINT i = 0; i < vcount; ++i)
+    {
+        fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
+        fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
+
+        DirectX::XMFLOAT3 Pos(vertices[i].Pos.x, vertices[i].Pos.y, vertices[i].Pos.z);
+        DirectX::XMVECTOR P = XMLoadFloat3(&Pos);
+        // Project point onto unit sphere and generate spherical texture coordinates.
+        DirectX::XMFLOAT3 spherePos;
+        XMStoreFloat3(&spherePos, DirectX::XMVector3Normalize(P));
+
+        float theta = atan2f(spherePos.z, spherePos.x);
+
+        // Put in [0, 2pi].
+        if (theta < 0.0f)
+            theta += DirectX::XM_2PI;
+
+        float phi = acosf(spherePos.y);
+
+        float u = theta / (2.0f*DirectX::XM_PI);
+        float v = phi / DirectX::XM_PI;
+
+        vertices[i].Tex = { u, v };
+
+        vMin = DirectX::XMVectorMin(vMin, P);
+        vMax = DirectX::XMVectorMax(vMax, P);
+    }
+
+    using namespace DirectX;
+    DirectX::BoundingBox boundsBox;
+    DirectX::BoundingSphere boundsSphere;
+    XMStoreFloat3(&boundsBox.Center, 0.5f*(vMin + vMax));
+    XMStoreFloat3(&boundsBox.Extents, 0.5f*(vMax - vMin));
+    XMStoreFloat3(&boundsSphere.Center, 0.5f*(vMin + vMax));
+
+    // search for sphere radius
+    auto sphereCenter = XMLoadFloat3(&boundsSphere.Center);
+    DirectX::XMVECTOR maxLength = XMLoadFloat3(&XMFLOAT3(minfloat, minfloat, minfloat));
+    for (UINT i = 0; i < vcount; ++i)
+    {
+        DirectX::XMFLOAT3 Pos(vertices[i].Pos.x, vertices[i].Pos.y, vertices[i].Pos.z);
+        DirectX::XMVECTOR P = XMLoadFloat3(&Pos);
+        auto length = XMVector3Length(P - sphereCenter);
+        if (XMVector3Greater(length, maxLength)) // SIMD so about same as compare one value
+        {
+            maxLength = length;
+        }
+    }
+    boundsSphere.Radius = XMVectorGetX(maxLength);
+    // end
+
+    fin >> ignore;
+    fin >> ignore;
+    fin >> ignore;
+
+    std::vector<std::int32_t> indices(3 * tcount);
+    for (UINT i = 0; i < tcount; ++i)
+    {
+        fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
+    }
+
+    fin.close();
+
+    using namespace FireFlame;
+
+    auto& meshDesc = mMeshDescs["skull"];
+    meshDesc.name = "skull";
+    meshDesc.indexCount = (unsigned int)indices.size();
+    meshDesc.indexFormat = Index_Format::UINT32;
+    meshDesc.indices = indices.data();
+
+    meshDesc.vertexData.push_back(vertices.data());
+    meshDesc.vertexDataCount.push_back((unsigned)vertices.size());
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertexNormalTex));
+
+    // sub meshes
+    meshDesc.subMeshs.emplace_back("all", (UINT)indices.size(), boundsBox);
+    //meshDesc.subMeshs.emplace_back("all", (UINT)indices.size(), boundsSphere);
+    mEngine.GetScene()->AddPrimitive(meshDesc);
+}
+
 void CubeMapApp::AddRenderItems()
 {
     using namespace DirectX;
 
-    FireFlame::stRenderItemDesc boxRitem("box", mMeshDescs["shapes"].subMeshs[0]);
+    FireFlame::stRenderItemDesc skyRitem("sky", mMeshDescs["shapes"].subMeshs[2]);
     ObjectConsts objConsts;
+    //XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(5000.f, 5000.f, 5000.f)));
+    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(1.f, 1.f, 1.f)));
+    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
+    objConsts.MaterialIndex = 4;
+    skyRitem.dataLen = sizeof(ObjectConsts);
+    skyRitem.data = &objConsts;
+    skyRitem.cullMode = FireFlame::Cull_Mode::None;
+    mRenderItems[skyRitem.name] = skyRitem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["shapes"].name,
+        mShaderDescs["sky"].name,
+        "skyPSO",
+        5,
+        skyRitem
+    );
+
+    FireFlame::stRenderItemDesc skullRitem("skull", mMeshDescs["skull"].subMeshs[0]);
+    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(0.4f, 0.4f, 0.4f)*XMMatrixTranslation(0.0f, 1.0f, 0.0f)));
+    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
+    objConsts.MaterialIndex = 3;
+    skullRitem.dataLen = sizeof(ObjectConsts);
+    skullRitem.data = &objConsts;
+    mRenderItems[skullRitem.name] = skullRitem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["skull"].name,
+        mShaderDescs["main"].name,
+        "default",
+        skullRitem
+    );
+
+    FireFlame::stRenderItemDesc boxRitem("box", mMeshDescs["shapes"].subMeshs[0]);
     XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(2.0f, 1.0f, 2.0f)*XMMatrixTranslation(0.0f, 0.5f, 0.0f)));
     XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
     objConsts.MaterialIndex = 0;

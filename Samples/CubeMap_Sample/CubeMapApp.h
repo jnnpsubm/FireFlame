@@ -13,6 +13,8 @@ public:
 
 private:
     void AddShaders();
+    void AddShaderMain();
+    void AddShaderSky();
 
     void AddPSOs();
 
@@ -20,6 +22,8 @@ private:
     void AddMaterials();
 
     void AddMeshs();
+    void AddMeshShapes();
+    void AddMeshSkull();
 
     void AddRenderItems();
 };

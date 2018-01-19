@@ -410,6 +410,12 @@ UINT D3DShaderWrapper::CreateTexSRV(const std::vector<TEX>& vecTex)
             srvDesc.Texture2D.MipLevels = -1;
             srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
         }
+        else if (vecTex[i].viewDimension == SRV_DIMENSION::TEXTURECUBE)
+        {
+            srvDesc.TextureCube.MostDetailedMip = 0;
+            srvDesc.TextureCube.MipLevels = res->GetDesc().MipLevels;
+            srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+        }
         else
         {
             srvDesc.Texture2DArray.MostDetailedMip = 0;
