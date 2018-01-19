@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireFlameEngine", "..\FireFlameEngine\FireFlameEngine.vcxproj", "{CBF7B274-B25E-474C-9951-B616FDE59A73}"
 EndProject
@@ -96,6 +96,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Picking_Sample", "..\Samples\Picking_Sample\Picking_Sample.vcxproj", "{9904E4D3-62EF-4ECC-BEB5-1317D3EFE06A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CubeMap_Sample", "..\Samples\CubeMap_Sample\CubeMap_Sample.vcxproj", "{5A5CFA6D-1C3B-403D-960F-41699FB90A25}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CubeMapDynamic_Sample", "..\Samples\CubeMapDynamic_Sample\CubeMapDynamic_Sample.vcxproj", "{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -886,6 +888,22 @@ Global
 		{5A5CFA6D-1C3B-403D-960F-41699FB90A25}.ReleaseWithoutAsm|x64.Build.0 = Release|x64
 		{5A5CFA6D-1C3B-403D-960F-41699FB90A25}.ReleaseWithoutAsm|x86.ActiveCfg = Release|Win32
 		{5A5CFA6D-1C3B-403D-960F-41699FB90A25}.ReleaseWithoutAsm|x86.Build.0 = Release|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Debug|Itanium.ActiveCfg = Debug|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Debug|x64.ActiveCfg = Debug|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Debug|x64.Build.0 = Debug|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Debug|x86.ActiveCfg = Debug|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Debug|x86.Build.0 = Debug|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Release|Itanium.ActiveCfg = Release|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Release|x64.ActiveCfg = Release|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Release|x64.Build.0 = Release|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Release|x86.ActiveCfg = Release|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.Release|x86.Build.0 = Release|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.ReleaseWithoutAsm|Itanium.ActiveCfg = Release|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.ReleaseWithoutAsm|Itanium.Build.0 = Release|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.ReleaseWithoutAsm|x64.ActiveCfg = Release|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.ReleaseWithoutAsm|x64.Build.0 = Release|x64
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.ReleaseWithoutAsm|x86.ActiveCfg = Release|Win32
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F}.ReleaseWithoutAsm|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -933,6 +951,7 @@ Global
 		{F4E6A629-C603-4097-80AF-4378E05B10C1} = {C663A43D-4ABC-4F5B-A5B4-7A26BD712433}
 		{9904E4D3-62EF-4ECC-BEB5-1317D3EFE06A} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
 		{5A5CFA6D-1C3B-403D-960F-41699FB90A25} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
+		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}

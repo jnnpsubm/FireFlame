@@ -14,7 +14,7 @@ Engine::Engine(HINSTANCE hinst) {
     size_t q_size = 4096; //queue size must be power of 2
     spdlog::set_async_mode(q_size);
 
-    auto console = spdlog::stdout_color_mt("console");
+    auto console = spdlog::stdout_color_st("console");
     console->info("Welcome to FireFlame Engine!");
 
     // Create a file rotating logger with 5mb size max and 3 rotated files

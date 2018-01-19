@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Common\FLEngineApp4.cpp" />
+    <ClCompile Include="CubeMapDynamicApp.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\FLEngineApp4.h" />
+    <ClInclude Include="CubeMapDynamicApp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\CommonHeader.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Common\LightingUtil.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Main.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Sky.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{3bbe47f1-b19c-4a2b-bc22-68235d45d10f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
