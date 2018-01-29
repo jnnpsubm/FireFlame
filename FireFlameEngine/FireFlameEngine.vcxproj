@@ -119,6 +119,7 @@
     <ClInclude Include="src\ShaderWrapper\FLD3DShaderWrapperBase.h" />
     <ClInclude Include="src\ShaderWrapper\FLShaderWrapper.h" />
     <ClInclude Include="src\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h" />
+    <ClInclude Include="src\Texture\DynamicTexture\FLD3DDynamicCubeTexture.h" />
     <ClInclude Include="src\Texture\DynamicTexture\FLD3DTextureWaves.h" />
     <ClInclude Include="src\Texture\FLD3DTexture.h" />
     <ClInclude Include="src\Timer\FLStopWatch.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapper.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLD3DShaderWrapperBase.cpp" />
     <ClCompile Include="src\ShaderWrapper\FLShaderWrapper.cpp" />
+    <ClCompile Include="src\Texture\DynamicTexture\FLD3DDynamicCubeTexture.cpp" />
     <ClCompile Include="src\Texture\DynamicTexture\FLD3DTextureWaves.cpp" />
     <ClCompile Include="src\Timer\FLStopWatch.cpp" />
     <ClCompile Include="src\Utility\loader\FLHKXLoader.cpp" />

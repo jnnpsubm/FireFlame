@@ -74,7 +74,7 @@ float4 PS(VertexOut pin) : SV_Target
 
     // Add in specular reflections.
     float3 r = reflect(-toEyeW, pin.NormalW);
-    float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
+    float4 reflectionColor = gCubeMap[matData.CubeMapIndex].Sample(gsamLinearWrap, r);
     float3 fresnelFactor = SchlickFresnel(fresnelR0, pin.NormalW, r);
     litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
 

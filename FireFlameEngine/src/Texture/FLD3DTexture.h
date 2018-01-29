@@ -3,10 +3,9 @@
 #include <wrl\client.h>
 #include <d3d12.h>
 
-namespace FireFlame
-{
-struct D3DTextureBase
-{
+namespace FireFlame{
+class Scene;
+struct D3DTextureBase{
     D3DTextureBase(const std::string& name) : name(name) {}
     D3DTextureBase(const std::string& name, const std::wstring& filename) :
         name(name),
@@ -20,7 +19,8 @@ struct D3DTextureBase
     virtual ID3D12Resource* Resource() = 0;
 
     bool needUpdate = false;
-    virtual void Update(ID3D12GraphicsCommandList* cmdList) {}
+    virtual void Update(ID3D12GraphicsCommandList* cmdList, Scene* scene) {}
+    virtual void Render(ID3D12GraphicsCommandList* cmdList, Scene* scene) {}
 };
 
 struct D3DTexture : D3DTextureBase

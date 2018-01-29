@@ -9,22 +9,22 @@
 #include "..\3rd_utils\spdlog\spdlog.h"
 
 namespace FireFlame {
-void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, bool dynamicMat, bool instancing){
-    if (instancing)
+void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, const ShaderDescription& shaderDesc){
+    if (shaderDesc.useInstancing)
     {
-        assert(dynamicMat);
+        assert(shaderDesc.useDynamicMat);
         BuildRootSignatureDynamicInstancing(device);
     }
-    else if (dynamicMat)
+    else if (shaderDesc.useDynamicMat)
     {
-        BuildRootSignatureDynamicMat(device);
+        BuildRootSignatureDynamicMat(device, shaderDesc);
     }
     else
     {
         BuildRootSignatureNormal(device);
     }
-    mInstancing = instancing;
-    mDynamicMaterials = dynamicMat;
+    mInstancing = shaderDesc.useInstancing;
+    mDynamicMaterials = shaderDesc.useDynamicMat;
 }
 
 ID3D12Resource* D3DShaderWrapper::GetCurrentDynamicMatBuffer()
@@ -98,7 +98,7 @@ void D3DShaderWrapper::BuildRootSignatureDynamicInstancing(ID3D12Device* device)
     );
 }
 
-void D3DShaderWrapper::BuildRootSignatureDynamicMat(ID3D12Device* device)
+void D3DShaderWrapper::BuildRootSignatureDynamicMat(ID3D12Device* device, const ShaderDescription& shaderDesc)
 {
     CD3DX12_ROOT_PARAMETER slotRootParameter[4];
 
@@ -119,7 +119,7 @@ void D3DShaderWrapper::BuildRootSignatureDynamicMat(ID3D12Device* device)
     slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
     slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
     slotRootParameter[2].InitAsDescriptorTable(1, &srvTable0);
-    slotRootParameter[3].InitAsShaderResourceView(0, 1);
+    slotRootParameter[3].InitAsShaderResourceView(shaderDesc.dynamicMatRegister, shaderDesc.dynamicMatSpace);
 
     auto staticSamplers = GetStaticSamplers();
 
@@ -231,7 +231,7 @@ void D3DShaderWrapper::BuildRootSignatureNormal(ID3D12Device* device)
     );
 }
 
-void D3DShaderWrapper::BuildRootSignature(ID3D12Device* device, const ShaderDescription& shaderDesc)
+void D3DShaderWrapper::BuildRootSignatureUserDef(ID3D12Device* device, const ShaderDescription& shaderDesc)
 {
     std::vector<CD3DX12_DESCRIPTOR_RANGE> tables(shaderDesc.rootParameters.size());
     std::vector<CD3DX12_ROOT_PARAMETER> slotRootParameters(shaderDesc.rootParameters.size());

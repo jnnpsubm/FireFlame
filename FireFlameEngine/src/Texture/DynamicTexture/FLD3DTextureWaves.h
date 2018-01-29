@@ -104,7 +104,7 @@ public:
         int m, int n, float dx, float dt, float speed, float damping, unsigned disturbCount
     ) :D3DTextureBase(name), mWaves(device, cmdList, m, n, dx, dt, speed, damping, disturbCount) {}
     ID3D12Resource* Resource() override final { return mWaves.mCurrSol.Get(); }
-    void Update(ID3D12GraphicsCommandList* cmdList) override final {
+    void Update(ID3D12GraphicsCommandList* cmdList, Scene* scene) override final {
         mWaves.Go(cmdList);
     }
     void ClearUploadBuffer() { 

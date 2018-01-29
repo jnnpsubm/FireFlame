@@ -37,7 +37,7 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : SV_Target
 {
     //return float4(1.f,1.f,1.f,1.f);
-    return gCubeMap.Sample(gsamAnisotropicWrap, pin.PosL);
+    return gCubeMap[0].Sample(gsamAnisotropicWrap, pin.PosL);
     //return gDiffuseMap[3].Sample(gsamLinearWrap, pin.PosL);
 }
 

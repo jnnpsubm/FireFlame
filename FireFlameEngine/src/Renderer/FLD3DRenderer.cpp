@@ -42,8 +42,6 @@ void D3DRenderer::CreateThisThreadCmdList
 }
 
 void D3DRenderer::Render(const StopWatch& gt) {
-    mPreRenderFunc();
-	
     auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 	ThrowIfFailed(cmdListAlloc->Reset());
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
@@ -52,6 +50,7 @@ void D3DRenderer::Render(const StopWatch& gt) {
 	// Indicate a state transition on the resource usage.
 	// Transition the render target into the correct state to allow for drawing into it.
 	
+    mPreRenderFunc(mCommandList.Get());
     mMSAARenderer(gt);
 
 	// Done recording commands.

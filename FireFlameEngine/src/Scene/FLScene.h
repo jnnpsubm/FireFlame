@@ -170,6 +170,7 @@ public:
         float speed,
         float damping
     );
+    void AddTextureDynamicCubeMap(const std::string& name, unsigned width, unsigned height);
     void AnimateTexture(const std::string& name);
     void AddMaterial
     (
@@ -245,13 +246,14 @@ public:
     // register callbacks
     void RegisterUpdateFunc(std::function<void(float)> func) { mUpdateFunc = func; }
 
+    void DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass);
+
 private:
     std::shared_ptr<D3DRenderer> mRenderer;
     D3DCamera* mCamera = nullptr;
 
-    void PreRender();
+    void PreRender(ID3D12GraphicsCommandList* cmdList);
     void Draw(ID3D12GraphicsCommandList* cmdList);
-    void DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass);
     void DrawRenderItems
     (
         ID3D12GraphicsCommandList* cmdList,

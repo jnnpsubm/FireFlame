@@ -22,18 +22,18 @@ struct MaterialData
     float4x4 MatTransform;
     uint     DiffuseMapIndex;
     uint     MatPad0;
-    uint     MatPad1;
+    uint     CubeMapIndex;
     uint     MatPad2;
 };
 
 // An array of textures, which is only supported in shader model 5.1+.  Unlike Texture2DArray, the textures
 // in this array can be different sizes and formats, making it more flexible than texture arrays.
-Texture2D gDiffuseMap[4] : register(t0);
-
-TextureCube gCubeMap : register(t2);
-TextureCube gCubeMapDynamic : register(t2, space1);
-
-StructuredBuffer<MaterialData> gMaterialData   : register(t0, space1);
+//Texture2D gDiffuseMap[4] : register(t0,space0);
+//TextureCube gCubeMap[2] : register(t0,space4);
+//StructuredBuffer<MaterialData> gMaterialData   : register(t0,space6);
+Texture2D gDiffuseMap[4]                     : register(t0);
+TextureCube gCubeMap[2]                      : register(t4);
+StructuredBuffer<MaterialData> gMaterialData : register(t6);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);

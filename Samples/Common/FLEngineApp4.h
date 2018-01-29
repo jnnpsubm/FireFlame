@@ -23,7 +23,7 @@ struct MaterialConstants
 
     UINT DiffuseMapIndex = 0;
     UINT UseTexture = 1;
-    UINT MaterialPad0;
+    UINT CubeMapIndex = 0;
     UINT MaterialPad1;
 };
 

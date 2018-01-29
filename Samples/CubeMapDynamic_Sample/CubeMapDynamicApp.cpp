@@ -22,6 +22,18 @@ void CubeMapDynamicApp::Initialize()
 void CubeMapDynamicApp::Update(float time_elapsed)
 {
     FLEngineApp4::Update(time_elapsed);
+
+    using namespace DirectX;
+    XMMATRIX skullScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+    XMMATRIX skullOffset = XMMatrixTranslation(3.0f, 2.0f, 0.0f);
+    XMMATRIX skullLocalRotate = XMMatrixRotationY(2.0f*mEngine.TotalTime());
+    XMMATRIX skullGlobalRotate = XMMatrixRotationY(0.5f*mEngine.TotalTime());
+
+    ObjectConsts objConsts;
+    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(skullScale*skullLocalRotate*skullOffset*skullGlobalRotate));
+    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixIdentity());
+    objConsts.MaterialIndex = 3;
+    mEngine.GetScene()->UpdateRenderItemCBData("skull", sizeof(ObjectConsts), &objConsts);
 }
 
 void CubeMapDynamicApp::UpdateMainPassCB(float time_elapsed)
@@ -86,6 +98,8 @@ void CubeMapDynamicApp::AddShaderMain()
     shaderDesc.texSRVDescriptorTableSize = 6;
     shaderDesc.maxTexSRVDescriptor = 6;
     shaderDesc.useDynamicMat = true;
+    shaderDesc.dynamicMatRegister = 6;
+    shaderDesc.dynamicMatSpace = 0;
 
     std::wstring strHlslFile = L"Shaders\\Main.hlsl";
     shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
@@ -111,6 +125,8 @@ void CubeMapDynamicApp::AddShaderSky()
     shaderDesc.texSRVDescriptorTableSize = 6;
     shaderDesc.maxTexSRVDescriptor = 6;
     shaderDesc.useDynamicMat = true;
+    shaderDesc.dynamicMatRegister = 6;
+    shaderDesc.dynamicMatSpace = 0;
 
     std::wstring strHlslFile = L"Shaders\\Sky.hlsl";
     shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
@@ -160,6 +176,10 @@ void CubeMapDynamicApp::AddTextures()
         L"../../Resources/terrain/desertcube1024.dds"
         //L"../../Resources/terrain/sunsetcube1024.dds"
     );
+    mEngine.GetScene()->AddTextureDynamicCubeMap
+    (
+        "dynamicCubeMap", 1024, 1024
+    );
     mEngine.GetScene()->AddTextureGroup
     (
         "main",
@@ -169,7 +189,7 @@ void CubeMapDynamicApp::AddTextures()
             FireFlame::TEX("defaultDiffuseMap"),
             FireFlame::TEX("skyCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE),
             FireFlame::TEX("skyCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE),
-            FireFlame::TEX("skyCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE)
+            FireFlame::TEX("dynamicCubeMap",FireFlame::SRV_DIMENSION::TEXTURECUBE)
         }
     );
 
@@ -252,6 +272,20 @@ void CubeMapDynamicApp::AddMaterials()
         sky.Name,
         mShaderDescs["main"].name, "",
         sizeof(MaterialConstants), &sky
+    );
+
+    auto& mirror1 = mMaterials["mirror1"];
+    mirror1.Name = "mirror1";
+    mirror1.DiffuseMapIndex = 2;
+    mirror1.CubeMapIndex = 1;
+    mirror1.DiffuseAlbedo = FireFlame::Vector4f(0.0f, 0.0f, 0.1f, 1.0f);
+    mirror1.FresnelR0 = FireFlame::Vector3f(0.98f, 0.97f, 0.95f);
+    mirror1.Roughness = 0.1f;
+    mEngine.GetScene()->AddMaterial
+    (
+        mirror1.Name,
+        mShaderDescs["main"].name, "",
+        sizeof(MaterialConstants), &mirror1
     );
 }
 
@@ -473,8 +507,8 @@ void CubeMapDynamicApp::AddRenderItems()
     );
 
     FireFlame::stRenderItemDesc skullRitem("skull", mMeshDescs["skull"].subMeshs[0]);
-    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(0.4f, 0.4f, 0.4f)*XMMatrixTranslation(0.0f, 1.0f, 0.0f)));
-    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
+    XMStoreFloat4x4(&objConsts.World, XMMatrixIdentity());
+    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixIdentity());
     objConsts.MaterialIndex = 3;
     skullRitem.dataLen = sizeof(ObjectConsts);
     skullRitem.data = &objConsts;
@@ -485,6 +519,21 @@ void CubeMapDynamicApp::AddRenderItems()
         mShaderDescs["main"].name,
         "default",
         skullRitem
+    );
+
+    FireFlame::stRenderItemDesc globeRitem("globe", mMeshDescs["shapes"].subMeshs[2]);
+    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(2.f, 2.f, 2.f)*XMMatrixTranslation(0.0f, 2.0f, 0.0f)));
+    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
+    objConsts.MaterialIndex = 5;
+    globeRitem.dataLen = sizeof(ObjectConsts);
+    globeRitem.data = &objConsts;
+    mRenderItems[globeRitem.name] = globeRitem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["shapes"].name,
+        mShaderDescs["main"].name,
+        "default",
+        globeRitem
     );
 
     FireFlame::stRenderItemDesc boxRitem("box", mMeshDescs["shapes"].subMeshs[0]);

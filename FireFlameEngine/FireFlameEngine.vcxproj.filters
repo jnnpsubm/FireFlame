@@ -133,6 +133,9 @@
     <ClCompile Include="src\Camera\FLD3DCamera.cpp">
       <Filter>src\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\Texture\DynamicTexture\FLD3DDynamicCubeTexture.cpp">
+      <Filter>src\Texture\DynamicTexture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Exception\FLException.h">
@@ -461,6 +464,9 @@
     </ClInclude>
     <ClInclude Include="src\Camera\FLD3DCamera.h">
       <Filter>src\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture\DynamicTexture\FLD3DDynamicCubeTexture.h">
+      <Filter>src\Texture\DynamicTexture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

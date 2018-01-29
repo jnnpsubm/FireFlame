@@ -23,6 +23,7 @@
 #include "..\ShaderWrapper\ShaderConstBuffer\FLShaderConstBuffer.h"
 #include "CSTask\FLD3DCSTask.h"
 #include "..\Texture\DynamicTexture\FLD3DTextureWaves.h"
+#include "..\Texture\DynamicTexture\FLD3DDynamicCubeTexture.h"
 
 namespace FireFlame {
 Scene::Scene(std::shared_ptr<D3DRenderer>& renderer) : mRenderer(renderer){}
@@ -159,14 +160,17 @@ void Scene::Render(const StopWatch& gt) {
         mRenderer->GrabScreen(filename);
     }
 }
-void Scene::PreRender() {
-    mRenderer->SetCurrentPSO(nullptr);
+void Scene::PreRender(ID3D12GraphicsCommandList* cmdList) {
+    for (auto& tex : mTextures)
+    {
+        if (tex.second->needUpdate) tex.second->Render(cmdList, this);
+    }
 }
 void Scene::Draw(ID3D12GraphicsCommandList* cmdList) 
 {
     for (auto& tex : mTextures)
     {
-        if(tex.second->needUpdate) tex.second->Update(cmdList);
+        if(tex.second->needUpdate) tex.second->Update(cmdList, this);
     }
     for (auto& pass : mPasses)
     {
@@ -190,8 +194,7 @@ void Scene::DrawPass(ID3D12GraphicsCommandList* cmdList, const Pass* pass)
     };
     std::priority_queue<RItemsWithPriority, std::vector<RItemsWithPriority>, decltype(cmp)>
         renderItemQueue(cmp);
-    for (auto& pairPriorityAndOpacityMapped : mPriorityMappedRItems)
-    {
+    for (auto& pairPriorityAndOpacityMapped : mPriorityMappedRItems){
         int priority = pairPriorityAndOpacityMapped.first;
         renderItemQueue.emplace(priority, &pairPriorityAndOpacityMapped.second);
     }
@@ -216,12 +219,25 @@ void Scene::DrawRenderItems
     for (auto& itSameShader : shaderMapped)
     {
         D3DShaderWrapper* Shader = mShaders[itSameShader.first].get();
+        cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
+
+        bool passCBSet = false;
+        if (pass->CbvHeap && pass->CbvIndex != -1)
+        {
+            ID3D12DescriptorHeap* descriptorHeaps[] = { pass->CbvHeap.Get() };
+            cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+            UINT passCbvIndex = (UINT)pass->CbvIndex;
+            auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(pass->CbvHeap->GetGPUDescriptorHandleForHeapStart());
+            passCbvHandle.Offset(passCbvIndex, renderer->GetCbvSrvUavDescriptorSize());
+            cmdList->SetGraphicsRootDescriptorTable(Shader->GetPassParamIndex(), passCbvHandle);
+            passCBSet = true;
+        }
 
         auto CBVHeap = Shader->GetCBVHeap();
         ID3D12DescriptorHeap* descriptorHeaps[] = { CBVHeap };
         cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-        cmdList->SetGraphicsRootSignature(Shader->GetRootSignature());
         if (Shader->UseInstancing())
         {
             auto instBuffer = Shader->GetCurrentInstanceBuffer();
@@ -238,7 +254,7 @@ void Scene::DrawRenderItems
             texSRVHandle.Offset(texSRVIndex, renderer->GetCbvSrvUavDescriptorSize());
             cmdList->SetGraphicsRootDescriptorTable(2, texSRVHandle);
         }
-        if (Shader->GetPassParamIndex() != (UINT)-1 && Shader->GetPassCBVIndex() != (UINT)-1)
+        if (!passCBSet && Shader->GetPassParamIndex() != (UINT)-1 && Shader->GetPassCBVIndex() != (UINT)-1)
         {
             UINT passCbvIndex = Shader->GetPassCBVIndex();
             passCbvIndex += renderer->GetCurrFrameResIndex() * Shader->GetPassCBVMaxCount();
@@ -251,7 +267,7 @@ void Scene::DrawRenderItems
             auto pso = Engine::GetEngine()->GetPSOManager2()->GetPSO
             (
                 itSamePSO.first,
-                renderer->GetMSAAMode(),
+                (pass->MSAAMode!=-1) ? pass->MSAAMode : renderer->GetMSAAMode(),
                 renderer->GetFillMode()
             );
             cmdList->SetPipelineState(pso);
@@ -266,7 +282,7 @@ void Scene::DrawRenderItems
 }
 
 int Scene::GetReady() {
-    mRenderer->RegisterPreRenderFunc(std::bind(&Scene::PreRender, this));
+    mRenderer->RegisterPreRenderFunc(std::bind(&Scene::PreRender, this, std::placeholders::_1));
     mRenderer->RegisterDrawFunc(std::bind(&Scene::Draw, this, std::placeholders::_1));
 
     // if no pass, add a default pass
@@ -396,7 +412,7 @@ void Scene::AddShader(const ShaderDescription& shaderDesc)
     if (shaderDesc.useRootParamDescription)
     {
         shader->BuildRootInputResources(shaderDesc);
-        shader->BuildRootSignature(mRenderer->GetDevice(), shaderDesc);
+        shader->BuildRootSignatureUserDef(mRenderer->GetDevice(), shaderDesc);
     }
     else
     {
@@ -413,7 +429,7 @@ void Scene::AddShader(const ShaderDescription& shaderDesc)
             shaderDesc.texSRVDescriptorTableSize, shaderDesc.maxTexSRVDescriptor,
             shaderDesc.multiObjCBSize, shaderDesc.multiObjCBSize ? 5 : 0
         );
-        shader->BuildRootSignature(mRenderer->GetDevice(), shaderDesc.useDynamicMat, shaderDesc.useInstancing);
+        shader->BuildRootSignature(mRenderer->GetDevice(), shaderDesc);
     }
     
     shader->BuildShadersAndInputLayout(shaderDesc);
@@ -992,6 +1008,16 @@ void Scene::AddTextureWaves
     renderer->ExecuteCommand();
     renderer->WaitForGPU();
     tex->ClearUploadBuffer();
+    mTextures[tex->name] = std::move(tex);
+}
+
+void Scene::AddTextureDynamicCubeMap(const std::string& name, unsigned width, unsigned height)
+{
+    auto renderer = Engine::GetEngine()->GetRenderer();
+    auto tex = std::make_shared<D3DDynamicCubeTexture>
+    (
+        name, renderer->GetDevice(), width, height
+    );
     mTextures[tex->name] = std::move(tex);
 }
 

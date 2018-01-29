@@ -47,11 +47,11 @@ public:
     void UpdateMultiObjCBData(unsigned int index, size_t size, const void* data);
     void UpdatePassCBData(unsigned int index, size_t size, const void* data);
 
-    void BuildRootSignature(ID3D12Device* device, bool dynamicMat, bool instancing);
-    void BuildRootSignatureNormal(ID3D12Device* device);
-    void BuildRootSignatureDynamicMat(ID3D12Device* device);
-    void BuildRootSignatureDynamicInstancing(ID3D12Device* device);
     void BuildRootSignature(ID3D12Device* device, const ShaderDescription& shaderDesc);
+    void BuildRootSignatureNormal(ID3D12Device* device);
+    void BuildRootSignatureDynamicMat(ID3D12Device* device, const ShaderDescription& shaderDesc);
+    void BuildRootSignatureDynamicInstancing(ID3D12Device* device);
+    void BuildRootSignatureUserDef(ID3D12Device* device, const ShaderDescription& shaderDesc);
 
     void BuildShadersAndInputLayout(const ShaderDescription& shaderDesc);
     void BuildRootInputResources

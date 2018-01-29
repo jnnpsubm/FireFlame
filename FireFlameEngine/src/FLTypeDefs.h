@@ -725,6 +725,9 @@ struct ShaderDescription {
     bool                        addDefaultSamplers = true;
     std::vector<ROOT_PARAMETER> rootParameters;
 
+    unsigned int                dynamicMatRegister = 0;
+    unsigned int                dynamicMatSpace = 1;
+
     unsigned int                texSRVDescriptorTableSize = 1;
     unsigned int                objCBSize = 1;
     unsigned int                multiObjCBSize = 0;

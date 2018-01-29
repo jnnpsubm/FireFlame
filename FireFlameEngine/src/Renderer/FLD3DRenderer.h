@@ -70,6 +70,8 @@ public:
     D3DFrameResource* GetCurrFrameResource()                 { return mCurrFrameResource; }
     int GetCurrFrameResIndex()                               { return mCurrFrameResourceIndex; }
 
+    const float* GetDefaultClearColor() const { return &mDefaultClearColor[0]; }
+
     void CreateThisThreadCmdList
     (
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& cmdList
@@ -103,7 +105,7 @@ public:
     void RegisterDrawFunc(std::function<void(ID3D12GraphicsCommandList*)> func){
         mDrawFuncWithCmdList = func;
     }
-    void RegisterPreRenderFunc(std::function<void()> func) {
+    void RegisterPreRenderFunc(std::function<void(ID3D12GraphicsCommandList* cmdList)> func) {
         mPreRenderFunc = func;
     }
 
@@ -128,7 +130,7 @@ private:
 	// callbacks
 	std::function<void(float)>                      mDrawFunc   = [](float) {};
     std::function<void(ID3D12GraphicsCommandList*)> mDrawFuncWithCmdList = [](ID3D12GraphicsCommandList*) {};
-    std::function<void()>                           mPreRenderFunc = []() {};
+    std::function<void(ID3D12GraphicsCommandList*)> mPreRenderFunc = [](ID3D12GraphicsCommandList*) {};
 
 	void CreateCommandObjects();
 	void CreateSwapChain();
