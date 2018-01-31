@@ -557,8 +557,8 @@ void TSPNTriangleApp::AddRenderItems()
 {
     //AddRenderItemOctahedron();
     //AddRenderItemModel();
-    //AddRenderItemModelTess();
-    AddRenderItemDSModel();
+    AddRenderItemModelTess();
+    //AddRenderItemDSModel();
 }
 
 void TSPNTriangleApp::AddRenderItemOctahedron()

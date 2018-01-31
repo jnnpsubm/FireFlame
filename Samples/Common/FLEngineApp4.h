@@ -24,7 +24,7 @@ struct MaterialConstants
     UINT DiffuseMapIndex = 0;
     UINT UseTexture = 1;
     UINT CubeMapIndex = 0;
-    UINT MaterialPad1;
+    UINT NormalMapIndex = 0;
 };
 
 struct NamedMaterialConstants : MaterialConstants
