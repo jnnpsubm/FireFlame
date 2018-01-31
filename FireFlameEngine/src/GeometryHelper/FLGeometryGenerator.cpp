@@ -5,6 +5,7 @@
 #include "FLGeometryGenerator.h"
 #include "..\MathHelper\FLMathHelper.h"
 #include <algorithm>
+#include <assert.h>
 
 namespace FireFlame {
 GeometryGenerator::MeshData GeometryGenerator::CreateBox
@@ -592,6 +593,63 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGrid
         }
     }
 
+    return meshData;
+}
+
+GeometryGenerator::MeshData GeometryGenerator::CreateGridPatch(float width, float depth, uint32 m, uint32 n)
+{
+    MeshData meshData;
+
+    assert(((m-4)%3==0) && ((n-4)%3==0));
+    uint32 vertexCount = m * n;
+    uint32 patchCount = (m/3)*(n/3);
+
+    // Create the vertices.
+    float halfWidth = 0.5f*width;
+    float halfDepth = 0.5f*depth;
+
+    float dx = width / (n - 1);
+    float dz = depth / (m - 1);
+
+    float du = 1.0f / (n - 1);
+    float dv = 1.0f / (m - 1);
+
+    meshData.Vertices.resize(vertexCount);
+    for (uint32 i = 0; i < m; ++i)
+    {
+        float z = halfDepth - i * dz;
+        for (uint32 j = 0; j < n; ++j)
+        {
+            float x = -halfWidth + j * dx;
+
+            meshData.Vertices[i*n + j].Position = Vector3f(x, 0.0f, z);
+            meshData.Vertices[i*n + j].Normal = Vector3f(0.0f, 1.0f, 0.0f);
+            meshData.Vertices[i*n + j].TangentU = Vector3f(1.0f, 0.0f, 0.0f);
+
+            // Stretch texture over grid.
+            meshData.Vertices[i*n + j].TexC.x = j * du;
+            meshData.Vertices[i*n + j].TexC.y = i * dv;
+        }
+    }
+
+    // Create the indices.
+    meshData.Indices32.resize(patchCount * 16); // 16 indices per patch
+    // Iterate over each patch and compute indices.
+    uint32 k = 0;
+    for (uint32 i = 0; i < m/3; ++i)
+    {
+        for (uint32 j = 0; j < n/3; ++j)
+        {
+            for (uint32 r = 0; r < 4; r++)
+            {
+                meshData.Indices32[k + r * 4 + 0] = (i + r) * n + j * 3 + 0;
+                meshData.Indices32[k + r * 4 + 1] = (i + r) * n + j * 3 + 1;
+                meshData.Indices32[k + r * 4 + 2] = (i + r) * n + j * 3 + 2;
+                meshData.Indices32[k + r * 4 + 3] = (i + r) * n + j * 3 + 3;
+            }
+            k += 16; // next patch
+        }
+    }
     return meshData;
 }
 

@@ -1,10 +1,10 @@
-#include "NormalMapApp.h"
+#include "PlayGroundApp.h"
 #include <fstream>
 #include <assert.h>
 
-void NormalMapApp::PreInitialize() {}
+void PlayGroundApp::PreInitialize() {}
 
-void NormalMapApp::Initialize()
+void PlayGroundApp::Initialize()
 {
     AddShaders();
     AddPSOs();
@@ -19,12 +19,12 @@ void NormalMapApp::Initialize()
     mCamera.SetPosition(0.0f, 2.0f, -15.0f);
 }
 
-void NormalMapApp::Update(float time_elapsed)
+void PlayGroundApp::Update(float time_elapsed)
 {
     FLEngineApp4::Update(time_elapsed);
 }
 
-void NormalMapApp::UpdateMainPassCB(float time_elapsed)
+void PlayGroundApp::UpdateMainPassCB(float time_elapsed)
 {
     using namespace DirectX;
 
@@ -62,43 +62,16 @@ void NormalMapApp::UpdateMainPassCB(float time_elapsed)
     passCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
     passCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
 
-    mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstantsLight), &passCB);
+    //mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstantsLight), &passCB);
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["sky"].name, sizeof(PassConstantsLight), &passCB);
 }
 
-void NormalMapApp::AddShaders()
+void PlayGroundApp::AddShaders()
 {
-    AddShaderMain();
     AddShaderSky();
 }
 
-void NormalMapApp::AddShaderMain()
-{
-    using namespace FireFlame;
-
-    auto& shaderDesc = mShaderDescs["main"];
-    shaderDesc.name = "main";
-    shaderDesc.objCBSize = sizeof(ObjectConsts);
-    shaderDesc.materialCBSize = sizeof(MaterialConstants);
-    shaderDesc.passCBSize = sizeof(PassConstantsLight);
-    shaderDesc.objParamIndex = 0;
-    shaderDesc.passParamIndex = 1;
-    shaderDesc.texSRVDescriptorTableSize = 7;
-    shaderDesc.maxTexSRVDescriptor = 7;
-    shaderDesc.useDynamicMat = true;
-
-    std::wstring strHlslFile = L"Shaders\\Main.hlsl";
-    shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
-    shaderDesc.AddVertexInput("NORMAL", FireFlame::VERTEX_FORMAT_FLOAT3);
-    shaderDesc.AddVertexInput("TANGENT", FireFlame::VERTEX_FORMAT_FLOAT3);
-    shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
-    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::VS, "VS", "vs_5_1");
-    shaderDesc.AddShaderStage(strHlslFile, Shader_Type::PS, "PS", "ps_5_1");
-
-    mEngine.GetScene()->AddShader(shaderDesc);
-}
-
-void NormalMapApp::AddShaderSky()
+void PlayGroundApp::AddShaderSky()
 {
     using namespace FireFlame;
 
@@ -123,42 +96,30 @@ void NormalMapApp::AddShaderSky()
     mEngine.GetScene()->AddShader(shaderDesc);
 }
 
-void NormalMapApp::AddPSOs()
+void PlayGroundApp::AddPSOs()
 {
     using namespace FireFlame;
 
-    PSODesc descDefault(mShaderDescs["main"].name);
-    mEngine.GetScene()->AddPSO("default", descDefault);
+    //PSODesc descDefault(mShaderDescs["main"].name);
+    //mEngine.GetScene()->AddPSO("default", descDefault);
 
-    //descDefault.shaderName = mShaderDescs["sky"].name;
     PSODesc descSky(mShaderDescs["sky"].name);
     descSky.depthFunc = FireFlame::COMPARISON_FUNC::LESS_EQUAL;
     descSky.cullMode = FireFlame::Cull_Mode::None;
     mEngine.GetScene()->AddPSO("skyPSO", descSky);
 }
 
-void NormalMapApp::AddTextures()
+void PlayGroundApp::AddTextures()
 {
     std::vector<std::string> texNames =
     {
-        "bricksDiffuseMap",
-        "bricksNormalMap",
-        "tileDiffuseMap",
-        "tileNormalMap",
-        "defaultDiffuseMap",
-        "defaultNormalMap",
         "skyCubeMap"
     };
 
     std::vector<std::wstring> texFilenames =
     {
-        L"../../Resources/Textures/bricks2.dds",
-        L"../../Resources/Textures/bricks2_nmap.dds",
-        L"../../Resources/Textures/tile.dds",
-        L"../../Resources/Textures/tile_nmap.dds",
-        L"../../Resources/Textures/white1x1.dds",
-        L"../../Resources/Textures/default_nmap.dds",
-        L"../../Resources/Textures/snowcube1024.dds"
+        //L"../../Resources/Textures/snowcube1024.dds"
+        L"../../Resources/Textures/desertcube1024.dds"
     };
 
     for (int i = 0; i < (int)texNames.size(); ++i)
@@ -169,113 +130,93 @@ void NormalMapApp::AddTextures()
             texFilenames[i]
         );
     }
-    mEngine.GetScene()->AddTextureGroup
-    (
-        "main",
-        { 
-            FireFlame::TEX(texNames[0]),
-            FireFlame::TEX(texNames[1]),
-            FireFlame::TEX(texNames[2]),
-            FireFlame::TEX(texNames[3]),
-            FireFlame::TEX(texNames[4]),
-            FireFlame::TEX(texNames[5]),
-            FireFlame::TEX(texNames[6],FireFlame::SRV_DIMENSION::TEXTURECUBE)
-        }
-    );
 
     mEngine.GetScene()->AddTextureGroup
     (
         "sky",
         {
-            FireFlame::TEX(texNames[0]),
-            FireFlame::TEX(texNames[1]),
-            FireFlame::TEX(texNames[2]),
-            FireFlame::TEX(texNames[3]),
-            FireFlame::TEX(texNames[4]),
-            FireFlame::TEX(texNames[5]),
-            FireFlame::TEX(texNames[6],FireFlame::SRV_DIMENSION::TEXTURECUBE)
+            FireFlame::TEX(texNames[0],FireFlame::SRV_DIMENSION::TEXTURECUBE)
         }
     );
 }
 
-void NormalMapApp::AddMaterials()
+void PlayGroundApp::AddMaterials()
 {
-    auto& bricks0 = mMaterials["bricks0"];
-    bricks0.Name = "bricks0";
-    bricks0.DiffuseMapIndex = 0;
-    bricks0.NormalMapIndex = 1;
-    bricks0.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-    bricks0.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
-    bricks0.Roughness = 0.3f;
-    mEngine.GetScene()->AddMaterial
-    (
-        bricks0.Name,
-        mShaderDescs["main"].name, "",
-        sizeof(MaterialConstants), &bricks0
-    );
 
-    auto& tile0 = mMaterials["tile0"];
-    tile0.Name = "tile0";
-    tile0.DiffuseMapIndex = 2;
-    tile0.NormalMapIndex = 3;
-    tile0.DiffuseAlbedo = FireFlame::Vector4f(0.9f, 0.9f, 0.9f, 1.0f);
-    tile0.FresnelR0 = FireFlame::Vector3f(0.2f, 0.2f, 0.2f);
-    tile0.Roughness = 0.1f;
-    mEngine.GetScene()->AddMaterial
-    (
-        tile0.Name,
-        mShaderDescs["main"].name, "",
-        sizeof(MaterialConstants), &tile0
-    );
-
-    auto& mirror0 = mMaterials["mirror0"];
-    mirror0.Name = "mirror0";
-    mirror0.DiffuseMapIndex = 4;
-    mirror0.NormalMapIndex = 5;
-    mirror0.DiffuseAlbedo = FireFlame::Vector4f(0.0f, 0.0f, 0.1f, 1.0f);
-    mirror0.FresnelR0 = FireFlame::Vector3f(0.98f, 0.97f, 0.95f);
-    mirror0.Roughness = 0.1f;
-    mEngine.GetScene()->AddMaterial
-    (
-        mirror0.Name,
-        mShaderDescs["main"].name, "",
-        sizeof(MaterialConstants), &mirror0
-    );
-
-    /*auto& skullMat = mMaterials["skullMat"];
-    skullMat.Name = "skullMat";
-    skullMat.DiffuseMapIndex = 2;
-    skullMat.DiffuseAlbedo = FireFlame::Vector4f(0.8f, 0.8f, 0.8f, 1.0f);
-    skullMat.FresnelR0 = FireFlame::Vector3f(0.2f, 0.2f, 0.2f);
-    skullMat.Roughness = 0.2f;
-    mEngine.GetScene()->AddMaterial
-    (
-        skullMat.Name,
-        mShaderDescs["main"].name, "",
-        sizeof(MaterialConstants), &skullMat
-    );*/
-
-    auto& sky = mMaterials["sky"];
-    sky.Name = "sky";
-    sky.DiffuseMapIndex = 6;
-    sky.DiffuseAlbedo = FireFlame::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-    sky.FresnelR0 = FireFlame::Vector3f(0.1f, 0.1f, 0.1f);
-    sky.Roughness = 1.0f;
-    mEngine.GetScene()->AddMaterial
-    (
-        sky.Name,
-        mShaderDescs["main"].name, "",
-        sizeof(MaterialConstants), &sky
-    );
 }
 
-void NormalMapApp::AddMeshs()
+void PlayGroundApp::AddMeshs()
 {
+    AddMeshTerrain();
     AddMeshShapes();
     AddMeshSkull();
 }
 
-void NormalMapApp::AddMeshShapes()
+void PlayGroundApp::AddMeshTerrain()
+{
+    using namespace FireFlame;
+
+    GeometryGenerator geoGen;
+    GeometryGenerator::MeshData grid = geoGen.CreateGrid(3000.0f, 3000.0f, 600+4, 600+4);
+
+    std::vector<FLVertex> vertices(grid.Vertices.size());
+    for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
+    {
+        vertices[k].Pos = box.Vertices[i].Position;
+        vertices[k].Normal = box.Vertices[i].Normal;
+        vertices[k].Tangent = box.Vertices[i].TangentU;
+        vertices[k].Tex = box.Vertices[i].TexC;
+    }
+
+    for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
+    {
+        vertices[k].Pos = grid.Vertices[i].Position;
+        vertices[k].Normal = grid.Vertices[i].Normal;
+        vertices[k].Tangent = grid.Vertices[i].TangentU;
+        vertices[k].Tex = grid.Vertices[i].TexC;
+    }
+
+    for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
+    {
+        vertices[k].Pos = sphere.Vertices[i].Position;
+        vertices[k].Normal = sphere.Vertices[i].Normal;
+        vertices[k].Tangent = sphere.Vertices[i].TangentU;
+        vertices[k].Tex = sphere.Vertices[i].TexC;
+    }
+
+    for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
+    {
+        vertices[k].Pos = cylinder.Vertices[i].Position;
+        vertices[k].Normal = cylinder.Vertices[i].Normal;
+        vertices[k].Tangent = cylinder.Vertices[i].TangentU;
+        vertices[k].Tex = cylinder.Vertices[i].TexC;
+    }
+
+    std::vector<std::uint16_t> indices;
+    indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
+    indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
+    indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
+    indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
+
+    auto& meshDesc = mMeshDescs["shapes"];
+    meshDesc.name = "shapes";
+    meshDesc.indexCount = (unsigned int)indices.size();
+    meshDesc.indexFormat = Index_Format::UINT16;
+    meshDesc.indices = indices.data();
+
+    meshDesc.vertexData.push_back(vertices.data());
+    meshDesc.vertexDataCount.push_back((unsigned)vertices.size());
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertexNormalTangentTex));
+
+    // sub meshes
+    meshDesc.subMeshs.emplace_back("box", (UINT)box.Indices32.size(), boxIndexOffset, boxVertexOffset);
+    meshDesc.subMeshs.emplace_back("grid", (UINT)grid.Indices32.size(), gridIndexOffset, gridVertexOffset);
+    meshDesc.subMeshs.emplace_back("sphere", (UINT)sphere.Indices32.size(), sphereIndexOffset, sphereVertexOffset);
+    meshDesc.subMeshs.emplace_back("cylinder", (UINT)cylinder.Indices32.size(), cylinderIndexOffset, cylinderVertexOffset);
+    mEngine.GetScene()->AddPrimitive(meshDesc);
+}
+
+void PlayGroundApp::AddMeshShapes()
 {
     using namespace FireFlame;
 
@@ -360,7 +301,7 @@ void NormalMapApp::AddMeshShapes()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
-void NormalMapApp::AddMeshSkull()
+void PlayGroundApp::AddMeshSkull()
 {
     std::ifstream fin("../../Resources/Geometry/skull.txt");
     if (!fin)
@@ -467,7 +408,7 @@ void NormalMapApp::AddMeshSkull()
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
-void NormalMapApp::AddRenderItems()
+void PlayGroundApp::AddRenderItems()
 {
     using namespace DirectX;
 
@@ -489,141 +430,9 @@ void NormalMapApp::AddRenderItems()
         5,
         skyRitem
     );
-
-    FireFlame::stRenderItemDesc globeRitem("globe", mMeshDescs["shapes"].subMeshs[2]);
-    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(2.f, 2.f, 2.f)*XMMatrixTranslation(0.0f, 2.0f, 0.0f)));
-    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
-    objConsts.MaterialIndex = 2;
-    globeRitem.dataLen = sizeof(ObjectConsts);
-    globeRitem.data = &objConsts;
-    mRenderItems[globeRitem.name] = globeRitem;
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDescs["shapes"].name,
-        mShaderDescs["main"].name,
-        "default",
-        globeRitem
-    );
-
-    /*FireFlame::stRenderItemDesc skullRitem("skull", mMeshDescs["skull"].subMeshs[0]);
-    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(0.4f, 0.4f, 0.4f)*XMMatrixTranslation(0.0f, 1.0f, 0.0f)));
-    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
-    objConsts.MaterialIndex = 3;
-    skullRitem.dataLen = sizeof(ObjectConsts);
-    skullRitem.data = &objConsts;
-    mRenderItems[skullRitem.name] = skullRitem;
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDescs["skull"].name,
-        mShaderDescs["main"].name,
-        "default",
-        skullRitem
-    );*/
-
-    FireFlame::stRenderItemDesc boxRitem("box", mMeshDescs["shapes"].subMeshs[0]);
-    XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(XMMatrixScaling(2.0f, 1.0f, 2.0f)*XMMatrixTranslation(0.0f, 0.5f, 0.0f)));
-    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(1.0f, 1.0f, 1.0f)));
-    objConsts.MaterialIndex = 0;
-    boxRitem.dataLen = sizeof(ObjectConsts);
-    boxRitem.data = &objConsts;
-    mRenderItems[boxRitem.name] = boxRitem;
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDescs["shapes"].name,
-        mShaderDescs["main"].name,
-        "default",
-        boxRitem
-    );
-
-    FireFlame::stRenderItemDesc gridRitem("grid", mMeshDescs["shapes"].subMeshs[1]);
-    objConsts.World = FireFlame::Matrix4X4();
-    XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(XMMatrixScaling(8.0f, 8.0f, 1.0f)));
-    objConsts.MaterialIndex = 1;
-    gridRitem.dataLen = sizeof(ObjectConsts);
-    gridRitem.data = &objConsts;
-    mRenderItems[gridRitem.name] = gridRitem;
-    mEngine.GetScene()->AddRenderItem
-    (
-        mMeshDescs["shapes"].name,
-        mShaderDescs["main"].name,
-        "default",
-        gridRitem
-    );
-
-    XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-    for (int i = 0; i < 5; ++i)
-    {
-        using FireFlame::stRenderItemDesc;
-        stRenderItemDesc leftCylRitem(std::string("leftCyl_")+std::to_string(i), mMeshDescs["shapes"].subMeshs[3]);
-        stRenderItemDesc rightCylRitem(std::string("rightCyl_") + std::to_string(i), mMeshDescs["shapes"].subMeshs[3]);
-        stRenderItemDesc leftSphereRitem(std::string("leftSphere_") + std::to_string(i), mMeshDescs["shapes"].subMeshs[2]);
-        stRenderItemDesc rightSphereRitem(std::string("rightSphere_") + std::to_string(i), mMeshDescs["shapes"].subMeshs[2]);
-
-        XMMATRIX leftCylWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i * 5.0f);
-        XMMATRIX rightCylWorld = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + i * 5.0f);
-
-        XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i * 5.0f);
-        XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
-
-        XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(rightCylWorld));
-        XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(brickTexTransform));
-        objConsts.MaterialIndex = 0;
-        leftCylRitem.dataLen = sizeof(ObjectConsts);
-        leftCylRitem.data = &objConsts;
-        mRenderItems[leftCylRitem.name] = leftCylRitem;
-        mEngine.GetScene()->AddRenderItem
-        (
-            mMeshDescs["shapes"].name,
-            mShaderDescs["main"].name,
-            "default",
-            leftCylRitem
-        );
-
-        XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(leftCylWorld));
-        XMStoreFloat4x4(&objConsts.TexTransform, XMMatrixTranspose(brickTexTransform));
-        objConsts.MaterialIndex = 0;
-        rightCylRitem.dataLen = sizeof(ObjectConsts);
-        rightCylRitem.data = &objConsts;
-        mRenderItems[rightCylRitem.name] = rightCylRitem;
-        mEngine.GetScene()->AddRenderItem
-        (
-            mMeshDescs["shapes"].name,
-            mShaderDescs["main"].name,
-            "default",
-            rightCylRitem
-        );
-
-        XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(leftSphereWorld));
-        objConsts.TexTransform = FireFlame::Matrix4X4();
-        objConsts.MaterialIndex = 2;
-        leftSphereRitem.dataLen = sizeof(ObjectConsts);
-        leftSphereRitem.data = &objConsts;
-        mRenderItems[leftSphereRitem.name] = leftSphereRitem;
-        mEngine.GetScene()->AddRenderItem
-        (
-            mMeshDescs["shapes"].name,
-            mShaderDescs["main"].name,
-            "default",
-            leftSphereRitem
-        );
-
-        XMStoreFloat4x4(&objConsts.World, XMMatrixTranspose(rightSphereWorld));
-        objConsts.TexTransform = FireFlame::Matrix4X4();
-        objConsts.MaterialIndex = 2;
-        rightSphereRitem.dataLen = sizeof(ObjectConsts);
-        rightSphereRitem.data = &objConsts;
-        mRenderItems[rightSphereRitem.name] = rightSphereRitem;
-        mEngine.GetScene()->AddRenderItem
-        (
-            mMeshDescs["shapes"].name,
-            mShaderDescs["main"].name,
-            "default",
-            rightSphereRitem
-        );
-    }
 }
 
-void NormalMapApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
+void PlayGroundApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 {
     FLEngineApp4::OnKeyUp(wParam, lParam);
 }

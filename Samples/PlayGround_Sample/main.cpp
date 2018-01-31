@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include "FireFlameHeader.h"
-#include "NormalMapApp.h"
+#include "PlayGroundApp.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
     // Enable run-time memory check for debug builds.
@@ -9,7 +9,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 #endif
 
     FireFlame::Engine engine(hInstance);
-    NormalMapApp app(engine);
+    PlayGroundApp app(engine);
     try {
         using namespace FireFlame;
         using namespace std::placeholders;

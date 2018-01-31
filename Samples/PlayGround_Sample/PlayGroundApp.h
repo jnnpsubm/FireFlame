@@ -1,9 +1,9 @@
 #pragma once
 #include "..\Common\FLEngineApp4.h"
 
-class NormalMapApp : public FLEngineApp4 {
+class PlayGroundApp : public FLEngineApp4 {
 public:
-    NormalMapApp(FireFlame::Engine& e) : FLEngineApp4(e) {}
+    PlayGroundApp(FireFlame::Engine& e) : FLEngineApp4(e) {}
     void PreInitialize() override;
     void Initialize() override;
 
@@ -13,7 +13,6 @@ public:
 
 private:
     void AddShaders();
-    void AddShaderMain();
     void AddShaderSky();
 
     void AddPSOs();
@@ -22,6 +21,7 @@ private:
     void AddMaterials();
 
     void AddMeshs();
+    void AddMeshTerrain();
     void AddMeshShapes();
     void AddMeshSkull();
 
