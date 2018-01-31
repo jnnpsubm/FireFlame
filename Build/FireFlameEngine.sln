@@ -101,6 +101,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CubeMapDynamic_Sample", "..
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NormalMap_Sample", "..\Samples\NormalMap_Sample\NormalMap_Sample.vcxproj", "{5CD5C9E0-BECD-4CAC-85B8-BFA4D8CF2633}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlayGround_Sample", "..\Samples\PlayGround_Sample\PlayGround_Sample.vcxproj", "{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Itanium = Debug|Itanium
@@ -922,6 +924,22 @@ Global
 		{5CD5C9E0-BECD-4CAC-85B8-BFA4D8CF2633}.ReleaseWithoutAsm|x64.Build.0 = Release|x64
 		{5CD5C9E0-BECD-4CAC-85B8-BFA4D8CF2633}.ReleaseWithoutAsm|x86.ActiveCfg = Release|Win32
 		{5CD5C9E0-BECD-4CAC-85B8-BFA4D8CF2633}.ReleaseWithoutAsm|x86.Build.0 = Release|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Debug|Itanium.ActiveCfg = Debug|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Debug|x64.ActiveCfg = Debug|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Debug|x64.Build.0 = Debug|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Debug|x86.ActiveCfg = Debug|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Debug|x86.Build.0 = Debug|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Release|Itanium.ActiveCfg = Release|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Release|x64.ActiveCfg = Release|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Release|x64.Build.0 = Release|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Release|x86.ActiveCfg = Release|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.Release|x86.Build.0 = Release|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.ReleaseWithoutAsm|Itanium.ActiveCfg = Release|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.ReleaseWithoutAsm|Itanium.Build.0 = Release|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.ReleaseWithoutAsm|x64.ActiveCfg = Release|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.ReleaseWithoutAsm|x64.Build.0 = Release|x64
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.ReleaseWithoutAsm|x86.ActiveCfg = Release|Win32
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA}.ReleaseWithoutAsm|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -971,6 +989,7 @@ Global
 		{5A5CFA6D-1C3B-403D-960F-41699FB90A25} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
 		{2948319F-5B0D-41D7-AE57-171BB7C8DF1F} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
 		{5CD5C9E0-BECD-4CAC-85B8-BFA4D8CF2633} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
+		{037C4F56-D765-43E0-BC8F-7DA1B9AB9FFA} = {22A3FFAA-D8D6-4151-BDB4-57B5FB27DE4D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D0F7115-9B22-4F41-9698-155C3463C710}
