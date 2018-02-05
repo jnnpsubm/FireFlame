@@ -14,6 +14,7 @@ public:
 private:
     void AddShaders();
     void AddShaderSky();
+    void AddShaderTerrain();
 
     void AddPSOs();
 
@@ -26,4 +27,6 @@ private:
     void AddMeshSkull();
 
     void AddRenderItems();
+    void AddRenderItemSky();
+    void AddRenderItemTerrain();
 };

@@ -600,9 +600,10 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGridPatch(float width, floa
 {
     MeshData meshData;
 
-    assert(((m-4)%3==0) && ((n-4)%3==0));
+    const int sharedPoint = 2;
+    assert(((m-4) % sharedPoint ==0) && ((n-4) % sharedPoint ==0));
     uint32 vertexCount = m * n;
-    uint32 patchCount = (m/3)*(n/3);
+    uint32 patchCount = ((m-4) / sharedPoint + 1)*((n-4) / sharedPoint + 1);
 
     // Create the vertices.
     float halfWidth = 0.5f*width;
@@ -636,16 +637,16 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGridPatch(float width, floa
     meshData.Indices32.resize(patchCount * 16); // 16 indices per patch
     // Iterate over each patch and compute indices.
     uint32 k = 0;
-    for (uint32 i = 0; i < m/3; ++i)
+    for (uint32 i = 0; i < ((m - 4) / sharedPoint + 1); ++i)
     {
-        for (uint32 j = 0; j < n/3; ++j)
+        for (uint32 j = 0; j < ((n - 4) / sharedPoint + 1); ++j)
         {
             for (uint32 r = 0; r < 4; r++)
             {
-                meshData.Indices32[k + r * 4 + 0] = (i + r) * n + j * 3 + 0;
-                meshData.Indices32[k + r * 4 + 1] = (i + r) * n + j * 3 + 1;
-                meshData.Indices32[k + r * 4 + 2] = (i + r) * n + j * 3 + 2;
-                meshData.Indices32[k + r * 4 + 3] = (i + r) * n + j * 3 + 3;
+                meshData.Indices32[k + r * 4 + 0] = (i * sharedPoint + r) * n + j * sharedPoint + 0;
+                meshData.Indices32[k + r * 4 + 1] = (i * sharedPoint + r) * n + j * sharedPoint + 1;
+                meshData.Indices32[k + r * 4 + 2] = (i * sharedPoint + r) * n + j * sharedPoint + 2;
+                meshData.Indices32[k + r * 4 + 3] = (i * sharedPoint + r) * n + j * sharedPoint + 3;
             }
             k += 16; // next patch
         }

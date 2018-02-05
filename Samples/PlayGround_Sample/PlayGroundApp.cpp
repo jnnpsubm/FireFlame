@@ -64,11 +64,13 @@ void PlayGroundApp::UpdateMainPassCB(float time_elapsed)
 
     //mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["main"].name, sizeof(PassConstantsLight), &passCB);
     mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["sky"].name, sizeof(PassConstantsLight), &passCB);
+    mEngine.GetScene()->UpdateShaderPassCBData(mShaderDescs["terrain"].name, sizeof(PassConstantsLight), &passCB);
 }
 
 void PlayGroundApp::AddShaders()
 {
     AddShaderSky();
+    AddShaderTerrain();
 }
 
 void PlayGroundApp::AddShaderSky()
@@ -96,6 +98,27 @@ void PlayGroundApp::AddShaderSky()
     mEngine.GetScene()->AddShader(shaderDesc);
 }
 
+void PlayGroundApp::AddShaderTerrain()
+{
+    using namespace FireFlame;
+
+    auto& shaderDesc = mShaderDescs["terrain"];
+    shaderDesc.name = "terrain";
+    shaderDesc.objCBSize = sizeof(ObjectConsts);
+    shaderDesc.passCBSize = sizeof(PassConstants);
+    shaderDesc.materialCBSize = sizeof(MaterialConstants);
+    shaderDesc.ParamDefault();
+
+    shaderDesc.AddVertexInput("POSITION", FireFlame::VERTEX_FORMAT_FLOAT3);
+    shaderDesc.AddVertexInput("TEXCOORD", FireFlame::VERTEX_FORMAT_FLOAT2);
+    shaderDesc.AddShaderStage(L"Shaders\\terrain.hlsl", Shader_Type::VS, "VS", "vs_5_0");
+    shaderDesc.AddShaderStage(L"Shaders\\terrain.hlsl", Shader_Type::HS, "HS", "hs_5_0");
+    shaderDesc.AddShaderStage(L"Shaders\\terrain.hlsl", Shader_Type::DS, "DS", "ds_5_0");
+    shaderDesc.AddShaderStage(L"Shaders\\terrain.hlsl", Shader_Type::PS, "PS", "ps_5_0");
+
+    mEngine.GetScene()->AddShader(shaderDesc);
+}
+
 void PlayGroundApp::AddPSOs()
 {
     using namespace FireFlame;
@@ -107,6 +130,10 @@ void PlayGroundApp::AddPSOs()
     descSky.depthFunc = FireFlame::COMPARISON_FUNC::LESS_EQUAL;
     descSky.cullMode = FireFlame::Cull_Mode::None;
     mEngine.GetScene()->AddPSO("skyPSO", descSky);
+
+    PSODesc descTerrain(mShaderDescs["terrain"].name);
+    descTerrain.topologyType = Primitive_Topology_Type::Patch;
+    mEngine.GetScene()->AddPSO("terrainPSO", descTerrain);
 }
 
 void PlayGroundApp::AddTextures()
@@ -142,7 +169,17 @@ void PlayGroundApp::AddTextures()
 
 void PlayGroundApp::AddMaterials()
 {
-
+    auto& terrain = mMaterials["terrain"];
+    terrain.Name = "terrain";
+    terrain.DiffuseAlbedo = FireFlame::Vector4f(0.2f, 0.5f, 0.5f, 1.0f);
+    terrain.FresnelR0 = FireFlame::Vector3f(0.35f, 0.75f, 0.75f);
+    terrain.Roughness = 0.025f;
+    mEngine.GetScene()->AddMaterial
+    (
+        terrain.Name,
+        mShaderDescs["terrain"].name, "",
+        sizeof(MaterialConstants), &terrain
+    );
 }
 
 void PlayGroundApp::AddMeshs()
@@ -157,62 +194,32 @@ void PlayGroundApp::AddMeshTerrain()
     using namespace FireFlame;
 
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData grid = geoGen.CreateGrid(3000.0f, 3000.0f, 600+4, 600+4);
+    //GeometryGenerator::MeshData grid = geoGen.CreateGridPatch(3000.0f, 3000.0f, 600+4, 600+4);
+    GeometryGenerator::MeshData grid = geoGen.CreateGridPatch(30.0f, 15.0f, 4, 2+4);
 
-    std::vector<FLVertex> vertices(grid.Vertices.size());
-    for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
+    std::vector<FLVertexTex> vertices(grid.Vertices.size());
+    for (size_t i = 0; i < grid.Vertices.size(); ++i)
     {
-        vertices[k].Pos = box.Vertices[i].Position;
-        vertices[k].Normal = box.Vertices[i].Normal;
-        vertices[k].Tangent = box.Vertices[i].TangentU;
-        vertices[k].Tex = box.Vertices[i].TexC;
+        vertices[i].Pos = grid.Vertices[i].Position;
+        vertices[i].Pos.y -= 15.f;
+        vertices[i].Pos.y += MathHelper::RandF() * 10.f;
+        vertices[i].Tex = grid.Vertices[i].TexC;
     }
 
-    for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
-    {
-        vertices[k].Pos = grid.Vertices[i].Position;
-        vertices[k].Normal = grid.Vertices[i].Normal;
-        vertices[k].Tangent = grid.Vertices[i].TangentU;
-        vertices[k].Tex = grid.Vertices[i].TexC;
-    }
+    std::vector<std::uint32_t> indices = grid.Indices32;
 
-    for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
-    {
-        vertices[k].Pos = sphere.Vertices[i].Position;
-        vertices[k].Normal = sphere.Vertices[i].Normal;
-        vertices[k].Tangent = sphere.Vertices[i].TangentU;
-        vertices[k].Tex = sphere.Vertices[i].TexC;
-    }
-
-    for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
-    {
-        vertices[k].Pos = cylinder.Vertices[i].Position;
-        vertices[k].Normal = cylinder.Vertices[i].Normal;
-        vertices[k].Tangent = cylinder.Vertices[i].TangentU;
-        vertices[k].Tex = cylinder.Vertices[i].TexC;
-    }
-
-    std::vector<std::uint16_t> indices;
-    indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
-    indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
-    indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
-    indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
-
-    auto& meshDesc = mMeshDescs["shapes"];
-    meshDesc.name = "shapes";
+    auto& meshDesc = mMeshDescs["terrain"];
+    meshDesc.name = "terrain";
     meshDesc.indexCount = (unsigned int)indices.size();
-    meshDesc.indexFormat = Index_Format::UINT16;
+    meshDesc.indexFormat = Index_Format::UINT32;
     meshDesc.indices = indices.data();
 
     meshDesc.vertexData.push_back(vertices.data());
     meshDesc.vertexDataCount.push_back((unsigned)vertices.size());
-    meshDesc.vertexDataSize.push_back(sizeof(FLVertexNormalTangentTex));
+    meshDesc.vertexDataSize.push_back(sizeof(FLVertexTex));
 
     // sub meshes
-    meshDesc.subMeshs.emplace_back("box", (UINT)box.Indices32.size(), boxIndexOffset, boxVertexOffset);
-    meshDesc.subMeshs.emplace_back("grid", (UINT)grid.Indices32.size(), gridIndexOffset, gridVertexOffset);
-    meshDesc.subMeshs.emplace_back("sphere", (UINT)sphere.Indices32.size(), sphereIndexOffset, sphereVertexOffset);
-    meshDesc.subMeshs.emplace_back("cylinder", (UINT)cylinder.Indices32.size(), cylinderIndexOffset, cylinderVertexOffset);
+    meshDesc.subMeshs.emplace_back("all", (UINT)indices.size());
     mEngine.GetScene()->AddPrimitive(meshDesc);
 }
 
@@ -410,6 +417,12 @@ void PlayGroundApp::AddMeshSkull()
 
 void PlayGroundApp::AddRenderItems()
 {
+    AddRenderItemSky();
+    AddRenderItemTerrain();
+}
+
+void PlayGroundApp::AddRenderItemSky()
+{
     using namespace DirectX;
 
     FireFlame::stRenderItemDesc skyRitem("sky", mMeshDescs["shapes"].subMeshs[2]);
@@ -429,6 +442,31 @@ void PlayGroundApp::AddRenderItems()
         "skyPSO",
         5,
         skyRitem
+    );
+}
+
+void PlayGroundApp::AddRenderItemTerrain()
+{
+    using namespace DirectX;
+
+    FireFlame::stRenderItemDesc RItem("land", mMeshDescs["terrain"].subMeshs[0]);
+    RItem.topology = FireFlame::Primitive_Topology::CONTROL_POINT_PATCHLIST_16;
+    XMFLOAT4X4 trans[1];
+    XMStoreFloat4x4
+    (
+        &trans[0],
+        XMMatrixTranspose(XMMatrixIdentity())
+    );
+    RItem.dataLen = sizeof(XMFLOAT4X4)*_countof(trans);
+    RItem.data = &trans[0];
+    RItem.mat = "terrain";
+    mRenderItems[RItem.name] = RItem;
+    mEngine.GetScene()->AddRenderItem
+    (
+        mMeshDescs["terrain"].name,
+        mShaderDescs["terrain"].name,
+        "terrainPSO",
+        RItem
     );
 }
 
