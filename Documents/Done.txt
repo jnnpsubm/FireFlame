@@ -1,8 +1,8 @@
-��������������GPUͨ�ü���(GPGPU)֧�֣����˲�����·���ؼ���DX12��ʼCPU��GPU���첽��CPU�ֶ��߳��ύDraw Call��
-GPGPU��������Ϸ���ڻ��洦�������������ܼ�������
-GPU�ĸ߲�����ʵʱDIP��Ϊ���ܣ�����HDRҲ��Ҫ���ⲿ��ʵ�֡�
-�����ֳ��˾��㷨�ܶ࣬���Ǵ󲿷�����CPU��ִ�У���Ҫ�޸ĳ�Shader���ԡ�
-Ŀǰ�����˸�˹ģ���˾�(Gaussian blur filter)��˫��ģ���˾�(Bilateral blur filter)��
-��˹�˾�ֻ�����������ռ���룬˫���˾����������ռ���뻹��������ɫ�ռ���룬
-��ɫ�ռ������ȨֵС�����Ա���������������������˹�˾�����ģ�����������档
-˫���˾�����������Ǻ�����������SSAO(��Ļ�ռ价�����ڱ�)���롣
+添加了GPU通用计算(GPGPU)支持，DX12开始CPU和GPU的异步，CPU又多线程提交Draw Call。
+GPGPU可用于游戏后期画面处理或则处理计算密集型任务，
+GPU的高并发让实时DIP成为可能，后续HDR也需要在这部分实现。
+各种现成滤镜算法很多，但是大部分是在CPU端执行，需要修改成Shader语言。
+目前添加了高斯模糊滤镜(Gaussian blur filter)和双边模糊滤镜(Bilateral blur filter)，
+高斯滤镜只考虑了物理空间距离，双边滤镜除了物理空间距离还考虑了颜色空间距离，
+颜色空间距离大的权值小，所以保留了物体的轮廓，不像高斯滤镜，会模糊掉整个画面。
+双边滤镜的最大意义是后续还可用于SSAO(屏幕空间环境光遮蔽)降噪。
